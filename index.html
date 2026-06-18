@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+          content="BBS Style Discovery — an internal knowledge and discovery tool for Benjamin Barker Studios." />
+    <title>BBS Style Discovery — Benjamin Barker Studios</title>
+    <!-- Apple iOS Application Directives -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BBS Discovery" />
+    <link rel="apple-touch-icon" href="icon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;600&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Discovery Panel -->
+    <div id="discovery-panel"
+         class="discovery-panel"
+         role="complementary"
+         aria-label="BBS Discovery Panel">
+        <div class="discovery-header">
+            <div class="discovery-header-inner">
+                <span class="discovery-header-eyebrow">Benjamin Barker Studios</span>
+                <h2 class="discovery-header-title">Style Discovery</h2>
+            </div>
+            <button class="toggle-discovery"
+                    onclick="toggleDiscovery()"
+                    aria-label="Close discovery panel">
+                <svg width="16"
+                     height="16"
+                     viewBox="0 0 16 16"
+                     fill="none"
+                     xmlns="http://www.w3.org/2000/svg"
+                     aria-hidden="true">
+                    <path d="M1 1L15 15M15 1L1 15"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="discovery-body">
+            <!-- Preset Queries -->
+            <div class="preset-queries">
+                <h3 class="panel-section-label">Starting Points</h3>
+
+                <button onclick="runQuery('bbs_core')"
+                        class="query-btn"
+                        data-query-type="bbs_core">
+                    <!-- Star/Sparkle -->
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span>BBS Signature Pieces</span>
+                </button>
+
+                <button onclick="runQuery('versatile')"
+                        class="query-btn"
+                        data-query-type="versatile">
+                    <!-- Layers -->
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span>High Versatility</span>
+                </button>
+
+                <button onclick="runQuery('tropical_work')"
+                        class="query-btn"
+                        data-query-type="tropical_work">
+                    <!-- Sun -->
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <span>Tropical Work</span>
+                </button>
+
+                <button onclick="runQuery('first_suit')"
+                        class="query-btn"
+                        data-query-type="first_suit">
+                    <!-- Clean Scissors / Craft -->
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="6" cy="6" r="3"></circle>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+                        <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+                        <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Build a First Suit</span>
+                </button>
+
+                <button onclick="searchAllTopics()" class="query-btn">
+                    <!-- Grid -->
+                    <svg width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Browse All Topics</span>
+                </button>
+            </div>
+
+            <!-- Keyword Search -->
+            <div class="keyword-search">
+                <h3 class="panel-section-label">Search by Keyword</h3>
+                <div class="keyword-input-wrap">
+                    <!-- Magnifying Glass -->
+                    <svg class="keyword-search-icon"
+                         width="16"
+                         height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input id="keyword-search-input"
+                           class="filter-select keyword-search-input"
+                           type="text"
+                           placeholder="loafers, linen, navy, wedding..."
+                           autocomplete="off"
+                           autocorrect="off"
+                           spellcheck="false" />
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="custom-query">
+                <h3 class="panel-section-label">Refine the Discovery</h3>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="climate-filter">
+                        <!-- Thermometer/Climate -->
+                        <svg width="14"
+                             height="14"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.5"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                        </svg>
+                        Climate
+                    </label>
+                    <select id="climate-filter" class="filter-select">
+                        <option value="">Any Climate</option>
+                        <option value="tropical">Tropical</option>
+                        <option value="warm_climate">Warm Climate</option>
+                        <option value="temperate">Temperate</option>
+                        <option value="humid">Humid</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="formality-filter">
+                        <!-- Diamond/Formality -->
+                        <svg width="14"
+                             height="14"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.5"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
+                        </svg>
+                        Formality
+                    </label>
+                    <select id="formality-filter" class="filter-select">
+                        <option value="">Any Formality</option>
+                        <option value="formal">Formal</option>
+                        <option value="business">Business</option>
+                        <option value="business_casual">Business Casual</option>
+                        <option value="smart_casual">Smart Casual</option>
+                        <option value="casual">Casual</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="use-case-filter">
+                        <!-- Map Pin/Location -->
+                        <svg width="14"
+                             height="14"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.5"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Use Case
+                    </label>
+                    <select id="use-case-filter" class="filter-select">
+                        <option value="">Any Use Case</option>
+                        <option value="work">Work</option>
+                        <option value="travel">Travel</option>
+                        <option value="smart_casual">Smart Casual</option>
+                        <option value="casual">Casual</option>
+                        <option value="resort">Resort</option>
+                        <option value="wedding">Wedding</option>
+                        <option value="occasion">Occasion</option>
+                        <option value="evening">Evening</option>
+                        <option value="everyday">Everyday</option>
+                    </select>
+                </div>
+
+                <button onclick="runCustomQuery()" class="query-btn primary">
+                    Search
+                </button>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="results-toolbar">
+                <button class="results-clear-btn" onclick="clearDiscoveryResults()">
+                    Clear results
+                </button>
+            </div>
+
+            <!-- Results -->
+            <div id="results-container"
+                 class="results-container"
+                 aria-live="polite"
+                 aria-atomic="false">
+                <p class="results-empty">
+                    Choose a starting point or refine the discovery above.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discovery FAB -->
+    <button class="fab"
+            onclick="toggleDiscovery()"
+            aria-label="Open discovery panel"
+            title="Open Style Discovery">
+        <svg width="28"
+             height="28"
+             viewBox="0 0 20 20"
+             fill="none"
+             xmlns="http://www.w3.org/2000/svg"
+             aria-hidden="true">
+            <circle cx="8.5"
+                    cy="8.5"
+                    r="5.5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round" />
+            <path d="M12.5 12.5L17 17"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round" />
+        </svg>
+    </button>
+
+    <!-- Orientation Notice -->
+    <div id="orientation-notice" class="orientation-notice" aria-hidden="true">
+        <div class="orientation-notice-inner">
+            <p>Best experienced in portrait orientation.</p>
+        </div>
+    </div>
+
+    <!-- App Root -->
+    <div id="app" role="main"></div>
+
+    <!-- Scripts — order is critical, do not rearrange -->
+    <!-- Scripts — order is critical, do not rearrange -->
+    <script src="data.js"></script>
+    <script src="validator.js"></script>
+    <script src="query.js"></script>
+    <script src="discovery-ui.js"></script>
+    <script src="colour-direction.js"></script>
+    <script src="lookbook.js"></script> <!-- MUST BE BEFORE APP.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="app.js?v=4"></script>
+    <script>
+        if (
+            typeof runValidation === "function" &&
+            typeof guideTree !== "undefined"
+        ) {
+            runValidation();
+        } else {
+            console.error(
+                "Validation not ready. Check that validator.js loaded correctly."
+            );
+        }
+    </script>
+</body>
+</html>
+
+
