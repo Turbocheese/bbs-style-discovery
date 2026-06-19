@@ -5527,7 +5527,7 @@ document.body.addEventListener("click", function (e) {
 
         setTimeout(function () {
             html2canvas(shareCard, {
-                scale: 10,
+                scale: 4,
                 backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
                 useCORS: true,
                 logging: false,
