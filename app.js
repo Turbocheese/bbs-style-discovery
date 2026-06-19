@@ -4216,16 +4216,13 @@ function getOpenUnsurePaletteIconsHTML() {
 // ============================================
 
 function renderResult() {
-    var primaryKey = "s";
+    var primaryKey = appState.archetypeKey || "s";
     var secondaryKey = null;
+    var scores = null;
 
-    // 1. If we have a saved archetype (e.g. from URL or memory), USE IT. Do not recalculate.
-    if (appState.archetypeKey && archetypeProfiles[appState.archetypeKey]) {
-        primaryKey = appState.archetypeKey;
-    } else {
-        // 2. Otherwise, calculate from quiz answers
+    if (!appState.archetypeKey) {
         var rawScores = scoreArchetypeAnswers();
-        var scores = applyOnboardingArchetypeAdjustments(rawScores);
+        scores = applyOnboardingArchetypeAdjustments(rawScores);
 
         var highestScore = -1;
         var secondHighest = -1;
@@ -4242,11 +4239,11 @@ function renderResult() {
             }
         }
 
-        // Save it so we don't calculate it again
         appState.archetypeKey = primaryKey;
     }
 
     var archetype = archetypeProfiles[primaryKey] || archetypeProfiles.s;
+
 
     var secondaryArchetype = secondaryKey
         ? archetypeProfiles[secondaryKey]
@@ -6228,55 +6225,84 @@ function generateShareLink() {
     var url = window.location.origin + window.location.pathname;
     var params = [];
 
-    if (appState.archetypeKey) params.push('arch=' + encodeURIComponent(appState.archetypeKey));
-    if (appState.selPalette) params.push('pal=' + encodeURIComponent(appState.selPalette));
-    if (appState.selClimate) params.push('clim=' + encodeURIComponent(appState.selClimate));
-    if (appState.selFocus) params.push('focus=' + encodeURIComponent(appState.selFocus));
-    if (appState.selFit) params.push('fit=' + encodeURIComponent(appState.selFit));
-    if (appState.clientName) params.push('name=' + encodeURIComponent(appState.clientName));
+    if (appState.archetypeKey) {
+        params.push("arch=" + encodeURIComponent(appState.archetypeKey));
+    }
+
+    if (appState.selPalette) {
+        params.push("pal=" + encodeURIComponent(appState.selPalette));
+    }
+
+    if (appState.selClimate) {
+        params.push("clim=" + encodeURIComponent(appState.selClimate));
+    }
+
+    if (appState.selFocus) {
+        params.push("focus=" + encodeURIComponent(appState.selFocus));
+    }
+
+    if (appState.selFit) {
+        params.push("fit=" + encodeURIComponent(appState.selFit));
+    }
+
+    if (appState.selColourUse) {
+        params.push("colourUse=" + encodeURIComponent(appState.selColourUse));
+    }
+
+    if (appState.clientName) {
+        params.push("name=" + encodeURIComponent(appState.clientName));
+    }
 
     if (params.length > 0) {
-        return url + '?' + params.join('&');
+        return url + "?" + params.join("&");
     }
+
     return url;
 }
-
 function parseUrlState() {
     if (!window.location.search) return false;
 
     try {
         var search = window.location.search.substring(1);
         var params = {};
-        var pairs = search.split('&');
+        var pairs = search.split("&");
 
         for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i].split('=');
+            var pair = pairs[i].split("=");
             if (pair.length === 2) {
-                params[pair] = decodeURIComponent(pair);
+                params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
             }
         }
 
-        // If we have an archetype, boot directly into the result
         if (params.arch && archetypeProfiles[params.arch]) {
             appState.archetypeKey = params.arch;
             appState.selPalette = params.pal || "";
             appState.selClimate = params.clim || "";
             appState.selFocus = params.focus || "";
             appState.selFit = params.fit || "";
+            appState.selColourUse = params.colourUse || "";
             appState.clientName = params.name || "";
 
+            // Force the app into a completed result state
             appState.view = "result";
+            appState.quizStep = 0;
+            appState.quizAnswers = [];
+            appState.quizAnswersById = {};
+            appState.quizPath = getResolvedQuizPath ? getResolvedQuizPath() : [];
+            appState.history = [];
 
-            // Clean the URL so if they refresh or navigate, it doesn't get stuck
+            // Clean URL after successful import
             window.history.replaceState({}, document.title, window.location.pathname);
+
             return true;
         }
     } catch (e) {
-        console.error("Failed to parse URL state");
+        console.error("Failed to parse URL state:", e);
     }
 
     return false;
 }
+
 
 // ============================================
 // URL STATE SHARING & QR CODE GENERATION
