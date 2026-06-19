@@ -3420,31 +3420,37 @@ function navigateHome() {
 }
 
 function navigateDiscover() {
-    // If this session came from a shared QR/link, stay on result
-    if (appState.sharedResultLoaded && appState.archetypeKey) {
+    console.log("🧭 navigateDiscover triggered.");
+
+    // 1. HARD STOP: If we came from a shared link, NEVER go to the quiz
+    if (appState.sharedResultLoaded) {
+        console.log("🛑 Blocked: Shared result active. Staying on Result.");
         appState.view = "result";
         render({ animate: true });
         return;
     }
 
-    // If they already completed Style Direction, go to result
+    // 2. If they already completed the quiz, go to Result
     if (appState.selPalette && appState.selFocus && appState.archetypeKey) {
+        console.log("⏭️ Quiz already completed. Going to Result.");
         appState.view = "result";
         render({ animate: true });
         return;
     }
 
-    // If they are midway through the quiz, resume
+    // 3. Resume halfway
     if (
         appState.quizAnswersById &&
         Object.keys(appState.quizAnswersById).length > 0
     ) {
+        console.log("⏯️ Resuming quiz.");
         appState.view = "discover";
         render({ animate: true });
         return;
     }
 
-    // Otherwise start fresh
+    // 4. Start fresh
+    console.log("🆕 Starting fresh quiz.");
     appState.view = "discover";
     appState.quizStep = 0;
     appState.quizAnswers = [];
@@ -3468,6 +3474,7 @@ function navigateDiscover() {
 
     render({ animate: true });
 }
+
 
 
 
@@ -6390,14 +6397,28 @@ function parseUrlState() {
 
 
 // ============================================
-// BOOT SEQUENCE
+// BOOT SEQUENCE (BULLETPROOF)
 // ============================================
 
-var loadedFromUrl = parseUrlState();
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("🚀 App booting...");
 
-if (loadedFromUrl) {
-    localStorage.setItem("bbs_session", JSON.stringify(appState));
-    render({ animate: false });
-} else {
-    render();
-}
+    var loadedFromUrl = parseUrlState();
+    console.log("🔗 Loaded from URL?", loadedFromUrl);
+    console.log("Теst: Current Archetype:", appState.archetypeKey);
+
+    if (loadedFromUrl) {
+        // Force the app into result mode
+        appState.view = "result";
+        appState.sharedResultLoaded = true;
+
+        // Save to local storage immediately
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        console.log("💾 URL state saved to memory. Rendering result...");
+        render({ animate: false });
+    } else {
+        // Normal boot
+        console.log("🏠 Normal boot. Rendering home/welcome...");
+        render();
+    }
+});
