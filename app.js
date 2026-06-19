@@ -4216,27 +4216,38 @@ function getOpenUnsurePaletteIconsHTML() {
 // ============================================
 
 function renderResult() {
-    var rawScores = scoreArchetypeAnswers();
-    var scores = applyOnboardingArchetypeAdjustments(rawScores);
-
     var primaryKey = "s";
-    var highestScore = -1;
     var secondaryKey = null;
-    var secondHighest = -1;
 
-    for (var key in scores) {
-        if (scores[key] > highestScore) {
-            secondaryKey = primaryKey;
-            secondHighest = highestScore;
-            primaryKey = key;
-            highestScore = scores[key];
-        } else if (scores[key] > secondHighest) {
-            secondaryKey = key;
-            secondHighest = scores[key];
+    // 1. If we have a saved archetype (e.g. from URL or memory), USE IT. Do not recalculate.
+    if (appState.archetypeKey && archetypeProfiles[appState.archetypeKey]) {
+        primaryKey = appState.archetypeKey;
+    } else {
+        // 2. Otherwise, calculate from quiz answers
+        var rawScores = scoreArchetypeAnswers();
+        var scores = applyOnboardingArchetypeAdjustments(rawScores);
+
+        var highestScore = -1;
+        var secondHighest = -1;
+
+        for (var key in scores) {
+            if (scores[key] > highestScore) {
+                secondaryKey = primaryKey;
+                secondHighest = highestScore;
+                primaryKey = key;
+                highestScore = scores[key];
+            } else if (scores[key] > secondHighest) {
+                secondaryKey = key;
+                secondHighest = scores[key];
+            }
         }
+
+        // Save it so we don't calculate it again
+        appState.archetypeKey = primaryKey;
     }
 
     var archetype = archetypeProfiles[primaryKey] || archetypeProfiles.s;
+
     var secondaryArchetype = secondaryKey
         ? archetypeProfiles[secondaryKey]
         : null;
@@ -5349,7 +5360,7 @@ function render(options) {
 var _logoTapCount = 0;
 var _logoTapTimer = null;
 
-document.getElementById("app").addEventListener("click", function (e) {
+document.body.addEventListener("click", function (e) {
     // 🌟 THE HIDDEN STAFF RESET: Double-tap the logo to wipe the app
     var logoEl = e.target.closest(".bbs-logo");
     if (logoEl) {
@@ -6268,17 +6279,79 @@ function parseUrlState() {
 }
 
 // ============================================
-// BOOT
+// URL STATE SHARING & QR CODE GENERATION
 // ============================================
 
-// Check if we arrived via a Share Link
+function generateShareLink() {
+    // Get the exact base URL without any previous parameters
+    var url = window.location.origin + window.location.pathname;
+    var params = [];
+
+    // Safely encode the profile data into the URL
+    if (appState.archetypeKey) params.push('arch=' + encodeURIComponent(appState.archetypeKey));
+    if (appState.selPalette) params.push('pal=' + encodeURIComponent(appState.selPalette));
+    if (appState.selClimate) params.push('clim=' + encodeURIComponent(appState.selClimate));
+    if (appState.clientName) params.push('name=' + encodeURIComponent(appState.clientName));
+
+    if (params.length > 0) {
+        return url + '?' + params.join('&');
+    }
+    return url;
+}
+
+function parseUrlState() {
+    // If there's no '?' in the URL, return false immediately
+    if (!window.location.search) return false;
+
+    try {
+        var search = window.location.search.substring(1);
+        var params = {};
+        var pairs = search.split('&');
+
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split('=');
+            if (pair.length === 2) {
+                // Decode the URL parameters (handles spaces and special characters like '&')
+                params[pair] = decodeURIComponent(pair.replace(/\+/g, ' '));
+            }
+        }
+
+        // If the URL has an 'arch' parameter and it matches a real archetype
+        if (params.arch && typeof archetypeProfiles !== 'undefined' && archetypeProfiles[params.arch]) {
+            console.log("📥 Loading bespoke profile from QR Code/URL...");
+
+            // Override the app state with the URL data
+            appState.archetypeKey = params.arch;
+            if (params.pal) appState.selPalette = params.pal;
+            if (params.clim) appState.selClimate = params.clim;
+            if (params.name) appState.clientName = params.name;
+
+            // Force the view to jump straight to the result card
+            appState.view = "result";
+
+            // Clean the URL in the browser bar so it looks professional and doesn't get stuck
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return true;
+        }
+    } catch (e) {
+        console.error("Failed to parse URL state:", e);
+    }
+
+    return false;
+}
+
+// ============================================
+// BOOT SEQUENCE (CRITICAL)
+// ============================================
+
+// 1. Check if the user just scanned a QR code or clicked a shared link
 var loadedFromUrl = parseUrlState();
 
 if (loadedFromUrl) {
-    // Save this imported state to the device memory immediately
+    // 2a. If YES: Save this new profile to the phone's memory and render the result
     localStorage.setItem("bbs_session", JSON.stringify(appState));
     render({ animate: false });
 } else {
-    // Normal boot
+    // 2b. If NO: Boot the app normally (Home/Welcome screen)
     render();
 }
