@@ -4462,7 +4462,9 @@ function renderResult() {
         '<div class="arch-card-actions">' +
         '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
-        "</div>" +
+        '<button class="arch-btn-stroke" data-action="show-qr">Share to Phone</button>' +
+        '</div>' +
+
         '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
         '<div class="arch-journey-bridge-content">' +
         '<div class="arch-journey-bridge-label">Next Step</div>' +
@@ -4796,10 +4798,12 @@ function renderWorksheet() {
     html += outfitsHTML; // 🆕 Inject combinations at bottom
 
     html += '<div class="worksheet-actions">';
-    html +=
-        '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
+    html += '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
+    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="show-qr">Share to Phone</button>';
     html += '<button data-action="back">Back to Result</button>';
-    html += "</div></div>";
+    html += '</div></div>';
+
+
 
     return html;
 }
@@ -6228,89 +6232,89 @@ function renderColourDirection() {
 // URL STATE SHARING (STAFF HANDOFF)
 // ============================================
 
-    function generateShareLink() {
-        var url = window.location.origin + window.location.pathname;
-        var params = [];
+function generateShareLink() {
+    var url = window.location.origin + window.location.pathname;
+    var params = [];
 
-        if (appState.archetypeKey) {
-            params.push("arch=" + encodeURIComponent(appState.archetypeKey));
-        }
-
-        if (appState.selPalette) {
-            params.push("pal=" + encodeURIComponent(appState.selPalette));
-        }
-
-        if (appState.selClimate) {
-            params.push("clim=" + encodeURIComponent(appState.selClimate));
-        }
-
-        if (appState.selFocus) {
-            params.push("focus=" + encodeURIComponent(appState.selFocus));
-        }
-
-        if (appState.selFit) {
-            params.push("fit=" + encodeURIComponent(appState.selFit));
-        }
-
-        if (appState.selColourUse) {
-            params.push("colourUse=" + encodeURIComponent(appState.selColourUse));
-        }
-
-        if (appState.clientName) {
-            params.push("name=" + encodeURIComponent(appState.clientName));
-        }
-
-        if (params.length > 0) {
-            return url + "?" + params.join("&");
-        }
-
-        return url;
+    if (appState.archetypeKey) {
+        params.push("arch=" + encodeURIComponent(appState.archetypeKey));
     }
 
+    if (appState.selPalette) {
+        params.push("pal=" + encodeURIComponent(appState.selPalette));
+    }
 
-    function parseUrlState() {
-        if (!window.location.search) return false;
+    if (appState.selClimate) {
+        params.push("clim=" + encodeURIComponent(appState.selClimate));
+    }
 
-        try {
-            var search = window.location.search.substring(1);
-            var params = {};
-            var pairs = search.split("&");
+    if (appState.selFocus) {
+        params.push("focus=" + encodeURIComponent(appState.selFocus));
+    }
 
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i].split("=");
-                if (pair.length === 2) {
-                    params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
-                }
+    if (appState.selFit) {
+        params.push("fit=" + encodeURIComponent(appState.selFit));
+    }
+
+    if (appState.selColourUse) {
+        params.push("colourUse=" + encodeURIComponent(appState.selColourUse));
+    }
+
+    if (appState.clientName) {
+        params.push("name=" + encodeURIComponent(appState.clientName));
+    }
+
+    if (params.length > 0) {
+        return url + "?" + params.join("&");
+    }
+
+    return url;
+}
+
+
+function parseUrlState() {
+    if (!window.location.search) return false;
+
+    try {
+        var search = window.location.search.substring(1);
+        var params = {};
+        var pairs = search.split("&");
+
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split("=");
+            if (pair.length === 2) {
+                params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
             }
-
-            if (params.arch && archetypeProfiles[params.arch]) {
-                appState.archetypeKey = params.arch;
-                appState.selPalette = params.pal || "";
-                appState.selClimate = params.clim || "";
-                appState.selFocus = params.focus || "";
-                appState.selFit = params.fit || "";
-                appState.selColourUse = params.colourUse || "";
-                appState.clientName = params.name || "";
-
-                appState.quizStep = 0;
-                appState.quizAnswers = [];
-                appState.quizAnswersById = {};
-                appState.quizPath = [];
-                appState.history = [];
-                appState.sharedResultLoaded = true;
-
-                appState.view = "result";
-
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                return true;
-            }
-        } catch (e) {
-            console.error("Failed to parse URL state:", e);
         }
 
-        return false;
+        if (params.arch && archetypeProfiles[params.arch]) {
+            appState.archetypeKey = params.arch;
+            appState.selPalette = params.pal || "";
+            appState.selClimate = params.clim || "";
+            appState.selFocus = params.focus || "";
+            appState.selFit = params.fit || "";
+            appState.selColourUse = params.colourUse || "";
+            appState.clientName = params.name || "";
+
+            appState.quizStep = 0;
+            appState.quizAnswers = [];
+            appState.quizAnswersById = {};
+            appState.quizPath = [];
+            appState.history = [];
+            appState.sharedResultLoaded = true;
+
+            appState.view = "result";
+
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            return true;
+        }
+    } catch (e) {
+        console.error("Failed to parse URL state:", e);
     }
+
+    return false;
+}
 
 
 
@@ -6336,64 +6340,64 @@ function generateShareLink() {
     return url;
 }
 
-    function parseUrlState() {
-        if (!window.location.search) return false;
+function parseUrlState() {
+    if (!window.location.search) return false;
 
-        try {
-            var search = window.location.search.substring(1);
-            var params = {};
-            var pairs = search.split("&");
+    try {
+        var search = window.location.search.substring(1);
+        var params = {};
+        var pairs = search.split("&");
 
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i].split("=");
-                if (pair.length === 2) {
-                    params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
-                }
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split("=");
+            if (pair.length === 2) {
+                params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
             }
-
-            if (params.arch && archetypeProfiles[params.arch]) {
-                appState.archetypeKey = params.arch;
-                appState.selPalette = params.pal || "";
-                appState.selClimate = params.clim || "";
-                appState.selFocus = params.focus || "";
-                appState.selFit = params.fit || "";
-                appState.selColourUse = params.colourUse || "";
-                appState.clientName = params.name || "";
-
-                appState.quizStep = 0;
-                appState.quizAnswers = [];
-                appState.quizAnswersById = {};
-                appState.quizPath = [];
-                appState.history = [];
-
-                // critical: mark this as a fully shared result
-                appState.sharedResultLoaded = true;
-
-                // go directly to result
-                appState.view = "result";
-
-                // clean URL after import
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                return true;
-            }
-        } catch (e) {
-            console.error("Failed to parse URL state:", e);
         }
 
-        return false;
+        if (params.arch && archetypeProfiles[params.arch]) {
+            appState.archetypeKey = params.arch;
+            appState.selPalette = params.pal || "";
+            appState.selClimate = params.clim || "";
+            appState.selFocus = params.focus || "";
+            appState.selFit = params.fit || "";
+            appState.selColourUse = params.colourUse || "";
+            appState.clientName = params.name || "";
+
+            appState.quizStep = 0;
+            appState.quizAnswers = [];
+            appState.quizAnswersById = {};
+            appState.quizPath = [];
+            appState.history = [];
+
+            // critical: mark this as a fully shared result
+            appState.sharedResultLoaded = true;
+
+            // go directly to result
+            appState.view = "result";
+
+            // clean URL after import
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            return true;
+        }
+    } catch (e) {
+        console.error("Failed to parse URL state:", e);
     }
 
+    return false;
+}
 
-    // ============================================
-    // BOOT SEQUENCE
-    // ============================================
 
-    var loadedFromUrl = parseUrlState();
+// ============================================
+// BOOT SEQUENCE
+// ============================================
 
-    if (loadedFromUrl) {
-        localStorage.setItem("bbs_session", JSON.stringify(appState));
-        render({ animate: false });
-    } else {
-        render();
-    }
+var loadedFromUrl = parseUrlState();
+
+if (loadedFromUrl) {
+    localStorage.setItem("bbs_session", JSON.stringify(appState));
+    render({ animate: false });
+} else {
+    render();
+}

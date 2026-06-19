@@ -5714,7 +5714,6 @@ textarea {
 /* ============================================
    QR CODE MODAL
    ============================================ */
-
 .qr-modal {
     position: fixed;
     top: 0;
@@ -5742,7 +5741,7 @@ textarea {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(10, 8, 6, 0.4);
+    background: rgba(10, 8, 6, 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
@@ -5752,7 +5751,7 @@ textarea {
     background: #ffffff;
     width: 90%;
     max-width: 400px;
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
     padding: 40px 32px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -5771,22 +5770,16 @@ textarea {
     right: 16px;
     background: transparent;
     border: none;
-    color: var(--soft);
+    color: #a8998a;
     cursor: pointer;
     padding: 8px;
-    min-height: auto;
-    box-shadow: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 50%;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
     .qr-close-btn:hover {
-        background: var(--surface-2);
-        color: var(--text);
-        transform: none;
+        background: #f2ede4;
+        color: #2a2218;
     }
 
 .qr-modal-eyebrow {
@@ -5795,7 +5788,7 @@ textarea {
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: #3a2e23;
     margin-bottom: 12px;
 }
 
@@ -5803,14 +5796,15 @@ textarea {
     font-family: "EB Garamond", serif;
     font-size: 2rem;
     font-weight: 600;
-    color: var(--text);
+    color: #2a2218;
     margin-bottom: 12px;
     line-height: 1.1;
 }
 
 .qr-modal-desc {
+    font-family: "Manrope", sans-serif;
     font-size: 0.95rem;
-    color: var(--muted);
+    color: #6b6155;
     line-height: 1.6;
     margin-bottom: 28px;
 }
@@ -5819,7 +5813,7 @@ textarea {
     display: inline-flex;
     padding: 16px;
     background: #ffffff;
-    border: 1px solid var(--line);
+    border: 1px solid #e0d8cc;
     border-radius: 12px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
@@ -5828,4 +5822,799 @@ textarea {
     display: block;
     max-width: 100%;
     height: auto;
+}
+/* ============================================
+   WARDROBE WORKSHEET — PREMIUM EDITION
+   ============================================ */
+
+.worksheet-shell {
+    max-width: 54rem;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+}
+
+.worksheet-header {
+    margin-bottom: 2.5rem;
+    max-width: 44rem;
+}
+
+.worksheet-eyebrow {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.worksheet-header h1 {
+    font-family: "EB Garamond", serif;
+    font-size: 2.8rem;
+    margin-bottom: 0.8rem;
+    max-width: none;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.worksheet-intro {
+    font-family: "Manrope", sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    margin-bottom: 0;
+    max-width: 38rem;
+}
+
+    .worksheet-intro strong {
+        color: var(--text);
+    }
+
+/* Rules of Engagement Card */
+.worksheet-rules-card {
+    background: rgba(58, 46, 35, 0.04);
+    border: 1px solid rgba(200, 191, 176, 0.8);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 24px 28px;
+    margin-bottom: 2.5rem;
+    max-width: 52rem;
+}
+
+.worksheet-rules-header {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.worksheet-rules-intro {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.worksheet-rules-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+    .worksheet-rules-list li {
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+        .worksheet-rules-list li::marker {
+            color: var(--accent);
+        }
+
+/* Enhanced Progress Bar */
+.worksheet-progress-wrap {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border-radius: var(--radius-md);
+    padding: 22px 26px;
+    margin-bottom: 3rem;
+    max-width: 52rem;
+    box-shadow: 0 4px 16px rgba(42, 34, 24, 0.03);
+}
+
+.worksheet-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 12px;
+}
+
+.worksheet-progress-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.worksheet-progress-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.worksheet-outfit-unlock {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.worksheet-progress-value {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.worksheet-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(200, 191, 176, 0.25);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.worksheet-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-hover) 100%);
+    border-radius: var(--radius-pill);
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 8px rgba(58, 46, 35, 0.2);
+}
+
+.worksheet-progress-breakdown {
+    display: flex;
+    gap: 20px;
+    border-top: 1px solid rgba(200, 191, 176, 0.3);
+    padding-top: 12px;
+}
+
+.worksheet-progress-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .worksheet-progress-stat .stat-label {
+        font-family: "Manrope", sans-serif;
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--soft);
+    }
+
+    .worksheet-progress-stat .stat-value {
+        font-family: "Manrope", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+/* Sections */
+.worksheet-section {
+    margin-bottom: 3.5rem;
+    max-width: 52rem;
+}
+
+.worksheet-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(200, 191, 176, 0.4);
+    padding-bottom: 0.5rem;
+}
+
+.worksheet-section-title {
+    font-family: "EB Garamond", serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.worksheet-section-count {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.worksheet-section-intro {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    max-width: 40rem;
+}
+
+/* Checklist Items */
+.worksheet-items {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.worksheet-item {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border-radius: var(--radius-md);
+    padding: 20px 24px 20px 56px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+    .worksheet-item:hover {
+        border-color: var(--line-strong);
+        box-shadow: 0 6px 16px rgba(42, 34, 24, 0.05);
+    }
+
+    .worksheet-item.checked {
+        background: rgba(58, 46, 35, 0.02);
+        border-color: rgba(200, 191, 176, 0.8);
+    }
+
+.worksheet-item-priority {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    font-family: "EB Garamond", serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--line-strong);
+    line-height: 1;
+}
+
+.worksheet-item.checked .worksheet-item-priority {
+    opacity: 0.4;
+}
+
+/* Checkbox */
+.worksheet-item-check {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    border: 2px solid rgba(200, 191, 176, 0.6);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    transition: all 0.22s ease;
+    cursor: pointer;
+    margin-top: 1px;
+}
+
+    .worksheet-item-check svg {
+        width: 16px;
+        height: 16px;
+        color: #ffffff;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.22s ease;
+    }
+
+.worksheet-item:hover .worksheet-item-check {
+    border-color: var(--accent);
+}
+
+.worksheet-item.checked .worksheet-item-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(58, 46, 35, 0.18);
+}
+
+    .worksheet-item.checked .worksheet-item-check svg {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+/* Item Content */
+.worksheet-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.worksheet-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.worksheet-item-label-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.worksheet-item-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    transition: color 0.2s ease;
+}
+
+.worksheet-item.checked .worksheet-item-label {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(42, 34, 24, 0.3);
+}
+
+.worksheet-item-color-chip {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.worksheet-item.checked .worksheet-item-color-chip {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+/* Meta Data */
+.worksheet-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.worksheet-item-tier {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.tier-foundation {
+    background: var(--text);
+    color: #ffffff;
+}
+
+.tier-enhancement {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+}
+
+.tier-luxury {
+    background: #fdf5e6;
+    color: #8a5a3b;
+    border: 1px solid #e8dfc8;
+}
+
+.worksheet-item.checked .worksheet-item-tier {
+    opacity: 0.5;
+}
+
+.worksheet-item-mills {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #8a5a3b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #fdf5e6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #e8dfc8;
+}
+
+/* Actions Row */
+.worksheet-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 4px;
+}
+
+.worksheet-item-guide-link,
+.worksheet-item-why-toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    min-height: auto;
+    box-shadow: none;
+    transition: color 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.worksheet-item-guide-link {
+    color: var(--accent);
+}
+
+    .worksheet-item-guide-link:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        background: transparent;
+    }
+
+.worksheet-item-why-toggle {
+    color: var(--soft);
+}
+
+    .worksheet-item-why-toggle:hover {
+        color: var(--text);
+        background: transparent;
+    }
+
+    .worksheet-item-why-toggle svg {
+        transition: transform 0.2s ease;
+    }
+
+.worksheet-item.expanded .worksheet-item-why-toggle svg {
+    transform: rotate(180deg);
+    color: var(--text);
+}
+
+/* Expandable "Why" Section */
+.worksheet-item-why {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 8px;
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.worksheet-item.expanded .worksheet-item-why {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.worksheet-item-why-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+}
+
+.worksheet-item-why-text {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.worksheet-item-palette-note {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.6);
+    padding: 10px 12px;
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Capsule Combinator Grid */
+.worksheet-outfits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 1rem;
+}
+
+.worksheet-outfit-card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    transition: all 0.22s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+    .worksheet-outfit-card.outfit-ready {
+        border-color: rgba(122, 127, 71, 0.5);
+        background: rgba(122, 127, 71, 0.04);
+    }
+
+.worksheet-outfit-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.outfit-tag {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.outfit-status {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.outfit-ready .outfit-status {
+    color: #555b2e;
+    background: rgba(122, 127, 71, 0.15);
+}
+
+.worksheet-outfit-title {
+    font-family: "EB Garamond", serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.2;
+}
+
+.worksheet-outfit-context {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.worksheet-outfit-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.8rem;
+    color: var(--text);
+    border-top: 1px dashed rgba(200, 191, 176, 0.5);
+    padding-top: 12px;
+    flex-grow: 1;
+}
+
+    .worksheet-outfit-list li {
+        position: relative;
+        padding-left: 14px;
+        margin-bottom: 6px;
+        line-height: 1.4;
+    }
+
+        .worksheet-outfit-list li::before {
+            content: "+";
+            position: absolute;
+            left: 0;
+            color: var(--soft);
+            font-weight: 700;
+        }
+
+/* Actions at the bottom */
+.worksheet-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4rem;
+    max-width: 52rem;
+    flex-wrap: wrap;
+}
+
+/* Export PDF Styling */
+.worksheet-export-card {
+    font-family: "Manrope", sans-serif;
+    background: #ffffff;
+    padding: 50px;
+    color: #2a2218;
+}
+
+.worksheet-export-header {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #e0d8cc;
+}
+
+.worksheet-export-brand {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #a8998a;
+    margin-bottom: 8px;
+}
+
+.worksheet-export-title {
+    font-family: "EB Garamond", serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: #2a2218;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+}
+
+.worksheet-export-client {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b6155;
+    margin-bottom: 4px;
+}
+
+.worksheet-export-archetype {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2a2218;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.worksheet-export-context {
+    font-size: 12px;
+    font-weight: 500;
+    color: #8a5a3b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.worksheet-export-section {
+    margin-bottom: 30px;
+}
+
+.worksheet-export-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6155;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0d8cc;
+}
+
+.worksheet-export-item {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #2a2218;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    border-bottom: 1px solid rgba(224, 216, 204, 0.4);
+    padding-bottom: 8px;
+}
+
+.worksheet-export-footer {
+    font-size: 11px;
+    color: #a8998a;
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid #e0d8cc;
+    letter-spacing: 0.1em;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .worksheet-shell {
+        max-width: 100%;
+    }
+
+    .worksheet-header h1 {
+        font-size: 2.2rem;
+    }
+
+    .worksheet-section-title {
+        font-size: 1.4rem;
+    }
+
+    .worksheet-progress-wrap {
+        padding: 16px 18px;
+    }
+
+    .worksheet-progress-breakdown {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .worksheet-item {
+        padding: 16px 16px 16px 44px;
+        gap: 12px;
+    }
+
+    .worksheet-item-priority {
+        left: 14px;
+        top: 18px;
+        font-size: 1.2rem;
+    }
+
+    .worksheet-item-label-row {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .worksheet-item-color-chip {
+        margin-top: 0;
+    }
+
+    .worksheet-item-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .worksheet-actions {
+        flex-direction: column;
+    }
+
+        .worksheet-actions button {
+            width: 100%;
+        }
+
+    .worksheet-rules-card {
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 1px solid rgba(200, 191, 176, 0.8);
+        border-top: 3px solid var(--accent);
+    }
 }
