@@ -4234,11 +4234,14 @@ function getOpenUnsurePaletteIconsHTML() {
 // RENDER RESULT — BULLETPROOF VERSION
 // ============================================
 
+// ============================================
+// RENDER RESULT
+// ============================================
+
 function renderResult() {
     var primaryKey = appState.archetypeKey || "s";
     var secondaryKey = null;
 
-    // If no archetype is already stored, calculate it
     if (!appState.archetypeKey) {
         var rawScores = scoreArchetypeAnswers();
         var scores = applyOnboardingArchetypeAdjustments(rawScores);
@@ -4262,30 +4265,19 @@ function renderResult() {
     }
 
     var archetype = archetypeProfiles[primaryKey] || archetypeProfiles.s;
-    var secondaryArchetype = secondaryKey
-        ? archetypeProfiles[secondaryKey]
-        : null;
+    var secondaryArchetype = secondaryKey ? archetypeProfiles[secondaryKey] : null;
 
     if (secondaryArchetype && secondaryArchetype.key === archetype.key) {
         secondaryArchetype = null;
     }
 
-    var links = getCombinedArchetypeExploreLinks(
-        archetype,
-        secondaryArchetype,
-        4
-    );
+    var links = getCombinedArchetypeExploreLinks(archetype, secondaryArchetype, 4);
     var name = appState.clientName || "";
     var climateLabel = getClimateLabel();
     var garmentDrawLabel = getGarmentDrawLabel();
     var wardrobePriority = getWardrobePriorityLabel();
 
-    var resultDesc = getResultDescription(
-        archetype,
-        climateLabel,
-        appState.selPalette,
-        wardrobePriority
-    );
+    var resultDesc = getResultDescription(archetype, climateLabel, appState.selPalette, wardrobePriority);
 
     var baseNotes = archetype.notes || [];
     var coreNotesHTML = "";
@@ -4295,34 +4287,22 @@ function renderResult() {
 
     var garmentDrawNote = "";
     if (garmentDrawLabel === "Cloth First")
-        garmentDrawNote =
-            "Prioritise cloth handle, breathability, and surface character early. The fabric itself should do much of the work.";
+        garmentDrawNote = "Prioritise cloth handle, breathability, and surface character early. The fabric itself should do much of the work.";
     else if (garmentDrawLabel === "Shape First")
-        garmentDrawNote =
-            "Pay close attention to silhouette, rise, shoulder line, and trouser shape. Proportion will influence the result more than styling tricks.";
+        garmentDrawNote = "Pay close attention to silhouette, rise, shoulder line, and trouser shape. Proportion will influence the result more than styling tricks.";
     else if (garmentDrawLabel === "Detail First")
-        garmentDrawNote =
-            "Use finishing, construction, and smaller design decisions to create distinction. Details should feel intentional, not decorative.";
+        garmentDrawNote = "Use finishing, construction, and smaller design decisions to create distinction. Details should feel intentional, not decorative.";
     else if (garmentDrawLabel === "Wardrobe First")
-        garmentDrawNote =
-            "Build around pieces that combine easily and repeat well. Coherence and flexibility will make the wardrobe stronger over time.";
+        garmentDrawNote = "Build around pieces that combine easily and repeat well. Coherence and flexibility will make the wardrobe stronger over time.";
 
     var climateNote = getClimateNote(climateLabel);
     var paletteNote = getPaletteNote(appState.selPalette);
     var colourUseNote = getColourUseNote(appState.selColourUse);
-    var staffSummary = getStaffSummary(
-        archetype,
-        climateLabel,
-        appState.selPalette,
-        appState.selColourUse
-    );
+    var staffSummary = getStaffSummary(archetype, climateLabel, appState.selPalette, appState.selColourUse);
 
-    var iconEnvironment =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
-    var iconPalette =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M12 2.69l5.66 4.2c3.11 3.11 3.11 8.16 0 11.27-3.11 3.11-8.16 3.11-11.27 0-3.11-3.11-3.11-8.16 0-11.27L12 2.69z"></path></svg>';
-    var iconStaff =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line></svg>';
+    var iconEnvironment = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
+    var iconPalette = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M12 2.69l5.66 4.2c3.11 3.11 3.11 8.16 0 11.27-3.11 3.11-8.16 3.11-11.27 0-3.11-3.11-3.11-8.16 0-11.27L12 2.69z"></path></svg>';
+    var iconStaff = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line></svg>';
 
     var tagsHTML = "";
     for (var t = 0; t < archetype.tags.length; t++) {
@@ -4334,16 +4314,10 @@ function renderResult() {
         var link = links[i];
         var pathJson = JSON.stringify(link.path);
         linksHTML +=
-            '<div class="arch-explore-card" data-action="result-link" data-path=\'' +
-            pathJson +
-            "'>" +
+            '<div class="arch-explore-card" data-action="result-link" data-path=\'' + pathJson + "'>" +
             '<span class="arch-explore-kind">Guide</span>' +
-            '<div class="arch-explore-title">' +
-            link.title +
-            "</div>" +
-            '<div class="arch-explore-intro">' +
-            (link.intro || "") +
-            "</div>" +
+            '<div class="arch-explore-title">' + link.title + "</div>" +
+            '<div class="arch-explore-intro">' + (link.intro || "") + "</div>" +
             "</div>";
     }
 
@@ -4352,18 +4326,12 @@ function renderResult() {
         '<div class="arch-result-label">Your Match</div>' +
         '<div class="arch-result-name">' +
         (name ? '<span class="arch-result-client">' + name + "</span>" : "") +
-        '<span class="arch-result-persona">' +
-        archetype.name +
-        "</span>" +
+        '<span class="arch-result-persona">' + archetype.name + "</span>" +
         "</div>" +
         '<div class="arch-result-divider"></div>' +
-        '<p class="arch-result-desc">' +
-        resultDesc +
-        "</p>" +
+        '<p class="arch-result-desc">' + resultDesc + "</p>" +
         '<p class="arch-result-secondary">' +
-        (secondaryArchetype
-            ? "Secondary influence: " + secondaryArchetype.name
-            : "Secondary influence: none") +
+        (secondaryArchetype ? "Secondary influence: " + secondaryArchetype.name : "Secondary influence: none") +
         "</p>" +
         '<div class="arch-card-wrap">' +
         '<div class="arch-style-card" id="arch-style-card">' +
@@ -4372,92 +4340,61 @@ function renderResult() {
         '<span class="arch-card-tag">STYLE ARCHETYPE</span>' +
         "</div>" +
         (name ? '<div class="arch-card-client">Name: ' + name + "</div>" : "") +
-        '<div class="arch-card-persona">' +
-        archetype.name +
-        "</div>" +
-        '<div class="arch-card-persona-sub">' +
-        archetype.sub +
-        "</div>" +
+        '<div class="arch-card-persona">' + archetype.name + "</div>" +
+        '<div class="arch-card-persona-sub">' + archetype.sub + "</div>" +
         '<div class="arch-card-rule"></div>' +
         '<div class="arch-card-section-label">Your Profile</div>' +
         '<div class="arch-card-baseline-grid">' +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Climate</div>' +
-        '<div class="arch-card-baseline-val">' +
-        climateLabel +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + climateLabel + "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Style Lens</div>' +
-        '<div class="arch-card-baseline-val">' +
-        (garmentDrawLabel || "\u2014") +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + (garmentDrawLabel || "\u2014") + "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Goal</div>' +
-        '<div class="arch-card-baseline-val">' +
-        (appState.selFocus || "\u2014") +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + (appState.selFocus || "\u2014") + "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Fit</div>' +
-        '<div class="arch-card-baseline-val">' +
-        (appState.selFit || "\u2014") +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + (appState.selFit || "\u2014") + "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Palette</div>' +
-        '<div class="arch-card-baseline-val">' +
-        (appState.selPalette || "\u2014") +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + (appState.selPalette || "\u2014") + "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Colour Use</div>' +
-        '<div class="arch-card-baseline-val">' +
-        (appState.selColourUse || "\u2014") +
-        "</div>" +
+        '<div class="arch-card-baseline-val">' + (appState.selColourUse || "\u2014") + "</div>" +
         "</div>" +
         "</div>" +
         '<div class="arch-card-section-label">Core Principles</div>' +
-        '<div class="arch-card-notes" style="margin-bottom: 1.6rem;">' +
-        coreNotesHTML +
-        "</div>" +
+        '<div class="arch-card-notes" style="margin-bottom: 1.6rem;">' + coreNotesHTML + "</div>" +
         '<div class="arch-card-section-label">Bespoke Insights</div>' +
         (climateNote || garmentDrawNote
             ? '<div class="bespoke-insight-card">' +
-            '<div class="bespoke-insight-header">' +
-            iconEnvironment +
+            '<div class="bespoke-insight-header">' + iconEnvironment +
             '<span class="bespoke-insight-title">Sartorial Strategy</span></div>' +
-            '<p class="bespoke-insight-desc">' +
-            (climateNote ? climateNote + " " : "") +
-            garmentDrawNote +
-            "</p>" +
+            '<p class="bespoke-insight-desc">' + (climateNote ? climateNote + " " : "") + garmentDrawNote + "</p>" +
             "</div>"
             : "") +
         (paletteNote || colourUseNote
             ? '<div class="bespoke-insight-card">' +
-            '<div class="bespoke-insight-header">' +
-            iconPalette +
+            '<div class="bespoke-insight-header">' + iconPalette +
             '<span class="bespoke-insight-title">Palette Foundation</span></div>' +
-            '<p class="bespoke-insight-desc">' +
-            (paletteNote ? paletteNote + " " : "") +
-            colourUseNote +
-            "</p>" +
+            '<p class="bespoke-insight-desc">' + (paletteNote ? paletteNote + " " : "") + colourUseNote + "</p>" +
             "</div>"
             : "") +
         '<div class="arch-card-section-label" style="margin-top: 1rem;">Details</div>' +
-        '<div class="arch-card-tags">' +
-        tagsHTML +
-        "</div>" +
+        '<div class="arch-card-tags">' + tagsHTML + "</div>" +
         (staffSummary
             ? '<div class="arch-card-section-label">Staff Direction</div>' +
             '<div class="bespoke-insight-card" style="border-color: rgba(243, 239, 233, 0.3); background: rgba(255, 255, 255, 0.08);">' +
-            '<div class="bespoke-insight-header">' +
-            iconStaff +
+            '<div class="bespoke-insight-header">' + iconStaff +
             '<span class="bespoke-insight-title" style="color: #fff;">Stylist Note</span></div>' +
-            '<p class="bespoke-insight-desc" style="color: #fff;">' +
-            staffSummary +
-            "</p>" +
+            '<p class="bespoke-insight-desc" style="color: #fff;">' + staffSummary + "</p>" +
             "</div>"
             : "") +
         '<div class="arch-card-footer">' +
@@ -4467,11 +4404,10 @@ function renderResult() {
         "</div>" +
         "</div>" +
         '<div class="arch-card-actions">' +
-        '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
+        '<button class="arch-btn-fill" data-action="save-card">Save PDF</button>' +
         '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
-        '<button class="arch-btn-stroke" data-action="show-qr">Share to Phone</button>' +
-        '</div>' +
-
+        '<button class="arch-btn-stroke" data-action="share-native">AirDrop / Share</button>' +
+        "</div>" +
         '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
         '<div class="arch-journey-bridge-content">' +
         '<div class="arch-journey-bridge-label">Next Step</div>' +
@@ -4484,50 +4420,43 @@ function renderResult() {
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
             '<p class="arch-explore-intro-text">These areas of the guide are most aligned with your style direction.</p>' +
-            '<div class="arch-explore-grid">' +
-            linksHTML +
-            "</div>" +
+            '<div class="arch-explore-grid">' + linksHTML + "</div>" +
             "</div>"
             : "") +
         '<div class="arch-result-footer">' +
-        // 🌟 HERE IS THE FIXED BUTTON ACTION:
         '<button class="arch-restart" data-action="style-restart">Start Over</button>' +
         "</div>" +
         "</div>"
     );
 }
 
+
 // ============================================
 // RENDER WORKSHEET — PREMIUM ENHANCED VERSION
 // ============================================
 
+// ============================================
+// RENDER WORKSHEET
+// ============================================
+
 function renderWorksheet() {
     var archetypeKey = appState.archetypeKey;
-    if (!archetypeKey)
-        return '<div class="worksheet-shell"><p>Please complete the assessment first.</p></div>';
+    if (!archetypeKey) {
+        return '<div class="worksheet-shell"><p>Please complete the Style Direction assessment first.</p><div class="nav-buttons"><button data-action="home">Back to Home</button></div></div>';
+    }
 
     var archetype = archetypeProfiles[archetypeKey];
     var template = getWardrobeTemplate(archetypeKey);
     var checklist = appState.wardrobeChecklist || {};
     var selectedPalette = appState.selPalette || "";
     var selectedClimate = appState.selClimate || "";
-    var garmentDrawLabel = getGarmentDrawLabel(); // 🆕 Get style lens
+    var garmentDrawLabel = getGarmentDrawLabel();
 
-    var foundationItems = filterItemsByClimate(
-        template.foundation,
-        selectedClimate
-    );
-    var refinementItems = filterItemsByClimate(
-        template.refinements,
-        selectedClimate
-    );
+    var foundationItems = filterItemsByClimate(template.foundation, selectedClimate);
+    var refinementItems = filterItemsByClimate(template.refinements, selectedClimate);
 
-    foundationItems.sort(function (a, b) {
-        return a.priority - b.priority;
-    });
-    refinementItems.sort(function (a, b) {
-        return a.priority - b.priority;
-    });
+    foundationItems.sort(function (a, b) { return a.priority - b.priority; });
+    refinementItems.sort(function (a, b) { return a.priority - b.priority; });
 
     var totalItems = foundationItems.length + refinementItems.length;
     var checkedItems = 0;
@@ -4537,11 +4466,7 @@ function renderWorksheet() {
     for (var key in checklist) {
         if (checklist[key].checked) {
             checkedItems++;
-            if (
-                foundationItems.some(function (item) {
-                    return item.id === key;
-                })
-            ) {
+            if (foundationItems.some(function (item) { return item.id === key; })) {
                 foundationChecked++;
             } else {
                 refinementChecked++;
@@ -4549,271 +4474,162 @@ function renderWorksheet() {
         }
     }
 
-    var progressPercent =
-        totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+    var progressPercent = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+    var outfitCount = 0;
+    if (foundationChecked >= 3) outfitCount = foundationChecked * 2;
+    if (refinementChecked > 0) outfitCount += refinementChecked;
 
-    // 🆕 Helper to build item HTML
     function buildItemHTML(item, isChecked, isExpanded) {
-        var checkedClass = isChecked ? " checked" : "";
-        var expandedClass = isExpanded ? " expanded" : "";
-        var guidePathJson = item.guide
-            ? JSON.stringify(item.guide).replace(/"/g, "&quot;")
-            : "";
+        var checkedClass = isChecked ? ' checked' : '';
+        var expandedClass = isExpanded ? ' expanded' : '';
+        var guidePathJson = item.guide ? JSON.stringify(item.guide).replace(/"/g, '&quot;') : '';
 
         var colorChip = getColorChipForItem(item, selectedPalette);
-        var colorChipHTML = colorChip
-            ? '<div class="worksheet-item-color-chip" style="background-color: ' +
-            colorChip.color +
-            ';" title="' +
-            colorChip.note +
-            '"></div>'
-            : "";
+        var colorChipHTML = colorChip ? '<div class="worksheet-item-color-chip" style="background-color: ' + colorChip.color + ';" title="' + colorChip.note + '"></div>' : '';
 
-        var tierClass = "tier-" + (item.tier || "foundation");
-        var tierLabel =
-            item.tier === "foundation"
-                ? "Foundation"
-                : item.tier === "enhancement"
-                    ? "Enhancement"
-                    : "Luxury";
+        var tierClass = 'tier-' + (item.tier || 'foundation');
+        var tierLabel = item.tier === 'foundation' ? 'Foundation' : item.tier === 'enhancement' ? 'Enhancement' : 'Luxury';
 
-        var html =
-            '<div class="worksheet-item' +
-            checkedClass +
-            expandedClass +
-            '" data-item-id="' +
-            item.id +
-            '">';
-        html += '<div class="worksheet-item-priority">' + item.priority + "</div>";
-        html +=
-            '<div class="worksheet-item-check" data-action="toggle-item" data-item-id="' +
-            item.id +
-            '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
+        var html = '<div class="worksheet-item' + checkedClass + expandedClass + '" data-item-id="' + item.id + '">';
+        html += '<div class="worksheet-item-priority">' + item.priority + '</div>';
+        html += '<div class="worksheet-item-check" data-action="toggle-item" data-item-id="' + item.id + '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
 
         html += '<div class="worksheet-item-content">';
         html += '<div class="worksheet-item-main">';
-        html +=
-            '<div class="worksheet-item-label-row"><div class="worksheet-item-label">' +
-            item.item +
-            "</div>" +
-            colorChipHTML +
-            "</div>";
-        html +=
-            '<div class="worksheet-item-meta"><span class="worksheet-item-tier ' +
-            tierClass +
-            '">' +
-            tierLabel +
-            "</span>";
+        html += '<div class="worksheet-item-label-row"><div class="worksheet-item-label">' + item.item + '</div>' + colorChipHTML + '</div>';
+        html += '<div class="worksheet-item-meta"><span class="worksheet-item-tier ' + tierClass + '">' + tierLabel + '</span>';
 
-        // 🆕 Mill Sourcing UI
         if (item.mills) {
-            html +=
-                '<span class="worksheet-item-mills"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg>' +
-                item.mills +
-                "</span>";
+            html += '<span class="worksheet-item-mills"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg>' + item.mills + '</span>';
         }
 
-        html += "</div></div>"; // end main
+        html += '</div></div>';
 
         html += '<div class="worksheet-item-actions">';
-        if (item.guide)
-            html +=
-                '<button class="worksheet-item-guide-link" data-action="worksheet-guide-link" data-path=\'' +
-                guidePathJson +
-                "'>View in Guide →</button>";
-        if (item.why)
-            html +=
-                '<button class="worksheet-item-why-toggle" data-action="toggle-why" data-item-id="' +
-                item.id +
-                '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>Why this matters</button>';
-        html += "</div>";
+        if (item.guide) html += '<button class="worksheet-item-guide-link" data-action="worksheet-guide-link" data-path=\'' + guidePathJson + '\'>View in Guide →</button>';
+        if (item.why) html += '<button class="worksheet-item-why-toggle" data-action="toggle-why" data-item-id="' + item.id + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>Why this matters</button>';
+        html += '</div>';
 
         if (item.why) {
             html += '<div class="worksheet-item-why">';
             html += '<div class="worksheet-item-why-label">Strategic Value:</div>';
-            html += '<div class="worksheet-item-why-text">' + item.why + "</div>";
+            html += '<div class="worksheet-item-why-text">' + item.why + '</div>';
             if (colorChip && colorChip.note) {
-                html +=
-                    '<div class="worksheet-item-palette-note"><strong>For your ' +
-                    selectedPalette +
-                    " palette:</strong> " +
-                    colorChip.note +
-                    "</div>";
+                html += '<div class="worksheet-item-palette-note"><strong>For your ' + selectedPalette + ' palette:</strong> ' + colorChip.note + '</div>';
             }
-            html += "</div>";
+            html += '</div>';
         }
-        html += "</div></div>";
+        html += '</div></div>';
         return html;
     }
 
-    // 🆕 Combinator Logic
-    var outfitsHTML = "";
+    var outfitsHTML = '';
     if (template.outfits && template.outfits.length > 0) {
         outfitsHTML += '<div class="worksheet-section" style="margin-top: 2rem;">';
-        outfitsHTML +=
-            '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Signature Combinations</h3></div>';
-        outfitsHTML +=
-            '<p class="worksheet-section-intro">Here is how to deploy your foundation pieces together.</p>';
+        outfitsHTML += '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Signature Combinations</h3></div>';
+        outfitsHTML += '<p class="worksheet-section-intro">Here is how to deploy your foundation pieces together.</p>';
         outfitsHTML += '<div class="worksheet-outfits-grid">';
 
         for (var o = 0; o < template.outfits.length; o++) {
             var outfit = template.outfits[o];
-
-            // Look up item names
             var itemNames = [];
             var outfitCheckedCount = 0;
 
             for (var k = 0; k < outfit.items.length; k++) {
                 var reqId = outfit.items[k];
-                var foundItem =
-                    foundationItems.find(function (i) {
-                        return i.id === reqId;
-                    }) ||
-                    refinementItems.find(function (i) {
-                        return i.id === reqId;
-                    });
+                var foundItem = foundationItems.find(function (i) { return i.id === reqId }) || refinementItems.find(function (i) { return i.id === reqId });
                 if (foundItem) {
                     itemNames.push(foundItem.item);
-                    if (checklist[reqId] && checklist[reqId].checked)
-                        outfitCheckedCount++;
+                    if (checklist[reqId] && checklist[reqId].checked) outfitCheckedCount++;
                 }
             }
 
             var isOutfitReady = outfitCheckedCount === itemNames.length;
             var outfitStatusClass = isOutfitReady ? "outfit-ready" : "outfit-pending";
-            var outfitStatusText = isOutfitReady
-                ? "✓ Ready to Wear"
-                : outfitCheckedCount + "/" + itemNames.length + " Acquired";
+            var outfitStatusText = isOutfitReady ? "✓ Ready to Wear" : (outfitCheckedCount + "/" + itemNames.length + " Acquired");
 
-            outfitsHTML +=
-                '<div class="worksheet-outfit-card ' + outfitStatusClass + '">';
-            outfitsHTML +=
-                '<div class="worksheet-outfit-meta"><span class="outfit-tag">Capsule</span><span class="outfit-status">' +
-                outfitStatusText +
-                "</span></div>";
-            outfitsHTML +=
-                '<h4 class="worksheet-outfit-title">' + outfit.name + "</h4>";
-            outfitsHTML +=
-                '<p class="worksheet-outfit-context">' + outfit.context + "</p>";
+            outfitsHTML += '<div class="worksheet-outfit-card ' + outfitStatusClass + '">';
+            outfitsHTML += '<div class="worksheet-outfit-meta"><span class="outfit-tag">Capsule</span><span class="outfit-status">' + outfitStatusText + '</span></div>';
+            outfitsHTML += '<h4 class="worksheet-outfit-title">' + outfit.name + '</h4>';
+            outfitsHTML += '<p class="worksheet-outfit-context">' + outfit.context + '</p>';
             outfitsHTML += '<ul class="worksheet-outfit-list">';
             for (var n = 0; n < itemNames.length; n++) {
-                outfitsHTML += "<li>" + itemNames[n] + "</li>";
+                outfitsHTML += '<li>' + itemNames[n] + '</li>';
             }
-            outfitsHTML += "</ul></div>";
+            outfitsHTML += '</ul></div>';
         }
-        outfitsHTML += "</div></div>";
+        outfitsHTML += '</div></div>';
     }
 
-    // 🆕 Rules Logic
-    var rulesHTML = "";
-    // 🆕 Principles Logic
-    var rulesHTML = "";
+    var rulesHTML = '';
     var lensRules = getLensRules(garmentDrawLabel);
     if (lensRules && lensRules.length > 0) {
         rulesHTML += '<div class="worksheet-rules-card">';
-        rulesHTML +=
-            '<div class="worksheet-rules-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg> Sartorial Principles</div>';
-        rulesHTML +=
-            '<p class="worksheet-rules-intro">With a focus on <strong>' +
-            garmentDrawLabel +
-            "</strong>, keep these guiding principles in mind as you build your wardrobe:</p>";
+        rulesHTML += '<div class="worksheet-rules-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg> Sartorial Principles</div>';
+        rulesHTML += '<p class="worksheet-rules-intro">With a focus on <strong>' + garmentDrawLabel + '</strong>, keep these guiding principles in mind:</p>';
         rulesHTML += '<ul class="worksheet-rules-list">';
-
         for (var r = 0; r < lensRules.length; r++) {
-            rulesHTML += "<li>" + lensRules[r] + "</li>";
+            rulesHTML += '<li>' + lensRules[r] + '</li>';
         }
-        rulesHTML += "</ul></div>";
+        rulesHTML += '</ul></div>';
     }
 
-    // Render foundation
     var foundationHTML = '<div class="worksheet-section">';
-    foundationHTML +=
-        '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Foundation Pieces</h3>';
-    foundationHTML +=
-        '<span class="worksheet-section-count">' +
-        foundationChecked +
-        " / " +
-        foundationItems.length +
-        " complete</span></div>";
+    foundationHTML += '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Foundation Pieces</h3>';
+    foundationHTML += '<span class="worksheet-section-count">' + foundationChecked + ' / ' + foundationItems.length + ' complete</span></div>';
     foundationHTML += '<div class="worksheet-items">';
     for (var i = 0; i < foundationItems.length; i++) {
-        var state = checklist[foundationItems[i].id] || {
-            checked: false,
-            expanded: false,
-        };
-        foundationHTML += buildItemHTML(
-            foundationItems[i],
-            state.checked,
-            state.expanded
-        );
+        var state = checklist[foundationItems[i].id] || { checked: false, expanded: false };
+        foundationHTML += buildItemHTML(foundationItems[i], state.checked, state.expanded);
     }
-    foundationHTML += "</div></div>";
+    foundationHTML += '</div></div>';
 
-    // Render refinements
     var refinementsHTML = '<div class="worksheet-section">';
-    refinementsHTML +=
-        '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Refinements</h3>';
-    refinementsHTML +=
-        '<span class="worksheet-section-count">' +
-        refinementChecked +
-        " / " +
-        refinementItems.length +
-        " complete</span></div>";
+    refinementsHTML += '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Refinements</h3>';
+    refinementsHTML += '<span class="worksheet-section-count">' + refinementChecked + ' / ' + refinementItems.length + ' complete</span></div>';
     refinementsHTML += '<div class="worksheet-items">';
     for (var j = 0; j < refinementItems.length; j++) {
-        var rState = checklist[refinementItems[j].id] || {
-            checked: false,
-            expanded: false,
-        };
-        refinementsHTML += buildItemHTML(
-            refinementItems[j],
-            rState.checked,
-            rState.expanded
-        );
+        var rState = checklist[refinementItems[j].id] || { checked: false, expanded: false };
+        refinementsHTML += buildItemHTML(refinementItems[j], rState.checked, rState.expanded);
     }
-    refinementsHTML += "</div></div>";
+    refinementsHTML += '</div></div>';
 
-    // Assemble Page
     var html = '<div class="worksheet-shell">';
-    html +=
-        '<div class="worksheet-header"><div class="worksheet-eyebrow">Wardrobe Building Strategy</div>';
-    html += "<h1>Your Personal Worksheet</h1>";
-    html +=
-        '<p class="worksheet-intro">A considered checklist tailored to your <strong>' +
-        archetype.name +
-        "</strong> profile.</p></div>";
+    html += '<div class="worksheet-header"><div class="worksheet-eyebrow">Wardrobe Building Strategy</div>';
+    html += '<h1>Your Personal Worksheet</h1>';
+    html += '<p class="worksheet-intro">A considered checklist tailored to your <strong>' + archetype.name + '</strong> profile.</p></div>';
 
-    html += rulesHTML; // 🆕 Inject rules at top
+    html += rulesHTML;
 
     html += '<div class="worksheet-progress-wrap">';
     html += '<div class="worksheet-progress-header">';
+    html += '<div class="worksheet-progress-title">';
     html += '<span class="worksheet-progress-label">Wardrobe Progress</span>';
-    html +=
-        '<span class="worksheet-progress-value">' +
-        checkedItems +
-        " / " +
-        totalItems +
-        " items</span></div>";
-    html +=
-        '<div class="worksheet-progress-bar"><div class="worksheet-progress-fill" style="width: ' +
-        progressPercent +
-        '%"></div></div>';
-    html += "</div>";
+    if (outfitCount > 0) {
+        html += '<span class="worksheet-outfit-unlock">~' + outfitCount + ' complete outfits unlocked</span>';
+    }
+    html += '</div>';
+    html += '<span class="worksheet-progress-value">' + checkedItems + ' / ' + totalItems + ' items</span></div>';
+    html += '<div class="worksheet-progress-bar"><div class="worksheet-progress-fill" style="width: ' + progressPercent + '%"></div></div>';
 
-    html += foundationItems.length > 0 ? foundationHTML : "";
-    html += refinementItems.length > 0 ? refinementsHTML : "";
-    html += outfitsHTML; // 🆕 Inject combinations at bottom
+    html += '<div class="worksheet-progress-breakdown">';
+    html += '<div class="worksheet-progress-stat"><span class="stat-label">Foundation</span><span class="stat-value">' + foundationChecked + ' / ' + foundationItems.length + '</span></div>';
+    html += '<div class="worksheet-progress-stat"><span class="stat-label">Refinements</span><span class="stat-value">' + refinementChecked + ' / ' + refinementItems.length + '</span></div>';
+    html += '</div></div>';
+
+    html += foundationItems.length > 0 ? foundationHTML : '';
+    html += refinementItems.length > 0 ? refinementsHTML : '';
+    html += outfitsHTML;
 
     html += '<div class="worksheet-actions">';
     html += '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
-    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="show-qr">Share to Phone</button>';
+    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="share-native">AirDrop / Share</button>';
     html += '<button data-action="back">Back to Result</button>';
     html += '</div></div>';
 
-
-
     return html;
 }
+
 
 function exportWorksheetPDF() {
     if (
@@ -5376,24 +5192,18 @@ var _logoTapCount = 0;
 var _logoTapTimer = null;
 
 document.body.addEventListener("click", function (e) {
-    // 🌟 THE HIDDEN STAFF RESET: Double-tap the logo to wipe the app
     var logoEl = e.target.closest(".bbs-logo");
     if (logoEl) {
         _logoTapCount++;
         clearTimeout(_logoTapTimer);
-
         if (_logoTapCount >= 2) {
             localStorage.removeItem("bbs_session");
-            appState = getFreshState(); // 🌟 Pure, clean wipe
+            appState = getFreshState();
             render({ animate: true });
             _logoTapCount = 0;
             return;
         }
-
-        _logoTapTimer = setTimeout(function () {
-            _logoTapCount = 0;
-        }, 400);
-
+        _logoTapTimer = setTimeout(function () { _logoTapCount = 0; }, 400);
         return;
     }
 
@@ -5402,34 +5212,22 @@ document.body.addEventListener("click", function (e) {
 
     var action = target.dataset.action;
 
-    if (action === "discover") {
-        navigateDiscover();
-    } else if (action === "guide") {
-        navigateGuide([]);
-    } else if (action === "quick-query") {
-        // 🌟 QUICK QUERY COMMAND BAR ACTION
+    if (action === "discover") { navigateDiscover(); }
+    else if (action === "guide") { navigateGuide([]); }
+    else if (action === "quick-query") {
         var queryType = target.dataset.query;
         var panel = document.getElementById("discovery-panel");
-
-        if (panel && !panel.classList.contains("open")) {
-            toggleDiscovery();
-        }
-
-        if (typeof runQuery === "function") {
-            runQuery(queryType);
-        }
-    } else if (action === "back") {
-        navigateBack();
-    } else if (action === "home") {
-        navigateHome();
-    } else if (action === "save-name") {
+        if (panel && !panel.classList.contains("open")) toggleDiscovery();
+        if (typeof runQuery === "function") runQuery(queryType);
+    }
+    else if (action === "back") { navigateBack(); }
+    else if (action === "home") { navigateHome(); }
+    else if (action === "save-name") {
         var input = document.getElementById("client-name-input");
-        if (input && input.value.trim()) {
-            saveClientName(input.value);
-        }
-    } else if (action === "change-name") {
-        clearClientName();
-    } else if (action === "quiz-pick") {
+        if (input && input.value.trim()) saveClientName(input.value);
+    }
+    else if (action === "change-name") { clearClientName(); }
+    else if (action === "quiz-pick") {
         var idx = parseInt(target.dataset.index, 10);
         var questionIds = getCurrentQuizPath();
         var questionMap = getArchetypeQuestionMap();
@@ -5437,37 +5235,20 @@ document.body.addEventListener("click", function (e) {
         var currentQuestion = questionMap[currentQuestionId];
 
         var previousClimate = appState.selClimate || "";
-        var previousGarmentDraw = appState.quizAnswersById
-            ? appState.quizAnswersById["garment_draw"]
-            : null;
-        var previousWardrobePriority = appState.quizAnswersById
-            ? appState.quizAnswersById["wardrobe_priority"]
-            : null;
+        var previousGarmentDraw = appState.quizAnswersById ? appState.quizAnswersById["garment_draw"] : null;
+        var previousWardrobePriority = appState.quizAnswersById ? appState.quizAnswersById["wardrobe_priority"] : null;
 
-        if (
-            !appState.quizAnswersById ||
-            typeof appState.quizAnswersById !== "object"
-        ) {
-            appState.quizAnswersById = {};
-        }
+        if (!appState.quizAnswersById || typeof appState.quizAnswersById !== "object") appState.quizAnswersById = {};
 
         appState.quizAnswersById[currentQuestionId] = idx;
 
-        if (
-            currentQuestionId === "climate" &&
-            currentQuestion &&
-            currentQuestion.opts &&
-            currentQuestion.opts[idx]
-        ) {
+        if (currentQuestionId === "climate" && currentQuestion && currentQuestion.opts && currentQuestion.opts[idx]) {
             appState.selClimate = currentQuestion.opts[idx].b;
         }
 
         var needsFullRender = false;
 
-        if (
-            currentQuestionId === "climate" &&
-            appState.selClimate !== previousClimate
-        ) {
+        if (currentQuestionId === "climate" && appState.selClimate !== previousClimate) {
             delete appState.quizAnswersById["polished_dressing"];
             delete appState.quizAnswersById["polished_dressing_warm"];
             delete appState.quizAnswersById["polished_dressing_temperate"];
@@ -5498,10 +5279,7 @@ document.body.addEventListener("click", function (e) {
             needsFullRender = true;
         }
 
-        if (
-            currentQuestionId === "wardrobe_priority" &&
-            idx !== previousWardrobePriority
-        ) {
+        if (currentQuestionId === "wardrobe_priority" && idx !== previousWardrobePriority) {
             delete appState.quizAnswersById["wardrobe_role"];
             delete appState.quizAnswersById["wardrobe_role_longevity"];
             delete appState.quizAnswersById["wardrobe_role_versatility"];
@@ -5513,124 +5291,77 @@ document.body.addEventListener("click", function (e) {
 
         if (!needsFullRender) {
             var allOpts = document.querySelectorAll(".arch-opt");
-            for (var i = 0; i < allOpts.length; i++) {
-                allOpts[i].classList.remove("sel");
-            }
+            for (var i = 0; i < allOpts.length; i++) allOpts[i].classList.remove("sel");
 
             var clickedOption = target.closest(".arch-opt");
-            if (clickedOption) {
-                clickedOption.classList.add("sel");
-            }
+            if (clickedOption) clickedOption.classList.add("sel");
 
             var nextBtn = document.querySelector(".arch-btn-next");
-            if (nextBtn) {
-                nextBtn.disabled = false;
-            }
-            // 🌟 FORCE SAVE TO IPAD MEMORY INSTANTLY
+            if (nextBtn) nextBtn.disabled = false;
+
             localStorage.setItem("bbs_session", JSON.stringify(appState));
         } else {
             render({ animate: false });
         }
-    } else if (action === "quiz-next") {
+    }
+    else if (action === "quiz-next") {
         var questionIds = getCurrentQuizPath();
         var currentQuestionId = questionIds[appState.quizStep];
-        var currentAnswer =
-            appState.quizAnswersById &&
-                appState.quizAnswersById[currentQuestionId] !== undefined
-                ? appState.quizAnswersById[currentQuestionId]
-                : null;
+        var currentAnswer = appState.quizAnswersById && appState.quizAnswersById[currentQuestionId] !== undefined ? appState.quizAnswersById[currentQuestionId] : null;
 
-        if (currentAnswer === null || currentAnswer === undefined) {
-            return;
-        }
+        if (currentAnswer === null || currentAnswer === undefined) return;
 
         if (appState.quizStep < questionIds.length - 1) {
-            appState.quizStep = appState.quizStep + 1;
+            appState.quizStep++;
             render({ animate: false });
         } else {
             appState.view = "onboarding";
             render({ animate: true });
         }
-    } else if (action === "onboard-focus") {
-        appState.selFocus = target.dataset.value;
-        appState.selFit = "";
-        render({ animate: false });
-    } else if (action === "onboard-fit") {
-        appState.selFit = target.dataset.value;
-        render({ animate: false });
-    } else if (action === "onboard-palette") {
-        appState.selPalette = target.dataset.value;
-        render({ animate: false });
-    } else if (action === "onboard-colour-use") {
-        appState.selColourUse = target.dataset.value;
-        render({ animate: false });
-    } else if (action === "onboard-submit") {
+    }
+    else if (action === "onboard-focus") { appState.selFocus = target.dataset.value; appState.selFit = ""; render({ animate: false }); }
+    else if (action === "onboard-fit") { appState.selFit = target.dataset.value; render({ animate: false }); }
+    else if (action === "onboard-palette") { appState.selPalette = target.dataset.value; render({ animate: false }); }
+    else if (action === "onboard-colour-use") { appState.selColourUse = target.dataset.value; render({ animate: false }); }
+    else if (action === "onboard-submit") {
         var nameInputEl = document.getElementById("onboard-name-input");
-        if (nameInputEl && nameInputEl.value.trim()) {
-            appState.clientName = formatClientName(nameInputEl.value);
-        }
+        if (nameInputEl && nameInputEl.value.trim()) appState.clientName = formatClientName(nameInputEl.value);
 
-        if (
-            !appState.clientName ||
-            !appState.selFocus ||
-            !appState.selFit ||
-            !appState.selPalette ||
-            !appState.selColourUse
-        ) {
-            return;
-        }
+        if (!appState.clientName || !appState.selFocus || !appState.selFit || !appState.selPalette || !appState.selColourUse) return;
 
-        // Store archetype key for worksheet
         var rawScores = scoreArchetypeAnswers();
         var scores = applyOnboardingArchetypeAdjustments(rawScores);
         var primaryKey = "s";
         var highestScore = -1;
         for (var key in scores) {
-            if (scores[key] > highestScore) {
-                primaryKey = key;
-                highestScore = scores[key];
-            }
+            if (scores[key] > highestScore) { primaryKey = key; highestScore = scores[key]; }
         }
         appState.archetypeKey = primaryKey;
 
         appState.view = "result";
         render({ animate: true });
-    } else if (action === "colour-pick") {
+    }
+    else if (action === "colour-pick") {
         var colourIdx = parseInt(target.dataset.index, 10);
         var colourQuestion = colourDirectionQuestions[appState.colourStep];
-
         appState.colourAnswersById[colourQuestion.id] = colourIdx;
 
-        var allColourOpts = document.querySelectorAll(
-            ".arch-opt, .arch-opt--colour"
-        );
-        for (var i = 0; i < allColourOpts.length; i++) {
-            allColourOpts[i].classList.remove("sel");
-        }
+        var allColourOpts = document.querySelectorAll(".arch-opt, .arch-opt--colour");
+        for (var i = 0; i < allColourOpts.length; i++) allColourOpts[i].classList.remove("sel");
 
         var clickedOption = target.closest(".arch-opt, .arch-opt--colour");
-        if (clickedOption) {
-            clickedOption.classList.add("sel");
-        }
+        if (clickedOption) clickedOption.classList.add("sel");
 
         var nextBtn = document.querySelector(".arch-btn-next");
-        if (nextBtn) {
-            nextBtn.disabled = false;
-        }
+        if (nextBtn) nextBtn.disabled = false;
 
-        // 🌟 FORCE SAVE TO IPAD MEMORY INSTANTLY WITHOUT FLICKERING
         localStorage.setItem("bbs_session", JSON.stringify(appState));
-    } else if (action === "colour-next") {
+    }
+    else if (action === "colour-next") {
         var currentColourQuestion = colourDirectionQuestions[appState.colourStep];
-        var currentColourAnswer =
-            appState.colourAnswersById &&
-                appState.colourAnswersById[currentColourQuestion.id] !== undefined
-                ? appState.colourAnswersById[currentColourQuestion.id]
-                : null;
+        var currentColourAnswer = appState.colourAnswersById && appState.colourAnswersById[currentColourQuestion.id] !== undefined ? appState.colourAnswersById[currentColourQuestion.id] : null;
 
-        if (currentColourAnswer === null || currentColourAnswer === undefined) {
-            return;
-        }
+        if (currentColourAnswer === null || currentColourAnswer === undefined) return;
 
         if (appState.colourStep < colourDirectionQuestions.length - 1) {
             appState.colourStep++;
@@ -5639,23 +5370,19 @@ document.body.addEventListener("click", function (e) {
             appState.view = "colour-result";
             render({ animate: true });
         }
-    } else if (action === "colour-back") {
-        if (appState.colourStep > 0) {
-            appState.colourStep--;
-            render({ animate: false });
-        } else {
-            navigateHome();
-        }
-    } else if (action === "colour-restart") {
-        // 🌟 WIPE COLOUR MEMORY SO IT DOES NOT "RESUME"
+    }
+    else if (action === "colour-back") {
+        if (appState.colourStep > 0) { appState.colourStep--; render({ animate: false }); }
+        else { navigateHome(); }
+    }
+    else if (action === "colour-restart") {
         appState.colourStep = 0;
         appState.colourAnswersById = {};
         appState.colourResultKey = null;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
-
         navigateColourDirection();
-    } else if (action === "style-restart") {
-        // Wipe all Style Direction memory so it does not "Resume"
+    }
+    else if (action === "style-restart") {
         appState.quizStep = 0;
         appState.quizAnswers = [];
         appState.quizAnswersById = {};
@@ -5665,38 +5392,29 @@ document.body.addEventListener("click", function (e) {
         appState.selColourUse = "";
         appState.selClimate = "";
         appState.archetypeKey = null;
-
-        // Save the wiped state instantly
         localStorage.setItem("bbs_session", JSON.stringify(appState));
-
-        // Launch a fresh quiz
         navigateDiscover();
-    } else if (action === "result-link") {
+    }
+    else if (action === "result-link") {
         var path = JSON.parse(target.dataset.path);
         navigateGuide(path);
-    } else if (action === "navigate-child") {
+    }
+    else if (action === "navigate-child") {
         var childKey = target.dataset.child;
         var newPath = appState.guidePath.slice();
         newPath.push(childKey);
         navigateGuide(newPath);
-    } else if (action === "save-card") {
+    }
+    else if (action === "save-card") {
         var card = document.getElementById("arch-style-card");
-        if (!card) {
-            alert("Tip: Take a screenshot of your style card!");
-            return;
-        }
+        if (!card) { alert("Tip: Take a screenshot of your style card!"); return; }
         if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
             alert("Export libraries not loaded. Please refresh and try again.");
             return;
         }
 
-        var filePrefix =
-            appState.view === "result"
-                ? "BBS-Style-Archetype-"
-                : "BBS-Colour-Direction-";
-        var clientName = appState.clientName
-            ? appState.clientName.replace(/\s+/g, "")
-            : "Profile";
+        var filePrefix = appState.view === "result" ? "BBS-Style-Archetype-" : "BBS-Colour-Direction-";
+        var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Profile";
 
         card.classList.add("is-exporting");
 
@@ -5708,146 +5426,143 @@ document.body.addEventListener("click", function (e) {
                 logging: false,
                 windowWidth: card.scrollWidth,
                 windowHeight: card.scrollHeight,
-            })
-                .then(function (canvas) {
-                    try {
-                        // Calculate PDF dimensions to match card aspect ratio
-                        var imgWidth = 210; // A4 width in mm
-                        var imgHeight = (canvas.height * imgWidth) / canvas.width;
+            }).then(function (canvas) {
+                try {
+                    var imgWidth = 210;
+                    var imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
 
-                        // Determine orientation based on aspect ratio
-                        var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
+                    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
+                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-                        // Create PDF
-                        var pdf = new window.jspdf.jsPDF({
-                            orientation: orientation,
-                            unit: "mm",
-                            format: "a4",
-                        });
+                    var xOffset = 0, yOffset = 0;
+                    var pageHeight = orientation === "portrait" ? 297 : 210;
 
-                        var imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-                        // Center the card on the page if smaller than A4
-                        var xOffset = 0;
-                        var yOffset = 0;
-
-                        var pageHeight = orientation === "portrait" ? 297 : 210;
-
-                        if (imgHeight < pageHeight) {
-                            yOffset = (pageHeight - imgHeight) / 2;
-                        } else {
-                            // If card is taller than page, scale to fit
-                            imgHeight = pageHeight - 20; // 10mm margin top/bottom
-                            imgWidth = (canvas.width * imgHeight) / canvas.height;
-                            yOffset = 10;
-
-                            if (imgWidth > 210) {
-                                imgWidth = 190; // 10mm margin left/right
-                                imgHeight = (canvas.height * imgWidth) / canvas.width;
-                                xOffset = 10;
-                            }
+                    if (imgHeight < pageHeight) {
+                        yOffset = (pageHeight - imgHeight) / 2;
+                    } else {
+                        imgHeight = pageHeight - 20;
+                        imgWidth = (canvas.width * imgHeight) / canvas.height;
+                        yOffset = 10;
+                        if (imgWidth > 210) {
+                            imgWidth = 190;
+                            imgHeight = (canvas.height * imgWidth) / canvas.width;
+                            xOffset = 10;
                         }
-
-                        pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
-                        pdf.save(filePrefix + clientName + ".pdf");
-
-                        card.classList.remove("is-exporting");
-                    } catch (err) {
-                        card.classList.remove("is-exporting");
-                        console.error("PDF generation failed:", err);
-                        alert("Could not generate PDF. Please take a screenshot instead.");
                     }
-                })
-                .catch(function (err) {
+
+                    pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
+                    pdf.save(filePrefix + clientName + ".pdf");
                     card.classList.remove("is-exporting");
-                    console.error("Canvas rendering failed:", err);
-                    alert("Export failed. Please take a screenshot of your style card.");
-                });
-        }, 250);
-    } else if (action === "book-visit") {
-        window.open(
-            "https://www.benjaminbarkerstudios.com/pages/studios",
-            "_blank"
-        );
-    } else if (action === "show-qr") {
-        // Generate link from state
-        var link = generateShareLink();
-        var modal = document.getElementById("qr-modal");
-
-        if (modal && typeof QRious !== "undefined") {
-            // Clear old canvas
-            var canvas = document.getElementById('qr-canvas');
-            var context = canvas.getContext('2d');
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw fresh QR Code
-            new QRious({
-                element: canvas,
-                value: link,
-                size: 240, // High-res size for easy scanning
-                background: '#ffffff',
-                foreground: '#050505',
-                level: 'M' // Medium error correction (cleaner look)
+                } catch (err) {
+                    card.classList.remove("is-exporting");
+                    console.error("PDF generation failed:", err);
+                }
+            }).catch(function (err) {
+                card.classList.remove("is-exporting");
+                console.error("Canvas rendering failed:", err);
             });
+        }, 250);
+    }
+    else if (action === "share-native") {
+        // 🆕 NATIVE SHARE / AIRDROP
+        var shareCard = null;
+        var filename = 'BBS-Profile.jpg';
+        var isWorksheet = false;
 
-            // Animate modal in
-            modal.classList.add('is-visible');
-        } else {
-            alert("QR Library failed to load. Please check your connection.");
+        if (appState.view === "result") {
+            shareCard = document.getElementById("arch-style-card");
+            var cName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
+            filename = 'BBS-Style-Archetype-' + cName + '.jpg';
+        } else if (appState.view === "worksheet") {
+            // For worksheet we share the whole visible shell
+            shareCard = document.querySelector(".worksheet-shell");
+            var wName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
+            filename = 'BBS-Wardrobe-Strategy-' + wName + '.jpg';
+            isWorksheet = true;
         }
 
-    } else if (action === "close-qr") {
-        // Hide modal
-        var modal = document.getElementById("qr-modal");
-        if (modal) {
-            modal.classList.remove('is-visible');
+        if (!shareCard) return;
+
+        if (!navigator.share || !navigator.canShare) {
+            alert("Your device does not support native sharing. Please use the Save PDF button.");
+            return;
         }
-    } else if (action === "worksheet") {
-        navigateWorksheet();
-    } else if (action === "toggle-item") {
+
+        var btn = target.closest("button");
+        var originalText = btn.innerText;
+        btn.innerText = "Preparing...";
+
+        if (!isWorksheet) shareCard.classList.add("is-exporting");
+
+        setTimeout(function () {
+            html2canvas(shareCard, {
+                scale: 2.5, // slightly lower scale to keep filesize reasonable for AirDrop
+                backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
+                useCORS: true,
+                logging: false
+            }).then(function (canvas) {
+                if (!isWorksheet) shareCard.classList.remove("is-exporting");
+
+                canvas.toBlob(function (blob) {
+                    var file = new File([blob], filename, { type: 'image/jpeg', lastModified: Date.now() });
+                    var shareData = {
+                        title: 'Benjamin Barker Studios Profile',
+                        text: 'Your bespoke styling profile.',
+                        files: [file]
+                    };
+
+                    if (navigator.canShare(shareData)) {
+                        navigator.share(shareData)
+                            .then(function () { btn.innerText = originalText; })
+                            .catch(function (err) { console.log('Share cancelled'); btn.innerText = originalText; });
+                    } else {
+                        alert("Your browser cannot share this file.");
+                        btn.innerText = originalText;
+                    }
+                }, 'image/jpeg', 0.85);
+
+            }).catch(function (err) {
+                if (!isWorksheet) shareCard.classList.remove("is-exporting");
+                btn.innerText = originalText;
+                console.error("Canvas rendering failed:", err);
+            });
+        }, 250);
+    }
+    else if (action === "worksheet") { navigateWorksheet(); }
+    else if (action === "toggle-item") {
         var itemId = target.dataset.itemId;
         if (!itemId) return;
 
-        if (!appState.wardrobeChecklist) {
-            appState.wardrobeChecklist = {};
-        }
-
-        if (!appState.wardrobeChecklist[itemId]) {
-            appState.wardrobeChecklist[itemId] = { checked: false, expanded: false };
-        }
+        if (!appState.wardrobeChecklist) appState.wardrobeChecklist = {};
+        if (!appState.wardrobeChecklist[itemId]) appState.wardrobeChecklist[itemId] = { checked: false, expanded: false };
 
         appState.wardrobeChecklist[itemId].checked = !appState.wardrobeChecklist[itemId].checked;
 
         localStorage.setItem('bbs_session', JSON.stringify(appState));
         render({ animate: false });
-
-    } else if (action === "toggle-why") {
+    }
+    else if (action === "toggle-why") {
         e.stopPropagation();
-        var itemId = target.dataset.itemId;
-        if (!itemId) return;
+        var whyId = target.dataset.itemId;
+        if (!whyId) return;
 
-        if (!appState.wardrobeChecklist) {
-            appState.wardrobeChecklist = {};
-        }
+        if (!appState.wardrobeChecklist) appState.wardrobeChecklist = {};
+        if (!appState.wardrobeChecklist[whyId]) appState.wardrobeChecklist[whyId] = { checked: false, expanded: false };
 
-        if (!appState.wardrobeChecklist[itemId]) {
-            appState.wardrobeChecklist[itemId] = { checked: false, expanded: false };
-        }
+        appState.wardrobeChecklist[whyId].expanded = !appState.wardrobeChecklist[whyId].expanded;
 
-        appState.wardrobeChecklist[itemId].expanded = !appState.wardrobeChecklist[itemId].expanded;
-
-        var itemEl = document.querySelector('.worksheet-item[data-item-id="' + itemId + '"]');
-        if (itemEl) {
-            itemEl.classList.toggle('expanded');
-        }
+        var itemEl = document.querySelector('.worksheet-item[data-item-id="' + whyId + '"]');
+        if (itemEl) itemEl.classList.toggle('expanded');
 
         localStorage.setItem('bbs_session', JSON.stringify(appState));
-
-    } else if (action === "worksheet-guide-link") {
+    }
+    else if (action === "worksheet-guide-link") {
         e.stopPropagation();
         var guidePath = JSON.parse(target.dataset.path);
         navigateGuide(guidePath);
-    } else if (action === "export-worksheet") {
+    }
+    else if (action === "export-worksheet") {
         exportWorksheetPDF();
     }
 });
