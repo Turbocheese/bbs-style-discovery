@@ -6289,12 +6289,15 @@ function parseUrlState() {
 
         for (var i = 0; i < pairs.length; i++) {
             var pair = pairs[i].split("=");
-            if (pair.length === 2) {
+            // SAFE CHECK: Ensure pair actually exists before calling .replace()
+            if (pair.length === 2 && pair !== undefined) {
                 params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
             }
         }
 
-        if (params.arch && archetypeProfiles[params.arch]) {
+        if (params.arch && typeof archetypeProfiles !== 'undefined' && archetypeProfiles[params.arch]) {
+            console.log("📥 Loading bespoke profile from QR Code/URL...");
+
             appState.archetypeKey = params.arch;
             appState.selPalette = params.pal || "";
             appState.selClimate = params.clim || "";
@@ -6312,6 +6315,7 @@ function parseUrlState() {
 
             appState.view = "result";
 
+            // Clean the URL without reloading the page
             window.history.replaceState({}, document.title, window.location.pathname);
 
             return true;
@@ -6322,6 +6326,7 @@ function parseUrlState() {
 
     return false;
 }
+
 
 
 
