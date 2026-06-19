@@ -118,7 +118,8 @@ var colourDirectionQuestions = [
     {
         id: "undertone",
         text: "Which undertone feels closest to your skin?",
-        helper: "This is about the subtle warmth or coolness in the skin, not your overall depth.",
+        helper:
+            "This is about the subtle warmth or coolness in the skin, not your overall depth.",
         opts: [
             {
                 a: "Warmer / golden",
@@ -517,7 +518,8 @@ var colourDirectionProfiles = {
             { name: "Soft Blue", hex: "#AFC4D6" },
         ],
         contrast: "Soft",
-        contrastNote: "Keep combinations tonal and gently blended rather than strongly separated.",
+        contrastNote:
+            "Keep combinations tonal and gently blended rather than strongly separated.",
         matching: [
             "Stone + Olive + Cream",
             "Warm Taupe + Tobacco + Soft Blue",
@@ -525,24 +527,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Light Absorbing Textures",
-            desc: "Your skin harmonises best with matte fabrics. Opt for linen blends, brushed cottons, and flannel. These textures naturally diffuse light, making colours appear softer and richer, preventing the clothes from overpowering you."
+            desc: "Your skin harmonises best with matte fabrics. Opt for linen blends, brushed cottons, and flannel. These textures naturally diffuse light, making colours appear softer and richer, preventing the clothes from overpowering you.",
         },
         contrastArchitecture: {
             title: "Tonal Layering",
-            desc: "When pairing a jacket and shirt, keep the shades relatively close. A tobacco jacket over a warm taupe shirt creates a continuous, elegant flow that suits you far better than stark contrast."
+            desc: "When pairing a jacket and shirt, keep the shades relatively close. A tobacco jacket over a warm taupe shirt creates a continuous, elegant flow that suits you far better than stark contrast.",
         },
         hardware: {
             title: "Organic Hardware",
-            desc: "Favour matte brass, bronze, dark brown horn, and woven leather buttons. Avoid cold silver metals or stark black onyx, as they will disrupt your warm, grounded baseline."
+            desc: "Favour matte brass, bronze, dark brown horn, and woven leather buttons. Avoid cold silver metals or stark black onyx, as they will disrupt your warm, grounded baseline.",
         },
         pattern: {
             title: "Blended Geometry",
-            desc: "Avoid stark, high contrast chalk stripes. You require blended, tonal patterns like muted glen checks or subtle herringbone where the colours bleed gently into one another."
+            desc: "Avoid stark, high contrast chalk stripes. You require blended, tonal patterns like muted glen checks or subtle herringbone where the colours bleed gently into one another.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If you must wear a stark black or pure optic white, keep it strictly to the lower half of the body. Always ground harsh colours by wearing your core tonal shades directly near the face."
-        }
+            desc: "If you must wear a stark black or pure optic white, keep it strictly to the lower half of the body. Always ground harsh colours by wearing your core tonal shades directly near the face.",
+        },
     },
     clean_cool_contrast: {
         key: "clean_cool_contrast",
@@ -567,7 +569,8 @@ var colourDirectionProfiles = {
             { name: "Forest", hex: "#2F4A3C" },
         ],
         contrast: "Balanced to Strong",
-        contrastNote: "Clearer contrast works well for you, but it should still feel controlled rather than stark.",
+        contrastNote:
+            "Clearer contrast works well for you, but it should still feel controlled rather than stark.",
         matching: [
             "Navy + Off-White + Soft Grey",
             "Charcoal + Airforce Blue + White",
@@ -575,24 +578,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Crisp & Light Bouncing",
-            desc: "Your profile requires clarity. You excel in high-twist worsted wools, crisp poplin, and gabardine. These fabrics bounce light cleanly, ensuring your colours stay sharp, saturated, and highly defined."
+            desc: "Your profile requires clarity. You excel in high-twist worsted wools, crisp poplin, and gabardine. These fabrics bounce light cleanly, ensuring your colours stay sharp, saturated, and highly defined.",
         },
         contrastArchitecture: {
             title: "Sharp Separation",
-            desc: "You carry visual separation beautifully. Build a clean, structured base of contrast. Framing your face with a deep charcoal jacket and a stark off-white shirt projects natural authority."
+            desc: "You carry visual separation beautifully. Build a clean, structured base of contrast. Framing your face with a deep charcoal jacket and a stark off-white shirt projects natural authority.",
         },
         hardware: {
             title: "Polished & Cold",
-            desc: "Opt for stark white Mother of Pearl, onyx, or polished silver metals. Avoid warm brass or wooden horn buttons. You need hardware that mirrors the clean edge of your palette."
+            desc: "Opt for stark white Mother of Pearl, onyx, or polished silver metals. Avoid warm brass or wooden horn buttons. You need hardware that mirrors the clean edge of your palette.",
         },
         pattern: {
             title: "Defined Edges",
-            desc: "You handle highly defined, geometric prints perfectly. Sharp pinstripes, crisp windowpanes, and high contrast houndstooth are incredibly effective on your profile."
+            desc: "You handle highly defined, geometric prints perfectly. Sharp pinstripes, crisp windowpanes, and high contrast houndstooth are incredibly effective on your profile.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If you want to wear a colour that is overly warm or muted, anchor it with pure navy or stark white directly against the collar. This frames your face in your best contrast while allowing the experimental colour to act as an accent."
-        }
+            desc: "If you want to wear a colour that is overly warm or muted, anchor it with pure navy or stark white directly against the collar. This frames your face in your best contrast while allowing the experimental colour to act as an accent.",
+        },
     },
     earth_led_balance: {
         key: "earth_led_balance",
@@ -617,7 +620,8 @@ var colourDirectionProfiles = {
             { name: "Soft Moss", hex: "#6C6F45" },
         ],
         contrast: "Balanced",
-        contrastNote: "You work best with grounded contrast. You need enough separation to create structure, but not so much that the palette feels harsh.",
+        contrastNote:
+            "You work best with grounded contrast. You need enough separation to create structure, but not so much that the palette feels harsh.",
         matching: [
             "Olive + Sand + Cream",
             "Tobacco + Terracotta + Stone",
@@ -625,24 +629,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Rich & Dimensional",
-            desc: "Flat, shiny fabrics can look synthetic on you. Lean into texture with tweed, hopsack, and heavy twills. The micro-shadows created by these weaves deepen your earthy colours and give them incredible architectural weight."
+            desc: "Flat, shiny fabrics can look synthetic on you. Lean into texture with tweed, hopsack, and heavy twills. The micro-shadows created by these weaves deepen your earthy colours and give them incredible architectural weight.",
         },
         contrastArchitecture: {
             title: "Textural Contrast",
-            desc: "Instead of relying purely on contrasting colours, build your outfit using different textures. An olive hopsack jacket over a cream brushed cotton shirt provides visual depth without jarring colour breaks."
+            desc: "Instead of relying purely on contrasting colours, build your outfit using different textures. An olive hopsack jacket over a cream brushed cotton shirt provides visual depth without jarring colour breaks.",
         },
         hardware: {
             title: "Antiqued Elements",
-            desc: "Select antiqued brass, tortoiseshell, and burnt horn. Highly polished silver or glossy metals will look disconnected. Your hardware should look as organic and rich as your cloth."
+            desc: "Select antiqued brass, tortoiseshell, and burnt horn. Highly polished silver or glossy metals will look disconnected. Your hardware should look as organic and rich as your cloth.",
         },
         pattern: {
             title: "Textural Weaves",
-            desc: "Favour patterns created by the weave itself rather than printed ink. Donegal flecks, complex gunclub checks, and slubby linen irregularities bring your wardrobe to life."
+            desc: "Favour patterns created by the weave itself rather than printed ink. Donegal flecks, complex gunclub checks, and slubby linen irregularities bring your wardrobe to life.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If you must wear a stark, high contrast colour like black or pure white, break it up with heavy texture. A black corduroy or a white heavy knit softens the optical harshness significantly."
-        }
+            desc: "If you must wear a stark, high contrast colour like black or pure white, break it up with heavy texture. A black corduroy or a white heavy knit softens the optical harshness significantly.",
+        },
     },
     quiet_monochrome: {
         key: "quiet_monochrome",
@@ -666,7 +670,8 @@ var colourDirectionProfiles = {
             { name: "Soft Burgundy", hex: "#6E2233" },
         ],
         contrast: "Soft to Balanced",
-        contrastNote: "You suit tonal combinations best. Let value and texture create structure rather than heavy colour contrast.",
+        contrastNote:
+            "You suit tonal combinations best. Let value and texture create structure rather than heavy colour contrast.",
         matching: [
             "Charcoal + Off-White + Soft Grey",
             "Stone + Grey + Black",
@@ -674,24 +679,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Matte & Melange",
-            desc: "You excel in melange yarns where multiple subtle shades are spun into a single thread. Look for fresco, brushed wools, and chambray. These fabrics provide a soft focus finish that mirrors your natural elegance."
+            desc: "You excel in melange yarns where multiple subtle shades are spun into a single thread. Look for fresco, brushed wools, and chambray. These fabrics provide a soft focus finish that mirrors your natural elegance.",
         },
         contrastArchitecture: {
             title: "Subtle Gradation",
-            desc: "Master the art of the gradient. Rather than pairing a stark white shirt with a black jacket, pair a soft grey shirt with a charcoal jacket. This seamless transition elevates the tailoring significantly."
+            desc: "Master the art of the gradient. Rather than pairing a stark white shirt with a black jacket, pair a soft grey shirt with a charcoal jacket. This seamless transition elevates the tailoring significantly.",
         },
         hardware: {
             title: "Brushed Metals",
-            desc: "Pewter, brushed steel, and smoked Mother of Pearl are flawless choices. They provide structure without breaking the quiet continuity of your monochromatic palette."
+            desc: "Pewter, brushed steel, and smoked Mother of Pearl are flawless choices. They provide structure without breaking the quiet continuity of your monochromatic palette.",
         },
         pattern: {
             title: "Micro Geometrics",
-            desc: "Large prints will overwhelm your profile. Rely on tonal micro-patterns. Nailhead, bird's eye, and tight micro-houndstooth give your suiting character upon close inspection."
+            desc: "Large prints will overwhelm your profile. Rely on tonal micro-patterns. Nailhead, bird's eye, and tight micro-houndstooth give your suiting character upon close inspection.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If an occasion demands vibrant colour, execute it purely through silk accessories. A densely patterned, rich silk pocket square provides interest without compromising your calm foundation."
-        }
+            desc: "If an occasion demands vibrant colour, execute it purely through silk accessories. A densely patterned, rich silk pocket square provides interest without compromising your calm foundation.",
+        },
     },
     light_warm_clarity: {
         key: "light_warm_clarity",
@@ -716,7 +721,8 @@ var colourDirectionProfiles = {
             { name: "Muted Rust", hex: "#B4603D" },
         ],
         contrast: "Soft to Balanced",
-        contrastNote: "Lighter combinations work well for you. They should stay warm and clear rather than icy or heavily contrasted.",
+        contrastNote:
+            "Lighter combinations work well for you. They should stay warm and clear rather than icy or heavily contrasted.",
         matching: [
             "Cream + Soft Blue + Stone",
             "Sand + Warm Taupe + Olive",
@@ -724,24 +730,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Smooth & Fluid",
-            desc: "Heavy, light absorbing fabrics can dull your natural brightness. Favour tropical weight wools, fine pinpoint oxford, and silk blends. A slight surface sheen keeps your lighter palette looking intentionally crisp."
+            desc: "Heavy, light absorbing fabrics can dull your natural brightness. Favour tropical weight wools, fine pinpoint oxford, and silk blends. A slight surface sheen keeps your lighter palette looking intentionally crisp.",
         },
         contrastArchitecture: {
             title: "Luminous Anchors",
-            desc: "Most men anchor their outfits with dark colours. You should anchor yours with light. A warm sand jacket over an ivory shirt presents a vibrant, clear silhouette that honors your profile perfectly."
+            desc: "Most men anchor their outfits with dark colours. You should anchor yours with light. A warm sand jacket over an ivory shirt presents a vibrant, clear silhouette that honors your profile perfectly.",
         },
         hardware: {
             title: "Light & Lively",
-            desc: "Bright gold, clear Mother of Pearl, and light tan horn buttons complement your palette. Avoid heavy dark metals that will visually drag the garment down."
+            desc: "Bright gold, clear Mother of Pearl, and light tan horn buttons complement your palette. Avoid heavy dark metals that will visually drag the garment down.",
         },
         pattern: {
             title: "Crisp & Open",
-            desc: "Prints should feel open and breathable. Spaced out stripes, lively but classic checks, and clear boundaries work perfectly. Avoid dense, muddy patterns."
+            desc: "Prints should feel open and breathable. Spaced out stripes, lively but classic checks, and clear boundaries work perfectly. Avoid dense, muddy patterns.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If you must incorporate dark, heavy winter colours, relegate them strictly to footwear and trousers. Ensure the garments framing your face remain light, clear, and warm."
-        }
+            desc: "If you must incorporate dark, heavy winter colours, relegate them strictly to footwear and trousers. Ensure the garments framing your face remain light, clear, and warm.",
+        },
     },
     deep_controlled_colour: {
         key: "deep_controlled_colour",
@@ -766,7 +772,8 @@ var colourDirectionProfiles = {
             { name: "Deep Blue", hex: "#223A5A" },
         ],
         contrast: "Balanced to Strong",
-        contrastNote: "Deeper colour works well for you when it is anchored by neutrals and kept disciplined in combination.",
+        contrastNote:
+            "Deeper colour works well for you when it is anchored by neutrals and kept disciplined in combination.",
         matching: [
             "Navy + Burgundy + Soft Stone",
             "Forest + Charcoal + Off-White",
@@ -774,24 +781,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Dense & Saturated",
-            desc: "To achieve the deep colours you require, the cloth must take dye beautifully. Heavy cavalry twills, pure worsteds, and premium cottons hold dye saturation without fading, keeping your look authoritative."
+            desc: "To achieve the deep colours you require, the cloth must take dye beautifully. Heavy cavalry twills, pure worsteds, and premium cottons hold dye saturation without fading, keeping your look authoritative.",
         },
         contrastArchitecture: {
             title: "Anchored Accents",
-            desc: "Use a dark, solid canvas to frame one deep accent. A charcoal suit with a crisp shirt creates the perfect stage for a rich forest green or burgundy tie to stand out without looking theatrical."
+            desc: "Use a dark, solid canvas to frame one deep accent. A charcoal suit with a crisp shirt creates the perfect stage for a rich forest green or burgundy tie to stand out without looking theatrical.",
         },
         hardware: {
             title: "Substantial Weight",
-            desc: "Dark gunmetal, deep brown horn, and rich antique brass anchor your garments. Flimsy or overly bright buttons will look entirely out of place against your saturated fabrics."
+            desc: "Dark gunmetal, deep brown horn, and rich antique brass anchor your garments. Flimsy or overly bright buttons will look entirely out of place against your saturated fabrics.",
         },
         pattern: {
             title: "Grounded Prints",
-            desc: "You have the visual gravity to handle bold, authoritative patterns. Wide chalk stripes and rich, dark-grounded checks look completely natural on you."
+            desc: "You have the visual gravity to handle bold, authoritative patterns. Wide chalk stripes and rich, dark-grounded checks look completely natural on you.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If an event calls for pastel or light summer colours, ensure you frame them with a heavy, dark canvas. Wearing a soft pink shirt is perfectly fine provided it is worn beneath a structured navy or charcoal jacket."
-        }
+            desc: "If an event calls for pastel or light summer colours, ensure you frame them with a heavy, dark canvas. Wearing a soft pink shirt is perfectly fine provided it is worn beneath a structured navy or charcoal jacket.",
+        },
     },
     muted_olive_balance: {
         key: "muted_olive_balance",
@@ -816,7 +823,8 @@ var colourDirectionProfiles = {
             { name: "Deep Moss", hex: "#4E5A43" },
         ],
         contrast: "Soft to Balanced",
-        contrastNote: "You work best with softened contrast and slightly muted colour relationships. Avoid very bright or stark combinations.",
+        contrastNote:
+            "You work best with softened contrast and slightly muted colour relationships. Avoid very bright or stark combinations.",
         matching: [
             "Olive + Stone + Mushroom",
             "Soft Brown + Muted Grey + Cream",
@@ -824,24 +832,24 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Complex & Woven",
-            desc: "Flat solids can feel uninspired on you. You shine in complex weaves like end-on-end or mock leno. By weaving two slightly different threads together, the fabric creates a natural muted harmony that perfectly matches your undertone."
+            desc: "Flat solids can feel uninspired on you. You shine in complex weaves like end-on-end or mock leno. By weaving two slightly different threads together, the fabric creates a natural muted harmony that perfectly matches your undertone.",
         },
         contrastArchitecture: {
             title: "Harmonious Blending",
-            desc: "Avoid visually cutting your body in half with contrasting colours. Let the shirt and jacket blend naturally. A mushroom jacket over a stone shirt provides sophisticated structure through a subtle shift, not shock."
+            desc: "Avoid visually cutting your body in half with contrasting colours. Let the shirt and jacket blend naturally. A mushroom jacket over a stone shirt provides sophisticated structure through a subtle shift, not shock.",
         },
         hardware: {
             title: "Muted Finishes",
-            desc: "Antiqued metals, grey horn, and matte finishes perform beautifully. Ensure the hardware blends into the garment rather than jumping out as a bright focal point."
+            desc: "Antiqued metals, grey horn, and matte finishes perform beautifully. Ensure the hardware blends into the garment rather than jumping out as a bright focal point.",
         },
         pattern: {
             title: "Soft Plaid & Check",
-            desc: "Favour blended plaids and softly woven checks where the boundaries between colours mix slightly. Sharp, geometric blocks of colour will clash with your softened profile."
+            desc: "Favour blended plaids and softly woven checks where the boundaries between colours mix slightly. Sharp, geometric blocks of colour will clash with your softened profile.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "Never wear pure optic white near the face. It will cast harsh shadows on an olive undertone. Always substitute pure white with soft ecru, oyster, or stone to maintain facial harmony."
-        }
+            desc: "Never wear pure optic white near the face. It will cast harsh shadows on an olive undertone. Always substitute pure white with soft ecru, oyster, or stone to maintain facial harmony.",
+        },
     },
     refined_neutral_contrast: {
         key: "refined_neutral_contrast",
@@ -866,7 +874,8 @@ var colourDirectionProfiles = {
             { name: "Airforce Blue", hex: "#5D718A" },
         ],
         contrast: "Balanced",
-        contrastNote: "You look strongest when neutrals are clearly separated. This ensures the wardrobe feels clean, structured, and intentional.",
+        contrastNote:
+            "You look strongest when neutrals are clearly separated. This ensures the wardrobe feels clean, structured, and intentional.",
         matching: [
             "Navy + Off-White + Soft Grey",
             "Charcoal + Stone + Burgundy",
@@ -874,28 +883,26 @@ var colourDirectionProfiles = {
         ],
         fabricFinish: {
             title: "Balanced Worsted",
-            desc: "You have the luxury of carrying classic tailoring fabrics beautifully. Classic serge twill and pinpoint oxford give you just enough light reflection to maintain a clean edge, without tipping into high shine or overly rustic territory."
+            desc: "You have the luxury of carrying classic tailoring fabrics beautifully. Classic serge twill and pinpoint oxford give you just enough light reflection to maintain a clean edge, without tipping into high shine or overly rustic territory.",
         },
         contrastArchitecture: {
             title: "Structured Framing",
-            desc: "Your styling should rely on classic architectural framing. A deep navy jacket paired with an ice blue or off-white shirt creates the timeless base of contrast that immediately conveys professionalism and intent."
+            desc: "Your styling should rely on classic architectural framing. A deep navy jacket paired with an ice blue or off-white shirt creates the timeless base of contrast that immediately conveys professionalism and intent.",
         },
         hardware: {
             title: "Classic & Structured",
-            desc: "Polished silver, classic navy horn, and structured metals fit your profile. Your hardware should look traditional, intent-driven, and perfectly matched to your suiting."
+            desc: "Polished silver, classic navy horn, and structured metals fit your profile. Your hardware should look traditional, intent-driven, and perfectly matched to your suiting.",
         },
         pattern: {
             title: "Traditional Tailoring",
-            desc: "Lean entirely into the classics. Prince of Wales check, sharp pinstripes, and traditional houndstooth will always look bespoke and highly appropriate on you."
+            desc: "Lean entirely into the classics. Prince of Wales check, sharp pinstripes, and traditional houndstooth will always look bespoke and highly appropriate on you.",
         },
         strategy: {
             title: "The Styling Cheat Code",
-            desc: "If you wish to introduce a loud or highly unorthodox colour, execute it strictly through micro-accessories. A vivid pocket square or a patterned sock allows expression without destroying your clean silhouette."
-        }
-    }
+            desc: "If you wish to introduce a loud or highly unorthodox colour, execute it strictly through micro-accessories. A vivid pocket square or a patterned sock allows expression without destroying your clean silhouette.",
+        },
+    },
 };
-
-
 
 function getSkinDepthSwatches() {
     return {
@@ -1023,62 +1030,62 @@ function getColourExploreLinks(profileKey) {
             guidePaths = [
                 ["colour_wardrobe", "texture_vs_colour"],
                 ["fabrics", "suiting", "hopsack"],
-                ["colour_wardrobe", "layering_in_warm_climates"]
+                ["colour_wardrobe", "layering_in_warm_climates"],
             ];
             break;
         case "clean_cool_contrast":
             guidePaths = [
                 ["colour_wardrobe", "core_colours", "navy"],
                 ["fabrics", "suiting", "high_twist_wool"],
-                ["colour_wardrobe", "core_wardrobe_anchors"]
+                ["colour_wardrobe", "core_wardrobe_anchors"],
             ];
             break;
         case "earth_led_balance":
             guidePaths = [
                 ["fabrics", "suiting", "summer_tweed"],
                 ["colour_wardrobe", "texture_vs_colour"],
-                ["colour_wardrobe", "core_colours", "stone_beige"]
+                ["colour_wardrobe", "core_colours", "stone_beige"],
             ];
             break;
         case "quiet_monochrome":
             guidePaths = [
                 ["colour_wardrobe", "texture_vs_colour"],
                 ["tailoring", "shirts", "use_case", "smart_casual"],
-                ["colour_wardrobe", "core_wardrobe_anchors"]
+                ["colour_wardrobe", "core_wardrobe_anchors"],
             ];
             break;
         case "light_warm_clarity":
             guidePaths = [
                 ["colour_wardrobe", "warm_weather_palette"],
                 ["fabrics", "suiting", "linen_suiting"],
-                ["colour_wardrobe", "core_colours", "stone_beige"]
+                ["colour_wardrobe", "core_colours", "stone_beige"],
             ];
             break;
         case "deep_controlled_colour":
             guidePaths = [
                 ["colour_wardrobe", "core_colours", "navy"],
                 ["fabrics", "suiting", "worsted_wool"],
-                ["tailoring", "suits", "styles", "double_breasted"]
+                ["tailoring", "suits", "styles", "double_breasted"],
             ];
             break;
         case "muted_olive_balance":
             guidePaths = [
                 ["colour_wardrobe", "texture_vs_colour"],
                 ["colour_wardrobe", "layering_in_warm_climates"],
-                ["fabrics", "suiting", "fresco"]
+                ["fabrics", "suiting", "fresco"],
             ];
             break;
         case "refined_neutral_contrast":
             guidePaths = [
                 ["colour_wardrobe", "core_wardrobe_anchors"],
                 ["colour_wardrobe", "core_colours", "navy"],
-                ["fabrics", "suiting", "worsted_wool"]
+                ["fabrics", "suiting", "worsted_wool"],
             ];
             break;
         default:
             guidePaths = [
                 ["colour_wardrobe", "core_wardrobe_anchors"],
-                ["colour_wardrobe", "texture_vs_colour"]
+                ["colour_wardrobe", "texture_vs_colour"],
             ];
     }
 
@@ -1091,7 +1098,7 @@ function getColourExploreLinks(profileKey) {
                     title: node.title,
                     path: guidePaths[i],
                     intro: node.intro,
-                    topic_kind: node.topic_kind || "guide"
+                    topic_kind: node.topic_kind || "guide",
                 });
             }
         }

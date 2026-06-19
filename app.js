@@ -3324,29 +3324,40 @@ function getArchetypeExploreLinks(archetype) {
 }
 
 // ============================================
-// APP STATE
+// APP STATE (Bulletproof Persistence)
 // ============================================
 
-var appState = {
-    view: "welcome",
-    quizStep: 0,
-    quizAnswers: [],
-    quizAnswersById: {},
-    quizPath: [],
-    selFocus: "",
-    selFit: "",
-    selPalette: "",
-    selColourUse: "",
-    selClimate: "",
-    archetypeKey: null,
-    guidePath: [],
-    history: [],
-    clientName: "",
+function getFreshState() {
+    return {
+        view: "welcome",
+        quizStep: 0,
+        quizAnswers: [],
+        quizAnswersById: {},
+        quizPath: [],
+        selFocus: "",
+        selFit: "",
+        selPalette: "",
+        selColourUse: "",
+        selClimate: "",
+        archetypeKey: null,
+        guidePath: [],
+        history: [],
+        clientName: "",
+        colourStep: 0,
+        colourAnswersById: {},
+        colourResultKey: null,
+        wardrobeChecklist: {},
+    };
+}
 
-    colourStep: 0,
-    colourAnswersById: {},
-    colourResultKey: null,
-};
+var savedSession = null;
+try {
+    savedSession = localStorage.getItem("bbs_session");
+} catch (e) {
+    console.log("Local storage disabled");
+}
+
+var appState = savedSession ? JSON.parse(savedSession) : getFreshState();
 
 // ============================================
 // NAVIGATION
@@ -3402,22 +3413,30 @@ function navigateBack() {
 
 function navigateHome() {
     appState.view = "home";
-    appState.quizStep = 0;
-    appState.quizAnswers = [];
-    appState.quizAnswersById = {};
-    appState.quizPath = [];
-    appState.selFocus = "";
-    appState.selFit = "";
-    appState.selPalette = "";
-    appState.selColourUse = "";
-    appState.selClimate = "";
-    appState.archetypeKey = null;
-    appState.guidePath = [];
     appState.history = [];
+    // We no longer delete the quiz answers here. The data is safe.
     render();
 }
 
 function navigateDiscover() {
+    // 1. If they already completed the quiz, take them to the Result
+    if (appState.selPalette && appState.selFocus) {
+        appState.view = "result";
+        render({ animate: true });
+        return;
+    }
+
+    // 2. If they are halfway through, resume the quiz
+    if (
+        appState.quizAnswersById &&
+        Object.keys(appState.quizAnswersById).length > 0
+    ) {
+        appState.view = "discover";
+        render({ animate: true });
+        return;
+    }
+
+    // 3. Otherwise, start fresh
     appState.view = "discover";
     appState.quizStep = 0;
     appState.quizAnswers = [];
@@ -3444,7 +3463,10 @@ function navigateGuide(path) {
     path = path || [];
     navigate("guide", { guidePath: path });
 }
-
+function navigateWorksheet() {
+    appState.view = "worksheet";
+    render({ animate: true });
+}
 function saveClientName(name) {
     var cleaned = (name || "").trim();
     if (!cleaned) return;
@@ -3454,9 +3476,8 @@ function saveClientName(name) {
 }
 
 function clearClientName() {
-    appState.clientName = "";
-    appState.view = "welcome";
-    appState.history = [];
+    localStorage.removeItem("bbs_session");
+    appState = getFreshState();
     render();
 }
 
@@ -3564,15 +3585,22 @@ function renderHome() {
     }
 
     // Watermark SVGs
-    var compassSVG = '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>';
-    var paletteSVG = '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.3 2.3 0 0 0 0-4.6H12a2 2 0 0 1 0-4h3.2A5.8 5.8 0 0 0 21 6.6 3.6 3.6 0 0 0 17.4 3H12z"></path><circle cx="7.5" cy="10" r="1"></circle><circle cx="10" cy="7.2" r="1"></circle><circle cx="14" cy="7.6" r="1"></circle><circle cx="16.5" cy="11" r="1"></circle></svg>';
-    var bookSVG = '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>';
-    var imageSVG = '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+    var compassSVG =
+        '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>';
+    var paletteSVG =
+        '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.3 2.3 0 0 0 0-4.6H12a2 2 0 0 1 0-4h3.2A5.8 5.8 0 0 0 21 6.6 3.6 3.6 0 0 0 17.4 3H12z"></path><circle cx="7.5" cy="10" r="1"></circle><circle cx="10" cy="7.2" r="1"></circle><circle cx="14" cy="7.6" r="1"></circle><circle cx="16.5" cy="11" r="1"></circle></svg>';
+    var bookSVG =
+        '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>';
+    var imageSVG =
+        '<svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
 
     // Footer SVGs
-    var sunSVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
-    var sparkSVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-    var layersSVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>';
+    var sunSVG =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
+    var sparkSVG =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+    var layersSVG =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>';
 
     return (
         '<div class="home-shell-v2">' +
@@ -3589,12 +3617,12 @@ function renderHome() {
             : "A bespoke discovery experience built around how you dress.") +
         "</p>" +
         "</div>" +
-
         '<div class="home-card-grid-triad">' +
-
         // TOP LEFT: Style
         '<div class="home-card home-card--primary" data-action="discover">' +
-        '<div class="home-card-watermark home-card-watermark--primary">' + compassSVG + "</div>" +
+        '<div class="home-card-watermark home-card-watermark--primary">' +
+        compassSVG +
+        "</div>" +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Wardrobe Blueprint</div>' +
         '<h2 class="home-card-title">Style<br>Direction</h2>' +
@@ -3602,10 +3630,11 @@ function renderHome() {
         '<div class="home-card-cta">Begin Assessment &rarr;</div>' +
         "</div>" +
         "</div>" +
-
         // TOP RIGHT: Colour
         '<div class="home-card home-card--primary" onclick="navigateColourDirection()">' +
-        '<div class="home-card-watermark home-card-watermark--primary">' + paletteSVG + "</div>" +
+        '<div class="home-card-watermark home-card-watermark--primary">' +
+        paletteSVG +
+        "</div>" +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Tonal Match</div>' +
         '<h2 class="home-card-title">Colour<br>Direction</h2>' +
@@ -3613,10 +3642,11 @@ function renderHome() {
         '<div class="home-card-cta">Begin Assessment &rarr;</div>' +
         "</div>" +
         "</div>" +
-
         // BOTTOM LEFT: Guide
         '<div class="home-card home-card--secondary" data-action="guide">' +
-        '<div class="home-card-watermark home-card-watermark--secondary">' + bookSVG + "</div>" +
+        '<div class="home-card-watermark home-card-watermark--secondary">' +
+        bookSVG +
+        "</div>" +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Library</div>' +
         '<h2 class="home-card-title">The BBS<br>Guide</h2>' +
@@ -3624,10 +3654,11 @@ function renderHome() {
         '<div class="home-card-cta">Open Guide &rarr;</div>' +
         "</div>" +
         "</div>" +
-
         // BOTTOM RIGHT: Lookbook
         '<div class="home-card home-card--secondary" onclick="navigateLookbook()">' +
-        '<div class="home-card-watermark home-card-watermark--secondary">' + imageSVG + "</div>" +
+        '<div class="home-card-watermark home-card-watermark--secondary">' +
+        imageSVG +
+        "</div>" +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Gallery</div>' +
         '<h2 class="home-card-title">Editorial<br>Lookbook</h2>' +
@@ -3635,27 +3666,25 @@ function renderHome() {
         '<div class="home-card-cta">View Gallery &rarr;</div>' +
         "</div>" +
         "</div>" +
-
         "</div>" +
-
         // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
         '<div class="home-quick-queries">' +
-        '<button class="quick-query-btn" data-action="quick-query" data-query="tropical_work">' + sunSVG + '<span>Tropical Weights</span></button>' +
+        '<button class="quick-query-btn" data-action="quick-query" data-query="tropical_work">' +
+        sunSVG +
+        "<span>Tropical Weights</span></button>" +
         '<div class="quick-query-divider"></div>' +
-        '<button class="quick-query-btn" data-action="quick-query" data-query="bbs_core">' + sparkSVG + '<span>BBS Signatures</span></button>' +
+        '<button class="quick-query-btn" data-action="quick-query" data-query="bbs_core">' +
+        sparkSVG +
+        "<span>BBS Signatures</span></button>" +
         '<div class="quick-query-divider"></div>' +
-        '<button class="quick-query-btn" data-action="quick-query" data-query="versatile">' + layersSVG + '<span>High Versatility</span></button>' +
-        '</div>' +
-
+        '<button class="quick-query-btn" data-action="quick-query" data-query="versatile">' +
+        layersSVG +
+        "<span>High Versatility</span></button>" +
+        "</div>" +
         footerActions +
         "</div>"
     );
-
 }
-
-
-
-
 
 // ============================================
 // RENDER DISCOVER — archetype quiz
@@ -4208,13 +4237,19 @@ function renderResult() {
     }
 
     var archetype = archetypeProfiles[primaryKey] || archetypeProfiles.s;
-    var secondaryArchetype = secondaryKey ? archetypeProfiles[secondaryKey] : null;
+    var secondaryArchetype = secondaryKey
+        ? archetypeProfiles[secondaryKey]
+        : null;
 
     if (secondaryArchetype && secondaryArchetype.key === archetype.key) {
         secondaryArchetype = null;
     }
 
-    var links = getCombinedArchetypeExploreLinks(archetype, secondaryArchetype, 4);
+    var links = getCombinedArchetypeExploreLinks(
+        archetype,
+        secondaryArchetype,
+        4
+    );
     var name = appState.clientName || "";
     var climateLabel = getClimateLabel();
     var garmentDrawLabel = getGarmentDrawLabel();
@@ -4227,7 +4262,6 @@ function renderResult() {
         wardrobePriority
     );
 
-    // 🌟 DECONSTRUCTING THE TEXT WALL
     var baseNotes = archetype.notes || [];
     var coreNotesHTML = "";
     for (var n = 0; n < baseNotes.length; n++) {
@@ -4235,20 +4269,35 @@ function renderResult() {
     }
 
     var garmentDrawNote = "";
-    if (garmentDrawLabel === "Cloth First") garmentDrawNote = "Prioritise cloth handle, breathability, and surface character early. The fabric itself should do much of the work.";
-    else if (garmentDrawLabel === "Shape First") garmentDrawNote = "Pay close attention to silhouette, rise, shoulder line, and trouser shape. Proportion will influence the result more than styling tricks.";
-    else if (garmentDrawLabel === "Detail First") garmentDrawNote = "Use finishing, construction, and smaller design decisions to create distinction. Details should feel intentional, not decorative.";
-    else if (garmentDrawLabel === "Wardrobe First") garmentDrawNote = "Build around pieces that combine easily and repeat well. Coherence and flexibility will make the wardrobe stronger over time.";
+    if (garmentDrawLabel === "Cloth First")
+        garmentDrawNote =
+            "Prioritise cloth handle, breathability, and surface character early. The fabric itself should do much of the work.";
+    else if (garmentDrawLabel === "Shape First")
+        garmentDrawNote =
+            "Pay close attention to silhouette, rise, shoulder line, and trouser shape. Proportion will influence the result more than styling tricks.";
+    else if (garmentDrawLabel === "Detail First")
+        garmentDrawNote =
+            "Use finishing, construction, and smaller design decisions to create distinction. Details should feel intentional, not decorative.";
+    else if (garmentDrawLabel === "Wardrobe First")
+        garmentDrawNote =
+            "Build around pieces that combine easily and repeat well. Coherence and flexibility will make the wardrobe stronger over time.";
 
     var climateNote = getClimateNote(climateLabel);
     var paletteNote = getPaletteNote(appState.selPalette);
     var colourUseNote = getColourUseNote(appState.selColourUse);
-    var staffSummary = getStaffSummary(archetype, climateLabel, appState.selPalette, appState.selColourUse);
+    var staffSummary = getStaffSummary(
+        archetype,
+        climateLabel,
+        appState.selPalette,
+        appState.selColourUse
+    );
 
-    // SVG Icons for the cards
-    var iconEnvironment = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
-    var iconPalette = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M12 2.69l5.66 4.2c3.11 3.11 3.11 8.16 0 11.27-3.11 3.11-8.16 3.11-11.27 0-3.11-3.11-3.11-8.16 0-11.27L12 2.69z"></path></svg>';
-    var iconStaff = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line></svg>';
+    var iconEnvironment =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
+    var iconPalette =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M12 2.69l5.66 4.2c3.11 3.11 3.11 8.16 0 11.27-3.11 3.11-8.16 3.11-11.27 0-3.11-3.11-3.11-8.16 0-11.27L12 2.69z"></path></svg>';
+    var iconStaff =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line></svg>';
 
     var tagsHTML = "";
     for (var t = 0; t < archetype.tags.length; t++) {
@@ -4260,10 +4309,16 @@ function renderResult() {
         var link = links[i];
         var pathJson = JSON.stringify(link.path);
         linksHTML +=
-            '<div class="arch-explore-card" data-action="result-link" data-path=\'' + pathJson + "'>" +
+            '<div class="arch-explore-card" data-action="result-link" data-path=\'' +
+            pathJson +
+            "'>" +
             '<span class="arch-explore-kind">Guide</span>' +
-            '<div class="arch-explore-title">' + link.title + "</div>" +
-            '<div class="arch-explore-intro">' + (link.intro || "") + "</div>" +
+            '<div class="arch-explore-title">' +
+            link.title +
+            "</div>" +
+            '<div class="arch-explore-intro">' +
+            (link.intro || "") +
+            "</div>" +
             "</div>";
     }
 
@@ -4289,7 +4344,7 @@ function renderResult() {
         '<div class="arch-style-card" id="arch-style-card">' +
         '<div class="arch-card-top">' +
         '<span class="arch-card-brand">Benjamin Barker Studios</span>' +
-        '<span class="arch-card-tag">STYLE ARCHETYPE</span>' + // 🌟 Updated Tag
+        '<span class="arch-card-tag">STYLE ARCHETYPE</span>' +
         "</div>" +
         (name ? '<div class="arch-card-client">Name: ' + name + "</div>" : "") +
         '<div class="arch-card-persona">' +
@@ -4303,86 +4358,104 @@ function renderResult() {
         '<div class="arch-card-baseline-grid">' +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Climate</div>' +
-        '<div class="arch-card-baseline-val">' + climateLabel + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        climateLabel +
+        "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Style Lens</div>' +
-        '<div class="arch-card-baseline-val">' + (garmentDrawLabel || "\u2014") + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        (garmentDrawLabel || "\u2014") +
+        "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Goal</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selFocus || "\u2014") + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        (appState.selFocus || "\u2014") +
+        "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Fit</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selFit || "\u2014") + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        (appState.selFit || "\u2014") +
+        "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Palette</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selPalette || "\u2014") + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        (appState.selPalette || "\u2014") +
+        "</div>" +
         "</div>" +
         '<div class="arch-card-baseline-item">' +
         '<div class="arch-card-baseline-lbl">Colour Use</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selColourUse || "\u2014") + "</div>" +
+        '<div class="arch-card-baseline-val">' +
+        (appState.selColourUse || "\u2014") +
         "</div>" +
         "</div>" +
-
+        "</div>" +
         '<div class="arch-card-section-label">Core Principles</div>' +
         '<div class="arch-card-notes" style="margin-bottom: 1.6rem;">' +
         coreNotesHTML +
         "</div>" +
-
-        // 🌟 NEW STRUCTURED BESPOKE CARDS
         '<div class="arch-card-section-label">Bespoke Insights</div>' +
-
-        ((climateNote || garmentDrawNote) ?
-            '<div class="bespoke-insight-card">' +
-            '<div class="bespoke-insight-header">' + iconEnvironment + '<span class="bespoke-insight-title">Sartorial Strategy</span></div>' +
-            '<p class="bespoke-insight-desc">' + (climateNote ? climateNote + " " : "") + garmentDrawNote + '</p>' +
-            '</div>' : "") +
-
-        ((paletteNote || colourUseNote) ?
-            '<div class="bespoke-insight-card">' +
-            '<div class="bespoke-insight-header">' + iconPalette + '<span class="bespoke-insight-title">Palette Foundation</span></div>' +
-            '<p class="bespoke-insight-desc">' + (paletteNote ? paletteNote + " " : "") + colourUseNote + '</p>' +
-            '</div>' : "") +
-
+        (climateNote || garmentDrawNote
+            ? '<div class="bespoke-insight-card">' +
+            '<div class="bespoke-insight-header">' +
+            iconEnvironment +
+            '<span class="bespoke-insight-title">Sartorial Strategy</span></div>' +
+            '<p class="bespoke-insight-desc">' +
+            (climateNote ? climateNote + " " : "") +
+            garmentDrawNote +
+            "</p>" +
+            "</div>"
+            : "") +
+        (paletteNote || colourUseNote
+            ? '<div class="bespoke-insight-card">' +
+            '<div class="bespoke-insight-header">' +
+            iconPalette +
+            '<span class="bespoke-insight-title">Palette Foundation</span></div>' +
+            '<p class="bespoke-insight-desc">' +
+            (paletteNote ? paletteNote + " " : "") +
+            colourUseNote +
+            "</p>" +
+            "</div>"
+            : "") +
         '<div class="arch-card-section-label" style="margin-top: 1rem;">Details</div>' +
         '<div class="arch-card-tags">' +
         tagsHTML +
         "</div>" +
-
-        // 🌟 STAFF NOTE STYLED AS A CALLOUT
         (staffSummary
             ? '<div class="arch-card-section-label">Staff Direction</div>' +
             '<div class="bespoke-insight-card" style="border-color: rgba(243, 239, 233, 0.3); background: rgba(255, 255, 255, 0.08);">' +
-            '<div class="bespoke-insight-header">' + iconStaff + '<span class="bespoke-insight-title" style="color: #fff;">Stylist Note</span></div>' +
-            '<p class="bespoke-insight-desc" style="color: #fff;">' + staffSummary + '</p>' +
-            '</div>'
+            '<div class="bespoke-insight-header">' +
+            iconStaff +
+            '<span class="bespoke-insight-title" style="color: #fff;">Stylist Note</span></div>' +
+            '<p class="bespoke-insight-desc" style="color: #fff;">' +
+            staffSummary +
+            "</p>" +
+            "</div>"
             : "") +
-
         '<div class="arch-card-footer">' +
         '<div class="arch-card-cta-text">Show this card to staff in store</div>' +
         '<div class="arch-card-url">benjaminbarkerstudios.com</div>' +
         "</div>" +
         "</div>" +
         "</div>" +
-
         '<div class="arch-card-actions">' +
         '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
-        '<button class="arch-btn-stroke" data-action="book-visit">Book Visit</button>' +
-        "</div>" +
+        '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
+        '<button class="arch-btn-stroke" data-action="show-qr">Share to Phone</button>' +
+        '</div>' +
 
-        // The Bridge to Colour Direction
+
         '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
         '<div class="arch-journey-bridge-content">' +
         '<div class="arch-journey-bridge-label">Next Step</div>' +
         '<h3 class="arch-journey-bridge-title">Discover Your Colour Architecture</h3>' +
         '<p class="arch-journey-bridge-desc">Your silhouette is defined. Now discover the exact cloth finish and contrast levels that harmonise with your complexion.</p>' +
-        '</div>' +
+        "</div>" +
         '<div class="arch-journey-bridge-icon">&rarr;</div>' +
-        '</div>' +
-
+        "</div>" +
         (links.length > 0
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
@@ -4393,13 +4466,502 @@ function renderResult() {
             "</div>"
             : "") +
         '<div class="arch-result-footer">' +
-        '<button class="arch-restart" data-action="home">Start Over</button>' +
+        // 🌟 HERE IS THE FIXED BUTTON ACTION:
+        '<button class="arch-restart" data-action="style-restart">Start Over</button>' +
         "</div>" +
         "</div>"
     );
 }
 
+// ============================================
+// RENDER WORKSHEET — PREMIUM ENHANCED VERSION
+// ============================================
 
+function renderWorksheet() {
+    var archetypeKey = appState.archetypeKey;
+    if (!archetypeKey)
+        return '<div class="worksheet-shell"><p>Please complete the assessment first.</p></div>';
+
+    var archetype = archetypeProfiles[archetypeKey];
+    var template = getWardrobeTemplate(archetypeKey);
+    var checklist = appState.wardrobeChecklist || {};
+    var selectedPalette = appState.selPalette || "";
+    var selectedClimate = appState.selClimate || "";
+    var garmentDrawLabel = getGarmentDrawLabel(); // 🆕 Get style lens
+
+    var foundationItems = filterItemsByClimate(
+        template.foundation,
+        selectedClimate
+    );
+    var refinementItems = filterItemsByClimate(
+        template.refinements,
+        selectedClimate
+    );
+
+    foundationItems.sort(function (a, b) {
+        return a.priority - b.priority;
+    });
+    refinementItems.sort(function (a, b) {
+        return a.priority - b.priority;
+    });
+
+    var totalItems = foundationItems.length + refinementItems.length;
+    var checkedItems = 0;
+    var foundationChecked = 0;
+    var refinementChecked = 0;
+
+    for (var key in checklist) {
+        if (checklist[key].checked) {
+            checkedItems++;
+            if (
+                foundationItems.some(function (item) {
+                    return item.id === key;
+                })
+            ) {
+                foundationChecked++;
+            } else {
+                refinementChecked++;
+            }
+        }
+    }
+
+    var progressPercent =
+        totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+
+    // 🆕 Helper to build item HTML
+    function buildItemHTML(item, isChecked, isExpanded) {
+        var checkedClass = isChecked ? " checked" : "";
+        var expandedClass = isExpanded ? " expanded" : "";
+        var guidePathJson = item.guide
+            ? JSON.stringify(item.guide).replace(/"/g, "&quot;")
+            : "";
+
+        var colorChip = getColorChipForItem(item, selectedPalette);
+        var colorChipHTML = colorChip
+            ? '<div class="worksheet-item-color-chip" style="background-color: ' +
+            colorChip.color +
+            ';" title="' +
+            colorChip.note +
+            '"></div>'
+            : "";
+
+        var tierClass = "tier-" + (item.tier || "foundation");
+        var tierLabel =
+            item.tier === "foundation"
+                ? "Foundation"
+                : item.tier === "enhancement"
+                    ? "Enhancement"
+                    : "Luxury";
+
+        var html =
+            '<div class="worksheet-item' +
+            checkedClass +
+            expandedClass +
+            '" data-item-id="' +
+            item.id +
+            '">';
+        html += '<div class="worksheet-item-priority">' + item.priority + "</div>";
+        html +=
+            '<div class="worksheet-item-check" data-action="toggle-item" data-item-id="' +
+            item.id +
+            '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
+
+        html += '<div class="worksheet-item-content">';
+        html += '<div class="worksheet-item-main">';
+        html +=
+            '<div class="worksheet-item-label-row"><div class="worksheet-item-label">' +
+            item.item +
+            "</div>" +
+            colorChipHTML +
+            "</div>";
+        html +=
+            '<div class="worksheet-item-meta"><span class="worksheet-item-tier ' +
+            tierClass +
+            '">' +
+            tierLabel +
+            "</span>";
+
+        // 🆕 Mill Sourcing UI
+        if (item.mills) {
+            html +=
+                '<span class="worksheet-item-mills"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg>' +
+                item.mills +
+                "</span>";
+        }
+
+        html += "</div></div>"; // end main
+
+        html += '<div class="worksheet-item-actions">';
+        if (item.guide)
+            html +=
+                '<button class="worksheet-item-guide-link" data-action="worksheet-guide-link" data-path=\'' +
+                guidePathJson +
+                "'>View in Guide →</button>";
+        if (item.why)
+            html +=
+                '<button class="worksheet-item-why-toggle" data-action="toggle-why" data-item-id="' +
+                item.id +
+                '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>Why this matters</button>';
+        html += "</div>";
+
+        if (item.why) {
+            html += '<div class="worksheet-item-why">';
+            html += '<div class="worksheet-item-why-label">Strategic Value:</div>';
+            html += '<div class="worksheet-item-why-text">' + item.why + "</div>";
+            if (colorChip && colorChip.note) {
+                html +=
+                    '<div class="worksheet-item-palette-note"><strong>For your ' +
+                    selectedPalette +
+                    " palette:</strong> " +
+                    colorChip.note +
+                    "</div>";
+            }
+            html += "</div>";
+        }
+        html += "</div></div>";
+        return html;
+    }
+
+    // 🆕 Combinator Logic
+    var outfitsHTML = "";
+    if (template.outfits && template.outfits.length > 0) {
+        outfitsHTML += '<div class="worksheet-section" style="margin-top: 2rem;">';
+        outfitsHTML +=
+            '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Signature Combinations</h3></div>';
+        outfitsHTML +=
+            '<p class="worksheet-section-intro">Here is how to deploy your foundation pieces together.</p>';
+        outfitsHTML += '<div class="worksheet-outfits-grid">';
+
+        for (var o = 0; o < template.outfits.length; o++) {
+            var outfit = template.outfits[o];
+
+            // Look up item names
+            var itemNames = [];
+            var outfitCheckedCount = 0;
+
+            for (var k = 0; k < outfit.items.length; k++) {
+                var reqId = outfit.items[k];
+                var foundItem =
+                    foundationItems.find(function (i) {
+                        return i.id === reqId;
+                    }) ||
+                    refinementItems.find(function (i) {
+                        return i.id === reqId;
+                    });
+                if (foundItem) {
+                    itemNames.push(foundItem.item);
+                    if (checklist[reqId] && checklist[reqId].checked)
+                        outfitCheckedCount++;
+                }
+            }
+
+            var isOutfitReady = outfitCheckedCount === itemNames.length;
+            var outfitStatusClass = isOutfitReady ? "outfit-ready" : "outfit-pending";
+            var outfitStatusText = isOutfitReady
+                ? "✓ Ready to Wear"
+                : outfitCheckedCount + "/" + itemNames.length + " Acquired";
+
+            outfitsHTML +=
+                '<div class="worksheet-outfit-card ' + outfitStatusClass + '">';
+            outfitsHTML +=
+                '<div class="worksheet-outfit-meta"><span class="outfit-tag">Capsule</span><span class="outfit-status">' +
+                outfitStatusText +
+                "</span></div>";
+            outfitsHTML +=
+                '<h4 class="worksheet-outfit-title">' + outfit.name + "</h4>";
+            outfitsHTML +=
+                '<p class="worksheet-outfit-context">' + outfit.context + "</p>";
+            outfitsHTML += '<ul class="worksheet-outfit-list">';
+            for (var n = 0; n < itemNames.length; n++) {
+                outfitsHTML += "<li>" + itemNames[n] + "</li>";
+            }
+            outfitsHTML += "</ul></div>";
+        }
+        outfitsHTML += "</div></div>";
+    }
+
+    // 🆕 Rules Logic
+    var rulesHTML = "";
+    // 🆕 Principles Logic
+    var rulesHTML = "";
+    var lensRules = getLensRules(garmentDrawLabel);
+    if (lensRules && lensRules.length > 0) {
+        rulesHTML += '<div class="worksheet-rules-card">';
+        rulesHTML +=
+            '<div class="worksheet-rules-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg> Sartorial Principles</div>';
+        rulesHTML +=
+            '<p class="worksheet-rules-intro">With a focus on <strong>' +
+            garmentDrawLabel +
+            "</strong>, keep these guiding principles in mind as you build your wardrobe:</p>";
+        rulesHTML += '<ul class="worksheet-rules-list">';
+
+        for (var r = 0; r < lensRules.length; r++) {
+            rulesHTML += "<li>" + lensRules[r] + "</li>";
+        }
+        rulesHTML += "</ul></div>";
+    }
+
+    // Render foundation
+    var foundationHTML = '<div class="worksheet-section">';
+    foundationHTML +=
+        '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Foundation Pieces</h3>';
+    foundationHTML +=
+        '<span class="worksheet-section-count">' +
+        foundationChecked +
+        " / " +
+        foundationItems.length +
+        " complete</span></div>";
+    foundationHTML += '<div class="worksheet-items">';
+    for (var i = 0; i < foundationItems.length; i++) {
+        var state = checklist[foundationItems[i].id] || {
+            checked: false,
+            expanded: false,
+        };
+        foundationHTML += buildItemHTML(
+            foundationItems[i],
+            state.checked,
+            state.expanded
+        );
+    }
+    foundationHTML += "</div></div>";
+
+    // Render refinements
+    var refinementsHTML = '<div class="worksheet-section">';
+    refinementsHTML +=
+        '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Refinements</h3>';
+    refinementsHTML +=
+        '<span class="worksheet-section-count">' +
+        refinementChecked +
+        " / " +
+        refinementItems.length +
+        " complete</span></div>";
+    refinementsHTML += '<div class="worksheet-items">';
+    for (var j = 0; j < refinementItems.length; j++) {
+        var rState = checklist[refinementItems[j].id] || {
+            checked: false,
+            expanded: false,
+        };
+        refinementsHTML += buildItemHTML(
+            refinementItems[j],
+            rState.checked,
+            rState.expanded
+        );
+    }
+    refinementsHTML += "</div></div>";
+
+    // Assemble Page
+    var html = '<div class="worksheet-shell">';
+    html +=
+        '<div class="worksheet-header"><div class="worksheet-eyebrow">Wardrobe Building Strategy</div>';
+    html += "<h1>Your Personal Worksheet</h1>";
+    html +=
+        '<p class="worksheet-intro">A considered checklist tailored to your <strong>' +
+        archetype.name +
+        "</strong> profile.</p></div>";
+
+    html += rulesHTML; // 🆕 Inject rules at top
+
+    html += '<div class="worksheet-progress-wrap">';
+    html += '<div class="worksheet-progress-header">';
+    html += '<span class="worksheet-progress-label">Wardrobe Progress</span>';
+    html +=
+        '<span class="worksheet-progress-value">' +
+        checkedItems +
+        " / " +
+        totalItems +
+        " items</span></div>";
+    html +=
+        '<div class="worksheet-progress-bar"><div class="worksheet-progress-fill" style="width: ' +
+        progressPercent +
+        '%"></div></div>';
+    html += "</div>";
+
+    html += foundationItems.length > 0 ? foundationHTML : "";
+    html += refinementItems.length > 0 ? refinementsHTML : "";
+    html += outfitsHTML; // 🆕 Inject combinations at bottom
+
+    html += '<div class="worksheet-actions">';
+    html +=
+        '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
+    html += '<button data-action="back">Back to Result</button>';
+    html += "</div></div>";
+
+    return html;
+}
+
+function exportWorksheetPDF() {
+    if (
+        typeof html2canvas === "undefined" ||
+        typeof window.jspdf === "undefined"
+    ) {
+        alert("Export libraries not loaded. Please refresh and try again.");
+        return;
+    }
+
+    var archetypeKey = appState.archetypeKey;
+    var archetype = archetypeProfiles[archetypeKey];
+    var template = getWardrobeTemplate(archetypeKey);
+    var checklist = appState.wardrobeChecklist || {};
+    var clientName = appState.clientName || "Client";
+    var selectedPalette = appState.selPalette || "";
+    var selectedClimate = appState.selClimate || "";
+    var garmentDrawLabel = getGarmentDrawLabel();
+
+    var foundationItems = filterItemsByClimate(
+        template.foundation,
+        selectedClimate
+    );
+    var refinementItems = filterItemsByClimate(
+        template.refinements,
+        selectedClimate
+    );
+    foundationItems.sort(function (a, b) {
+        return a.priority - b.priority;
+    });
+    refinementItems.sort(function (a, b) {
+        return a.priority - b.priority;
+    });
+
+    var printContent = '<div class="worksheet-export-card">';
+
+    // Header
+    printContent += '<div class="worksheet-export-header">';
+    printContent +=
+        '<div class="worksheet-export-brand">Benjamin Barker Studios</div>';
+    printContent +=
+        '<div class="worksheet-export-title">Wardrobe Strategy Worksheet</div>';
+    printContent +=
+        '<div class="worksheet-export-client">' + clientName + "</div>";
+    printContent +=
+        '<div class="worksheet-export-archetype">' + archetype.name + "</div>";
+    printContent += "</div>";
+
+    // 🆕 Principles
+    var lensRules = getLensRules(garmentDrawLabel);
+    if (lensRules.length > 0) {
+        printContent += '<div class="worksheet-export-section">';
+        printContent +=
+            '<div class="worksheet-export-section-title">Sartorial Principles (' +
+            garmentDrawLabel +
+            ")</div>";
+
+        for (var r = 0; r < lensRules.length; r++) {
+            printContent +=
+                '<div class="worksheet-export-item" style="border:none; padding-bottom:4px;">• ' +
+                lensRules[r] +
+                "</div>";
+        }
+        printContent += "</div>";
+    }
+
+    // Items
+    printContent += '<div class="worksheet-export-section">';
+    printContent +=
+        '<div class="worksheet-export-section-title">Phase 1: Foundation Pieces</div>';
+    for (var i = 0; i < foundationItems.length; i++) {
+        var item = foundationItems[i];
+        var checked = checklist[item.id] && checklist[item.id].checked ? "☑" : "☐";
+        var cNote = getColorChipForItem(item, selectedPalette)
+            ? " (" + getColorChipForItem(item, selectedPalette).note + ")"
+            : "";
+        var millNote = item.mills
+            ? '<div style="font-size:11px; color:#8a5a3b; margin-left:18px;">Source: ' +
+            item.mills +
+            "</div>"
+            : "";
+        printContent +=
+            '<div class="worksheet-export-item"><strong>' +
+            item.priority +
+            ".</strong> " +
+            checked +
+            " " +
+            item.item +
+            cNote +
+            millNote +
+            "</div>";
+    }
+    printContent += "</div>";
+
+    printContent += '<div class="worksheet-export-section">';
+    printContent +=
+        '<div class="worksheet-export-section-title">Phase 2: Refinements</div>';
+    for (var j = 0; j < refinementItems.length; j++) {
+        var refItem = refinementItems[j];
+        var rChecked =
+            checklist[refItem.id] && checklist[refItem.id].checked ? "☑" : "☐";
+        var rcNote = getColorChipForItem(refItem, selectedPalette)
+            ? " (" + getColorChipForItem(refItem, selectedPalette).note + ")"
+            : "";
+        var rMillNote = refItem.mills
+            ? '<div style="font-size:11px; color:#8a5a3b; margin-left:18px;">Source: ' +
+            refItem.mills +
+            "</div>"
+            : "";
+        printContent +=
+            '<div class="worksheet-export-item"><strong>' +
+            refItem.priority +
+            ".</strong> " +
+            rChecked +
+            " " +
+            refItem.item +
+            rcNote +
+            rMillNote +
+            "</div>";
+    }
+    printContent += "</div>";
+
+    // 🆕 Combinations
+    if (template.outfits && template.outfits.length > 0) {
+        printContent += '<div class="worksheet-export-section">';
+        printContent +=
+            '<div class="worksheet-export-section-title">Signature Combinations</div>';
+        for (var o = 0; o < template.outfits.length; o++) {
+            var outfit = template.outfits[o];
+            printContent +=
+                '<div class="worksheet-export-item" style="border:none; padding-bottom:8px;">';
+            printContent += "<strong>" + outfit.name + ":</strong> " + outfit.context;
+            printContent += "</div>";
+        }
+        printContent += "</div>";
+    }
+
+    printContent +=
+        '<div class="worksheet-export-footer">benjaminbarkerstudios.com</div>';
+    printContent += "</div>";
+
+    var tempContainer = document.createElement("div");
+    tempContainer.innerHTML = printContent;
+    tempContainer.style.position = "absolute";
+    tempContainer.style.left = "-9999px";
+    tempContainer.style.width = "800px";
+    document.body.appendChild(tempContainer);
+
+    setTimeout(function () {
+        html2canvas(tempContainer, { scale: 3, backgroundColor: "#ffffff" }).then(
+            function (canvas) {
+                var imgWidth = 210;
+                var imgHeight = (canvas.height * imgWidth) / canvas.width;
+                var pdf = new window.jspdf.jsPDF({
+                    orientation: "portrait",
+                    unit: "mm",
+                    format: "a4",
+                });
+                pdf.addImage(
+                    canvas.toDataURL("image/jpeg", 1.0),
+                    "JPEG",
+                    0,
+                    0,
+                    imgWidth,
+                    imgHeight
+                );
+                pdf.save(
+                    "BBS-Wardrobe-Strategy-" + clientName.replace(/\s+/g, "") + ".pdf"
+                );
+                document.body.removeChild(tempContainer);
+            }
+        );
+    }, 100);
+}
 
 // ============================================
 // RENDER GUIDE — router
@@ -4703,6 +5265,9 @@ function renderTopic(node) {
 // ============================================
 
 function render(options) {
+    // 🌟 AUTO-SAVE TO IPAD MEMORY ON EVERY SCREEN CHANGE
+    localStorage.setItem("bbs_session", JSON.stringify(appState));
+
     options = options || {};
     var animate = options.animate !== false;
     var app = document.getElementById("app");
@@ -4737,8 +5302,11 @@ function render(options) {
         case "colour-result":
             content = renderColourDirectionResult();
             break;
-        case "lookbook":          // 🌟 THE NEW LOOKBOOK ROUTE
+        case "lookbook": // 🌟 THE NEW LOOKBOOK ROUTE
             content = renderLookbook();
+            break;
+        case "worksheet": // 🆕 ADD THIS CASE
+            content = renderWorksheet();
             break;
         default:
             content = appState.clientName ? renderHome() : renderWelcome();
@@ -4774,7 +5342,6 @@ function render(options) {
     }, 120);
 }
 
-
 // ============================================
 // CLICK EVENT HANDLER
 // ============================================
@@ -4783,7 +5350,6 @@ var _logoTapCount = 0;
 var _logoTapTimer = null;
 
 document.getElementById("app").addEventListener("click", function (e) {
-
     // 🌟 THE HIDDEN STAFF RESET: Double-tap the logo to wipe the app
     var logoEl = e.target.closest(".bbs-logo");
     if (logoEl) {
@@ -4791,15 +5357,9 @@ document.getElementById("app").addEventListener("click", function (e) {
         clearTimeout(_logoTapTimer);
 
         if (_logoTapCount >= 2) {
-            appState.clientName = "";
-            appState.quizAnswers = [];
-            appState.quizAnswersById = {};
-            appState.colourAnswersById = {};
-            appState.history = [];
-
-            appState.view = "welcome";
+            localStorage.removeItem("bbs_session");
+            appState = getFreshState(); // 🌟 Pure, clean wipe
             render({ animate: true });
-
             _logoTapCount = 0;
             return;
         }
@@ -4940,6 +5500,8 @@ document.getElementById("app").addEventListener("click", function (e) {
             if (nextBtn) {
                 nextBtn.disabled = false;
             }
+            // 🌟 FORCE SAVE TO IPAD MEMORY INSTANTLY
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
         } else {
             render({ animate: false });
         }
@@ -4992,6 +5554,19 @@ document.getElementById("app").addEventListener("click", function (e) {
             return;
         }
 
+        // Store archetype key for worksheet
+        var rawScores = scoreArchetypeAnswers();
+        var scores = applyOnboardingArchetypeAdjustments(rawScores);
+        var primaryKey = "s";
+        var highestScore = -1;
+        for (var key in scores) {
+            if (scores[key] > highestScore) {
+                primaryKey = key;
+                highestScore = scores[key];
+            }
+        }
+        appState.archetypeKey = primaryKey;
+
         appState.view = "result";
         render({ animate: true });
     } else if (action === "colour-pick") {
@@ -5000,7 +5575,9 @@ document.getElementById("app").addEventListener("click", function (e) {
 
         appState.colourAnswersById[colourQuestion.id] = colourIdx;
 
-        var allColourOpts = document.querySelectorAll(".arch-opt, .arch-opt--colour");
+        var allColourOpts = document.querySelectorAll(
+            ".arch-opt, .arch-opt--colour"
+        );
         for (var i = 0; i < allColourOpts.length; i++) {
             allColourOpts[i].classList.remove("sel");
         }
@@ -5014,6 +5591,9 @@ document.getElementById("app").addEventListener("click", function (e) {
         if (nextBtn) {
             nextBtn.disabled = false;
         }
+
+        // 🌟 FORCE SAVE TO IPAD MEMORY INSTANTLY WITHOUT FLICKERING
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
     } else if (action === "colour-next") {
         var currentColourQuestion = colourDirectionQuestions[appState.colourStep];
         var currentColourAnswer =
@@ -5041,7 +5621,30 @@ document.getElementById("app").addEventListener("click", function (e) {
             navigateHome();
         }
     } else if (action === "colour-restart") {
+        // 🌟 WIPE COLOUR MEMORY SO IT DOES NOT "RESUME"
+        appState.colourStep = 0;
+        appState.colourAnswersById = {};
+        appState.colourResultKey = null;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+
         navigateColourDirection();
+    } else if (action === "style-restart") {
+        // Wipe all Style Direction memory so it does not "Resume"
+        appState.quizStep = 0;
+        appState.quizAnswers = [];
+        appState.quizAnswersById = {};
+        appState.selFocus = "";
+        appState.selFit = "";
+        appState.selPalette = "";
+        appState.selColourUse = "";
+        appState.selClimate = "";
+        appState.archetypeKey = null;
+
+        // Save the wiped state instantly
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+
+        // Launch a fresh quiz
+        navigateDiscover();
     } else if (action === "result-link") {
         var path = JSON.parse(target.dataset.path);
         navigateGuide(path);
@@ -5056,38 +5659,170 @@ document.getElementById("app").addEventListener("click", function (e) {
             alert("Tip: Take a screenshot of your style card!");
             return;
         }
-        if (typeof html2canvas === "undefined") {
-            alert("Tip: Take a screenshot of your style card!");
+        if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
+            alert("Export libraries not loaded. Please refresh and try again.");
             return;
         }
 
-        var filePrefix = appState.view === "result" ? "BBS-Style-Archetype-" : "BBS-Colour-Direction-";
-        var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, '') : "Profile";
+        var filePrefix =
+            appState.view === "result"
+                ? "BBS-Style-Archetype-"
+                : "BBS-Colour-Direction-";
+        var clientName = appState.clientName
+            ? appState.clientName.replace(/\s+/g, "")
+            : "Profile";
 
         card.classList.add("is-exporting");
 
         setTimeout(function () {
             html2canvas(card, {
-                scale: 3,
+                scale: 4,
                 backgroundColor: "#050505",
                 useCORS: true,
-                logging: false
-            }).then(function (canvas) {
-                var link = document.createElement("a");
-                link.download = filePrefix + clientName + ".png";
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-                card.classList.remove("is-exporting");
-            }).catch(function () {
-                card.classList.remove("is-exporting");
-                alert("Tip: Take a screenshot of your style card!");
-            });
+                logging: false,
+                windowWidth: card.scrollWidth,
+                windowHeight: card.scrollHeight,
+            })
+                .then(function (canvas) {
+                    try {
+                        // Calculate PDF dimensions to match card aspect ratio
+                        var imgWidth = 210; // A4 width in mm
+                        var imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                        // Determine orientation based on aspect ratio
+                        var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
+
+                        // Create PDF
+                        var pdf = new window.jspdf.jsPDF({
+                            orientation: orientation,
+                            unit: "mm",
+                            format: "a4",
+                        });
+
+                        var imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+                        // Center the card on the page if smaller than A4
+                        var xOffset = 0;
+                        var yOffset = 0;
+
+                        var pageHeight = orientation === "portrait" ? 297 : 210;
+
+                        if (imgHeight < pageHeight) {
+                            yOffset = (pageHeight - imgHeight) / 2;
+                        } else {
+                            // If card is taller than page, scale to fit
+                            imgHeight = pageHeight - 20; // 10mm margin top/bottom
+                            imgWidth = (canvas.width * imgHeight) / canvas.height;
+                            yOffset = 10;
+
+                            if (imgWidth > 210) {
+                                imgWidth = 190; // 10mm margin left/right
+                                imgHeight = (canvas.height * imgWidth) / canvas.width;
+                                xOffset = 10;
+                            }
+                        }
+
+                        pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
+                        pdf.save(filePrefix + clientName + ".pdf");
+
+                        card.classList.remove("is-exporting");
+                    } catch (err) {
+                        card.classList.remove("is-exporting");
+                        console.error("PDF generation failed:", err);
+                        alert("Could not generate PDF. Please take a screenshot instead.");
+                    }
+                })
+                .catch(function (err) {
+                    card.classList.remove("is-exporting");
+                    console.error("Canvas rendering failed:", err);
+                    alert("Export failed. Please take a screenshot of your style card.");
+                });
         }, 250);
     } else if (action === "book-visit") {
         window.open(
             "https://www.benjaminbarkerstudios.com/pages/studios",
             "_blank"
         );
+    } else if (action === "show-qr") {
+        // Generate link from state
+        var link = generateShareLink();
+        var modal = document.getElementById("qr-modal");
+
+        if (modal && typeof QRious !== "undefined") {
+            // Clear old canvas
+            var canvas = document.getElementById('qr-canvas');
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw fresh QR Code
+            new QRious({
+                element: canvas,
+                value: link,
+                size: 240, // High-res size for easy scanning
+                background: '#ffffff',
+                foreground: '#050505',
+                level: 'M' // Medium error correction (cleaner look)
+            });
+
+            // Animate modal in
+            modal.classList.add('is-visible');
+        } else {
+            alert("QR Library failed to load. Please check your connection.");
+        }
+
+    } else if (action === "close-qr") {
+        // Hide modal
+        var modal = document.getElementById("qr-modal");
+        if (modal) {
+            modal.classList.remove('is-visible');
+        }
+    } else if (action === "worksheet") {
+        navigateWorksheet();
+    } else if (action === "toggle-item") {
+        var itemId = target.dataset.itemId;
+        if (!itemId) return;
+
+        if (!appState.wardrobeChecklist) {
+            appState.wardrobeChecklist = {};
+        }
+
+        if (!appState.wardrobeChecklist[itemId]) {
+            appState.wardrobeChecklist[itemId] = { checked: false, expanded: false };
+        }
+
+        appState.wardrobeChecklist[itemId].checked = !appState.wardrobeChecklist[itemId].checked;
+
+        localStorage.setItem('bbs_session', JSON.stringify(appState));
+        render({ animate: false });
+
+    } else if (action === "toggle-why") {
+        e.stopPropagation();
+        var itemId = target.dataset.itemId;
+        if (!itemId) return;
+
+        if (!appState.wardrobeChecklist) {
+            appState.wardrobeChecklist = {};
+        }
+
+        if (!appState.wardrobeChecklist[itemId]) {
+            appState.wardrobeChecklist[itemId] = { checked: false, expanded: false };
+        }
+
+        appState.wardrobeChecklist[itemId].expanded = !appState.wardrobeChecklist[itemId].expanded;
+
+        var itemEl = document.querySelector('.worksheet-item[data-item-id="' + itemId + '"]');
+        if (itemEl) {
+            itemEl.classList.toggle('expanded');
+        }
+
+        localStorage.setItem('bbs_session', JSON.stringify(appState));
+
+    } else if (action === "worksheet-guide-link") {
+        e.stopPropagation();
+        var guidePath = JSON.parse(target.dataset.path);
+        navigateGuide(guidePath);
+    } else if (action === "export-worksheet") {
+        exportWorksheetPDF();
     }
 });
 
@@ -5129,6 +5864,17 @@ document.addEventListener("input", function (e) {
 // COLOUR DIRECTION HELPERS
 // ==========================================
 function navigateColourDirection() {
+    // If they already started, resume
+    if (
+        appState.colourAnswersById &&
+        Object.keys(appState.colourAnswersById).length > 0
+    ) {
+        appState.view = "colour-direction";
+        render({ animate: true });
+        return;
+    }
+
+    // Otherwise, start fresh
     appState.view = "colour-direction";
     appState.colourStep = 0;
     appState.colourAnswersById = {};
@@ -5146,11 +5892,16 @@ function renderColourDirectionResult() {
     for (var h = 0; h < profile.bestColours.length; h++) {
         heroPaletteHTML +=
             '<div class="colour-hero-swatch" style="background-color: ' +
-            profile.bestColours[h].hex + ';" title="' + profile.bestColours[h].name + '">' +
-            '<span class="colour-hero-swatch-name">' + profile.bestColours[h].name + '</span>' +
-            '</div>';
+            profile.bestColours[h].hex +
+            ';" title="' +
+            profile.bestColours[h].name +
+            '">' +
+            '<span class="colour-hero-swatch-name">' +
+            profile.bestColours[h].name +
+            "</span>" +
+            "</div>";
     }
-    heroPaletteHTML += '</div>';
+    heroPaletteHTML += "</div>";
 
     function renderColourList(items) {
         var html = '<div class="colour-result-chip-row">';
@@ -5212,11 +5963,16 @@ function renderColourDirectionResult() {
     }
 
     // 🌟 FIVE BESPOKE SVG ICONS
-    var iconFabric = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>';
-    var iconContrast = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><polygon points="12 2 2 22 22 22"></polygon></svg>';
-    var iconHardware = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="14" cy="10" r="1"></circle><circle cx="10" cy="14" r="1"></circle><circle cx="14" cy="14" r="1"></circle></svg>';
-    var iconPattern = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>';
-    var iconStrategy = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>';
+    var iconFabric =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>';
+    var iconContrast =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><polygon points="12 2 2 22 22 22"></polygon></svg>';
+    var iconHardware =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="14" cy="10" r="1"></circle><circle cx="10" cy="14" r="1"></circle><circle cx="14" cy="14" r="1"></circle></svg>';
+    var iconPattern =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>';
+    var iconStrategy =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>';
 
     return (
         '<div class="arch-result-shell">' +
@@ -5246,54 +6002,77 @@ function renderColourDirectionResult() {
         profile.name +
         "</div>" +
         '<div class="arch-card-rule"></div>' +
-
         heroPaletteHTML +
-
         '<div class="arch-card-section-label">Best On You</div>' +
         renderColourList(profile.bestColours) +
         '<div class="arch-card-section-label">Strong Neutrals</div>' +
         renderColourList(profile.strongNeutrals) +
         '<div class="arch-card-section-label">Accent Colours</div>' +
         renderColourList(profile.accentColours) +
-
         // 🌟 THE NEW GAUNTLET OF BESPOKE INSIGHTS
         '<div class="arch-card-section-label" style="margin-top: 1.5rem;">Bespoke Insights</div>' +
         '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' + iconFabric + '<span class="bespoke-insight-title">' + profile.fabricFinish.title + '</span></div>' +
-        '<p class="bespoke-insight-desc">' + profile.fabricFinish.desc + '</p>' +
-        '</div>' +
+        '<div class="bespoke-insight-header">' +
+        iconFabric +
+        '<span class="bespoke-insight-title">' +
+        profile.fabricFinish.title +
+        "</span></div>" +
+        '<p class="bespoke-insight-desc">' +
+        profile.fabricFinish.desc +
+        "</p>" +
+        "</div>" +
         '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' + iconContrast + '<span class="bespoke-insight-title">' + profile.contrastArchitecture.title + '</span></div>' +
-        '<p class="bespoke-insight-desc">' + profile.contrastArchitecture.desc + '</p>' +
-        '</div>' +
+        '<div class="bespoke-insight-header">' +
+        iconContrast +
+        '<span class="bespoke-insight-title">' +
+        profile.contrastArchitecture.title +
+        "</span></div>" +
+        '<p class="bespoke-insight-desc">' +
+        profile.contrastArchitecture.desc +
+        "</p>" +
+        "</div>" +
         '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' + iconHardware + '<span class="bespoke-insight-title">' + profile.hardware.title + '</span></div>' +
-        '<p class="bespoke-insight-desc">' + profile.hardware.desc + '</p>' +
-        '</div>' +
+        '<div class="bespoke-insight-header">' +
+        iconHardware +
+        '<span class="bespoke-insight-title">' +
+        profile.hardware.title +
+        "</span></div>" +
+        '<p class="bespoke-insight-desc">' +
+        profile.hardware.desc +
+        "</p>" +
+        "</div>" +
         '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' + iconPattern + '<span class="bespoke-insight-title">' + profile.pattern.title + '</span></div>' +
-        '<p class="bespoke-insight-desc">' + profile.pattern.desc + '</p>' +
-        '</div>' +
+        '<div class="bespoke-insight-header">' +
+        iconPattern +
+        '<span class="bespoke-insight-title">' +
+        profile.pattern.title +
+        "</span></div>" +
+        '<p class="bespoke-insight-desc">' +
+        profile.pattern.desc +
+        "</p>" +
+        "</div>" +
         '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' + iconStrategy + '<span class="bespoke-insight-title">' + profile.strategy.title + '</span></div>' +
-        '<p class="bespoke-insight-desc">' + profile.strategy.desc + '</p>' +
-        '</div>' +
-
+        '<div class="bespoke-insight-header">' +
+        iconStrategy +
+        '<span class="bespoke-insight-title">' +
+        profile.strategy.title +
+        "</span></div>" +
+        '<p class="bespoke-insight-desc">' +
+        profile.strategy.desc +
+        "</p>" +
+        "</div>" +
         '<div class="arch-card-section-label" style="margin-top: 1.5rem;">Matching Guidance</div>' +
         renderMatchingList(profile.matching) +
-
         '<div class="arch-card-footer">' +
         '<div class="arch-card-cta-text">Use this as a colour guide in store</div>' +
         '<div class="arch-card-url">benjaminbarkerstudios.com</div>' +
         "</div>" +
         "</div>" +
         "</div>" +
-
         '<div class="arch-card-actions">' +
         '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-stroke" data-action="colour-restart">Start Again</button>' +
-        '</div>' +
-
+        "</div>" +
         (links.length > 0
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
@@ -5303,23 +6082,36 @@ function renderColourDirectionResult() {
             "</div>" +
             "</div>"
             : "") +
-
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
-        '</div>' +
-
+        "</div>" +
         "</div>"
     );
 }
-
-
-
 
 // ============================================
 // COLOUR DIRECTION NAVIGATION & RENDERING
 // ============================================
 
 function navigateColourDirection() {
+    // 1. If they already completed the quiz, take them to the Result
+    if (appState.colourResultKey) {
+        appState.view = "colour-result";
+        render({ animate: true });
+        return;
+    }
+
+    // 2. If they are halfway through, resume the quiz
+    if (
+        appState.colourAnswersById &&
+        Object.keys(appState.colourAnswersById).length > 0
+    ) {
+        appState.view = "colour-direction";
+        render({ animate: true });
+        return;
+    }
+
+    // 3. Otherwise, start fresh
     appState.view = "colour-direction";
     appState.colourStep = 0;
     appState.colourAnswersById = {};
@@ -5417,9 +6209,76 @@ function renderColourDirection() {
         "</div>"
     );
 }
+// ============================================
+// URL STATE SHARING (STAFF HANDOFF)
+// ============================================
+
+function generateShareLink() {
+    var url = window.location.origin + window.location.pathname;
+    var params = [];
+
+    if (appState.archetypeKey) params.push('arch=' + encodeURIComponent(appState.archetypeKey));
+    if (appState.selPalette) params.push('pal=' + encodeURIComponent(appState.selPalette));
+    if (appState.selClimate) params.push('clim=' + encodeURIComponent(appState.selClimate));
+    if (appState.selFocus) params.push('focus=' + encodeURIComponent(appState.selFocus));
+    if (appState.selFit) params.push('fit=' + encodeURIComponent(appState.selFit));
+    if (appState.clientName) params.push('name=' + encodeURIComponent(appState.clientName));
+
+    if (params.length > 0) {
+        return url + '?' + params.join('&');
+    }
+    return url;
+}
+
+function parseUrlState() {
+    if (!window.location.search) return false;
+
+    try {
+        var search = window.location.search.substring(1);
+        var params = {};
+        var pairs = search.split('&');
+
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split('=');
+            if (pair.length === 2) {
+                params[pair] = decodeURIComponent(pair);
+            }
+        }
+
+        // If we have an archetype, boot directly into the result
+        if (params.arch && archetypeProfiles[params.arch]) {
+            appState.archetypeKey = params.arch;
+            appState.selPalette = params.pal || "";
+            appState.selClimate = params.clim || "";
+            appState.selFocus = params.focus || "";
+            appState.selFit = params.fit || "";
+            appState.clientName = params.name || "";
+
+            appState.view = "result";
+
+            // Clean the URL so if they refresh or navigate, it doesn't get stuck
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return true;
+        }
+    } catch (e) {
+        console.error("Failed to parse URL state");
+    }
+
+    return false;
+}
 
 // ============================================
 // BOOT
 // ============================================
 
-render();
+// Check if we arrived via a Share Link
+var loadedFromUrl = parseUrlState();
+
+if (loadedFromUrl) {
+    // Save this imported state to the device memory immediately
+    localStorage.setItem("bbs_session", JSON.stringify(appState));
+    render({ animate: false });
+} else {
+    // Normal boot
+    render();
+}

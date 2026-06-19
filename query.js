@@ -1,596 +1,6528 @@
-function findAllTopics(node, path, results) {
-    path = path || [];
-    results = results || [];
+/* ============================================
+   BBS Style Discovery — styles.css
+   Consolidated and cleaned. Replace entire file.
+   EB Garamond: hero titles only
+   Manrope: all UI elements, labels, descriptions
+   ============================================ */
 
-    if (!node) return results;
+/* ============================================
+   RESET & ROOT
+   ============================================ */
 
-    if (node.type === "topic") {
-        results.push({
-            path: path,
-            pathString: path.join(" > "),
-            key: node.key,
-            title: node.title,
-            intro: node.intro,
-            tags: node.tags || [],
-            metadata: node.metadata || {},
-            topic_kind: node.topic_kind || inferTopicKind(node, path),
-        });
-    }
-
-    if (node.children) {
-        for (var childKey in node.children) {
-            findAllTopics(node.children[childKey], path.concat(childKey), results);
-        }
-    }
-
-    return results;
+* {
+    margin: 0;
+    padding: 0;
+    box- sizing: border - box;
 }
 
-function inferTopicKind(node, path) {
-    path = path || [];
+:root {
+    --bg: #f5f0e8;
+    --surface: #faf8f4;
+    --surface - 2: #f2ede4;
+    --text: #2a2218;
+    --muted: #6b6155;
+    --soft: #a8998a;
+    --line: #e0d8cc;
+    --line - strong: #c8bfb0;
+    --accent: #3a2e23;
+    --accent - hover: #52422f;
+    --accent - soft: #ede6d8;
+    --shadow - sm: 0 2px 8px rgba(42, 34, 24, 0.05);
+    --shadow - md: 0 6px 20px rgba(42, 34, 24, 0.07);
+    --shadow - lg: 0 12px 36px rgba(42, 34, 24, 0.09);
+    --radius - sm: 6px;
+    --radius - md: 14px;
+    --radius - lg: 20px;
+    --radius - pill: 999px;
+    --max: 940px;
+}
+/* ============================================
+   APP SHELL — FORCE RESTORE
+   ============================================ */
 
-    if (!path.length) return "guide";
-
-    var topLevel = path;
-    var secondLevel = path || "";
-    var lastSegment = path[path.length - 1];
-
-    if (topLevel === "about") return "brand_philosophy";
-    if (topLevel === "colour_wardrobe") return "wardrobe_strategy";
-    if (topLevel === "cloth_origins") return "fabric_reference";
-
-    if (topLevel === "accessories") {
-        if (secondLevel === "shoes") {
-            return "wardrobe_strategy";
-        }
-        return "wardrobe_strategy";
-    }
-
-    if (topLevel === "fabrics") return "fabric";
-
-    if (
-        secondLevel === "fabrics" ||
-        secondLevel === "shirtings" ||
-        secondLevel === "suiting"
-    ) {
-        return "fabric";
-    }
-
-    if (
-        lastSegment === "work" ||
-        lastSegment === "travel" ||
-        lastSegment === "wedding" ||
-        lastSegment === "evening" ||
-        lastSegment === "resort" ||
-        lastSegment === "smart_casual"
-    ) {
-        return "wardrobe_strategy";
-    }
-
-    if (path.indexOf("details") !== -1 || path.indexOf("configuration") !== -1) {
-        return "garment_detail";
-    }
-
-    if (path.length > 2) return "garment_detail";
-
-    return "garment";
+body {
+    font - family: "Manrope", -apple - system, BlinkMacSystemFont, "Segoe UI",
+        sans - serif;
+    font - size: 16px;
+    line - height: 1.7;
+    color: #2a2218;
+    background: linear - gradient(160deg, #f5f0e8 0 %, #ede6d5 100 %);
+    min - height: 100vh;
+    padding: 32px 20px;
 }
 
-function queryByMetadata(filters) {
-    var allTopics = findAllTopics(guideTree);
-
-    var filtered = allTopics.filter(function (topic) {
-        var metadata = topic.metadata || {};
-
-        if (filters.climate) {
-            if (
-                !metadata.climate ||
-                metadata.climate.indexOf(filters.climate) === -1
-            ) {
-                return false;
-            }
-        }
-
-        if (filters.formality) {
-            if (
-                !metadata.formality ||
-                metadata.formality.indexOf(filters.formality) === -1
-            ) {
-                return false;
-            }
-        }
-
-        if (filters.use_case) {
-            if (
-                !metadata.use_cases ||
-                metadata.use_cases.indexOf(filters.use_case) === -1
-            ) {
-                return false;
-            }
-        }
-
-        if (filters.bbs_signature === true) {
-            if (!metadata.bbs_signature) {
-                return false;
-            }
-        }
-
-        if (filters.min_versatility) {
-            if (
-                !metadata.versatility ||
-                metadata.versatility < filters.min_versatility
-            ) {
-                return false;
-            }
-        }
-
-        return true;
-    });
-
-    var ranked = rankResults(filtered, filters);
-    return diversifyResults(ranked);
+#app {
+    max - width: 940px;
+    margin: 0 auto;
+    background: #faf8f4;
+    border: 1px solid rgba(200, 191, 176, 0.4);
+    box - shadow: 0 12px 36px rgba(42, 34, 24, 0.09);
+    padding: 72px 56px;
+    min - height: 86vh;
+    border - radius: 14px;
+    opacity: 1;
+    transition: opacity 0.2s ease;
 }
 
-// NEW: Ranking function
-function rankResults(results, filters) {
-    results.sort(function (a, b) {
-        var scoreA = calculateResultScore(a, filters);
-        var scoreB = calculateResultScore(b, filters);
-        return scoreB - scoreA; // Higher score first
-    });
-
-    return results;
+#app.is - transitioning {
+    opacity: 0;
 }
 
-function calculateResultScore(topic, filters) {
-    var score = 0;
-    var metadata = topic.metadata || {};
-    var kind = topic.topic_kind || "topic";
+/* ============================================
+     BASE
+     ============================================ */
 
-    // Core metadata signals
-    if (metadata.bbs_signature) {
-        score += 60;
-    }
-
-    if (metadata.versatility && metadata.versatility >= 5) {
-        score += 30;
-    } else if (metadata.versatility && metadata.versatility >= 4) {
-        score += 18;
-    } else if (metadata.versatility && metadata.versatility >= 3) {
-        score += 8;
-    }
-
-    if (
-        filters.use_case &&
-        metadata.use_cases &&
-        metadata.use_cases.indexOf(filters.use_case) !== -1
-    ) {
-        score += 35;
-    }
-
-    if (
-        filters.climate &&
-        metadata.climate &&
-        metadata.climate.indexOf(filters.climate) !== -1
-    ) {
-        score += 25;
-    }
-
-    if (
-        filters.formality &&
-        metadata.formality &&
-        metadata.formality.indexOf(filters.formality) !== -1
-    ) {
-        score += 20;
-    }
-
-    // Discovery-first topic kind weighting
-    if (kind === "wardrobe_strategy") {
-        score += 28;
-    } else if (kind === "garment") {
-        score += 24;
-    } else if (kind === "fabric") {
-        score += 20;
-    } else if (kind === "fabric_reference") {
-        score += 10;
-    } else if (kind === "brand_philosophy") {
-        score += 6;
-    } else if (kind === "garment_detail") {
-        score -= 8;
-    }
-
-    return score;
+body {
+    font - family: "Manrope", -apple - system, BlinkMacSystemFont, "Segoe UI",
+        sans - serif;
+    font - size: 16px;
+    line - height: 1.7;
+    color: var(--text);
+    background: linear - gradient(160deg, #f5f0e8 0 %, #ede6d5 100 %);
+    min - height: 100vh;
+    padding: 32px 20px;
 }
 
-function getMatchReason(topic, filters) {
-    var reasons = [];
-    var metadata = topic.metadata || {};
-    filters = filters || {};
-
-    if (metadata.bbs_signature) {
-        reasons.push("BBS signature piece");
-    }
-
-    if (
-        filters.use_case &&
-        metadata.use_cases &&
-        metadata.use_cases.indexOf(filters.use_case) !== -1
-    ) {
-        reasons.push("Matches " + filters.use_case);
-    }
-
-    if (
-        filters.climate &&
-        metadata.climate &&
-        metadata.climate.indexOf(filters.climate) !== -1
-    ) {
-        reasons.push("Suited to " + filters.climate);
-    }
-
-    if (
-        filters.formality &&
-        metadata.formality &&
-        metadata.formality.indexOf(filters.formality) !== -1
-    ) {
-        reasons.push("Matches " + filters.formality);
-    }
-
-    if (filters.keyword) {
-        var keyword = filters.keyword.toLowerCase();
-        var title = (topic.title || "").toLowerCase();
-        var intro = (topic.intro || "").toLowerCase();
-        var tags = topic.tags || [];
-
-        // Check sections for the match reason
-        var sectionMatch = false;
-        if (topic.sections) {
-            for (var s = 0; s < topic.sections.length; s++) {
-                var secH = (topic.sections[s].heading || "").toLowerCase();
-                var secB = (topic.sections[s].body || "").toLowerCase();
-                if (secH.indexOf(keyword) !== -1 || secB.indexOf(keyword) !== -1) {
-                    sectionMatch = true;
-                    break;
-                }
-            }
-        }
-
-        if (title.indexOf(keyword) !== -1) {
-            reasons.push("Matches keyword in title");
-        } else if (tags.join(" ").toLowerCase().indexOf(keyword) !== -1) {
-            reasons.push("Matches keyword in tags");
-        } else if (intro.indexOf(keyword) !== -1) {
-            reasons.push("Matches keyword in intro");
-        } else if (sectionMatch) {
-            reasons.push("Matches keyword in body text"); // NEW!
-        }
-    }
-
-    if (metadata.versatility && metadata.versatility >= 5) {
-        reasons.push("High versatility");
-    }
-
-    if (reasons.length === 0) {
-        reasons.push("Relevant to your search");
-    }
-
-    return reasons.slice(0, 2).join(" • ");
+#app {
+    max - width: var(--max);
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid rgba(200, 191, 176, 0.4);
+    box - shadow: var(--shadow - lg);
+    padding: 72px 56px;
+    min - height: 86vh;
+    border - radius: var(--radius - md);
+    opacity: 1;
+    transition: opacity 0.2s ease;
 }
 
-function showResults(results) {
-    if (results.length === 0) {
-        console.log("No results found.");
-        return;
-    }
-
-    console.log("\n========================================");
-    console.log("QUERY RESULTS (" + results.length + " found)");
-    console.log("========================================\n");
-
-    results.forEach(function (topic, index) {
-        console.log(index + 1 + ". " + topic.title);
-        console.log(" Path: " + topic.pathString);
-        console.log(" Type: " + topic.topic_kind);
-        console.log(" Intro: " + topic.intro);
-        if (topic.metadata.versatility) {
-            console.log(" Versatility: " + topic.metadata.versatility + "/5");
-        }
-        if (topic.metadata.bbs_signature) {
-            console.log(" ⭐ BBS Signature");
-        }
-        console.log("");
-    });
-
-    console.log("========================================\n");
+#app.is - transitioning {
+    opacity: 0;
 }
 
-function queryTropicalWork() {
-    var results = queryByMetadata({
-        climate: "tropical",
-        use_case: "work",
-    });
-    showResults(results);
-    return results;
+/* ============================================
+     TYPOGRAPHY
+     ============================================ */
+
+h1,
+    h2 {
+    font - family: "EB Garamond", Georgia, "Times New Roman", serif;
+    font - weight: 600;
+    color: var(--text);
+    letter - spacing: -0.01em;
+    line - height: 1.1;
 }
 
-function queryBBSCore() {
-    var results = queryByMetadata({
-        bbs_signature: true,
-    });
-    showResults(results);
-    return results;
+h1 {
+    font - size: 2.75rem;
+    margin - bottom: 1rem;
+    max - width: 16ch;
 }
 
-function queryVersatile() {
-    var results = queryByMetadata({
-        min_versatility: 5,
-    });
-    showResults(results);
-    return results;
+h2 {
+    font - size: 1.55rem;
+    margin - bottom: 0.75rem;
 }
 
-function buildFirstSuit() {
-    var results = queryByMetadata({
-        bbs_signature: true,
-        min_versatility: 5,
-    });
-
-    console.log("\n========================================");
-    console.log("🎯 BUILDING YOUR FIRST SUIT");
-    console.log("========================================");
-    console.log("BBS essentials with maximum versatility:\n");
-
-    showResults(results);
-    return results;
+h3 {
+    font - family: "Manrope", sans - serif;
+    font - size: 1rem;
+    font - weight: 600;
+    letter - spacing: -0.01em;
+    line - height: 1.4;
+    margin - bottom: 0.4rem;
+    color: var(--text);
 }
 
-function getTopicByPath(path) {
-    var node = guideTree;
-    for (var i = 0; i < path.length; i++) {
-        var key = path[i];
-        if (!node.children || !node.children[key]) return null;
-        node = node.children[key];
-    }
-    return node;
+h4 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 0.3rem;
 }
 
-function scoreTopicSimilarity(a, b) {
-    var score = 0;
-
-    var aTags = a.tags || [];
-    var bTags = b.tags || [];
-
-    for (var i = 0; i < aTags.length; i++) {
-        if (bTags.indexOf(aTags[i]) !== -1) {
-            score += 2;
-        }
-    }
-
-    var aMeta = a.metadata || {};
-    var bMeta = b.metadata || {};
-
-    if (aMeta.climate && bMeta.climate) {
-        for (var j = 0; j < aMeta.climate.length; j++) {
-            if (bMeta.climate.indexOf(aMeta.climate[j]) !== -1) {
-                score += 3;
-            }
-        }
-    }
-
-    if (aMeta.formality && bMeta.formality) {
-        for (var k = 0; k < aMeta.formality.length; k++) {
-            if (bMeta.formality.indexOf(aMeta.formality[k]) !== -1) {
-                score += 3;
-            }
-        }
-    }
-
-    if (aMeta.use_cases && bMeta.use_cases) {
-        for (var m = 0; m < aMeta.use_cases.length; m++) {
-            if (bMeta.use_cases.indexOf(aMeta.use_cases[m]) !== -1) {
-                score += 4;
-            }
-        }
-    }
-
-    if (aMeta.bbs_signature && bMeta.bbs_signature) {
-        score += 2;
-    }
-
-    return score;
+p {
+    margin - bottom: 0.9rem;
+    color: var(--muted);
+    line - height: 1.75;
 }
 
-function getRelatedTopics(currentPath, limit) {
-    limit = limit || 3;
-
-    var allTopics = findAllTopics(guideTree);
-    var currentPathString = currentPath.join(" > ");
-    var currentTopic = null;
-    var related = [];
-
-    for (var i = 0; i < allTopics.length; i++) {
-        if (allTopics[i].pathString === currentPathString) {
-            currentTopic = allTopics[i];
-            break;
-        }
-    }
-
-    if (!currentTopic) return [];
-
-    for (var j = 0; j < allTopics.length; j++) {
-        var topic = allTopics[j];
-
-        if (topic.pathString === currentPathString) continue;
-
-        var score = 0;
-
-        // Same parent path = strongest signal
-        if (
-            topic.path.length === currentPath.length &&
-            topic.path.slice(0, -1).join(" > ") ===
-            currentPath.slice(0, -1).join(" > ")
-        ) {
-            score += 16;
-        }
-
-        // Same top-level section
-        if (
-            topic.path.length > 0 &&
-            currentPath.length > 0 &&
-            topic.path === currentPath
-        ) {
-            score += 5;
-        }
-
-        // Same topic kind
-        if (topic.topic_kind && topic.topic_kind === currentTopic.topic_kind) {
-            score += 4;
-        }
-
-        // Shared tags / metadata similarity
-        score += scoreTopicSimilarity(currentTopic, topic);
-
-        // Small boost for strong editorial topics
-        if (topic.metadata && topic.metadata.bbs_signature) {
-            score += 2;
-        }
-
-        // Slight penalty for fabric references unless current topic is also a fabric reference
-        if (
-            topic.topic_kind === "fabric_reference" &&
-            currentTopic.topic_kind !== "fabric_reference"
-        ) {
-            score -= 2;
-        }
-
-        // Slight penalty for very generic wardrobe topics unless they genuinely match
-        if (topic.topic_kind === "wardrobe_strategy" && score < 8) {
-            score -= 2;
-        }
-
-        if (score > 0) {
-            related.push({
-                title: topic.title,
-                path: topic.path,
-                intro: topic.intro,
-                topic_kind: topic.topic_kind,
-                score: score,
-            });
-        }
-    }
-
-    related.sort(function (a, b) {
-        return b.score - a.score;
-    });
-
-    return related.slice(0, limit);
+strong {
+    color: var(--text);
+    font - weight: 600;
 }
 
-function diversifyResults(results) {
-    var diversified = [];
-    var deferred = [];
-    var seenTitles = {};
-    var seenPaths = {};
-    var kindCounts = {};
-
-    for (var i = 0; i < results.length; i++) {
-        var topic = results[i];
-        var titleKey = (topic.title || "").toLowerCase();
-        var topLevel = topic.path && topic.path.length ? topic.path : "";
-        var kind = topic.topic_kind || "topic";
-        var clusterKey = topLevel + "::" + kind;
-
-        if (seenPaths[topic.pathString]) {
-            continue;
-        }
-
-        var titleCount = seenTitles[titleKey] || 0;
-        var clusterCount = kindCounts[clusterKey] || 0;
-
-        // Push repeated titles and over-clustered result types slightly later
-        if (titleCount >= 1 || clusterCount >= 4) {
-            deferred.push(topic);
-            continue;
-        }
-
-        diversified.push(topic);
-        seenPaths[topic.pathString] = true;
-        seenTitles[titleKey] = titleCount + 1;
-        kindCounts[clusterKey] = clusterCount + 1;
-    }
-
-    for (var j = 0; j < deferred.length; j++) {
-        var deferredTopic = deferred[j];
-        if (!seenPaths[deferredTopic.pathString]) {
-            diversified.push(deferredTopic);
-            seenPaths[deferredTopic.pathString] = true;
-        }
-    }
-
-    return diversified;
-}
-function queryByKeyword(keyword, filters) {
-    var allTopics = findAllTopics(guideTree);
-    var term = (keyword || "").trim().toLowerCase();
-    filters = filters || {};
-
-    if (!term) return [];
-
-    var results = allTopics.filter(function (topic) {
-        var title = (topic.title || "").toLowerCase();
-        var intro = (topic.intro || "").toLowerCase();
-        var tags = (topic.tags || []).join(" ").toLowerCase();
-        var metadata = topic.metadata || {};
-
-        // NEW: Search through the actual body paragraphs and headings
-        var sectionMatch = false;
-        if (topic.sections && Array.isArray(topic.sections)) {
-            for (var s = 0; s < topic.sections.length; s++) {
-                var secHeading = (topic.sections[s].heading || "").toLowerCase();
-                var secBody = (topic.sections[s].body || "").toLowerCase();
-                if (secHeading.indexOf(term) !== -1 || secBody.indexOf(term) !== -1) {
-                    sectionMatch = true;
-                    break;
-                }
-            }
-        }
-
-        var keywordMatch =
-            title.indexOf(term) !== -1 ||
-            intro.indexOf(term) !== -1 ||
-            tags.indexOf(term) !== -1 ||
-            sectionMatch;
-
-        if (!keywordMatch) return false;
-
-        if (filters.climate) {
-            if (
-                !metadata.climate ||
-                metadata.climate.indexOf(filters.climate) === -1
-            ) {
-                return false;
-            }
-        }
-        if (filters.formality) {
-            if (
-                !metadata.formality ||
-                metadata.formality.indexOf(filters.formality) === -1
-            ) {
-                return false;
-            }
-        }
-        if (filters.use_case) {
-            if (
-                !metadata.use_cases ||
-                metadata.use_cases.indexOf(filters.use_case) === -1
-            ) {
-                return false;
-            }
-        }
-
-        return true;
-    });
-
-    return rankResults(results, filters);
+.subtitle {
+    font - size: 1.05rem;
+    color: var(--muted);
+    max - width: 38rem;
+    margin - bottom: 2rem;
+    line - height: 1.7;
 }
 
-console.log("🔍 Query Engine Loaded with Ranking!");
+.intro {
+    font - size: 1rem;
+    color: var(--muted);
+    max - width: 38rem;
+    margin - bottom: 2rem;
+    line - height: 1.75;
+}
+
+.helper {
+    font - size: 0.94rem;
+    color: var(--soft);
+    margin - bottom: 1rem;
+}
+
+.breadcrumb {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 600;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: var(--soft);
+}
+
+/* ============================================
+     BUTTONS
+     ============================================ */
+
+button {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.9rem;
+    font - weight: 500;
+    line - height: 1;
+    padding: 13px 22px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s ease, border - color 0.2s ease, color 0.2s ease,
+        transform 0.18s cubic - bezier(0.4, 0, 0.2, 1), box - shadow 0.2s ease;
+    border - radius: var(--radius - pill);
+    min - height: 42px;
+    backdrop - filter: blur(6px);
+    -webkit - backdrop - filter: blur(6px);
+}
+
+button:hover {
+    background: var(--accent - soft);
+    border - color: var(--line - strong);
+    box - shadow: var(--shadow - sm);
+    transform: translateY(-1px);
+}
+
+button: active: not(.fab): not(.toggle - discovery) {
+    transform: translateY(1px) scale(0.98);
+}
+
+.button - primary {
+    background: var(--accent);
+    color: #f8f5ef;
+    border - color: var(--accent);
+    font - weight: 600;
+    box - shadow: 0 6px 18px rgba(58, 46, 35, 0.18);
+}
+
+.button - primary:hover {
+    background: var(--accent - hover);
+    border - color: var(--accent - hover);
+    color: #f8f5ef;
+    box - shadow: 0 10px 24px rgba(58, 46, 35, 0.24);
+}
+
+button:disabled {
+    opacity: 0.38;
+    cursor: not - allowed;
+    background: var(--line);
+    border - color: var(--line);
+    color: var(--soft);
+    box - shadow: none;
+    transform: none;
+}
+
+button: disabled:hover {
+    background: var(--line);
+    border - color: var(--line);
+    box - shadow: none;
+    transform: none;
+}
+
+.button - group {
+    display: flex;
+    gap: 12px;
+    margin - top: 2rem;
+    margin - bottom: 1rem;
+    flex - wrap: wrap;
+}
+
+.nav - buttons {
+    display: flex;
+    gap: 10px;
+    margin - top: 3.5rem;
+    flex - wrap: wrap;
+}
+
+/* ============================================
+     CARDS (generic)
+     ============================================ */
+
+.card - grid {
+    display: grid;
+    grid - template - columns: repeat(auto - fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin - top: 2rem;
+}
+
+.card {
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    background: rgba(255, 255, 255, 0.6);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    border - radius: var(--radius - lg);
+    min - height: 140px;
+    display: flex;
+    flex - direction: column;
+    justify - content: flex - start;
+    backdrop - filter: blur(4px);
+    -webkit - backdrop - filter: blur(4px);
+}
+
+.card:hover {
+    border - color: var(--line - strong);
+    background: rgba(255, 255, 255, 0.88);
+    box - shadow: var(--shadow - md);
+    transform: translateY(-2px);
+}
+
+.card h3 {
+    margin - bottom: 0.5rem;
+}
+
+.card p {
+    font - size: 0.93rem;
+    color: var(--muted);
+    margin: 0;
+    line - height: 1.65;
+}
+
+/* ============================================
+     SHELL WRAPPERS
+     ============================================ */
+
+.home - shell,
+.welcome - shell,
+.discover - shell,
+.result - shell,
+.guide - home - shell,
+.guide - shell,
+.topic - shell {
+    display: flex;
+    flex - direction: column;
+    min - height: 100 %;
+}
+
+/* ============================================
+     BBS LOGO
+     ============================================ */
+
+.bbs - logo {
+    display: flex;
+    flex - direction: column;
+    align - items: flex - start;
+    gap: 4px;
+    margin - bottom: 3.5rem;
+}
+
+.bbs - logo - image {
+    height: 52px;
+    width: auto;
+    display: block;
+}
+
+.bbs - logo - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.22em;
+    text - transform: uppercase;
+    color: var(--muted);
+    display: block;
+}
+
+/* ============================================
+     HOME
+     ============================================ */
+
+.home - shell--editorial {
+    max - width: 48rem;
+    margin: 0 auto;
+    align - items: flex - start;
+    padding - top: 1rem;
+}
+
+.home - hero {
+    margin - bottom: 2.5rem;
+}
+
+.home - hero - title {
+    font - family: "EB Garamond", serif;
+    font - size: 3.2rem;
+    font - weight: 600;
+    line - height: 1.05;
+    color: var(--text);
+    margin - bottom: 0.8rem;
+    letter - spacing: -0.015em;
+    max - width: none;
+}
+
+.home - hero - sub {
+    font - family: "Manrope", sans - serif;
+    font - size: 1.05rem;
+    color: var(--muted);
+    line - height: 1.75;
+    margin - bottom: 0;
+}
+
+.home - paths - editorial {
+    display: flex;
+    flex - direction: column;
+    gap: 1.5rem;
+    width: 100 %;
+}
+
+.home - hero - card {
+    background: linear - gradient(145deg, #f0e8d6 0 %, #e8dfc8 100 %);
+    border: 1px solid rgba(200, 180, 140, 0.5);
+    border - radius: var(--radius - lg);
+    padding: 36px 32px;
+    cursor: pointer;
+    transition: all 0.26s ease;
+    box - shadow: 0 4px 20px rgba(58, 46, 35, 0.05);
+}
+
+.home - hero - card:hover {
+    box - shadow: 0 12px 32px rgba(58, 46, 35, 0.1);
+    transform: translateY(-2px);
+    border - color: rgba(190, 170, 130, 0.8);
+}
+
+.home - hero - card - content {
+    max - width: 100 %;
+}
+
+.home - path - label {
+    display: flex;
+    align - items: center;
+    gap: 8px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.64rem;
+    font - weight: 700;
+    letter - spacing: 0.16em;
+    text - transform: uppercase;
+    color: var(--accent);
+    margin - bottom: 1rem;
+}
+
+.home - hero - icon {
+    width: 16px;
+    height: 16px;
+}
+
+.home - hero - card h2 {
+    font - size: 1.8rem;
+    margin - bottom: 0.75rem;
+    line - height: 1.15;
+    color: var(--text);
+}
+
+.home - hero - card p {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 1.75rem;
+}
+
+.home - hero - card.button - primary {
+    width: auto;
+    min - width: 200px;
+    min - height: 48px;
+    font - size: 0.9rem;
+    border - radius: 10px;
+}
+
+.home - secondary - path {
+    display: flex;
+    align - items: center;
+    justify - content: space - between;
+    padding: 20px 0;
+    background: transparent;
+    border: none;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: 0;
+    cursor: pointer;
+    transition: all 0.22s ease;
+}
+
+.home - secondary - path:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.home - secondary - path - icon {
+    display: none;
+}
+
+.home - secondary - path - text {
+    flex: 1;
+}
+
+.home - secondary - path - text.home - path - label {
+    color: var(--soft);
+    margin - bottom: 0.3rem;
+}
+
+.home - secondary - path - text h3 {
+    font - family: "EB Garamond", serif;
+    font - size: 1.4rem;
+    margin - bottom: 0.2rem;
+    color: var(--text);
+}
+
+.home - secondary - path - text p {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.88rem;
+    color: var(--muted);
+    margin - bottom: 0;
+}
+
+.home - secondary - path - btn {
+    background: transparent;
+    border: none;
+    box - shadow: none;
+    font - size: 1.2rem;
+    color: var(--soft);
+    padding: 0;
+    width: auto;
+    min - height: auto;
+    transition: transform 0.22s ease, color 0.22s ease;
+}
+
+.home - secondary - path: hover.home - secondary - path - btn {
+    color: var(--accent);
+    transform: translateX(4px);
+}
+
+.home - footer - actions {
+    margin - top: 1.5rem;
+}
+
+.home - footer - btn {
+    font - size: 0.82rem;
+    color: var(--soft);
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    min - height: auto;
+    box - shadow: none;
+}
+
+.home - footer - btn:hover {
+    color: var(--text);
+    background: transparent;
+    box - shadow: none;
+    transform: none;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+}
+
+/* ============================================
+     WELCOME
+     ============================================ */
+
+.welcome - shell {
+    max - width: 480px;
+    min - height: 88vh;
+    display: flex;
+    flex - direction: column;
+    justify - content: space - between;
+    align - items: center;
+    text - align: center;
+    padding - bottom: 2rem;
+    margin: 0 auto;
+    width: 100 %;
+}
+
+.welcome - shell.bbs - logo {
+    align - items: center;
+    margin - bottom: 0;
+}
+
+.welcome - content - block {
+    flex: 1;
+    display: flex;
+    flex - direction: column;
+    justify - content: center;
+    align - items: center;
+    padding: 2rem 0 1rem 0;
+    max - width: 32rem;
+    margin: 0 auto;
+    width: 100 %;
+}
+
+.welcome - hero {
+    margin - bottom: 2.8rem;
+}
+
+.welcome - hero h1 {
+    font - size: 3.2rem;
+    line - height: 1.05;
+    letter - spacing: -0.015em;
+    margin - bottom: 1.2rem;
+    max - width: none;
+}
+
+.welcome - intro {
+    font - size: 1rem;
+    color: var(--muted);
+    line - height: 1.8;
+    max - width: 34rem;
+    margin - bottom: 0;
+}
+
+.welcome - form {
+    width: 100 %;
+    max - width: 24rem;
+    margin: 0 auto;
+}
+
+.welcome - label {
+    display: block;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--muted);
+    margin - bottom: 12px;
+    text - align: center;
+}
+
+.welcome - input {
+    width: 100 %;
+    min - height: 58px;
+    padding: 18px 22px;
+    color: var(--text);
+    background: rgba(255, 253, 248, 0.98);
+    border: 1px solid rgba(200, 191, 176, 0.7);
+    border - radius: var(--radius - lg);
+    font - family: "EB Garamond", serif;
+    font - size: 1.2rem;
+    text - align: center;
+    transition: border - color 0.2s ease, box - shadow 0.2s ease;
+    margin - bottom: 0;
+}
+
+.welcome - input:focus {
+    outline: none;
+    border - color: var(--accent);
+    box - shadow: 0 0 0 3px rgba(58, 46, 35, 0.06);
+    background: #fffefb;
+}
+
+.welcome - input::placeholder {
+    color: rgba(168, 153, 138, 0.45);
+    font - style: italic;
+}
+
+.welcome - hint {
+    font - size: 0.78rem;
+    color: rgba(168, 153, 138, 0.6);
+    margin - top: 10px;
+    margin - bottom: 0;
+    font - style: italic;
+    text - align: center;
+}
+
+.welcome - actions {
+    width: 100 %;
+    max - width: 24rem;
+    margin: 1.6rem auto 0 auto;
+}
+
+.welcome - actions.button - primary {
+    width: 100 %;
+    min - height: 56px;
+    font - size: 0.92rem;
+    font - weight: 600;
+    letter - spacing: 0.06em;
+    border - radius: var(--radius - lg);
+    box - shadow: 0 6px 20px rgba(58, 46, 35, 0.2);
+}
+/* ============================================
+   DISCOVER / QUESTIONNAIRE
+   ============================================ */
+
+.discover - shell--refined {
+    max - width: 44rem;
+}
+
+.discover - progress - block {
+    margin - bottom: 2.5rem;
+}
+
+.discover - step - meta {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+}
+
+.discover - pips {
+    display: flex;
+    gap: 6px;
+    width: 100 %;
+}
+
+.discover - pip {
+    flex: 1;
+    height: 2px;
+    background: rgba(200, 191, 176, 0.45);
+    border - radius: 2px;
+    transition: background 0.4s cubic - bezier(0.4, 0, 0.2, 1);
+}
+
+.discover - pip.is - complete {
+    background: var(--accent);
+}
+
+.discover - pip.is - current {
+    background: rgba(58, 46, 35, 0.45);
+}
+
+.discover - question - block {
+    margin - bottom: 2rem;
+    max - width: 38rem;
+}
+
+.discover - question - block h1 {
+    max - width: 16ch;
+    margin - bottom: 0.8rem;
+}
+
+.discover - eyebrow {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+    display: block;
+}
+
+.discover - helper - text {
+    font - size: 0.98rem;
+    line - height: 1.75;
+    color: var(--muted);
+    margin - bottom: 0;
+    max - width: 34rem;
+}
+
+.discover - choice - grid {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 2px;
+    margin - bottom: 2.5rem;
+    max - width: 42rem;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: 4px;
+    overflow: hidden;
+}
+
+.discover - choice - card {
+    width: 100 %;
+    text - align: left;
+    display: flex;
+    flex - direction: column;
+    justify - content: center;
+    min - height: 80px;
+    padding: 20px 22px;
+    border - radius: 0;
+    border: none;
+    border - right: 1px solid rgba(200, 191, 176, 0.5);
+    border - bottom: 1px solid rgba(200, 191, 176, 0.5);
+    background: #ffffff;
+    color: var(--text);
+    box - shadow: none;
+    transition: background 0.15s ease, color 0.15s ease;
+    gap: 4px;
+}
+
+.discover - choice - card: nth - child(even) {
+    border - right: none;
+}
+
+.discover - choice - card: nth - last - child(-n + 2) {
+    border - bottom: none;
+}
+
+.discover - choice - card:hover {
+    background: rgba(237, 228, 210, 0.4);
+    color: var(--text);
+    box - shadow: none;
+    transform: none;
+    border - color: rgba(200, 191, 176, 0.5);
+}
+
+.discover - choice - card.is - selected {
+    background: var(--accent);
+    color: #f8f5ef;
+    border - color: var(--accent);
+}
+
+.discover - choice - card.is - selected:hover {
+    background: var(--accent - hover);
+}
+
+.discover - choice - main {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.78rem;
+    font - weight: 700;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: inherit;
+    line - height: 1.3;
+}
+
+.discover - choice - sub {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 500;
+    letter - spacing: 0.06em;
+    text - transform: uppercase;
+    color: var(--soft);
+    line - height: 1.2;
+    transition: color 0.15s ease;
+}
+
+.discover - choice - card.is - selected.discover - choice - sub {
+    color: rgba(248, 245, 239, 0.6);
+}
+
+/* Bottom navigation row */
+.discover - nav - row {
+    display: flex;
+    align - items: center;
+    justify - content: space - between;
+    margin - top: 0.5rem;
+    padding - top: 1.5rem;
+    border - top: 1px solid rgba(200, 191, 176, 0.3);
+    max - width: 42rem;
+}
+
+.discover - nav - back {
+    background: transparent;
+    border: none;
+    box - shadow: none;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.8rem;
+    font - weight: 600;
+    letter - spacing: 0.06em;
+    color: var(--soft);
+    padding: 0;
+    min - height: auto;
+    text - transform: uppercase;
+}
+
+.discover - nav - back:hover {
+    color: var(--text);
+    background: transparent;
+    box - shadow: none;
+    transform: none;
+}
+
+.discover -continue-btn {
+    min - width: 130px;
+    min - height: 44px;
+    border - radius: 6px;
+    font - size: 0.82rem;
+    letter - spacing: 0.08em;
+    text - transform: uppercase;
+}
+
+.discover - editorial - text - wrap {
+    margin - bottom: 2rem;
+    max - width: 42rem;
+}
+
+.discover - editorial - textarea {
+    width: 100 %;
+    min - height: 180px;
+    padding: 18px;
+    border: 1px solid rgba(200, 191, 176, 0.7);
+    border - radius: 14px;
+    background: rgba(255, 253, 248, 0.88);
+    color: var(--text);
+    font - family: "Manrope", sans - serif;
+    font - size: 0.98rem;
+    line - height: 1.75;
+    resize: none;
+    transition: border - color 0.2s ease, background 0.2s ease;
+}
+
+.discover - editorial - textarea:focus {
+    outline: none;
+    border - color: var(--accent);
+    background: #fffefb;
+}
+
+.discover - text - actions {
+    margin - top: 0.8rem;
+}
+
+.discover - text - actions button {
+    background: transparent;
+    border - color: transparent;
+    color: var(--soft);
+    padding: 6px 12px;
+    font - size: 0.85rem;
+    min - height: auto;
+}
+
+.discover - text - actions button:hover {
+    background: transparent;
+    color: var(--text);
+    box - shadow: none;
+    transform: none;
+}
+
+.discover - shell--refined.nav - buttons {
+    margin - top: 2rem;
+}
+
+textarea {
+    width: 100 %;
+    color: var(--text);
+    padding: 18px;
+    border: 1px solid var(--line);
+    background: rgba(255, 253, 248, 0.9);
+    resize: none;
+    min - height: 180px;
+    margin: 1rem 0;
+    border - radius: var(--radius - md);
+    font - family: "Manrope", sans - serif;
+    font - size: 0.97rem;
+    line - height: 1.7;
+    transition: border - color 0.2s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border - color: var(--accent);
+    background: #fffefb;
+}
+
+/* ============================================
+     RESULT PAGE — V2
+     ============================================ */
+
+.result - shell--v2 {
+    max - width: 54rem;
+}
+
+/* Hero */
+.result - hero - v2 {
+    margin - bottom: 2.8rem;
+    padding - bottom: 2.4rem;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.4);
+    max - width: 44rem;
+}
+
+.result - eyebrow - v2 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.66rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+    display: block;
+}
+
+.result - shell--v2 h1 {
+    font - size: 3.2rem;
+    line - height: 1.04;
+    letter - spacing: -0.015em;
+    max - width: 14ch;
+    margin - bottom: 1rem;
+}
+
+.result - lead - v2 {
+    font - size: 1.08rem;
+    line - height: 1.8;
+    color: var(--muted);
+    max - width: 38rem;
+    margin - bottom: 0;
+}
+
+/* Stylist Note */
+.result - stylist - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - left: 3px solid var(--accent);
+    border - radius: 0 var(--radius - md) var(--radius - md) 0;
+    padding: 24px 28px;
+    margin - bottom: 2.4rem;
+    max - width: 48rem;
+}
+
+.result - stylist - card - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+    margin - bottom: 10px;
+}
+
+.result - stylist - card - text {
+    margin: 0;
+    font - size: 0.98rem;
+    line - height: 1.8;
+    color: var(--muted);
+}
+
+/* Info Grid */
+.result - info - grid {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 16px;
+    margin - bottom: 2.8rem;
+    max - width: 52rem;
+}
+
+.result - info - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - radius: var(--radius - md);
+    padding: 22px 24px;
+    box - shadow: 0 2px 8px rgba(42, 34, 24, 0.03);
+    transition: box - shadow 0.22s ease;
+}
+
+.result - info - card:hover {
+    box - shadow: 0 8px 24px rgba(42, 34, 24, 0.07);
+}
+
+.result - info - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 10px;
+}
+
+.result - info - value {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.92rem;
+    line - height: 1.65;
+    color: var(--text);
+}
+
+/* CTA Block */
+.result - cta - v2 {
+    max - width: 52rem;
+    margin - bottom: 3rem;
+}
+
+.result - cta - v2 - inner {
+    background: linear - gradient(
+        145deg,
+        rgba(237, 228, 210, 0.6) 0 %,
+        rgba(245, 240, 232, 0.4) 100 %
+  );
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - radius: var(--radius - lg);
+    padding: 32px 28px;
+    display: flex;
+    align - items: flex - start;
+    justify - content: space - between;
+    gap: 24px;
+    flex - wrap: wrap;
+}
+
+.result - cta - v2 - text {
+    flex: 1;
+    min - width: 200px;
+}
+
+.result - cta - v2 - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 8px;
+}
+
+.result - cta - v2 - heading {
+    font - family: "EB Garamond", serif;
+    font - size: 1.5rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 8px;
+    line - height: 1.25;
+    letter - spacing: -0.01em;
+}
+
+.result - cta - v2 - body {
+    font - size: 0.9rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 0;
+    max - width: 32rem;
+}
+
+.result - cta - v2 - actions {
+    display: flex;
+    flex - direction: column;
+    gap: 10px;
+    align - items: flex - start;
+    flex - shrink: 0;
+}
+
+.result - cta - v2 - secondary {
+    font - size: 0.85rem;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    min - height: auto;
+    box - shadow: none;
+}
+
+.result - cta - v2 - secondary:hover {
+    color: var(--text);
+    background: transparent;
+    box - shadow: none;
+    transform: none;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+}
+
+/* Explore Next */
+.result - explore - v2 {
+    max - width: 52rem;
+    margin - bottom: 3rem;
+}
+
+.result - explore - v2 - header {
+    margin - bottom: 1.5rem;
+}
+
+.result - explore - v2 - header h2 {
+    font - size: 1.6rem;
+    margin - bottom: 0.35rem;
+}
+
+.result - explore - v2 - header p {
+    font - size: 0.92rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+.result - next - grid - v2 {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.result - next - card - v2 {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - radius: var(--radius - md);
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    display: flex;
+    flex - direction: column;
+    box - shadow: 0 2px 8px rgba(42, 34, 24, 0.03);
+}
+
+.result - next - card - v2:hover {
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.08);
+    transform: translateY(-2px);
+    border - color: var(--line - strong);
+}
+
+.result - next - card - meta {
+    display: flex;
+    flex - direction: column;
+    gap: 2px;
+    margin - bottom: 10px;
+}
+
+.result - next - card - kind {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+}
+
+.result - next - card - context {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    color: var(--soft);
+}
+
+.result - next - card - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.28rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.2;
+    margin - bottom: 6px;
+    letter - spacing: -0.01em;
+}
+
+.result - next - card - reason {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.76rem;
+    font - weight: 600;
+    color: var(--accent);
+    margin - bottom: 8px;
+}
+
+.result - next - card - intro {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.88rem;
+    color: var(--muted);
+    line - height: 1.6;
+    margin: 0;
+    flex - grow: 1;
+}
+
+/* ============================================
+     GUIDE — V2 LIST LAYOUT
+     ============================================ */
+
+.guide - shell - v2 {
+    max - width: 52rem;
+}
+
+.guide - hero - v2 {
+    margin - bottom: 3rem;
+    max - width: 44rem;
+}
+
+.guide - eyebrow - v2 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+    display: block;
+}
+
+.guide - hero - v2 h1 {
+    font - size: 2.8rem;
+    line - height: 1.08;
+    margin - bottom: 0.8rem;
+}
+
+.guide - lead - v2 {
+    font - size: 1rem;
+    line - height: 1.75;
+    color: var(--muted);
+    margin - bottom: 0;
+    max - width: 40rem;
+}
+
+.guide - count - v2 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 600;
+    letter - spacing: 0.08em;
+    color: var(--soft);
+    margin - top: 1rem;
+}
+
+/* The list */
+.guide - list - v2 {
+    display: flex;
+    flex - direction: column;
+    border - top: 1px solid var(--line - strong);
+    max - width: 50rem;
+    margin - bottom: 3rem;
+}
+
+.guide - list - item - v2 {
+    display: flex;
+    align - items: flex - start;
+    gap: 20px;
+    padding: 22px 0;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.5);
+    cursor: pointer;
+    transition: all 0.22s ease;
+}
+
+.guide - list - item - v2:hover {
+    padding - left: 10px;
+    padding - right: 10px;
+    margin: 0 - 10px;
+    background: rgba(245, 240, 232, 0.45);
+    border - bottom - color: transparent;
+    border - radius: var(--radius - sm);
+}
+
+.guide - list - item - v2 - index {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.08em;
+    color: var(--soft);
+    padding - top: 4px;
+    width: 28px;
+    flex - shrink: 0;
+}
+
+.guide - list - item - v2 - body {
+    flex: 1;
+    min - width: 0;
+}
+
+.guide - list - item - v2 - kind {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 4px;
+}
+
+.guide - list - item - v2 - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.35rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.2;
+    margin - bottom: 5px;
+    letter - spacing: -0.01em;
+}
+
+.guide - list - item - v2 - intro {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.88rem;
+    color: var(--muted);
+    line - height: 1.6;
+}
+
+.guide - list - item - v2 - arrow {
+    color: var(--soft);
+    padding - top: 4px;
+    flex - shrink: 0;
+    transition: transform 0.22s ease, color 0.22s ease;
+    display: flex;
+    align - items: center;
+}
+
+.guide - list - item - v2: hover.guide - list - item - v2 - arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+}
+
+/* ============================================
+     TOPIC PAGE
+     ============================================ */
+
+.topic - shell {
+    max - width: 52rem;
+}
+
+.topic - hero - editorial {
+    margin - bottom: 2rem;
+    max - width: 46rem;
+}
+
+.topic - hero - editorial h1 {
+    font - size: 3rem;
+    line - height: 1.06;
+    letter - spacing: -0.015em;
+    margin - bottom: 1rem;
+    max - width: 20ch;
+}
+
+.topic - type - badge {
+    display: inline - block;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+    background: var(--accent - soft);
+    padding: 5px 10px;
+    border - radius: 6px;
+    margin - bottom: 1.2rem;
+}
+
+.topic - intro - app {
+    font - family: "Manrope", sans - serif;
+    font - size: 1.05rem;
+    font - weight: 500;
+    line - height: 1.7;
+    color: var(--muted);
+    max - width: 40rem;
+    margin - top: 0.75rem;
+    margin - bottom: 0;
+}
+
+/* Metadata widget grid */
+.topic - meta - grid {
+    display: grid;
+    grid - template - columns: repeat(auto - fit, minmax(155px, 1fr));
+    gap: 10px;
+    margin - top: 1.8rem;
+    margin - bottom: 2.8rem;
+}
+
+.topic - meta - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.6);
+    border - radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex - direction: column;
+    gap: 7px;
+    box - shadow: 0 2px 6px rgba(42, 34, 24, 0.02);
+}
+
+.topic - meta - card--signature {
+    border - color: var(--accent);
+    background: rgba(245, 240, 232, 0.3);
+}
+
+.topic - meta - card - header {
+    display: flex;
+    align - items: center;
+    gap: 6px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+}
+
+.topic - meta - card--signature.topic - meta - card - header {
+    color: var(--accent);
+}
+
+.topic - meta - icon {
+    width: 13px;
+    height: 13px;
+    flex - shrink: 0;
+}
+
+.topic - meta - card - value {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.92rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.35;
+}
+
+/* Spec sheet */
+.topic - spec - sheet {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.6);
+    border - radius: var(--radius - md);
+    box - shadow: 0 4px 16px rgba(42, 34, 24, 0.03);
+    margin - bottom: 3rem;
+    overflow: hidden;
+}
+
+.topic - spec - row {
+    display: flex;
+    flex - direction: column;
+    padding: 20px 28px;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.35);
+}
+
+.topic - spec - row: last - child {
+    border - bottom: none;
+}
+
+.topic - spec - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 6px;
+}
+
+.topic - spec - value {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    line - height: 1.7;
+    color: var(--text);
+    margin: 0;
+}
+
+/* Related topics */
+.topic - related - section {
+    margin - top: 3.5rem;
+    margin - bottom: 1rem;
+}
+
+.topic - related - header {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1.2rem;
+    padding - bottom: 0.8rem;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.4);
+}
+
+.topic - related - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - radius: var(--radius - md);
+    padding: 20px 22px;
+    box - shadow: 0 2px 8px rgba(42, 34, 24, 0.03);
+    transition: all 0.22s ease;
+    cursor: pointer;
+    display: flex;
+    flex - direction: column;
+}
+
+.topic - related - card:hover {
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.08);
+    transform: translateY(-2px);
+    border - color: var(--line - strong);
+}
+
+.topic - related - meta {
+    display: flex;
+    flex - direction: column;
+    gap: 3px;
+    margin - bottom: 10px;
+}
+
+.topic - related - type {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+}
+
+.topic - related - context {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 600;
+    color: var(--soft);
+}
+
+.topic - related - title {
+    font - family: "Manrope", sans - serif;
+    font - size: 1.05rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 5px;
+    line - height: 1.3;
+}
+
+.topic - related - path {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.7rem;
+    color: var(--muted);
+    margin - bottom: 10px;
+}
+
+.topic - related - path.path - sep {
+    color: var(--line - strong);
+    margin: 0 4px;
+}
+
+.topic - related - intro {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.88rem;
+    line - height: 1.6;
+    color: var(--muted);
+    margin: 0;
+    flex - grow: 1;
+}
+
+/* Topic image */
+.topic - image - editorial {
+    max - width: 26rem;
+    margin: 2rem auto 3rem auto;
+    border - radius: var(--radius - md);
+    overflow: hidden;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    background: var(--surface - 2);
+    box - shadow: var(--shadow - sm);
+}
+
+.topic - image - editorial img {
+    display: block;
+    width: 100 %;
+    aspect - ratio: 4 / 5;
+    object - fit: cover;
+    object - position: center 20 %;
+    max - height: 550px;
+    transition: opacity 0.3s ease;
+}
+/* ============================================
+   DISCOVERY PANEL
+   ============================================ */
+
+.discovery - panel {
+    position: fixed;
+    right: -420px;
+    top: 0;
+    width: 420px;
+    height: 100vh;
+    background: #faf8f3;
+    border - left: 1px solid var(--line);
+    box - shadow: -6px 0 32px rgba(42, 34, 24, 0.1);
+    transition: right 0.36s cubic - bezier(0.4, 0, 0.2, 1), box - shadow 0.36s ease;
+    z - index: 1000;
+    overflow - y: auto;
+}
+
+.discovery - panel.open {
+    right: 0;
+    box - shadow: -8px 0 40px rgba(42, 34, 24, 0.12);
+}
+
+.discovery - header {
+    padding: 20px 22px 18px 22px;
+    border - bottom: 1px solid var(--line);
+    display: flex;
+    justify - content: space - between;
+    align - items: flex - start;
+    background: var(--surface - 2);
+    position: sticky;
+    top: 0;
+    z - index: 2;
+}
+
+.discovery - header - inner {
+    display: flex;
+    flex - direction: column;
+    gap: 2px;
+}
+
+.discovery - header - eyebrow {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--soft);
+}
+
+.discovery - header - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.35rem;
+    font - weight: 600;
+    color: var(--text);
+    margin: 0;
+    line - height: 1.15;
+}
+
+.toggle - discovery {
+    background: transparent;
+    border: 1px solid transparent;
+    width: 32px;
+    height: 32px;
+    border - radius: var(--radius - sm);
+    cursor: pointer;
+    color: var(--soft);
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    min - height: auto;
+    padding: 0;
+    margin - top: 2px;
+    transition: all 0.18s ease;
+}
+
+.toggle - discovery:hover {
+    color: var(--text);
+    background: var(--accent - soft);
+    border - color: var(--line);
+    transform: none;
+    box - shadow: none;
+}
+
+.discovery - body {
+    padding: 24px;
+}
+
+/* Panel sections */
+.preset - queries,
+.custom - query,
+.keyword - search {
+    margin - bottom: 28px;
+}
+
+.panel - section - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    text - transform: uppercase;
+    letter - spacing: 0.1em;
+    color: var(--soft);
+    margin - bottom: 10px;
+}
+
+/* Query buttons */
+.query - btn {
+    width: 100 %;
+    text - align: left;
+    margin - bottom: 7px;
+    padding: 11px 16px;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--line);
+    border - radius: var(--radius - sm);
+    font - size: 0.9rem;
+    color: var(--text);
+    transition: all 0.18s ease;
+    display: flex;
+    align - items: center;
+    gap: 12px;
+}
+
+.query - btn:hover {
+    background: var(--accent - soft);
+    border - color: var(--line - strong);
+    transform: none;
+    box - shadow: none;
+}
+
+.query - btn.primary {
+    background: var(--accent);
+    color: #f8f5ef;
+    border - color: var(--accent);
+    font - weight: 600;
+}
+
+.query - btn.primary:hover {
+    background: var(--accent - hover);
+    border - color: var(--accent - hover);
+    color: #f8f5ef;
+}
+
+.query - btn.is - active {
+    background: linear - gradient(to bottom right, #f0e8d6, #e8dfc8);
+    border - color: var(--line - strong);
+    color: var(--text);
+    font - weight: 600;
+}
+
+.query - btn svg {
+    color: var(--soft);
+    transition: color 0.18s ease;
+    flex - shrink: 0;
+}
+
+.query - btn:hover svg {
+    color: var(--text);
+}
+
+.query - btn.is - active svg {
+    color: var(--accent);
+}
+
+/* Keyword search */
+.keyword - input - wrap {
+    position: relative;
+    display: flex;
+    align - items: center;
+}
+
+.keyword - search - icon {
+    position: absolute;
+    left: 14px;
+    color: var(--soft);
+    pointer - events: none;
+}
+
+.keyword - search - input {
+    padding - left: 40px;
+    margin - bottom: 10px;
+}
+
+/* Filters */
+.filter - group {
+    margin - bottom: 10px;
+}
+
+.filter - label {
+    display: flex;
+    align - items: center;
+    gap: 8px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 600;
+    letter - spacing: 0.04em;
+    color: var(--muted);
+    margin - bottom: 4px;
+    text - transform: uppercase;
+}
+
+.filter - label svg {
+    color: var(--soft);
+    margin - top: -1px;
+}
+
+.filter - select {
+    width: 100 %;
+    padding: 11px 14px;
+    margin - bottom: 10px;
+    border: 1px solid var(--line);
+    border - radius: var(--radius - sm);
+    background: rgba(255, 255, 255, 0.8);
+    font - family: "Manrope", sans - serif;
+    font - size: 0.9rem;
+    color: var(--text);
+    transition: border - color 0.18s ease;
+    appearance: none;
+    -webkit - appearance: none;
+    background - image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8998a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background - repeat: no - repeat;
+    background - position: right 14px center;
+    padding - right: 36px;
+}
+
+.filter - select:focus {
+    outline: none;
+    border - color: var(--accent);
+}
+
+/* Toolbar */
+.results - toolbar {
+    display: flex;
+    justify - content: flex - end;
+    margin - top: 16px;
+    margin - bottom: 6px;
+}
+
+.results - clear - btn {
+    background: transparent;
+    border: none;
+    padding: 4px 10px;
+    min - height: auto;
+    font - size: 0.8rem;
+    color: var(--soft);
+    box - shadow: none;
+    width: auto;
+    letter - spacing: 0.02em;
+}
+
+.results - clear - btn:hover {
+    background: transparent;
+    color: var(--text);
+    border - color: transparent;
+    box - shadow: none;
+    transform: none;
+}
+
+/* Results container */
+.results - container {
+    margin - top: 20px;
+    padding - top: 20px;
+    border - top: 1px solid var(--line);
+}
+
+.results - empty {
+    font - size: 0.92rem;
+    color: var(--soft);
+    font - style: italic;
+    text - align: center;
+    padding: 28px 12px;
+    line - height: 1.6;
+}
+
+.results - count - label {
+    font - size: 0.78rem;
+    font - weight: 700;
+    color: var(--text);
+    letter - spacing: 0.04em;
+    text - transform: uppercase;
+    margin - bottom: 8px;
+}
+
+.result - current - query {
+    font - size: 0.88rem;
+    color: var(--muted);
+    font - style: italic;
+    margin - bottom: 18px;
+    line - height: 1.5;
+}
+
+/* Result groups */
+.result - group {
+    margin - bottom: 16px;
+}
+
+.result - group - heading {
+    font - size: 0.7rem;
+    font - weight: 700;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 10px;
+    padding - bottom: 6px;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.4);
+}
+
+/* Top picks */
+.top - picks - group {
+    background: rgba(245, 240, 232, 0.7);
+    border: 1px solid rgba(200, 191, 176, 0.45);
+    border - radius: var(--radius - md);
+    padding: 16px 16px 8px 16px;
+    margin - bottom: 24px;
+}
+
+.top - picks - group.result - group - heading {
+    color: var(--accent);
+    font - size: 0.72rem;
+    border - bottom - color: rgba(200, 191, 176, 0.4);
+}
+
+/* Section divider */
+.results - section - divider {
+    display: flex;
+    align - items: center;
+    justify - content: space - between;
+    padding: 14px 0 10px 0;
+    border - top: 1px solid var(--line);
+    margin - top: 8px;
+    margin - bottom: 12px;
+}
+
+.results - section - divider - label {
+    font - size: 0.7rem;
+    font - weight: 700;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: var(--text);
+}
+
+.results - section - divider - actions {
+    display: flex;
+    gap: 14px;
+    align - items: center;
+}
+
+/* Collapsible group toggles */
+.result - group - toggle {
+    width: 100 %;
+    display: flex;
+    align - items: center;
+    justify - content: space - between;
+    background: transparent;
+    border: none;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.4);
+    border - radius: 0;
+    padding: 0 0 8px 0;
+    margin - bottom: 10px;
+    color: var(--soft);
+    box - shadow: none;
+    min - height: auto;
+    transition: color 0.18s ease;
+}
+
+.result - group - toggle:hover {
+    background: transparent;
+    color: var(--text);
+    border - color: rgba(200, 191, 176, 0.4);
+    box - shadow: none;
+    transform: none;
+}
+
+.result - group - heading - text {
+    font - size: 0.7rem;
+    font - weight: 700;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: inherit;
+}
+
+.result - group - toggle - symbol {
+    font - size: 1rem;
+    line - height: 1;
+    color: inherit;
+}
+
+.result - group - content {
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.result - group - action - btn {
+    width: auto;
+    min - width: 0;
+    display: inline - flex;
+    align - items: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    min - height: auto;
+    font - size: 0.78rem;
+    color: var(--soft);
+    box - shadow: none;
+    white - space: nowrap;
+    letter - spacing: 0.02em;
+    transition: color 0.18s ease;
+}
+
+.result - group - action - btn:hover {
+    background: transparent;
+    color: var(--text);
+    border - color: transparent;
+    box - shadow: none;
+    transform: none;
+}
+
+/* ============================================
+     RESULT CARDS (in discovery panel)
+     ============================================ */
+
+.result - card {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--line);
+    border - radius: var(--radius - md);
+    padding: 14px 16px;
+    margin - bottom: 10px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    display: flex;
+    flex - direction: column;
+    min - height: 130px;
+}
+
+.result - card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border - color: var(--line - strong);
+    box - shadow: var(--shadow - sm);
+    transform: translateX(-2px);
+}
+
+.result - card - header {
+    display: flex;
+    justify - content: space - between;
+    align - items: flex - start;
+    margin - bottom: 6px;
+}
+
+.result - type - label - wrap {
+    display: flex;
+    flex - direction: column;
+    gap: 2px;
+}
+
+.result - type - label {
+    font - size: 0.64rem;
+    font - weight: 700;
+    text - transform: uppercase;
+    letter - spacing: 0.12em;
+    color: var(--soft);
+}
+
+.result - context - label {
+    font - size: 0.7rem;
+    color: var(--muted);
+    line - height: 1.3;
+}
+
+.result - badges {
+    display: flex;
+    gap: 6px;
+    align - items: center;
+}
+
+.result - badge {
+    display: inline - flex;
+    align - items: center;
+    font - size: 0.68rem;
+    font - weight: 600;
+    padding: 3px 6px;
+    background: var(--surface - 2);
+    border: 1px solid var(--line);
+    border - radius: 4px;
+    color: var(--muted);
+    line - height: 1;
+    margin: 0;
+}
+
+.signature - badge {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font - size: 0.68rem;
+    font - weight: 600;
+    color: var(--accent);
+    display: inline - flex;
+    align - items: center;
+}
+
+.result - card h4 {
+    font - family: "EB Garamond", serif;
+    font - size: 1.05rem;
+    font - weight: 600;
+    margin - bottom: 3px;
+    color: var(--text);
+    line - height: 1.25;
+}
+
+.result - path {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    color: var(--soft);
+    margin - bottom: 8px;
+    letter - spacing: 0.02em;
+}
+
+.path - sep {
+    color: var(--line - strong);
+    margin: 0 3px;
+    font - size: 0.8rem;
+}
+
+.result - intro {
+    font - size: 0.88rem;
+    color: var(--muted);
+    margin - bottom: 0;
+    line - height: 1.6;
+    flex - grow: 1;
+}
+
+.result - card - footer {
+    margin - top: 12px;
+    padding - top: 8px;
+    border - top: 1px dashed rgba(200, 191, 176, 0.4);
+}
+
+.result - match - reason {
+    font - size: 0.78rem;
+    color: var(--muted);
+    margin - bottom: 0;
+    font - style: italic;
+    line - height: 1.4;
+}
+
+/* ============================================
+     FAB
+     ============================================ */
+
+.fab {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 68px;
+    height: 68px;
+    border - radius: 50 %;
+    background: var(--accent);
+    color: #f8f5ef;
+    border: none;
+    box - shadow: 0 8px 22px rgba(58, 46, 35, 0.28);
+    cursor: pointer;
+    z - index: 999;
+    min - height: auto;
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    transition: transform 0.22s ease, box - shadow 0.22s ease, background 0.22s ease;
+    animation: fabEntrance 0.5s cubic - bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+}
+
+.fab:hover {
+    transform: translateY(-3px) scale(1.05);
+    box - shadow: 0 14px 30px rgba(58, 46, 35, 0.36);
+    background: var(--accent - hover);
+}
+
+.fab:active {
+    transform: translateY(0) scale(0.96);
+    box - shadow: 0 4px 12px rgba(58, 46, 35, 0.22);
+    transition: all 0.1s ease;
+}
+
+.fab.is - active {
+    background: var(--accent - hover);
+    transform: scale(0.94);
+    box - shadow: 0 4px 14px rgba(58, 46, 35, 0.28);
+}
+
+.fab svg {
+    width: 42px;
+    height: 42px;
+    display: block;
+}
+
+@media(max - width: 560px) {
+  .fab {
+        bottom: 20px;
+        right: 16px;
+        width: 58px;
+        height: 58px;
+    }
+
+  .fab svg {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* ============================================
+     ORIENTATION NOTICE
+     ============================================ */
+
+.orientation - notice {
+    display: none;
+}
+
+@media(min - width: 768px) and(orientation: landscape) {
+  .orientation - notice {
+        display: block;
+        position: fixed;
+        top: 16px;
+        left: 50 %;
+        transform: translateX(-50 %);
+        z - index: 9999;
+        pointer - events: none;
+    }
+
+  .orientation - notice - inner {
+        border: 1px solid rgba(200, 191, 176, 0.7);
+        background: rgba(250, 248, 244, 0.94);
+        padding: 10px 18px;
+        border - radius: var(--radius - pill);
+        box - shadow: var(--shadow - md);
+        backdrop - filter: blur(8px);
+        -webkit - backdrop - filter: blur(8px);
+        max - width: 32rem;
+        text - align: center;
+    }
+
+  .orientation - notice - inner p {
+        margin: 0;
+        color: var(--text);
+        font - size: 0.88rem;
+        line - height: 1.4;
+    }
+}
+
+/* ============================================
+     ANIMATIONS
+     ============================================ */
+
+@keyframes viewFadeIn {
+  from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#app: not(.is - transitioning) {
+    animation: viewFadeIn 0.28s cubic - bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fabEntrance {
+  from {
+        opacity: 0;
+        transform: scale(0.7) translateY(12px);
+    }
+
+  to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes cardSlideIn {
+  from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result - card {
+    animation: cardSlideIn 0.22s cubic - bezier(0.4, 0, 0.2, 1) both;
+}
+
+.result - card: nth - child(1) {
+    animation - delay: 0.03s;
+}
+
+.result - card: nth - child(2) {
+    animation - delay: 0.06s;
+}
+
+.result - card: nth - child(3) {
+    animation - delay: 0.09s;
+}
+
+.result - card: nth - child(4) {
+    animation - delay: 0.12s;
+}
+
+.result - card: nth - child(5) {
+    animation - delay: 0.15s;
+}
+
+.result - card: nth - child(6) {
+    animation - delay: 0.18s;
+}
+
+.result - card: nth - child(7) {
+    animation - delay: 0.21s;
+}
+
+.result - card: nth - child(8) {
+    animation - delay: 0.24s;
+}
+
+@keyframes gridCardIn {
+  from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.home - hero - card {
+    animation: gridCardIn 0.32s cubic - bezier(0.4, 0, 0.2, 1) 0.05s both;
+}
+
+.home - secondary - path {
+    animation: gridCardIn 0.32s cubic - bezier(0.4, 0, 0.2, 1) 0.12s both;
+}
+
+@keyframes topPicksIn {
+  from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.top - picks - group {
+    animation: topPicksIn 0.3s cubic - bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes breadcrumbIn {
+  from {
+        opacity: 0;
+    }
+
+  to {
+        opacity: 1;
+    }
+}
+
+.breadcrumb {
+    animation: breadcrumbIn 0.3s ease both;
+}
+
+@keyframes panelIn {
+  from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.guide - list - item - v2: nth - child(1) {
+    animation: panelIn 0.24s ease 0.03s both;
+}
+
+.guide - list - item - v2: nth - child(2) {
+    animation: panelIn 0.24s ease 0.06s both;
+}
+
+.guide - list - item - v2: nth - child(3) {
+    animation: panelIn 0.24s ease 0.09s both;
+}
+
+.guide - list - item - v2: nth - child(4) {
+    animation: panelIn 0.24s ease 0.12s both;
+}
+
+.guide - list - item - v2: nth - child(5) {
+    animation: panelIn 0.24s ease 0.15s both;
+}
+
+.guide - list - item - v2: nth - child(6) {
+    animation: panelIn 0.24s ease 0.18s both;
+}
+
+.guide - list - item - v2: nth - child(7) {
+    animation: panelIn 0.24s ease 0.21s both;
+}
+
+.guide - list - item - v2: nth - child(8) {
+    animation: panelIn 0.24s ease 0.24s both;
+}
+
+.guide - list - item - v2: nth - child(9) {
+    animation: panelIn 0.24s ease 0.27s both;
+}
+
+.guide - list - item - v2: nth - child(10) {
+    animation: panelIn 0.24s ease 0.3s both;
+}
+
+/* Respect reduced motion */
+@media(prefers - reduced - motion: reduce) {
+  *,
+  *:: before,
+  *::after {
+        animation - duration: 0.01ms!important;
+        animation - delay: 0.01ms!important;
+        transition - duration: 0.01ms!important;
+    }
+}
+/* ============================================
+   RESPONSIVE — TABLET (768px–1024px)
+   ============================================ */
+
+@media(min - width: 481px) and(max - width: 1024px) {
+  body {
+        padding: 24px 20px;
+    }
+
+    #app {
+        padding: 56px 44px;
+    }
+
+  .home - hero - title,
+  .welcome - hero h1 {
+        font - size: 3rem;
+    }
+
+  .home - paths - editorial {
+        gap: 1.2rem;
+    }
+
+  .result - shell--v2 h1 {
+        font - size: 2.8rem;
+    }
+
+  .result - info - grid {
+        grid - template - columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+  .result - next - grid - v2 {
+        grid - template - columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+  .topic - hero - editorial h1 {
+        font - size: 2.6rem;
+    }
+
+  .guide - hero - v2 h1 {
+        font - size: 2.4rem;
+    }
+
+  .discovery - panel {
+        width: 380px;
+        right: -380px;
+    }
+
+  .discovery - panel.open {
+        right: 0;
+    }
+
+  .bbs - logo - image {
+        height: 44px;
+    }
+}
+
+/* RESPONSIVE — MOBILE */
+@media(max - width: 560px) {
+  body {
+        padding: 0;
+        background: var(--surface);
+    }
+
+    #app {
+        padding: 40px 24px;
+        min - height: 100vh;
+        border - radius: 0;
+        border: none;
+        box - shadow: none;
+    }
+
+  .home - hero - title {
+        font - size: 2.4rem;
+    }
+
+  .welcome - hero h1 {
+        font - size: 2.6rem;
+    }
+
+  .result - shell--v2 h1 {
+        font - size: 2.2rem;
+        max - width: none;
+    }
+
+  .result - info - grid {
+        grid - template - columns: 1fr;
+        gap: 12px;
+    }
+
+  .result - cta - v2 - inner {
+        flex - direction: column;
+        gap: 20px;
+        padding: 24px 20px;
+    }
+
+  .result - next - grid - v2 {
+        grid - template - columns: 1fr;
+        gap: 12px;
+    }
+
+  .topic - hero - editorial h1 {
+        font - size: 2.2rem;
+        max - width: none;
+    }
+
+  .guide - hero - v2 h1 {
+        font - size: 2.2rem;
+    }
+
+  .guide - list - item - v2 - index {
+        display: none;
+    }
+
+  .guide - list - item - v2 - arrow {
+        display: none;
+    }
+
+  .topic - meta - grid {
+        grid - template - columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+  .topic - image - editorial {
+        max - width: 100 %;
+        margin: 1.5rem 0 2.5rem 0;
+    }
+
+  .topic - image - editorial img {
+        aspect - ratio: 1 / 1;
+        max - height: 380px;
+    }
+
+  .discovery - panel {
+        width: 100 %;
+        right: -100 %;
+    }
+
+  .discovery - panel.open {
+        right: 0;
+    }
+
+  .fab {
+        bottom: 20px;
+        right: 16px;
+        width: 50px;
+        height: 50px;
+    }
+
+  .card - grid {
+        grid - template - columns: 1fr;
+    }
+
+  .bbs - logo - image {
+        height: 36px;
+    }
+}
+
+/* RESPONSIVE — EXTRA SMALL */
+@media(max - width: 380px) {
+    #app {
+        padding: 28px 16px;
+    }
+
+  .home - hero - title {
+        font - size: 1.9rem;
+    }
+
+  .welcome - hero h1 {
+        font - size: 2rem;
+    }
+
+  .topic - meta - grid {
+        grid - template - columns: 1fr;
+    }
+}
+
+/* RESPONSIVE — TABLET */
+@media(min - width: 561px) and(max - width: 1024px) {
+  body {
+        padding: 24px 20px;
+    }
+
+    #app {
+        padding: 56px 44px;
+    }
+
+  .home - hero - title {
+        font - size: 3rem;
+    }
+
+  .result - shell--v2 h1 {
+        font - size: 2.8rem;
+    }
+
+  .result - info - grid {
+        grid - template - columns: 1fr 1fr;
+    }
+
+  .result - next - grid - v2 {
+        grid - template - columns: 1fr 1fr;
+    }
+
+  .topic - hero - editorial h1 {
+        font - size: 2.6rem;
+    }
+
+  .guide - hero - v2 h1 {
+        font - size: 2.4rem;
+    }
+
+  .discovery - panel {
+        width: 380px;
+        right: -380px;
+    }
+
+  .discovery - panel.open {
+        right: 0;
+    }
+
+  .bbs - logo - image {
+        height: 44px;
+    }
+}
+
+/* UTILITY */
+.results - toolbar.results - clear - btn,
+.result - group - action - btn,
+.result - group - toggle,
+.toggle - discovery {
+    width: auto;
+}
+/* ============================================
+   ARCHETYPE QUIZ — QUESTIONNAIRE
+   ============================================ */
+
+.arch - shell {
+    max - width: 42rem;
+    padding - top: 0.5rem;
+}
+
+.arch - pips {
+    display: flex;
+    gap: 4px;
+    margin - bottom: 2rem;
+    width: 100 %;
+}
+
+.arch - pip {
+    flex: 1;
+    height: 1.5px;
+    background: rgba(5, 5, 5, 0.11);
+    border - radius: 2px;
+}
+
+.arch - pip.on {
+    background: #050505;
+}
+
+.arch - pip.cur {
+    background: #050505;
+    opacity: 0.4;
+}
+
+.arch - q - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.7rem;
+}
+
+.arch - q - title {
+    font - family: "Manrope", sans - serif;
+    font - size: clamp(1rem, 2.2vw, 1.3rem);
+    font - weight: 700;
+    letter - spacing: 0.06em;
+    text - transform: uppercase;
+    line - height: 1.3;
+    color: var(--text);
+    margin - bottom: 1.8rem;
+    max - width: 36rem;
+}
+
+/* 2x2 grid */
+.arch - grid {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 0;
+    width: 100 %;
+    border: 1px solid rgba(5, 5, 5, 0.11);
+    border - radius: 4px;
+    overflow: hidden;
+    margin - bottom: 0;
+}
+
+.arch - opt {
+    border: none;
+    border - right: 1px solid rgba(5, 5, 5, 0.11);
+    border - bottom: 1px solid rgba(5, 5, 5, 0.11);
+    padding: 1.1rem 1.2rem;
+    background: #ffffff;
+    cursor: pointer;
+    text - align: left;
+    display: flex;
+    flex - direction: column;
+    gap: 4px;
+    transition: background 0.15s ease;
+    min - height: 80px;
+    font - family: "Manrope", sans - serif;
+}
+
+.arch - opt: nth - child(even) {
+    border - right: none;
+}
+
+.arch - opt: nth - last - child(-n + 2) {
+    border - bottom: none;
+}
+
+.arch - opt:hover {
+    background: rgba(243, 239, 233, 0.6);
+}
+
+.arch - opt.sel {
+    background: #050505;
+}
+
+.arch - opt - main {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.78rem;
+    font - weight: 700;
+    letter - spacing: 0.07em;
+    text - transform: uppercase;
+    color: #050505;
+    line - height: 1.3;
+}
+
+.arch - opt - sub {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 400;
+    letter - spacing: 0.08em;
+    text - transform: uppercase;
+    color: #706c66;
+    line - height: 1.2;
+}
+
+.arch - opt.sel.arch - opt - main {
+    color: #f3efe9;
+}
+
+.arch - opt.sel.arch - opt - sub {
+    color: rgba(243, 239, 233, 0.55);
+}
+
+/* Nav row */
+.arch - nav {
+    display: flex;
+    justify - content: space - between;
+    align - items: center;
+    margin - top: 1.8rem;
+    padding - top: 1.2rem;
+    border - top: 1px solid rgba(5, 5, 5, 0.11);
+    width: 100 %;
+}
+
+.arch - btn - back {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 500;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: none;
+    border: none;
+    color: #706c66;
+    cursor: pointer;
+    min - height: auto;
+    padding: 0;
+    box - shadow: none;
+    transition: color 0.18s ease;
+}
+
+.arch - btn - back:hover {
+    color: #050505;
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+
+.arch - btn - back:disabled {
+    opacity: 0.2;
+    cursor: default ;
+}
+
+.arch - btn - next {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: transparent;
+    border: 1.5px solid #050505;
+    color: #050505;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    border - radius: 4px;
+    min - height: auto;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.arch - btn - next: hover: not(: disabled) {
+    background: #050505;
+    color: #f3efe9;
+    box - shadow: none;
+    transform: none;
+}
+
+.arch - btn - next:disabled {
+    opacity: 0.15;
+    cursor: default ;
+}
+
+/* ============================================
+     ARCHETYPE ONBOARDING — PREFERENCES
+     ============================================ */
+
+.arch - onboard - shell {
+    max - width: 40rem;
+    padding - top: 1rem;
+}
+
+.arch - onboard - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.6rem;
+}
+
+.arch - onboard - title {
+    font - family: "EB Garamond", serif;
+    font - size: 2.55rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 0.7rem;
+    line - height: 1.08;
+    letter - spacing: -0.01em;
+}
+
+.arch - onboard - desc {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 2.4rem;
+    max - width: 30rem;
+}
+
+.arch - pref - group {
+    margin - bottom: 2rem;
+}
+
+.arch - pref - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.16em;
+    text - transform: uppercase;
+    color: var(--muted);
+    margin - bottom: 0.75rem;
+    display: block;
+}
+
+.arch - pref - options {
+    display: flex;
+    flex - direction: column;
+    gap: 6px;
+}
+
+.arch - pref - btn {
+    width: 100 %;
+    text - align: left;
+    background: #ffffff;
+    border: 1px solid rgba(5, 5, 5, 0.11);
+    border - radius: 4px;
+    padding: 0.75rem 1rem;
+    font - family: "Manrope", sans - serif;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    flex - direction: column;
+    gap: 3px;
+    transition: border - color 0.15s ease, background 0.15s ease;
+    min - height: auto;
+}
+
+.arch - pref - btn:hover {
+    border - color: rgba(5, 5, 5, 0.4);
+    background: #ffffff;
+    box - shadow: none;
+    transform: none;
+}
+
+.arch - pref - btn.active {
+    background: #050505;
+    border - color: #050505;
+    color: #f3efe9;
+}
+
+.arch - pref - main {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.8rem;
+    font - weight: 600;
+    letter - spacing: 0.04em;
+    text - transform: uppercase;
+    color: inherit;
+}
+
+.arch - pref - sub {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 400;
+    letter - spacing: 0.06em;
+    text - transform: uppercase;
+    color: #706c66;
+}
+
+.arch - pref - btn.active.arch - pref - sub {
+    color: rgba(243, 239, 233, 0.55);
+}
+
+.arch - name - input {
+    width: 100 %;
+    background: transparent;
+    border: none;
+    border - bottom: 1.5px solid rgba(5, 5, 5, 0.11);
+    padding: 0.4rem 0;
+    font - family: "EB Garamond", serif;
+    font - size: 1.3rem;
+    font - weight: 400;
+    color: var(--text);
+    letter - spacing: 0.04em;
+    outline: none;
+    transition: border - color 0.2s ease;
+    margin - bottom: 0;
+    border - radius: 0;
+}
+
+.arch - name - input:focus {
+    border - bottom - color: #050505;
+}
+
+.arch - name - input::placeholder {
+    color: rgba(112, 108, 102, 0.4);
+    font - style: italic;
+}
+/* ============================================
+   ARCHETYPE RESULT — DARK PROFILE CARD
+   ============================================ */
+
+.arch - result - shell {
+    max - width: 48rem;
+}
+
+.arch - result - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.25em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.7rem;
+    text - align: center;
+}
+
+.arch - result - name {
+    font - family: "Manrope", sans - serif;
+    font - weight: 700;
+    font - size: clamp(1.6rem, 3.5vw, 2.2rem);
+    letter - spacing: 0.06em;
+    text - transform: uppercase;
+    line - height: 1.2;
+    margin - bottom: 0.8rem;
+    text - align: center;
+    color: var(--text);
+}
+
+.arch - result - persona {
+    font - weight: 300;
+    opacity: 0.8;
+}
+
+.arch - result - divider {
+    width: 1.5rem;
+    height: 1.5px;
+    background: var(--accent);
+    opacity: 0.35;
+    margin: 0 auto 0.8rem;
+}
+
+.arch - result - desc {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.92rem;
+    line - height: 1.65;
+    color: var(--muted);
+    max - width: 34rem;
+    margin: 0 auto 1.8rem;
+    text - align: center;
+}
+
+/* Dark card wrapper */
+.arch - card - wrap {
+    width: 100 %;
+    max - width: 460px;
+    margin: 0 auto 1.2rem;
+}
+
+.arch - style - card {
+    background: #050505;
+    color: #f3efe9;
+    padding: 1.8rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.arch - card - top {
+    display: flex;
+    justify - content: space - between;
+    align - items: flex - start;
+    margin - bottom: 1.2rem;
+}
+
+.arch - card - brand {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: #f3efe9;
+    opacity: 0.45;
+}
+
+.arch - card - tag {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.5rem;
+    font - weight: 500;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    opacity: 0.35;
+    color: #f3efe9;
+}
+
+.arch - card - client {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 500;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    color: #f3efe9;
+    opacity: 0.4;
+    margin - bottom: 0.15rem;
+}
+
+.arch - card - persona {
+    font - family: "Manrope", sans - serif;
+    font - weight: 700;
+    font - size: clamp(1.3rem, 3.5vw, 1.8rem);
+    letter - spacing: 0.08em;
+    text - transform: uppercase;
+    line - height: 1.1;
+    margin - bottom: 0.25rem;
+    color: #f3efe9;
+}
+
+.arch - result - client {
+    display: block;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.7rem;
+    font - weight: 600;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.55rem;
+}
+
+.arch - card - persona - sub {
+    font - family: "Manrope", sans - serif;
+    font - weight: 400;
+    font - size: 0.62rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    opacity: 0.5;
+    margin - bottom: 1.1rem;
+    color: #f3efe9;
+}
+
+.arch - card - rule {
+    width: 1.5rem;
+    height: 1px;
+    background: rgba(243, 239, 233, 0.2);
+    margin - bottom: 1.1rem;
+}
+
+.arch - card - section - label {
+    font - family: "Manrope", sans - serif;
+    font - weight: 600;
+    font - size: 0.5rem;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    opacity: 0.4;
+    margin - bottom: 0.5rem;
+    color: #f3efe9;
+}
+
+.arch - card - baseline - grid {
+    display: grid;
+    grid - template - columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin - bottom: 1.1rem;
+}
+
+.arch - card - baseline - item {
+    border - left: 1px solid rgba(243, 239, 233, 0.12);
+    padding - left: 0.4rem;
+}
+
+.arch - card - baseline - lbl {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.42rem;
+    font - weight: 600;
+    text - transform: uppercase;
+    letter - spacing: 0.1em;
+    opacity: 0.35;
+    margin - bottom: 0.1rem;
+    color: #f3efe9;
+}
+
+.arch - card - baseline - val {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.56rem;
+    font - weight: 400;
+    text - transform: uppercase;
+    letter - spacing: 0.05em;
+    opacity: 0.8;
+    line - height: 1.3;
+    color: #f3efe9;
+}
+
+.arch - card - notes {
+    display: flex;
+    flex - direction: column;
+    gap: 0.3rem;
+    margin - bottom: 1.1rem;
+}
+
+.arch - card - note {
+    font - family: "Manrope", sans - serif;
+    display: flex;
+    align - items: flex - start;
+    gap: 0.4rem;
+    font - weight: 400;
+    font - size: 0.78rem;
+    line - height: 1.4;
+    opacity: 0.85;
+    color: #f3efe9;
+}
+
+.arch - card - note::before {
+    content: "\2014";
+    opacity: 0.35;
+    flex - shrink: 0;
+}
+
+.arch - card - tags {
+    display: flex;
+    flex - wrap: wrap;
+    gap: 0.3rem;
+    margin - bottom: 1.4rem;
+}
+
+.arch - card - chip {
+    font - family: "Manrope", sans - serif;
+    font - weight: 500;
+    font - size: 0.48rem;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    border: 1px solid rgba(243, 239, 233, 0.15);
+    padding: 0.2rem 0.42rem;
+    opacity: 0.6;
+    color: #f3efe9;
+}
+
+.arch - card - footer {
+    display: flex;
+    justify - content: space - between;
+    align - items: flex - end;
+    padding - top: 1rem;
+    border - top: 1px solid rgba(243, 239, 233, 0.1);
+}
+
+.arch - card - cta - text {
+    font - family: "Manrope", sans - serif;
+    font - weight: 600;
+    font - size: 0.52rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    opacity: 0.55;
+    max - width: 150px;
+    line - height: 1.4;
+    color: #f3efe9;
+}
+
+.arch - card - url {
+    font - family: "Manrope", sans - serif;
+    font - weight: 400;
+    font - size: 0.48rem;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    opacity: 0.3;
+    color: #f3efe9;
+}
+
+/* Action buttons below the card */
+.arch - card - actions {
+    display: flex;
+    gap: 0.5rem;
+    justify - content: center;
+    flex - wrap: wrap;
+    margin - bottom: 1.2rem;
+    width: 100 %;
+    max - width: 460px;
+    margin - left: auto;
+    margin - right: auto;
+}
+
+.arch - btn - fill {
+    font - family: "Manrope", sans - serif;
+    font - weight: 700;
+    font - size: 0.62rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: var(--accent);
+    color: #f8f5ef;
+    border: 1.5px solid var(--accent);
+    padding: 0.7rem 1.4rem;
+    cursor: pointer;
+    border - radius: 4px;
+    min - height: auto;
+    transition: opacity 0.18s ease;
+}
+
+.arch - btn - fill:hover {
+    opacity: 0.85;
+    transform: none;
+    box - shadow: none;
+}
+
+.arch - btn - stroke {
+    font - family: "Manrope", sans - serif;
+    font - weight: 700;
+    font - size: 0.62rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--text);
+    padding: 0.7rem 1.4rem;
+    cursor: pointer;
+    border - radius: 4px;
+    min - height: auto;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.arch - btn - stroke:hover {
+    background: var(--text);
+    color: #f8f5ef;
+    transform: none;
+    box - shadow: none;
+}
+
+.arch - restart {
+    font - family: "Manrope", sans - serif;
+    font - weight: 400;
+    font - size: 0.55rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: none;
+    border: none;
+    color: var(--soft);
+    cursor: pointer;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+    display: block;
+    margin: 0 auto;
+    min - height: auto;
+    padding: 0;
+    box - shadow: none;
+}
+
+.arch - restart:hover {
+    color: var(--text);
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+
+/* Guide links section */
+.arch - explore - section {
+    max - width: 460px;
+    margin: 1.5rem auto 0 auto;
+    padding - top: 1.5rem;
+    border - top: 1px solid rgba(200, 191, 176, 0.4);
+}
+
+.arch - explore - heading {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.4rem;
+}
+
+.arch - explore - intro - text {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.85rem;
+    color: var(--muted);
+    margin - bottom: 1rem;
+    line - height: 1.5;
+}
+
+.arch - explore - grid {
+    display: flex;
+    flex - direction: column;
+    gap: 8px;
+}
+
+.arch - explore - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.55);
+    border - radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex - direction: column;
+    gap: 4px;
+}
+
+.arch - explore - card:hover {
+    box - shadow: 0 6px 20px rgba(42, 34, 24, 0.08);
+    transform: translateY(-1px);
+    border - color: var(--line - strong);
+}
+
+.arch - explore - kind {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.58rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+}
+
+.arch - explore - title {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.3;
+}
+
+.arch - explore - intro {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 1.5;
+}
+
+/* ============================================
+     RESPONSIVE — arch- classes
+     ============================================ */
+
+@media(max - width: 580px) {
+  .arch - grid {
+        grid - template - columns: 1fr;
+    }
+
+  .arch - opt: nth - child(even) {
+        border - right: none;
+    }
+
+  .arch - opt: nth - last - child(-n + 2) {
+        border - bottom: 1px solid rgba(5, 5, 5, 0.11);
+    }
+
+  .arch - opt: last - child {
+        border - bottom: none;
+    }
+
+  .arch - card - baseline - grid {
+        grid - template - columns: 1fr;
+        gap: 0.4rem;
+    }
+
+  .arch - style - card {
+        padding: 1.25rem;
+    }
+
+  .arch - result - shell {
+        max - width: 100 %;
+    }
+
+  .arch - card - wrap {
+        max - width: 100 %;
+    }
+
+  .arch - card - actions {
+        max - width: 100 %;
+    }
+
+  .arch - explore - section {
+        max - width: 100 %;
+    }
+}
+/* ============================================
+   QUIZ GRID — PROPORTION + SELECTED STATE FIX
+   ============================================ */
+
+/* Remove pill shape from selected state */
+.arch - opt {
+    border - radius: 0!important;
+}
+
+.arch - opt.sel {
+    border - radius: 0!important;
+}
+
+/* Fix subtitle colour on unselected cards */
+.arch - opt - sub {
+    color: #706c66!important;
+}
+
+/* Fix the shell so content doesn't float in dead space */
+.arch - shell {
+    max - width: 38rem!important;
+    padding - top: 2rem!important;
+}
+
+/* Tighten the grid so it doesn't feel empty */
+.arch - grid {
+    margin - bottom: 0!important;
+}
+
+/* The grid cells need more height and better padding */
+.arch - opt {
+    min - height: 90px!important;
+    padding: 1.2rem 1.4rem!important;
+}
+
+/* Question title needs more presence */
+.arch - q - title {
+    font - size: clamp(1.1rem, 2.8vw, 1.5rem)!important;
+    margin - bottom: 1.6rem!important;
+    letter - spacing: 0.06em!important;
+}
+
+/* Nav needs tighter spacing */
+.arch - nav {
+    margin - top: 1.4rem!important;
+    padding - top: 1rem!important;
+}
+
+/* The app shell needs to vertically center content on the quiz screen */
+.arch - shell {
+    display: flex!important;
+    flex - direction: column!important;
+    justify - content: flex - start!important;
+    min - height: auto!important;
+}
+/* ============================================
+   HOME SCREEN — PROPORTION FIX
+   ============================================ */
+
+/* Constrain the hero card width */
+.home - hero - card {
+    max - width: 520px!important;
+}
+
+/* Make the welcome title larger */
+.home - hero - title {
+    font - size: 2.8rem!important;
+    margin - bottom: 0.5rem!important;
+}
+
+/* More space between the card button and body text */
+.home - hero - card p {
+    margin - bottom: 2.2rem!important;
+}
+
+/* Secondary path needs more visual weight */
+.home - secondary - path {
+    padding: 22px 0!important;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.5)!important;
+}
+
+.home - secondary - path - text h3 {
+    font - size: 1.5rem!important;
+}
+
+/* Reduce the outer shell max-width so everything breathes */
+.home - shell--editorial {
+    max - width: 42rem!important;
+    padding - top: 2rem!important;
+}
+/* ============================================
+   QUIZ SCREEN — CENTRED LAYOUT FIX
+   ============================================ */
+
+/* Make the app vertically centre the quiz content */
+#app {
+    justify - content: center!important;
+}
+
+.arch - shell {
+    max - width: 44rem!important;
+    width: 100 % !important;
+    margin: 0 auto!important;
+    padding: 3rem 2rem!important;
+    display: flex!important;
+    flex - direction: column!important;
+}
+
+/* Fix subtitle colour — brown is wrong */
+.arch - opt - sub {
+    color: #706c66!important;
+    font - size: 0.58rem!important;
+    letter - spacing: 0.08em!important;
+    text - transform: uppercase!important;
+    font - weight: 400!important;
+}
+
+/* Fix selected card subtitle */
+.arch - opt.sel.arch - opt - sub {
+    color: rgba(243, 239, 233, 0.5)!important;
+}
+
+/* Grid fills the shell width properly */
+.arch - grid {
+    width: 100 % !important;
+    margin - bottom: 0!important;
+}
+
+/* Taller cells with more padding */
+.arch - opt {
+    min - height: 100px!important;
+    padding: 1.4rem 1.6rem!important;
+    border - radius: 0!important;
+}
+
+.arch - opt.sel {
+    border - radius: 0!important;
+}
+
+/* More presence on the question */
+.arch - q - title {
+    font - size: clamp(1.15rem, 2.5vw, 1.55rem)!important;
+    margin - bottom: 1.8rem!important;
+}
+
+/* Tighter step meta */
+.arch - q - label {
+    margin - bottom: 0.5rem!important;
+}
+
+/* Pips span full width */
+.arch - pips {
+    width: 100 % !important;
+    margin - bottom: 2rem!important;
+}
+
+/* Nav row — cleaner spacing */
+.arch - nav {
+    margin - top: 1.6rem!important;
+    padding - top: 1.2rem!important;
+}
+
+/* Home button in nav */
+.arch - btn - home {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 500;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: none;
+    border: none;
+    color: #706c66;
+    cursor: pointer;
+    min - height: auto;
+    padding: 0;
+    box - shadow: none;
+    transition: color 0.18s ease;
+}
+
+.arch - btn - home:hover {
+    color: #050505;
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+/* ============================================
+   HOME V2 — EQUAL WEIGHT CARD GRID
+   ============================================ */
+
+.home - shell - v2 {
+    display: flex;
+    flex - direction: column;
+    width: 100 %;
+    max - width: 580px;
+    margin: 0 auto;
+    padding: 2.2rem 0 1.2rem 0;
+}
+
+/* Brand bar */
+.home - brand - bar {
+    display: flex;
+    align - items: center;
+    gap: 12px;
+    margin - bottom: 2.8rem;
+}
+
+.home - brand - mark {
+    font - family: "EB Garamond", Georgia, serif;
+    font - size: 1.6rem;
+    font - weight: 600;
+    letter - spacing: -0.01em;
+    color: var(--text);
+    line - height: 1;
+}
+
+.home - brand - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    padding - left: 12px;
+    border - left: 1px solid rgba(200, 191, 176, 0.5);
+}
+
+/* Hero */
+.home - hero - v2 {
+    margin - bottom: 2rem;
+}
+
+.home - hero - title - v2 {
+    font - family: "EB Garamond", serif;
+    font - size: 2.6rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.08;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.6rem;
+}
+
+.home - hero - sub - v2 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 0;
+}
+
+/* Two equal cards side by side */
+.home - card - grid {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 12px;
+    margin - bottom: 1.5rem;
+}
+
+.home - card {
+    border - radius: 14px;
+    padding: 22px 22px 22px 22px;
+    cursor: pointer;
+    display: flex;
+    flex - direction: column;
+    min - height: 260px;
+    transition: all 0.22s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.home - card:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.1);
+}
+
+.home - card--primary {
+    background: linear - gradient(150deg, #ede8dc 0 %, #e2d8c4 100 %);
+    border: 1px solid rgba(200, 175, 130, 0.4);
+}
+
+.home - card--secondary {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+}
+
+.home - card--secondary:hover {
+    border - color: rgba(200, 191, 176, 0.8);
+}
+
+/* Watermark icon — top right, large, ghost opacity */
+.home - card - watermark {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    opacity: 0.13;
+    pointer - events: none;
+    line - height: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.home - card: hover.home - card - watermark {
+    opacity: 0.2;
+    transform: translateY(-1px);
+}
+
+.home - card - watermark--primary {
+    color: var(--accent);
+}
+
+.home - card - watermark--secondary {
+    color: var(--muted);
+}
+
+/* Content pushes to bottom */
+.home - card - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 1.68;
+    margin - bottom: 0;
+    max - width: 17rem;
+    padding - top: 1.8rem;
+}
+
+/* Label row — small caps above title */
+.home - card - label - row {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.7rem;
+}
+
+.home - card - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.62rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.12;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.85rem;
+    max - width: 10ch;
+}
+
+.home - card - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 1.68;
+    margin - bottom: 0;
+    max - width: 17rem;
+    padding - top: 0;
+}
+
+.home - card - content {
+    display: grid;
+    grid - template - rows: 4.2rem 1fr auto;
+    row - gap: 0.8rem;
+    flex: 1;
+    position: relative;
+    z - index: 1;
+    padding - top: 0.35rem;
+}
+
+.home - card - cta {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.75rem;
+    font - weight: 700;
+    letter - spacing: 0.06em;
+    color: var(--accent);
+    margin - top: 1.5rem;
+    flex: 0 0 auto;
+    transition: letter - spacing 0.18s ease;
+}
+
+.home - card: hover.home - card - cta {
+    letter - spacing: 0.1em;
+}
+
+/* Change name */
+.home - change - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    color: var(--soft);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    letter - spacing: 0.02em;
+    min - height: auto;
+    box - shadow: none;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+    align - self: center;
+}
+
+.home - change - name:hover {
+    color: var(--text);
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+
+/* Mobile — stack vertically */
+@media(max - width: 560px) {
+  .home - card - grid {
+        grid - template - columns: 1fr;
+    }
+
+  .home - card {
+        min - height: 200px;
+    }
+
+  .home - hero - title - v2 {
+        font - size: 2.1rem;
+    }
+}
+/* ============================================
+   HOME CARDS — ICON ROW
+   ============================================ */
+
+.home - card - top {
+    margin - bottom: 1.4rem;
+}
+
+.home - card - icon {
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    width: 44px;
+    height: 44px;
+    border - radius: 12px;
+    flex - shrink: 0;
+}
+
+.home - card - icon--primary {
+    background: rgba(58, 46, 35, 0.1);
+    color: var(--accent);
+}
+
+.home - card - icon--secondary {
+    background: rgba(200, 191, 176, 0.25);
+    color: var(--muted);
+}
+
+/* ============================================
+     HOME STATS ROW — fills dead space
+     ============================================ */
+
+.home - stats - row {
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    padding: 14px 0 4px 0;
+    margin - bottom: 0.8rem;
+}
+
+.home - stat {
+    display: flex;
+    align - items: center;
+    gap: 6px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 500;
+    color: var(--soft);
+    letter - spacing: 0.02em;
+    padding: 0 18px;
+}
+
+.home - stat svg {
+    color: var(--soft);
+    flex - shrink: 0;
+    opacity: 0.7;
+}
+
+.home - stat - divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(200, 191, 176, 0.6);
+    flex - shrink: 0;
+}
+
+@media(max - width: 560px) {
+  .home - stats - row {
+        gap: 0;
+    }
+
+  .home - stat {
+        padding: 0 12px;
+        font - size: 0.65rem;
+    }
+}
+/* ============================================
+   HOME V3 — BALANCED DUAL CARD LAYOUT
+   ============================================ */
+
+.home - shell - v3 {
+    display: flex;
+    flex - direction: column;
+    width: 100 %;
+    max - width: 640px;
+    margin: 0 auto;
+    padding: 1.8rem 0 1rem 0;
+}
+
+.home - brand - bar {
+    display: flex;
+    align - items: center;
+    gap: 12px;
+    margin - bottom: 2.2rem;
+}
+
+.home - brand - mark {
+    font - family: "EB Garamond", Georgia, serif;
+    font - size: 1.6rem;
+    font - weight: 600;
+    letter - spacing: -0.01em;
+    color: var(--text);
+    line - height: 1;
+}
+
+.home - brand - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    padding - left: 12px;
+    border - left: 1px solid rgba(200, 191, 176, 0.5);
+}
+
+.home - hero - v3 {
+    margin - bottom: 1.8rem;
+}
+
+.home - hero - title - v3 {
+    font - family: "EB Garamond", serif;
+    font - size: 2.7rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.06;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.55rem;
+}
+
+.home - hero - sub - v3 {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.96rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 0;
+}
+
+/* Two balanced cards */
+.home - card - grid - v3 {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 14px;
+    margin - bottom: 1rem;
+}
+
+.home - card - v3 {
+    position: relative;
+    display: flex;
+    flex - direction: column;
+    min - height: 300px;
+    padding: 20px 22px 22px 22px;
+    border - radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.22s ease, box - shadow 0.22s ease,
+        border - color 0.22s ease;
+}
+
+.home - card - v3:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.1);
+}
+
+.home - card - v3--primary {
+    background: linear - gradient(150deg, #ede8dc 0 %, #e2d8c4 100 %);
+    border: 1px solid rgba(200, 175, 130, 0.42);
+}
+
+.home - card - v3--secondary {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+}
+
+.home - card - v3--secondary:hover {
+    border - color: rgba(200, 191, 176, 0.8);
+}
+
+/* Large icon in top-right empty space */
+.home - card - v3 - icon {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    line - height: 0;
+    pointer - events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.home - card - v3 - icon--primary {
+    color: rgba(58, 46, 35, 0.18);
+}
+
+.home - card - v3 - icon--secondary {
+    color: rgba(107, 97, 85, 0.16);
+}
+
+.home - card - v3: hover.home - card - v3 - icon {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.home - card - v3 - content {
+    display: flex;
+    flex - direction: column;
+    flex: 1;
+    position: relative;
+    z - index: 1;
+    padding - top: 22px;
+}
+
+.home - card - v3 - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.62rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.12;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.7rem;
+}
+
+.home - card - v3 - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.84rem;
+    color: var(--muted);
+    line - height: 1.72;
+    margin - bottom: 0;
+    flex: 1;
+    max - width: 18rem;
+}
+
+.home - card - v3 - cta {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.78rem;
+    font - weight: 700;
+    letter - spacing: 0.05em;
+    color: var(--accent);
+    margin - top: 1rem;
+    transition: letter - spacing 0.18s ease;
+}
+
+.home - card - v3: hover.home - card - v3 - cta {
+    letter - spacing: 0.09em;
+}
+
+/* Editorial trust row */
+.home - stats - row - v3 {
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    padding: 10px 0 0 0;
+    margin - bottom: 0.7rem;
+}
+
+.home - stat - v3 {
+    display: flex;
+    align - items: center;
+    gap: 6px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 500;
+    color: var(--soft);
+    letter - spacing: 0.02em;
+    padding: 0 18px;
+}
+
+.home - stat - v3 svg {
+    color: var(--soft);
+    opacity: 0.7;
+    flex - shrink: 0;
+}
+
+.home - stat - divider - v3 {
+    width: 1px;
+    height: 12px;
+    background: rgba(200, 191, 176, 0.6);
+    flex - shrink: 0;
+}
+
+.home - change - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    color: var(--soft);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    letter - spacing: 0.02em;
+    min - height: auto;
+    box - shadow: none;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+    align - self: center;
+    margin - top: 0.4rem;
+}
+
+.home - change - name:hover {
+    color: var(--text);
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+
+/* Mobile */
+@media(max - width: 640px) {
+  .home - shell - v3 {
+        max - width: 100 %;
+        padding: 1.4rem 0 0.8rem 0;
+    }
+
+  .home - hero - title - v3 {
+        font - size: 2.15rem;
+    }
+
+  .home - card - grid - v3 {
+        grid - template - columns: 1fr;
+        gap: 12px;
+    }
+
+  .home - card - v3 {
+        min - height: 230px;
+    }
+
+  .home - card - v3 - content {
+        padding - top: 18px;
+    }
+
+  .home - stats - row - v3 {
+        flex - wrap: wrap;
+        gap: 8px;
+        padding - top: 12px;
+    }
+
+  .home - stat - divider - v3 {
+        display: none;
+    }
+
+  .home - stat - v3 {
+        padding: 0 8px;
+    }
+}
+/* ============================================
+   RESULT FOOTER — START OVER PLACEMENT FIX
+   ============================================ */
+
+.arch - result - footer {
+    max - width: 460px;
+    margin: 1.6rem auto 0 auto;
+    padding - top: 1rem;
+    border - top: 1px solid rgba(200, 191, 176, 0.35);
+    display: flex;
+    justify - content: center;
+}
+
+.arch - restart {
+    font - family: "Manrope", sans - serif;
+    font - weight: 500;
+    font - size: 0.58rem;
+    letter - spacing: 0.16em;
+    text - transform: uppercase;
+    background: none;
+    border: none;
+    color: var(--soft);
+    cursor: pointer;
+    text - decoration: underline;
+    text - underline - offset: 3px;
+    display: inline - block;
+    margin: 0;
+    min - height: auto;
+    padding: 0;
+    box - shadow: none;
+}
+
+.arch - restart:hover {
+    color: var(--text);
+    background: none;
+    box - shadow: none;
+    transform: none;
+}
+
+.arch - q - subtext {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.9rem;
+    color: var(--muted);
+    line - height: 1.65;
+    margin - bottom: 1.4rem;
+    max - width: 34rem;
+}
+
+.home - card - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.62rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1;
+    letter - spacing: -0.01em;
+    margin - bottom: 0;
+    max - width: 10ch;
+    min - height: 4.2rem;
+}
+
+.home - card - content {
+    display: flex;
+    flex - direction: column;
+    flex: 1;
+    position: relative;
+    z - index: 1;
+    padding - top: 0.35rem;
+}
+
+.home - card - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 2;
+    margin - bottom: 0;
+    max - width: 17rem;
+    padding - top: 0.7rem;
+    flex: 1;
+}
+
+.arch - card - baseline - grid {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 0.7rem 0.8rem;
+    margin - bottom: 1.2rem;
+}
+
+.arch - card - baseline - item {
+    border - left: 1px solid rgba(243, 239, 233, 0.12);
+    padding - left: 0.55rem;
+    min - height: 2.2rem;
+}
+
+.arch - card - baseline - val {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.58rem;
+    font - weight: 500;
+    text - transform: uppercase;
+    letter - spacing: 0.06em;
+    opacity: 0.88;
+    line - height: 1.35;
+    color: #f3efe9;
+}
+
+.arch - result - secondary {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.78rem;
+    line - height: 1.5;
+    color: var(--soft);
+    text - align: center;
+    margin: -0.6rem auto 1.5rem;
+    max - width: 28rem;
+    letter - spacing: 0.02em;
+}
+
+.arch - pref - btn--palette {
+    display: flex!important;
+    flex - direction: row!important;
+    align - items: center!important;
+    justify - content: space - between!important;
+    text - align: left!important;
+    min - height: 88px;
+    gap: 1.25rem;
+}
+
+.arch - pref - btn--palette.arch - pref - copy {
+    display: flex!important;
+    flex - direction: column!important;
+    justify - content: center!important;
+    align - items: flex - start!important;
+    align - self: center!important;
+    text - align: left!important;
+    flex: 1 1 auto;
+    min - width: 0;
+}
+
+.arch - pref - btn--palette.arch - pref - main {
+    display: block;
+    width: 100 %;
+    margin: 0 0 0.3rem 0;
+    text - align: left!important;
+    line - height: 1.2;
+}
+
+.arch - pref - btn--palette.arch - pref - sub {
+    display: block;
+    width: 100 %;
+    margin: 0;
+    text - align: left!important;
+    line - height: 1.35;
+}
+
+.arch - pref - btn--palette.arch - palette - swatches {
+    display: flex!important;
+    flex - direction: row!important;
+    align - items: center!important;
+    justify - content: flex - end!important;
+    align - self: center!important;
+    flex: 0 0 auto!important;
+    margin - left: auto!important;
+    padding - left: 1rem!important;
+    opacity: 1!important;
+}
+
+.arch - pref - btn--palette.arch - palette - swatch {
+    display: inline - block!important;
+    width: 22px!important;
+    height: 22px!important;
+    min - width: 22px!important;
+    min - height: 22px!important;
+    border - radius: 999px!important;
+    margin - left: -6px!important;
+    border: 1.5px solid rgba(255, 255, 255, 0.98)!important;
+    box - shadow: 0 4px 12px rgba(0, 0, 0, 0.16)!important;
+    opacity: 1!important;
+    background - image: none!important;
+}
+
+.arch - pref - btn--palette.arch - palette - swatch: first - child {
+    margin - left: 0!important;
+}
+
+.arch - palette - swatches--icons {
+    display: flex!important;
+    align - items: center!important;
+    justify - content: flex - end!important;
+}
+
+.arch - palette - icon - token {
+    display: inline - flex;
+    align - items: center;
+    justify - content: center;
+    width: 22px;
+    height: 22px;
+    min - width: 22px;
+    min - height: 22px;
+    border - radius: 999px;
+    margin - left: -6px;
+    background - color: #d7d0c5;
+    border: 1.5px solid rgba(255, 255, 255, 0.98);
+    box - shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    color: #5f5a54;
+}
+
+.arch - palette - icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.arch - palette - icon - token: first - child {
+    margin - left: 0;
+}
+/* ============================================
+   COLOUR DIRECTION — ENHANCED INTERACTIVE VERSION
+   ============================================ */
+
+/* Question options with premium microinteractions */
+.arch - opt--colour {
+    display: flex!important;
+    flex - direction: row!important;
+    align - items: center!important;
+    justify - content: space - between!important;
+    text - align: left!important;
+    min - height: 96px!important;
+    padding: 1.3rem 1.4rem!important;
+    gap: 1.4rem!important;
+    position: relative;
+    overflow: hidden;
+    animation: colourOptionFadeIn 0.3s ease both;
+}
+
+/* Staggered entrance animation */
+.arch - opt--colour: nth - child(1) {
+    animation - delay: 0.05s;
+}
+
+.arch - opt--colour: nth - child(2) {
+    animation - delay: 0.1s;
+}
+
+.arch - opt--colour: nth - child(3) {
+    animation - delay: 0.15s;
+}
+
+.arch - opt--colour: nth - child(4) {
+    animation - delay: 0.2s;
+}
+
+.arch - opt--colour: nth - child(5) {
+    animation - delay: 0.25s;
+}
+
+.arch - opt--colour: nth - child(6) {
+    animation - delay: 0.3s;
+}
+
+@keyframes colourOptionFadeIn {
+  from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.arch - opt--colour.arch - opt - copy {
+    display: flex!important;
+    flex - direction: column!important;
+    justify - content: center!important;
+    align - items: flex - start!important;
+    flex: 1 1 auto;
+    min - width: 0;
+    transition: transform 0.2s ease;
+}
+
+.arch - opt--colour: hover.arch - opt - copy {
+    transform: translateX(2px);
+}
+
+.arch - opt--colour.arch - opt - main {
+    display: block;
+    width: 100 %;
+    margin: 0 0 0.35rem 0;
+    line - height: 1.25;
+    transition: color 0.2s ease;
+}
+
+.arch - opt--colour.arch - opt - sub {
+    display: block;
+    width: 100 %;
+    margin: 0;
+    line - height: 1.4;
+    transition: color 0.2s ease;
+}
+
+/* Swatches container */
+.colour - option - swatches {
+    display: flex!important;
+    flex - direction: row!important;
+    align - items: center!important;
+    justify - content: flex - end!important;
+    flex: 0 0 auto!important;
+    margin - left: auto!important;
+    padding - left: 1rem!important;
+    gap: 0!important;
+}
+
+/* Individual swatches with premium effects */
+.colour - option - swatch {
+    display: inline - block!important;
+    width: 28px!important;
+    height: 28px!important;
+    min - width: 28px!important;
+    min - height: 28px!important;
+    border - radius: 999px!important;
+    margin - left: -8px!important;
+    border: 2.5px solid rgba(255, 255, 255, 0.98)!important;
+    box - shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.12)!important;
+    background - image: none!important;
+    transition: all 0.25s cubic - bezier(0.4, 0, 0.2, 1)!important;
+    position: relative;
+    z - index: 1;
+}
+
+.colour - option - swatch: first - child {
+    margin - left: 0!important;
+}
+
+/* Hover state — swatches lift and spread */
+.arch - opt--colour: hover.colour - option - swatch {
+    transform: translateY(-2px) scale(1.08);
+    box - shadow: 0 8px 20px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.16);
+    z - index: 2;
+}
+
+.arch - opt--colour: hover.colour - option - swatch: nth - child(2) {
+    transition - delay: 0.03s;
+}
+
+.arch - opt--colour: hover.colour - option - swatch: nth - child(3) {
+    transition - delay: 0.06s;
+}
+
+.arch - opt--colour: hover.colour - option - swatch: nth - child(4) {
+    transition - delay: 0.09s;
+}
+
+.arch - opt--colour: hover.colour - option - swatch: nth - child(5) {
+    transition - delay: 0.12s;
+}
+
+/* Selected state — glowing ring effect */
+.arch - opt--colour.sel {
+    background: #050505!important;
+}
+
+.arch - opt--colour.sel.colour - option - swatch {
+    border - color: rgba(243, 239, 233, 0.95);
+    box - shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(243, 239, 233, 0.12),
+        0 0 20px rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+/* Ripple effect on click */
+.arch - opt--colour::after {
+    content: "";
+    position: absolute;
+    top: 50 %;
+    left: 50 %;
+    width: 0;
+    height: 0;
+    border - radius: 999px;
+    background: rgba(243, 239, 233, 0.2);
+    transform: translate(-50 %, -50 %);
+    opacity: 0;
+    pointer - events: none;
+}
+
+.arch - opt--colour: active::after {
+    width: 300px;
+    height: 300px;
+    opacity: 1;
+    transition: width 0.4s ease, height 0.4s ease, opacity 0.6s ease;
+}
+
+/* ============================================
+   COLOUR DIRECTION — RESULT PAGE CHIPS (ENHANCED)
+   ============================================ */
+
+.colour - result - chip - row {
+    display: flex;
+    flex - wrap: wrap;
+    gap: 12px 10px;
+    margin - bottom: 1.2rem;
+}
+
+/* Individual chips with staggered animation */
+.colour - result - chip {
+    display: inline - flex;
+    align - items: center;
+    gap: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(243, 239, 233, 0.15);
+    border - radius: 8px;
+    padding: 8px 14px 8px 9px;
+    transition: all 0.22s cubic - bezier(0.4, 0, 0.2, 1);
+    animation: chipFadeIn 0.35s ease both;
+    cursor: default ;
+}
+
+/* Stagger the chip entrance */
+.colour - result - chip: nth - child(1) {
+    animation - delay: 0.05s;
+}
+
+.colour - result - chip: nth - child(2) {
+    animation - delay: 0.1s;
+}
+
+.colour - result - chip: nth - child(3) {
+    animation - delay: 0.15s;
+}
+
+.colour - result - chip: nth - child(4) {
+    animation - delay: 0.2s;
+}
+
+.colour - result - chip: nth - child(5) {
+    animation - delay: 0.25s;
+}
+
+.colour - result - chip: nth - child(6) {
+    animation - delay: 0.3s;
+}
+
+.colour - result - chip: nth - child(7) {
+    animation - delay: 0.35s;
+}
+
+@keyframes chipFadeIn {
+  from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.96);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.colour - result - chip:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border - color: rgba(243, 239, 233, 0.28);
+    transform: translateY(-1px);
+    box - shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Colour swatch with glow */
+.colour - result - chip - swatch {
+    display: inline - block;
+    width: 22px;
+    height: 22px;
+    min - width: 22px;
+    min - height: 22px;
+    border - radius: 999px;
+    border: 2px solid rgba(243, 239, 233, 0.25);
+    box - shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    flex - shrink: 0;
+    transition: all 0.22s ease;
+    position: relative;
+}
+
+/* Swatch hover glow */
+.colour - result - chip: hover.colour - result - chip - swatch {
+    border - color: rgba(243, 239, 233, 0.4);
+    box - shadow: 0 4px 14px rgba(0, 0, 0, 0.22), 0 0 12px rgba(255, 255, 255, 0.1),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    transform: scale(1.12);
+}
+
+.colour - result - chip - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.74rem;
+    font - weight: 500;
+    letter - spacing: 0.04em;
+    color: rgba(243, 239, 233, 0.9);
+    line - height: 1.3;
+    white - space: nowrap;
+    transition: color 0.18s ease;
+}
+
+.colour - result - chip: hover.colour - result - chip - label {
+    color: rgba(243, 239, 233, 1);
+}
+
+.colour - result - notes {
+    display: flex;
+    flex - direction: column;
+    gap: 0.45rem;
+    margin - bottom: 1.2rem;
+}
+
+/* Enhanced progress pips */
+.arch - pips {
+    position: relative;
+}
+
+.arch - pip.on {
+    background: linear - gradient(90deg, #050505 0 %, #2a2218 100 %);
+    box - shadow: 0 1px 3px rgba(5, 5, 5, 0.2);
+}
+
+.arch - pip.cur {
+    background: linear - gradient(
+        90deg,
+        rgba(5, 5, 5, 0.4) 0 %,
+        rgba(5, 5, 5, 0.25) 100 %
+  );
+    animation: pipPulse 2s ease -in -out infinite;
+}
+
+@keyframes pipPulse {
+    0 %,
+        100 % {
+            opacity: 0.4;
+        }
+
+    50 % {
+        opacity: 0.7;
+    }
+}
+
+/* Mobile refinements */
+@media(max - width: 640px) {
+  .arch - opt--colour {
+        flex - direction: column!important;
+        align - items: flex - start!important;
+        gap: 1rem!important;
+        min - height: 110px!important;
+    }
+
+  .colour - option - swatches {
+        padding - left: 0!important;
+        justify - content: flex - start!important;
+    }
+
+  .colour - option - swatch {
+        width: 26px!important;
+        height: 26px!important;
+        min - width: 26px!important;
+        min - height: 26px!important;
+    }
+
+  .colour - result - chip - row {
+        gap: 10px 8px;
+    }
+
+  .colour - result - chip {
+        padding: 7px 12px 7px 8px;
+    }
+
+  .colour - result - chip - swatch {
+        width: 20px;
+        height: 20px;
+        min - width: 20px;
+        min - height: 20px;
+    }
+
+  .colour - result - chip - label {
+        font - size: 0.72rem;
+    }
+}
+
+/* Respect reduced motion */
+@media(prefers - reduced - motion: reduce) {
+  .arch - opt--colour,
+  .colour - result - chip,
+  .colour - option - swatch,
+  .colour - result - chip - swatch {
+        animation: none!important;
+        transition - duration: 0.01ms!important;
+    }
+
+  .arch - pip.cur {
+        animation: none;
+    }
+}
+/* ============================================
+   SMOOTH SELECTION WITHOUT FLICKER
+   ============================================ */
+
+/* Prevent layout shift when selecting */
+.arch - opt {
+    will - change: background, border - color;
+}
+
+.arch - opt--colour {
+    will - change: background, border - color, transform;
+}
+
+/* Smooth selection state without re-render flash */
+.arch - opt.sel,
+.arch - opt--colour.sel {
+    transition: background 0.25s cubic - bezier(0.4, 0, 0.2, 1),
+        border - color 0.25s cubic - bezier(0.4, 0, 0.2, 1),
+            transform 0.18s cubic - bezier(0.4, 0, 0.2, 1);
+}
+
+/* Next button smooth enable */
+.arch - btn - next {
+    transition: opacity 0.25s ease, background 0.18s ease, border - color 0.18s ease,
+        transform 0.18s cubic - bezier(0.4, 0, 0.2, 1);
+}
+
+.arch - btn - next:disabled {
+    transition - duration: 0.1s;
+}
+
+/* Prevent text reflow during transitions */
+.arch - opt - main,
+.arch - opt - sub,
+.colour - option - swatches {
+    backface - visibility: hidden;
+    -webkit - font - smoothing: antialiased;
+}
+/* ============================================
+   THE WOW FACTOR: EDITORIAL SWATCH HERO
+   ============================================ */
+
+.colour - hero - palette {
+    display: flex;
+    width: 100 %;
+    height: 110px;
+    border - radius: 8px;
+    overflow: hidden;
+    margin - bottom: 2rem;
+    box - shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    animation: paletteReveal 0.9s cubic - bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.colour - hero - swatch {
+    flex: 1;
+    position: relative;
+    transition: flex 0.5s cubic - bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+    cursor: crosshair;
+    display: flex;
+    align - items: flex - end;
+    justify - content: center;
+    padding - bottom: 12px;
+    /* Adds a subtle fabric-like texture lighting */
+    box - shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+/* The elegant expansion effect on hover */
+.colour - hero - palette: hover.colour - hero - swatch {
+    filter: brightness(0.85); /* Dim the others slightly */
+}
+
+.colour - hero - palette.colour - hero - swatch:hover {
+    flex: 1.8; /* Expands smoothly */
+    filter: brightness(1.05); /* Highlight hovered */
+    z - index: 2;
+    box - shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.colour - hero - swatch - name {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 700;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    color: #ffffff;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.4s cubic - bezier(0.16, 1, 0.3, 1);
+    text - shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    white - space: nowrap;
+}
+
+/* Reveal name on hover */
+.colour - hero - swatch: hover.colour - hero - swatch - name {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes paletteReveal {
+  from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+        filter: blur(4px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* ============================================
+   MAGAZINE PAGE-TURN ANIMATIONS FOR QUIZ
+   ============================================ */
+
+/* Make the title and grid glide in beautifully on every step */
+.arch - q - title {
+    animation: glideUpFade 0.4s cubic - bezier(0.16, 1, 0.3, 1) both;
+}
+
+.arch - grid {
+    animation: glideUpFade 0.5s cubic - bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+.arch - nav {
+    animation: glideUpFade 0.6s cubic - bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+@keyframes glideUpFade {
+  from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* ============================================
+   BESPOKE INSIGHTS CARDS (COLOUR RESULT)
+   ============================================ */
+
+.bespoke - insight - card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(243, 239, 233, 0.12);
+    border - radius: 8px;
+    padding: 14px 16px;
+    margin - bottom: 12px;
+    display: flex;
+    flex - direction: column;
+    gap: 8px;
+}
+
+.bespoke - insight - header {
+    display: flex;
+    align - items: center;
+    gap: 8px;
+}
+
+.bespoke - insight - title {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.75rem;
+    font - weight: 700;
+    letter - spacing: 0.06em;
+    text - transform: uppercase;
+    color: #f3efe9;
+}
+
+.bespoke - insight - desc {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.8rem;
+    line - height: 1.6;
+    color: rgba(243, 239, 233, 0.8);
+    margin: 0;
+}
+/* ============================================
+   JOURNEY BRIDGE (Archetype to Colour)
+   ============================================ */
+
+.arch - journey - bridge {
+    background: linear - gradient(145deg, #f0e8d6 0 %, #e8dfc8 100 %);
+    border: 1px solid rgba(200, 180, 140, 0.5);
+    border - radius: 12px;
+    padding: 22px 24px;
+    margin: 2.5rem auto 0 auto;
+    max - width: 460px;
+    display: flex;
+    align - items: center;
+    justify - content: space - between;
+    cursor: pointer;
+    transition: all 0.3s cubic - bezier(0.16, 1, 0.3, 1);
+    box - shadow: 0 4px 14px rgba(42, 34, 24, 0.06);
+}
+
+.arch - journey - bridge:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 10px 24px rgba(42, 34, 24, 0.12);
+    border - color: rgba(190, 170, 130, 0.8);
+}
+
+.arch - journey - bridge - content {
+    flex: 1;
+    padding - right: 16px;
+}
+
+.arch - journey - bridge - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--accent);
+    margin - bottom: 6px;
+}
+
+.arch - journey - bridge - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.35rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 6px;
+    line - height: 1.2;
+    letter - spacing: -0.01em;
+}
+
+.arch - journey - bridge - desc {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 1.5;
+    margin: 0;
+}
+
+.arch - journey - bridge - icon {
+    font - family: "Manrope", sans - serif;
+    font - size: 1.2rem;
+    color: var(--accent);
+    transition: transform 0.3s cubic - bezier(0.16, 1, 0.3, 1);
+}
+
+.arch - journey - bridge: hover.arch - journey - bridge - icon {
+    transform: translateX(4px);
+}
+.arch - card - actions {
+    display: flex;
+    gap: 0.5rem;
+    justify - content: center;
+    flex - wrap: wrap;
+    margin - bottom: 1.2rem;
+    width: 100 %;
+    max - width: 460px;
+    margin - left: auto;
+    margin - right: auto;
+}
+
+.arch - btn - fill {
+    font - family: "Manrope", sans - serif;
+    font - weight: 700;
+    font - size: 0.62rem;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    background: var(--accent);
+    color: #f8f5ef;
+    border: 1.5px solid var(--accent);
+    padding: 0.7rem 1.4rem;
+    cursor: pointer;
+    border - radius: 4px;
+    min - height: auto;
+    transition: opacity 0.18s ease;
+}
+/* ============================================
+   EXPORT SAFE MODE FOR SAVED CARDS
+   ============================================ */
+
+.arch - style - card.is - exporting {
+    transform: none!important;
+    filter: none!important;
+}
+
+.arch - style - card.is - exporting.colour - hero - palette {
+    display: grid!important;
+    grid - template - columns: repeat(5, 1fr)!important;
+    gap: 0!important;
+    height: 84px!important;
+    border - radius: 8px!important;
+    overflow: hidden!important;
+    margin - bottom: 1.6rem!important;
+    box - shadow: none!important;
+    animation: none!important;
+}
+
+.arch - style - card.is - exporting.colour - hero - swatch {
+    flex: none!important;
+    width: auto!important;
+    min - width: 0!important;
+    display: block!important;
+    position: relative!important;
+    box - shadow: none!important;
+    filter: none!important;
+    transition: none!important;
+    padding: 0!important;
+}
+
+.arch - style - card.is - exporting.colour - hero - swatch - name {
+    opacity: 1!important;
+    transform: none!important;
+    position: absolute!important;
+    bottom: 8px!important;
+    left: 8px!important;
+    right: 8px!important;
+    font - size: 0.45rem!important;
+    line - height: 1.2!important;
+    text - align: left!important;
+    white - space: normal!important;
+}
+
+.arch - style - card.is - exporting.colour - result - chip - row {
+    display: flex!important;
+    flex - wrap: wrap!important;
+    gap: 8px!important;
+    margin - bottom: 1rem!important;
+}
+
+.arch - style - card.is - exporting.colour - result - chip {
+    display: inline - flex!important;
+    align - items: center!important;
+    gap: 8px!important;
+    background: rgba(255, 255, 255, 0.08)!important;
+    border: 1px solid rgba(243, 239, 233, 0.15)!important;
+    border - radius: 6px!important;
+    padding: 7px 12px 7px 8px!important;
+    box - shadow: none!important;
+    transform: none!important;
+    transition: none!important;
+    opacity: 1!important;
+    animation: none!important;
+}
+
+.arch - style - card.is - exporting.colour - result - chip - swatch {
+    display: inline - block!important;
+    width: 18px!important;
+    height: 18px!important;
+    min - width: 18px!important;
+    min - height: 18px!important;
+    border - radius: 999px!important;
+    border: 1.5px solid rgba(243, 239, 233, 0.35)!important;
+    box - shadow: none!important;
+    transform: none!important;
+}
+
+.arch - style - card.is - exporting.colour - result - chip - label {
+    opacity: 1!important;
+}
+
+.arch - style - card.is - exporting.bespoke - insight - card {
+    box - shadow: none!important;
+    backdrop - filter: none!important;
+}
+
+.arch - style - card.is - exporting.colour - hero - palette: hover.colour - hero - swatch,
+.arch - style - card.is - exporting.colour - hero - palette.colour - hero - swatch: hover,
+.arch - style - card.is - exporting.colour - result - chip: hover,
+.arch - style - card.is - exporting
+        .colour - result - chip: hover
+            .colour - result - chip - swatch {
+    transform: none!important;
+    filter: none!important;
+    box - shadow: none!important;
+}
+
+/* ============================================
+   UNIVERSAL DEVICE OPTIMISATION (TOUCH VS MOUSE)
+   ============================================ */
+
+/* 1. TACTILE TOUCH FEEDBACK (For iPads & Phones) */
+@media(hover: none) and(pointer: coarse) {
+  /* Disable sticky hover lifts on touch devices */
+  .card: hover,
+  .home - card: hover,
+  .home - card - v3: hover,
+  .arch - opt: hover,
+  .arch - explore - card: hover,
+  .arch - journey - bridge: hover,
+  .result - info - card: hover,
+  .result - next - card - v2:hover {
+        transform: none!important;
+        box - shadow: inherit; /* Keep resting shadow */
+        border - color: inherit;
+    }
+
+  /* Add a physical "press" effect when tapping the glass */
+  .card: active,
+  .home - card: active,
+  .home - card - v3: active,
+  .arch - opt: active,
+  .arch - explore - card: active,
+  .arch - journey - bridge: active,
+  .query - btn: active,
+  .arch - btn - fill: active,
+  .arch - btn - stroke: active,
+  .button - primary: active,
+  .result - next - card - v2:active {
+        transform: scale(0.97)!important;
+        transition: transform 0.1s cubic - bezier(0.4, 0, 0.2, 1)!important;
+        opacity: 0.9;
+    }
+
+  /* Remove outline highlight on mobile tap */
+  * {
+    - webkit - tap - highlight - color: transparent;
+}
+}
+
+/* 2. THE HOME SCREEN TRIAD (Balanced Architecture) */
+.home - card - grid - triad {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 16px;
+    margin - bottom: 2rem;
+}
+
+.home - card - triad - guide {
+    grid - column: 1 / -1; /* Forces the guide to span the entire bottom row */
+}
+
+/* On mobile, stack them all single file */
+@media(max - width: 640px) {
+  .home - card - grid - triad {
+        grid - template - columns: 1fr;
+    }
+
+  .home - card - triad - guide {
+        grid - column: auto;
+    }
+}
+/* ============================================
+   TYPOGRAPHY REFINEMENT: BULLETS OVER DASHES
+   ============================================ */
+
+.arch - card - note::before {
+    content: "\2022"!important; /* Elegant middle dot instead of a dash */
+    opacity: 0.6!important;
+    flex - shrink: 0;
+    margin - right: 4px;
+    font - size: 1.1em;
+    line - height: 1;
+}
+
+/* Ensure the bespoke cards have breathing room in export */
+.arch - style - card.is - exporting.bespoke - insight - card {
+    margin - bottom: 12px!important;
+    display: block!important;
+    padding: 16px!important;
+}
+
+/* ============================================
+   BBS LOOKBOOK — MASONRY GALLERY
+   ============================================ */
+
+.lookbook - shell {
+    max - width: 1000px;
+    margin: 0 auto;
+    padding - bottom: 4rem;
+}
+
+.lookbook - hero {
+    text - align: center;
+    margin - bottom: 3.5rem;
+    max - width: 32rem;
+    margin - left: auto;
+    margin - right: auto;
+}
+
+.lookbook - eyebrow {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+    display: block;
+}
+
+.lookbook - hero h1 {
+    font - size: 2.8rem;
+    margin - bottom: 0.8rem;
+    max - width: none;
+}
+
+/* CSS Masonry Grid */
+.lookbook - grid {
+    column - count: 2;
+    column - gap: 16px;
+    width: 100 %;
+}
+
+.lookbook - item {
+    break-inside: avoid; /* Prevents images from splitting across columns */
+    margin - bottom: 16px;
+    position: relative;
+    border - radius: 12px;
+    overflow: hidden;
+    background: var(--surface - 2);
+    border: 1px solid rgba(200, 191, 176, 0.4);
+    box - shadow: 0 4px 14px rgba(42, 34, 24, 0.04);
+}
+
+.lookbook - item img {
+    width: 100 %;
+    display: block;
+    transition: transform 0.6s cubic - bezier(0.16, 1, 0.3, 1);
+}
+
+.lookbook - item - overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear - gradient(
+        to top,
+        rgba(10, 8, 6, 0.9) 0 %,
+        rgba(10, 8, 6, 0.4) 60 %,
+        transparent 100 %
+  );
+    padding: 40px 24px 20px 24px;
+    display: flex;
+    flex - direction: column;
+    justify - content: flex - end;
+}
+
+.lookbook - item - season {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.58rem;
+    font - weight: 700;
+    letter - spacing: 0.16em;
+    text - transform: uppercase;
+    color: var(--accent - soft);
+    margin - bottom: 4px;
+    opacity: 0.8;
+}
+
+.lookbook - item - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.4rem;
+    font - weight: 600;
+    color: #ffffff;
+    line - height: 1.15;
+    margin - bottom: 10px;
+    letter - spacing: -0.01em;
+}
+
+.lookbook - tags - row {
+    display: flex;
+    flex - wrap: wrap;
+    gap: 6px;
+}
+
+.lookbook - tag {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 600;
+    letter - spacing: 0.08em;
+    text - transform: uppercase;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 3px 8px;
+    border - radius: 4px;
+    backdrop - filter: blur(4px);
+    -webkit - backdrop - filter: blur(4px);
+}
+
+/* Touch vs Mouse Logic */
+@media(hover: hover) and(pointer: fine) {
+  .lookbook - item - overlay {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.4s cubic - bezier(0.16, 1, 0.3, 1);
+    }
+
+  .lookbook - item:hover img {
+        transform: scale(1.04);
+    }
+
+  .lookbook - item: hover.lookbook - item - overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media(hover: none) and(pointer: coarse) {
+  /* On iPad/Touch, the text is permanently visible and beautiful */
+  .lookbook - item - overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile responsive */
+@media(max - width: 640px) {
+  .lookbook - grid {
+        column - count: 1;
+    }
+
+  .lookbook - item - overlay {
+        padding: 30px 16px 16px 16px;
+    }
+}
+/* ============================================
+   HOME CARDS — PREMIUM EDITORIAL REDESIGN
+   ============================================ */
+
+.home - card - grid - triad {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 16px;
+    margin - bottom: 2rem;
+}
+
+.home - card {
+    border - radius: 12px;
+    padding: 22px;
+    cursor: pointer;
+    display: flex;
+    flex - direction: column;
+    min - height: 250px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s cubic - bezier(0.16, 1, 0.3, 1),
+        box - shadow 0.22s ease;
+}
+
+.home - card - tag {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.8rem;
+}
+
+/* Primary Cards (Consultations) - Stark, White, Dossier Style */
+.home - card--primary {
+    background: #ffffff;
+    border: 1px solid rgba(42, 34, 24, 0.12);
+    border - top: 4px solid var(--accent); /* The structural folder tab */
+    box - shadow: 0 4px 16px rgba(42, 34, 24, 0.04);
+}
+
+.home - card--primary:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.08);
+}
+
+.home - card - watermark--primary {
+    color: rgba(42, 34, 24, 0.04);
+}
+
+/* Secondary Cards (Libraries) - Recessed, Soft, Frameless Feel */
+.home - card--secondary {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(200, 191, 176, 0.6);
+    box - shadow: none;
+}
+
+.home - card--secondary:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border - color: rgba(200, 191, 176, 0.9);
+}
+
+.home - card - watermark--secondary {
+    color: rgba(107, 97, 85, 0.08);
+}
+
+/* Typography Overrides */
+.home - card - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.6rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.1;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.6rem;
+}
+
+.home - card - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.84rem;
+    color: var(--muted);
+    line - height: 1.6;
+    margin - bottom: 0;
+    flex: 1;
+    max - width: 17rem;
+}
+
+/* ============================================
+   FUNCTIONAL COMMAND BAR (Footer)
+   ============================================ */
+
+.home - quick - queries {
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: 999px;
+    padding: 6px 12px;
+    margin: 1rem auto 1.5rem auto;
+    width: fit - content;
+    box - shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.quick - query - btn {
+    background: transparent;
+    border: none;
+    box - shadow: none;
+    display: flex;
+    align - items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.7rem;
+    font - weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    min - height: auto;
+    transition: color 0.15s ease;
+}
+
+.quick - query - btn:hover {
+    color: var(--accent);
+    background: transparent;
+    box - shadow: none;
+    transform: none;
+}
+
+.quick - query - btn svg {
+    color: var(--soft);
+    transition: color 0.15s ease;
+}
+
+.quick - query - btn:hover svg {
+    color: var(--accent);
+}
+
+.quick - query - divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(200, 191, 176, 0.6);
+}
+
+@media(max - width: 640px) {
+  .home - card - grid - triad {
+        grid - template - columns: 1fr;
+    }
+
+  .home - quick - queries {
+        flex - direction: column;
+        border - radius: 12px;
+        padding: 12px;
+        width: 100 %;
+    }
+
+  .quick - query - divider {
+        width: 100 %;
+        height: 1px;
+        margin: 4px 0;
+    }
+
+  .quick - query - btn {
+        width: 100 %;
+        justify - content: center;
+        padding: 12px;
+    }
+}
+/* ============================================
+   HOME CARDS — UNIFIED DOSSIER GRID
+   ============================================ */
+
+.home - card - grid - triad {
+    display: grid;
+    grid - template - columns: 1fr 1fr;
+    gap: 16px;
+    margin - bottom: 2rem;
+}
+
+.home - card {
+    background: #ffffff; /* Unified solid background for all cards */
+    border - radius: 12px;
+    padding: 22px;
+    cursor: pointer;
+    display: flex;
+    flex - direction: column;
+    min - height: 250px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s cubic - bezier(0.16, 1, 0.3, 1),
+        box - shadow 0.22s ease, border - color 0.22s ease;
+}
+
+.home - card - tag {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.55rem;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 0.8rem;
+}
+
+/* Primary Cards (Consultations) - Stark black accent */
+.home - card--primary {
+    border: 1px solid rgba(42, 34, 24, 0.12);
+    border - top: 4px solid var(--accent);
+    box - shadow: 0 4px 16px rgba(42, 34, 24, 0.04);
+}
+
+.home - card--primary:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.08);
+}
+
+.home - card - watermark--primary {
+    color: rgba(42, 34, 24, 0.08); /* Doubled opacity so icons pop */
+}
+
+/* Secondary Cards (Libraries) - Soft taupe accent */
+.home - card--secondary {
+    border: 1px solid rgba(200, 191, 176, 0.6);
+    border - top: 4px solid rgba(200, 191, 176, 0.8); /* Matches structural shape, but softer */
+    box - shadow: 0 4px 16px rgba(42, 34, 24, 0.02);
+}
+
+.home - card--secondary:hover {
+    transform: translateY(-2px);
+    border - color: rgba(160, 150, 130, 0.6);
+    border - top - color: rgba(160, 150, 130, 0.8);
+    box - shadow: 0 10px 28px rgba(42, 34, 24, 0.06);
+}
+
+.home - card - watermark--secondary {
+    color: rgba(107, 97, 85, 0.09); /* Doubled opacity so icons pop */
+}
+
+/* Typography Overrides */
+.home - card - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.6rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.1;
+    letter - spacing: -0.01em;
+    margin - bottom: 0.6rem;
+}
+
+.home - card - body {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.84rem;
+    color: var(--muted);
+    line - height: 1.6;
+    margin - bottom: 0;
+    flex: 1;
+    max - width: 17rem;
+}
+/* Base Watermark Positioning */
+.home - card - watermark {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    pointer - events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* Primary Cards (Consultations) */
+.home - card - watermark--primary {
+    color: rgba(42, 34, 24, 0.25); /* Tripled the opacity */
+}
+
+/* Secondary Cards (Libraries) */
+.home - card - watermark--secondary {
+    color: rgba(107, 97, 85, 0.35); /* Tripled the opacity */
+}
+
+/* Make the icon "wake up" slightly when the card is hovered/tapped */
+.home - card: hover.home - card - watermark,
+.home - card: active.home - card - watermark {
+    opacity: 0.8;
+    transform: translateY(-2px);
+}
+/* Base Watermark Positioning */
+.home - card - watermark {
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    pointer - events: none;
+    transition: all 0.22s ease;
+}
+
+/* Force thicker lines for Retina/iPad displays */
+.home - card - watermark svg {
+    stroke - width: 1.5px!important;
+}
+
+/* Primary Cards (Consultations) */
+.home - card - watermark--primary {
+    color: var(--soft); /* Uses your solid taupe CSS variable */
+    opacity: 0.6; /* Highly visible but not distracting */
+}
+
+/* Secondary Cards (Libraries) */
+.home - card - watermark--secondary {
+    color: var(--soft);
+    opacity: 0.45; /* Slightly lighter than the top row */
+}
+
+/* Wake up the icon on tap/hover */
+.home - card: hover.home - card - watermark,
+.home - card: active.home - card - watermark {
+    opacity: 1;
+    transform: translateY(-2px);
+    color: var(--accent); /* Turns sharp dark brown when tapped! */
+}
+/* ============================================
+   WARDROBE WORKSHEET — PREMIUM EDITION
+   ============================================ */
+
+.worksheet - shell {
+    max - width: 54rem;
+    margin: 0 auto;
+    padding - bottom: 4rem;
+}
+
+.worksheet - header {
+    margin - bottom: 2.5rem;
+    max - width: 44rem;
+}
+
+.worksheet - eyebrow {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.68rem;
+    font - weight: 700;
+    letter - spacing: 0.18em;
+    text - transform: uppercase;
+    color: var(--soft);
+    margin - bottom: 1rem;
+    display: block;
+}
+
+.worksheet - header h1 {
+    font - size: 2.8rem;
+    margin - bottom: 0.8rem;
+    max - width: none;
+}
+
+.worksheet - intro {
+    font - size: 1.05rem;
+    line - height: 1.75;
+    color: var(--muted);
+    margin - bottom: 0;
+    max - width: 38rem;
+}
+
+.worksheet - intro strong {
+    color: var(--text);
+}
+
+/* Enhanced Progress Bar */
+.worksheet - progress - wrap {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: var(--radius - md);
+    padding: 22px 26px;
+    margin - bottom: 3rem;
+    max - width: 52rem;
+    box - shadow: 0 4px 16px rgba(42, 34, 24, 0.03);
+}
+
+.worksheet - progress - header {
+    display: flex;
+    justify - content: space - between;
+    align - items: flex - end;
+    margin - bottom: 12px;
+}
+
+.worksheet - progress - title {
+    display: flex;
+    flex - direction: column;
+    gap: 4px;
+}
+
+.worksheet - progress - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: var(--text);
+}
+
+.worksheet - outfit - unlock {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.75rem;
+    font - weight: 600;
+    color: var(--accent);
+}
+
+.worksheet - progress - value {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.95rem;
+    font - weight: 600;
+    color: var(--text);
+}
+
+.worksheet - progress - bar {
+    width: 100 %;
+    height: 8px;
+    background: rgba(200, 191, 176, 0.25);
+    border - radius: var(--radius - pill);
+    overflow: hidden;
+    position: relative;
+    margin - bottom: 14px;
+}
+
+.worksheet - progress - fill {
+    height: 100 %;
+    background: linear - gradient(
+        90deg,
+    var(--accent) 0 %,
+    var(--accent - hover) 100 %
+  );
+    border - radius: var(--radius - pill);
+    transition: width 0.6s cubic - bezier(0.16, 1, 0.3, 1);
+    box - shadow: 0 0 8px rgba(58, 46, 35, 0.2);
+}
+
+.worksheet - progress - breakdown {
+    display: flex;
+    gap: 20px;
+    border - top: 1px solid rgba(200, 191, 176, 0.3);
+    padding - top: 12px;
+}
+
+.worksheet - progress - stat {
+    display: flex;
+    align - items: center;
+    gap: 8px;
+}
+
+.worksheet - progress - stat.stat - label {
+    font - size: 0.68rem;
+    font - weight: 600;
+    text - transform: uppercase;
+    letter - spacing: 0.08em;
+    color: var(--soft);
+}
+
+.worksheet - progress - stat.stat - value {
+    font - size: 0.8rem;
+    font - weight: 600;
+    color: var(--text);
+}
+
+/* Sections */
+.worksheet - section {
+    margin - bottom: 3.5rem;
+    max - width: 52rem;
+}
+
+.worksheet - section - header {
+    display: flex;
+    justify - content: space - between;
+    align - items: baseline;
+    margin - bottom: 0.6rem;
+    border - bottom: 1px solid rgba(200, 191, 176, 0.4);
+    padding - bottom: 0.5rem;
+}
+
+.worksheet - section - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.6rem;
+    font - weight: 600;
+    color: var(--text);
+    margin: 0;
+    line - height: 1.2;
+    letter - spacing: -0.01em;
+}
+
+.worksheet - section - count {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.72rem;
+    font - weight: 600;
+    color: var(--soft);
+    text - transform: uppercase;
+    letter - spacing: 0.06em;
+}
+
+.worksheet - section - intro {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.92rem;
+    color: var(--muted);
+    line - height: 1.7;
+    margin - bottom: 1.5rem;
+    max - width: 40rem;
+}
+
+/* Checklist Items */
+.worksheet - items {
+    display: flex;
+    flex - direction: column;
+    gap: 14px;
+}
+
+.worksheet - item {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: var(--radius - md);
+    padding: 20px 24px 20px 56px; /* Extra left padding for priority number */
+    display: flex;
+    align - items: flex - start;
+    gap: 16px;
+    position: relative;
+    transition: all 0.22s cubic - bezier(0.16, 1, 0.3, 1);
+}
+
+.worksheet - item:hover {
+    border - color: var(--line - strong);
+    box - shadow: 0 6px 16px rgba(42, 34, 24, 0.05);
+}
+
+.worksheet - item.checked {
+    background: rgba(58, 46, 35, 0.02);
+    border - color: rgba(200, 191, 176, 0.8);
+}
+
+/* Priority Number */
+.worksheet - item - priority {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    font - family: "EB Garamond", serif;
+    font - size: 1.4rem;
+    font - weight: 600;
+    color: var(--line - strong);
+    line - height: 1;
+}
+
+.worksheet - item.checked.worksheet - item - priority {
+    opacity: 0.4;
+}
+
+/* Custom Checkbox */
+.worksheet - item - check {
+    width: 24px;
+    height: 24px;
+    min - width: 24px;
+    min - height: 24px;
+    border: 2px solid rgba(200, 191, 176, 0.6);
+    border - radius: 6px;
+    display: flex;
+    align - items: center;
+    justify - content: center;
+    background: #ffffff;
+    transition: all 0.22s ease;
+    cursor: pointer;
+    margin - top: 1px;
+}
+
+.worksheet - item - check svg {
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.22s ease;
+}
+
+.worksheet - item: hover.worksheet - item - check {
+    border - color: var(--accent);
+}
+
+.worksheet - item.checked.worksheet - item - check {
+    background: var(--accent);
+    border - color: var(--accent);
+    box - shadow: 0 2px 8px rgba(58, 46, 35, 0.18);
+}
+
+.worksheet - item.checked.worksheet - item - check svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Item Content Area */
+.worksheet - item - content {
+    flex: 1;
+    display: flex;
+    flex - direction: column;
+    gap: 12px;
+}
+
+.worksheet - item - main {
+    display: flex;
+    flex - direction: column;
+    gap: 6px;
+}
+
+/* Label & Color Chip Row */
+.worksheet - item - label - row {
+    display: flex;
+    align - items: flex - start;
+    justify - content: space - between;
+    gap: 12px;
+}
+
+.worksheet - item - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 1rem;
+    font - weight: 600;
+    color: var(--text);
+    line - height: 1.4;
+    transition: color 0.2s ease;
+}
+
+.worksheet - item.checked.worksheet - item - label {
+    color: var(--muted);
+    text - decoration: line - through;
+    text - decoration - color: rgba(42, 34, 24, 0.3);
+}
+
+.worksheet - item - color - chip {
+    width: 16px;
+    height: 16px;
+    border - radius: 50 %;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box - shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    flex - shrink: 0;
+    margin - top: 4px;
+}
+
+.worksheet - item.checked.worksheet - item - color - chip {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+/* Meta Data (Tiers & Pricing) */
+.worksheet - item - meta {
+    display: flex;
+    align - items: center;
+    gap: 12px;
+}
+
+.worksheet - item - tier {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.6rem;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    padding: 3px 8px;
+    border - radius: 4px;
+}
+
+.tier - foundation {
+    background: var(--text);
+    color: #ffffff;
+}
+
+.tier - enhancement {
+    background: var(--surface - 2);
+    color: var(--text);
+    border: 1px solid var(--line);
+}
+
+.tier - luxury {
+    background: #fdf5e6;
+    color: #8a5a3b;
+    border: 1px solid #e8dfc8;
+}
+
+.worksheet - item.checked.worksheet - item - tier {
+    opacity: 0.5;
+}
+
+/* Actions Row */
+.worksheet - item - actions {
+    display: flex;
+    align - items: center;
+    gap: 16px;
+    padding - top: 4px;
+}
+
+.worksheet - item - guide - link,
+.worksheet - item - why - toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font - family: "Manrope", sans - serif;
+    font - size: 0.75rem;
+    font - weight: 600;
+    text - align: left;
+    cursor: pointer;
+    min - height: auto;
+    box - shadow: none;
+    transition: color 0.18s ease;
+    display: inline - flex;
+    align - items: center;
+    gap: 4px;
+}
+
+.worksheet - item - guide - link {
+    color: var(--accent);
+}
+
+.worksheet - item - guide - link:hover {
+    color: var(--accent - hover);
+    text - decoration: underline;
+    text - underline - offset: 3px;
+    background: transparent;
+}
+
+.worksheet - item - why - toggle {
+    color: var(--soft);
+}
+
+.worksheet - item - why - toggle:hover {
+    color: var(--text);
+    background: transparent;
+}
+
+.worksheet - item - why - toggle svg {
+    transition: transform 0.2s ease;
+}
+
+.worksheet - item.expanded.worksheet - item - why - toggle svg {
+    transform: rotate(180deg);
+    color: var(--text);
+}
+
+/* Expandable "Why" Section */
+.worksheet - item - why {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border - radius: 8px;
+    padding: 16px;
+    margin - top: 8px;
+    animation: slideDown 0.3s cubic - bezier(0.16, 1, 0.3, 1);
+}
+
+.worksheet - item.expanded.worksheet - item - why {
+    display: block;
+}
+
+@keyframes slideDown {
+  from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+  to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.worksheet - item - why - label {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 700;
+    letter - spacing: 0.1em;
+    text - transform: uppercase;
+    color: var(--accent);
+    margin - bottom: 6px;
+}
+
+.worksheet - item - why - text {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.85rem;
+    line - height: 1.6;
+    color: var(--muted);
+    margin - bottom: 12px;
+}
+
+.worksheet - item - palette - note {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.82rem;
+    line - height: 1.5;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.6);
+    padding: 10px 12px;
+    border - left: 2px solid var(--accent);
+    border - radius: 0 4px 4px 0;
+}
+
+/* Actions at the bottom */
+.worksheet - actions {
+    display: flex;
+    gap: 12px;
+    margin - top: 4rem;
+    max - width: 52rem;
+    flex - wrap: wrap;
+}
+
+/* ============================================
+     EXPORT PDF STYLING
+     ============================================ */
+.worksheet -export -card {
+    font - family: "Manrope", sans - serif;
+    background: #ffffff;
+    padding: 50px;
+    color: #2a2218;
+}
+
+.worksheet -export -header {
+    margin - bottom: 40px;
+    padding - bottom: 30px;
+    border - bottom: 2px solid #e0d8cc;
+}
+
+.worksheet -export -brand {
+    font - size: 11px;
+    font - weight: 700;
+    letter - spacing: 0.2em;
+    text - transform: uppercase;
+    color: #a8998a;
+    margin - bottom: 8px;
+}
+
+.worksheet -export -title {
+    font - family: "EB Garamond", serif;
+    font - size: 32px;
+    font - weight: 600;
+    color: #2a2218;
+    margin - bottom: 12px;
+    letter - spacing: -0.01em;
+}
+
+.worksheet -export -client {
+    font - size: 14px;
+    font - weight: 600;
+    color: #6b6155;
+    margin - bottom: 4px;
+}
+
+.worksheet -export -archetype {
+    font - size: 16px;
+    font - weight: 700;
+    color: #2a2218;
+    letter - spacing: 0.04em;
+    text - transform: uppercase;
+    margin - bottom: 4px;
+}
+
+.worksheet -export -context {
+    font - size: 12px;
+    font - weight: 500;
+    color: #8a5a3b;
+    text - transform: uppercase;
+    letter - spacing: 0.06em;
+}
+
+.worksheet -export -section {
+    margin - bottom: 30px;
+}
+
+.worksheet -export -section - title {
+    font - size: 14px;
+    font - weight: 700;
+    letter - spacing: 0.12em;
+    text - transform: uppercase;
+    color: #6b6155;
+    margin - bottom: 16px;
+    padding - bottom: 8px;
+    border - bottom: 1px solid #e0d8cc;
+}
+
+.worksheet -export -item {
+    font - size: 14px;
+    line - height: 1.8;
+    color: #2a2218;
+    margin - bottom: 10px;
+    padding - left: 8px;
+    border - bottom: 1px solid rgba(224, 216, 204, 0.4);
+    padding - bottom: 8px;
+}
+
+.worksheet -export -footer {
+    font - size: 11px;
+    color: #a8998a;
+    text - align: center;
+    margin - top: 50px;
+    padding - top: 30px;
+    border - top: 1px solid #e0d8cc;
+    letter - spacing: 0.1em;
+}
+
+/* Responsive */
+@media(max - width: 640px) {
+  .worksheet - shell {
+        max - width: 100 %;
+    }
+
+  .worksheet - header h1 {
+        font - size: 2.2rem;
+    }
+
+  .worksheet - section - title {
+        font - size: 1.4rem;
+    }
+
+  .worksheet - progress - wrap {
+        padding: 16px 18px;
+    }
+
+  .worksheet - progress - breakdown {
+        flex - direction: column;
+        gap: 8px;
+    }
+
+  .worksheet - item {
+        padding: 16px 16px 16px 44px;
+        gap: 12px;
+    }
+
+  .worksheet - item - priority {
+        left: 14px;
+        top: 18px;
+        font - size: 1.2rem;
+    }
+
+  .worksheet - item - label - row {
+        flex - direction: column;
+        gap: 6px;
+    }
+
+  .worksheet - item - color - chip {
+        margin - top: 0;
+    }
+
+  .worksheet - item - meta {
+        flex - wrap: wrap;
+        gap: 8px;
+    }
+
+  .worksheet - actions {
+        flex - direction: column;
+    }
+
+  .worksheet - actions button {
+        width: 100 %;
+    }
+}
+/* ============================================
+   WORKSHEET 2.0: NEW MODULES (MILLS, CAPSULE, RULES)
+   ============================================ */
+
+/* Rules of Engagement Card */
+.worksheet - rules - card {
+    background: rgba(58, 46, 35, 0.04);
+    border: 1px solid rgba(200, 191, 176, 0.8);
+    border - left: 3px solid var(--accent);
+    border - radius: 0 var(--radius - md) var(--radius - md) 0;
+    padding: 24px 28px;
+    margin - bottom: 2.5rem;
+    max - width: 52rem;
+}
+
+.worksheet - rules - header {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.75rem;
+    font - weight: 700;
+    letter - spacing: 0.14em;
+    text - transform: uppercase;
+    color: var(--accent);
+    margin - bottom: 10px;
+    display: flex;
+    align - items: center;
+    gap: 8px;
+}
+
+.worksheet - rules - intro {
+    font - size: 0.95rem;
+    color: var(--text);
+    margin - bottom: 12px;
+}
+
+.worksheet - rules - list {
+    margin: 0;
+    padding - left: 18px;
+    color: var(--muted);
+    font - size: 0.9rem;
+    line - height: 1.7;
+}
+
+.worksheet - rules - list li {
+    margin - bottom: 8px;
+    padding - left: 4px;
+}
+.worksheet - rules - list li::marker {
+    color: var(--accent);
+}
+
+/* Mill Sourcing Tag */
+.worksheet - item - mills {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.65rem;
+    font - weight: 600;
+    color: #8a5a3b;
+    display: flex;
+    align - items: center;
+    gap: 4px;
+    background: #fdf5e6;
+    padding: 2px 8px;
+    border - radius: 4px;
+    border: 1px solid #e8dfc8;
+}
+
+/* Capsule Combinator Grid */
+.worksheet - outfits - grid {
+    display: grid;
+    grid - template - columns: repeat(auto - fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin - bottom: 1rem;
+}
+
+.worksheet - outfit - card {
+    background: #ffffff;
+    border: 1px solid rgba(200, 191, 176, 0.5);
+    border - radius: var(--radius - md);
+    padding: 20px;
+    transition: all 0.22s ease;
+    display: flex;
+    flex - direction: column;
+}
+
+.worksheet - outfit - card.outfit - ready {
+    border - color: rgba(122, 127, 71, 0.5); /* Soft olive success color */
+    background: rgba(122, 127, 71, 0.04);
+}
+
+.worksheet - outfit - meta {
+    display: flex;
+    justify - content: space - between;
+    align - items: center;
+    margin - bottom: 12px;
+}
+
+.outfit - tag {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.58rem;
+    font - weight: 700;
+    letter - spacing: 0.15em;
+    text - transform: uppercase;
+    color: var(--soft);
+}
+
+.outfit - status {
+    font - family: "Manrope", sans - serif;
+    font - size: 0.62rem;
+    font - weight: 700;
+    color: var(--muted);
+    background: var(--surface - 2);
+    padding: 2px 6px;
+    border - radius: 4px;
+}
+
+.outfit - ready.outfit - status {
+    color: #555b2e;
+    background: rgba(122, 127, 71, 0.15);
+}
+
+.worksheet - outfit - title {
+    font - family: "EB Garamond", serif;
+    font - size: 1.25rem;
+    font - weight: 600;
+    color: var(--text);
+    margin - bottom: 6px;
+    line - height: 1.2;
+}
+
+.worksheet - outfit - context {
+    font - size: 0.82rem;
+    color: var(--muted);
+    line - height: 1.5;
+    margin - bottom: 14px;
+}
+
+.worksheet - outfit - list {
+    margin: 0;
+    padding: 0;
+    list - style: none;
+    font - size: 0.8rem;
+    color: var(--text);
+    border - top: 1px dashed rgba(200, 191, 176, 0.5);
+    padding - top: 12px;
+    flex - grow: 1;
+}
+
+.worksheet - outfit - list li {
+    position: relative;
+    padding - left: 14px;
+    margin - bottom: 6px;
+}
+
+.worksheet - outfit - list li::before {
+    content: "+";
+    position: absolute;
+    left: 0;
+    color: var(--soft);
+    font - weight: 700;
+}
