@@ -5495,19 +5495,63 @@ document.body.addEventListener("click", function (e) {
 
         if (!isWorksheet) shareCard.classList.add("is-exporting");
 
+    } else if (action === "share-native") {
+        // 🆕 NATIVE SHARE / AIRDROP (ULTRA HIGH-RES)
+        var shareCard = null;
+        var filename = 'BBS-Profile.png';
+        var isWorksheet = false;
+
+        if (appState.view === "result") {
+            shareCard = document.getElementById("arch-style-card");
+            var cName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
+            filename = 'BBS-Style-Archetype-' + cName + '.png';
+        } else if (appState.view === "worksheet") {
+            shareCard = document.querySelector(".worksheet-shell");
+            var wName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
+            filename = 'BBS-Wardrobe-Strategy-' + wName + '.png';
+            isWorksheet = true;
+        }
+
+        if (!shareCard) return;
+
+        if (!navigator.share || !navigator.canShare) {
+            alert("Your device does not support native sharing. Please use the Save PDF button.");
+            return;
+        }
+
+        var btn = target.closest("button");
+        var originalText = btn.innerText;
+        btn.innerText = "Rendering High-Res...";
+
+        if (!isWorksheet) shareCard.classList.add("is-exporting");
+
         setTimeout(function () {
             html2canvas(shareCard, {
-                scale: 4, // 🌟 CRANKED TO 4x NATIVE RESOLUTION (Retina Grade)
+                scale: 3,
                 backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
                 useCORS: true,
-                logging: false
+                logging: false,
+                windowWidth: 1000, // Trick the engine into desktop mode
+                onclone: function (clonedDoc) {
+                    // Force the cloned card to be massive (1000px wide) before scaling
+                    var clonedCard = isWorksheet
+                        ? clonedDoc.querySelector(".worksheet-shell")
+                        : clonedDoc.getElementById("arch-style-card");
+
+                    if (clonedCard) {
+                        clonedCard.style.width = "1000px";
+                        clonedCard.style.maxWidth = "1000px";
+                        if (isWorksheet) {
+                            clonedCard.style.padding = "40px";
+                        }
+                    }
+                }
             }).then(function (canvas) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
 
-                // 🌟 CHANGED FROM JPEG TO PNG FOR FLAWLESS TEXT RENDERING
+                // This will generate an image roughly 3000px wide. Ultra sharp.
                 canvas.toBlob(function (blob) {
-                    // Note: PNGs don't use a quality parameter, they are lossless
-                    var file = new File([blob], filename.replace('.jpg', '.png'), { type: 'image/png', lastModified: Date.now() });
+                    var file = new File([blob], filename, { type: 'image/png', lastModified: Date.now() });
                     var shareData = {
                         title: 'Benjamin Barker Studios Profile',
                         text: 'Your bespoke styling profile.',
@@ -5522,8 +5566,7 @@ document.body.addEventListener("click", function (e) {
                         alert("Your browser cannot share this file.");
                         btn.innerText = originalText;
                     }
-                }, 'image/png'); // 🌟 LOSSLESS PNG
-
+                }, 'image/png');
 
             }).catch(function (err) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
@@ -5531,6 +5574,7 @@ document.body.addEventListener("click", function (e) {
                 console.error("Canvas rendering failed:", err);
             });
         }, 250);
+
     }
     else if (action === "worksheet") { navigateWorksheet(); }
     else if (action === "toggle-item") {
