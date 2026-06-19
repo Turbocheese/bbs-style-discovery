@@ -6362,14 +6362,23 @@ function parseUrlState() {
 
         for (var i = 0; i < pairs.length; i++) {
             var pair = pairs[i].split("=");
-            // The crucial fix is right here:
-            if (pair.length === 2 && pair !== undefined) {
-                params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
+
+            // Indestructible check: Must have 2 parts, and part 2 MUST be a string
+            if (pair.length === 2 && typeof pair === "string") {
+                try {
+                    // Replace + with space, then decode safely
+                    var cleanValue = pair.split("+").join(" ");
+                    params[pair] = decodeURIComponent(cleanValue);
+                } catch (decodeErr) {
+                    // If decoding fails (bad URI), just use the raw string
+                    params[pair] = pair;
+                }
             }
         }
 
+        if (params.arch && typeof archetypeProfiles !== 'undefined' && archetypeProfiles[params.arch]) {
+            console.log("📥 Loading bespoke profile from QR Code/URL:", params.arch);
 
-        if (params.arch && archetypeProfiles[params.arch]) {
             appState.archetypeKey = params.arch;
             appState.selPalette = params.pal || "";
             appState.selClimate = params.clim || "";
@@ -6383,14 +6392,11 @@ function parseUrlState() {
             appState.quizAnswersById = {};
             appState.quizPath = [];
             appState.history = [];
-
-            // critical: mark this as a fully shared result
             appState.sharedResultLoaded = true;
 
-            // go directly to result
             appState.view = "result";
 
-            // clean URL after import
+            // Clean the URL without reloading the page
             window.history.replaceState({}, document.title, window.location.pathname);
 
             return true;
@@ -6401,6 +6407,7 @@ function parseUrlState() {
 
     return false;
 }
+
 
 
 // ============================================
