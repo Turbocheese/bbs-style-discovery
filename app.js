@@ -5497,15 +5497,17 @@ document.body.addEventListener("click", function (e) {
 
         setTimeout(function () {
             html2canvas(shareCard, {
-                scale: 2.5, // slightly lower scale to keep filesize reasonable for AirDrop
+                scale: 4, // 🌟 CRANKED TO 4x NATIVE RESOLUTION (Retina Grade)
                 backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
                 useCORS: true,
                 logging: false
             }).then(function (canvas) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
 
+                // 🌟 CHANGED FROM JPEG TO PNG FOR FLAWLESS TEXT RENDERING
                 canvas.toBlob(function (blob) {
-                    var file = new File([blob], filename, { type: 'image/jpeg', lastModified: Date.now() });
+                    // Note: PNGs don't use a quality parameter, they are lossless
+                    var file = new File([blob], filename.replace('.jpg', '.png'), { type: 'image/png', lastModified: Date.now() });
                     var shareData = {
                         title: 'Benjamin Barker Studios Profile',
                         text: 'Your bespoke styling profile.',
@@ -5520,7 +5522,8 @@ document.body.addEventListener("click", function (e) {
                         alert("Your browser cannot share this file.");
                         btn.innerText = originalText;
                     }
-                }, 'image/jpeg', 0.85);
+                }, 'image/png'); // 🌟 LOSSLESS PNG
+
 
             }).catch(function (err) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
