@@ -3347,7 +3347,6 @@ function getFreshState() {
         colourAnswersById: {},
         colourResultKey: null,
         wardrobeChecklist: {},
-        sharedResultLoaded: false
     };
 }
 
@@ -3420,19 +3419,8 @@ function navigateHome() {
 }
 
 function navigateDiscover() {
-    console.log("🧭 navigateDiscover triggered.");
-
-    // 1. HARD STOP: If we came from a shared link, NEVER go to the quiz
-    if (appState.sharedResultLoaded) {
-        console.log("🛑 Blocked: Shared result active. Staying on Result.");
-        appState.view = "result";
-        render({ animate: true });
-        return;
-    }
-
     // 2. If they already completed the quiz, go to Result
     if (appState.selPalette && appState.selFocus && appState.archetypeKey) {
-        console.log("⏭️ Quiz already completed. Going to Result.");
         appState.view = "result";
         render({ animate: true });
         return;
@@ -3443,14 +3431,12 @@ function navigateDiscover() {
         appState.quizAnswersById &&
         Object.keys(appState.quizAnswersById).length > 0
     ) {
-        console.log("⏯️ Resuming quiz.");
         appState.view = "discover";
         render({ animate: true });
         return;
     }
 
     // 4. Start fresh
-    console.log("🆕 Starting fresh quiz.");
     appState.view = "discover";
     appState.quizStep = 0;
     appState.quizAnswers = [];
@@ -3470,8 +3456,6 @@ function navigateDiscover() {
     appState.selColourUse = "";
     appState.selClimate = "";
     appState.archetypeKey = null;
-    appState.sharedResultLoaded = false;
-
     render({ animate: true });
 }
 
@@ -4404,10 +4388,11 @@ function renderResult() {
         "</div>" +
         "</div>" +
         '<div class="arch-card-actions">' +
-        '<button class="arch-btn-fill" data-action="save-card">Save PDF</button>' +
+        '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
-        '<button class="arch-btn-stroke" data-action="share-native">AirDrop / Share</button>' +
-        "</div>" +
+        '<button class="arch-btn-stroke" data-action="share-native">Share to Phone</button>' +
+        '</div>' +
+
         '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
         '<div class="arch-journey-bridge-content">' +
         '<div class="arch-journey-bridge-label">Next Step</div>' +
@@ -4429,11 +4414,6 @@ function renderResult() {
         "</div>"
     );
 }
-
-
-// ============================================
-// RENDER WORKSHEET — PREMIUM ENHANCED VERSION
-// ============================================
 
 // ============================================
 // RENDER WORKSHEET
@@ -4620,22 +4600,20 @@ function renderWorksheet() {
     html += foundationItems.length > 0 ? foundationHTML : '';
     html += refinementItems.length > 0 ? refinementsHTML : '';
     html += outfitsHTML;
-
     html += '<div class="worksheet-actions">';
     html += '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
-    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="share-native">AirDrop / Share</button>';
+    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="share-native">Share to Phone</button>';
     html += '<button data-action="back">Back to Result</button>';
     html += '</div></div>';
+
+
 
     return html;
 }
 
 
 function exportWorksheetPDF() {
-    if (
-        typeof html2canvas === "undefined" ||
-        typeof window.jspdf === "undefined"
-    ) {
+    if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
         alert("Export libraries not loaded. Please refresh and try again.");
         return;
     }
@@ -4647,163 +4625,90 @@ function exportWorksheetPDF() {
     var clientName = appState.clientName || "Client";
     var selectedPalette = appState.selPalette || "";
     var selectedClimate = appState.selClimate || "";
-    var garmentDrawLabel = getGarmentDrawLabel();
 
-    var foundationItems = filterItemsByClimate(
-        template.foundation,
-        selectedClimate
-    );
-    var refinementItems = filterItemsByClimate(
-        template.refinements,
-        selectedClimate
-    );
-    foundationItems.sort(function (a, b) {
-        return a.priority - b.priority;
-    });
-    refinementItems.sort(function (a, b) {
-        return a.priority - b.priority;
-    });
+    var foundationItems = filterItemsByClimate(template.foundation, selectedClimate);
+    var refinementItems = filterItemsByClimate(template.refinements, selectedClimate);
+    foundationItems.sort(function (a, b) { return a.priority - b.priority; });
+    refinementItems.sort(function (a, b) { return a.priority - b.priority; });
 
     var printContent = '<div class="worksheet-export-card">';
-
-    // Header
     printContent += '<div class="worksheet-export-header">';
-    printContent +=
-        '<div class="worksheet-export-brand">Benjamin Barker Studios</div>';
-    printContent +=
-        '<div class="worksheet-export-title">Wardrobe Strategy Worksheet</div>';
-    printContent +=
-        '<div class="worksheet-export-client">' + clientName + "</div>";
-    printContent +=
-        '<div class="worksheet-export-archetype">' + archetype.name + "</div>";
-    printContent += "</div>";
+    printContent += '<div class="worksheet-export-brand">Benjamin Barker Studios</div>';
+    printContent += '<div class="worksheet-export-title">Wardrobe Strategy Worksheet</div>';
+    printContent += '<div class="worksheet-export-client">' + clientName + '</div>';
+    printContent += '<div class="worksheet-export-archetype">' + archetype.name + '</div>';
+    printContent += '</div>';
 
-    // 🆕 Principles
-    var lensRules = getLensRules(garmentDrawLabel);
-    if (lensRules.length > 0) {
-        printContent += '<div class="worksheet-export-section">';
-        printContent +=
-            '<div class="worksheet-export-section-title">Sartorial Principles (' +
-            garmentDrawLabel +
-            ")</div>";
-
-        for (var r = 0; r < lensRules.length; r++) {
-            printContent +=
-                '<div class="worksheet-export-item" style="border:none; padding-bottom:4px;">• ' +
-                lensRules[r] +
-                "</div>";
-        }
-        printContent += "</div>";
-    }
-
-    // Items
     printContent += '<div class="worksheet-export-section">';
-    printContent +=
-        '<div class="worksheet-export-section-title">Phase 1: Foundation Pieces</div>';
+    printContent += '<div class="worksheet-export-section-title">Phase 1: Foundation Pieces</div>';
     for (var i = 0; i < foundationItems.length; i++) {
         var item = foundationItems[i];
-        var checked = checklist[item.id] && checklist[item.id].checked ? "☑" : "☐";
-        var cNote = getColorChipForItem(item, selectedPalette)
-            ? " (" + getColorChipForItem(item, selectedPalette).note + ")"
-            : "";
-        var millNote = item.mills
-            ? '<div style="font-size:11px; color:#8a5a3b; margin-left:18px;">Source: ' +
-            item.mills +
-            "</div>"
-            : "";
-        printContent +=
-            '<div class="worksheet-export-item"><strong>' +
-            item.priority +
-            ".</strong> " +
-            checked +
-            " " +
-            item.item +
-            cNote +
-            millNote +
-            "</div>";
+        var itemState = checklist[item.id] || { checked: false };
+        var checkbox = itemState.checked ? '☑' : '☐';
+        var colorChip = getColorChipForItem(item, selectedPalette);
+        var colorNote = colorChip ? ' <span style="color:#6b6155; font-size:12px;">(' + colorChip.note + ')</span>' : '';
+        printContent += '<div class="worksheet-export-item"><strong>' + item.priority + '.</strong> ' + checkbox + ' ' + item.item + colorNote + '</div>';
     }
-    printContent += "</div>";
+    printContent += '</div>';
 
     printContent += '<div class="worksheet-export-section">';
-    printContent +=
-        '<div class="worksheet-export-section-title">Phase 2: Refinements</div>';
+    printContent += '<div class="worksheet-export-section-title">Phase 2: Refinements</div>';
     for (var j = 0; j < refinementItems.length; j++) {
         var refItem = refinementItems[j];
-        var rChecked =
-            checklist[refItem.id] && checklist[refItem.id].checked ? "☑" : "☐";
-        var rcNote = getColorChipForItem(refItem, selectedPalette)
-            ? " (" + getColorChipForItem(refItem, selectedPalette).note + ")"
-            : "";
-        var rMillNote = refItem.mills
-            ? '<div style="font-size:11px; color:#8a5a3b; margin-left:18px;">Source: ' +
-            refItem.mills +
-            "</div>"
-            : "";
-        printContent +=
-            '<div class="worksheet-export-item"><strong>' +
-            refItem.priority +
-            ".</strong> " +
-            rChecked +
-            " " +
-            refItem.item +
-            rcNote +
-            rMillNote +
-            "</div>";
+        var refItemState = checklist[refItem.id] || { checked: false };
+        var refCheckbox = refItemState.checked ? '☑' : '☐';
+        var refColorChip = getColorChipForItem(refItem, selectedPalette);
+        var refColorNote = refColorChip ? ' <span style="color:#6b6155; font-size:12px;">(' + refColorChip.note + ')</span>' : '';
+        printContent += '<div class="worksheet-export-item"><strong>' + refItem.priority + '.</strong> ' + refCheckbox + ' ' + refItem.item + refColorNote + '</div>';
     }
-    printContent += "</div>";
+    printContent += '</div>';
 
-    // 🆕 Combinations
-    if (template.outfits && template.outfits.length > 0) {
-        printContent += '<div class="worksheet-export-section">';
-        printContent +=
-            '<div class="worksheet-export-section-title">Signature Combinations</div>';
-        for (var o = 0; o < template.outfits.length; o++) {
-            var outfit = template.outfits[o];
-            printContent +=
-                '<div class="worksheet-export-item" style="border:none; padding-bottom:8px;">';
-            printContent += "<strong>" + outfit.name + ":</strong> " + outfit.context;
-            printContent += "</div>";
-        }
-        printContent += "</div>";
-    }
+    printContent += '<div class="worksheet-export-footer">benjaminbarkerstudios.com</div>';
+    printContent += '</div>';
 
-    printContent +=
-        '<div class="worksheet-export-footer">benjaminbarkerstudios.com</div>';
-    printContent += "</div>";
-
-    var tempContainer = document.createElement("div");
+    var tempContainer = document.createElement('div');
     tempContainer.innerHTML = printContent;
-    tempContainer.style.position = "absolute";
-    tempContainer.style.left = "-9999px";
-    tempContainer.style.width = "800px";
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '800px';
+    tempContainer.style.backgroundColor = '#ffffff';
+    tempContainer.style.padding = '60px';
+    tempContainer.style.fontFamily = 'Manrope, sans-serif';
     document.body.appendChild(tempContainer);
 
     setTimeout(function () {
-        html2canvas(tempContainer, { scale: 3, backgroundColor: "#ffffff" }).then(
-            function (canvas) {
+        html2canvas(tempContainer, {
+            scale: 3,
+            backgroundColor: '#ffffff',
+            logging: false
+        }).then(function (canvas) {
+            try {
                 var imgWidth = 210;
                 var imgHeight = (canvas.height * imgWidth) / canvas.width;
                 var pdf = new window.jspdf.jsPDF({
-                    orientation: "portrait",
-                    unit: "mm",
-                    format: "a4",
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
                 });
-                pdf.addImage(
-                    canvas.toDataURL("image/jpeg", 1.0),
-                    "JPEG",
-                    0,
-                    0,
-                    imgWidth,
-                    imgHeight
-                );
-                pdf.save(
-                    "BBS-Wardrobe-Strategy-" + clientName.replace(/\s+/g, "") + ".pdf"
-                );
+
+                var imgData = canvas.toDataURL('image/png');
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('BBS-Wardrobe-Strategy-' + clientName.replace(/\s+/g, '') + '.pdf');
+
                 document.body.removeChild(tempContainer);
+            } catch (err) {
+                document.body.removeChild(tempContainer);
+                console.error('Export failed:', err);
+                alert('Could not generate PDF. Please take a screenshot instead.');
             }
-        );
+        }).catch(function (err) {
+            document.body.removeChild(tempContainer);
+            console.error('Canvas rendering failed:', err);
+            alert('Export failed. Please take a screenshot of your worksheet.');
+        });
     }, 100);
 }
+
 
 // ============================================
 // RENDER GUIDE — router
@@ -5406,77 +5311,91 @@ document.body.addEventListener("click", function (e) {
         navigateGuide(newPath);
     }
     else if (action === "save-card") {
-        var card = document.getElementById("arch-style-card");
-        if (!card) { alert("Tip: Take a screenshot of your style card!"); return; }
-        if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
-            alert("Export libraries not loaded. Please refresh and try again.");
-            return;
+  var card = document.getElementById("arch-style-card");
+  if (!card) {
+    alert("Tip: Take a screenshot of your style card!");
+    return;
+  }
+  if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
+    alert("Export libraries not loaded. Please refresh and try again.");
+    return;
+  }
+
+  var filePrefix = appState.view === "result" ? "BBS-Style-Archetype-" : "BBS-Colour-Direction-";
+  var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Profile";
+
+  card.classList.add("is-exporting");
+
+  setTimeout(function () {
+    html2canvas(card, {
+      scale: 3,
+      backgroundColor: "#050505",
+      useCORS: true,
+      logging: false,
+      windowWidth: 1000,
+      onclone: function (clonedDoc) {
+        var clonedCard = clonedDoc.getElementById("arch-style-card");
+        if (clonedCard) {
+          clonedCard.style.width = "1000px";
+          clonedCard.style.maxWidth = "1000px";
+        }
+      }
+    }).then(function (canvas) {
+      try {
+        var imgWidth = 210;
+        var imgHeight = (canvas.height * imgWidth) / canvas.width;
+        var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
+
+        var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
+        var imgData = canvas.toDataURL("image/png");
+
+        var xOffset = 0, yOffset = 0;
+        var pageHeight = orientation === "portrait" ? 297 : 210;
+
+        if (imgHeight < pageHeight) {
+          yOffset = (pageHeight - imgHeight) / 2;
+        } else {
+          imgHeight = pageHeight - 20;
+          imgWidth = (canvas.width * imgHeight) / canvas.height;
+          yOffset = 10;
+          if (imgWidth > 210) {
+            imgWidth = 190;
+            imgHeight = (canvas.height * imgWidth) / canvas.width;
+            xOffset = 10;
+          }
         }
 
-        var filePrefix = appState.view === "result" ? "BBS-Style-Archetype-" : "BBS-Colour-Direction-";
-        var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Profile";
+        pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+        pdf.save(filePrefix + clientName + ".pdf");
+        card.classList.remove("is-exporting");
+      } catch (err) {
+        card.classList.remove("is-exporting");
+        console.error("PDF generation failed:", err);
+        alert("Could not generate PDF. Please take a screenshot instead.");
+      }
+    }).catch(function (err) {
+      card.classList.remove("is-exporting");
+      console.error("Canvas rendering failed:", err);
+      alert("Export failed. Please take a screenshot of your card.");
+    });
+  }, 250);
+}
 
-        card.classList.add("is-exporting");
-
-        setTimeout(function () {
-            html2canvas(card, {
-                scale: 4,
-                backgroundColor: "#050505",
-                useCORS: true,
-                logging: false,
-                windowWidth: card.scrollWidth,
-                windowHeight: card.scrollHeight,
-            }).then(function (canvas) {
-                try {
-                    var imgWidth = 210;
-                    var imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
-
-                    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
-                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-                    var xOffset = 0, yOffset = 0;
-                    var pageHeight = orientation === "portrait" ? 297 : 210;
-
-                    if (imgHeight < pageHeight) {
-                        yOffset = (pageHeight - imgHeight) / 2;
-                    } else {
-                        imgHeight = pageHeight - 20;
-                        imgWidth = (canvas.width * imgHeight) / canvas.height;
-                        yOffset = 10;
-                        if (imgWidth > 210) {
-                            imgWidth = 190;
-                            imgHeight = (canvas.height * imgWidth) / canvas.width;
-                            xOffset = 10;
-                        }
-                    }
-
-                    pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
-                    pdf.save(filePrefix + clientName + ".pdf");
-                    card.classList.remove("is-exporting");
-                } catch (err) {
-                    card.classList.remove("is-exporting");
-                    console.error("PDF generation failed:", err);
-                }
-            }).catch(function (err) {
-                card.classList.remove("is-exporting");
-                console.error("Canvas rendering failed:", err);
-            });
-        }, 250);
-    }
     else if (action === "share-native") {
-        // 🌟 NATIVE SHARE - SENDING AS A FLAWLESS VECTOR PDF
         var shareCard = null;
         var isWorksheet = false;
         var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
-        var filename = 'BBS-Profile-' + clientName + '.pdf';
+        var filename = 'BBS-Profile-' + clientName + '.png';
 
         if (appState.view === "result") {
             shareCard = document.getElementById("arch-style-card");
-            filename = 'BBS-Style-Archetype-' + clientName + '.pdf';
+            filename = 'BBS-Style-Archetype-' + clientName + '.png';
+        } else if (appState.view === "colour-result") {
+            shareCard = document.getElementById("arch-style-card");
+            filename = 'BBS-Colour-Direction-' + clientName + '.png';
         } else if (appState.view === "worksheet") {
             shareCard = document.querySelector(".worksheet-shell");
-            filename = 'BBS-Wardrobe-Strategy-' + clientName + '.pdf';
+            filename = 'BBS-Wardrobe-Strategy-' + clientName + '.png';
             isWorksheet = true;
         }
 
@@ -5489,13 +5408,13 @@ document.body.addEventListener("click", function (e) {
 
         var btn = target.closest("button");
         var originalText = btn.innerText;
-        btn.innerText = "Generating PDF...";
+        btn.innerText = "Generating Image...";
 
         if (!isWorksheet) shareCard.classList.add("is-exporting");
 
         setTimeout(function () {
             html2canvas(shareCard, {
-                scale: 3, // 3 is perfect here, jsPDF handles the sharpness
+                scale: 3,
                 backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
                 useCORS: true,
                 logging: false,
@@ -5515,59 +5434,39 @@ document.body.addEventListener("click", function (e) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
 
                 try {
-                    var imgWidth = 210;
-                    var imgHeight = (canvas.height * imgWidth) / canvas.width;
-                    var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
-
-                    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
-                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-                    var xOffset = 0, yOffset = 0;
-                    var pageHeight = orientation === "portrait" ? 297 : 210;
-
-                    if (imgHeight < pageHeight) {
-                        yOffset = (pageHeight - imgHeight) / 2;
-                    } else {
-                        imgHeight = pageHeight - 20;
-                        imgWidth = (canvas.width * imgHeight) / canvas.height;
-                        yOffset = 10;
-                        if (imgWidth > 210) {
-                            imgWidth = 190;
-                            imgHeight = (canvas.height * imgWidth) / canvas.width;
-                            xOffset = 10;
+                    canvas.toBlob(function (blob) {
+                        if (!blob) {
+                            throw new Error('Canvas toBlob failed');
                         }
-                    }
+                        var file = new File([blob], filename, { type: 'image/png', lastModified: Date.now() });
+                        var shareData = {
+                            title: 'Benjamin Barker Studios Profile',
+                            files: [file]
+                        };
 
-                    pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
-
-                    // CONVERT PDF TO BLOB AND SHARE NATIVELY
-                    var pdfBlob = pdf.output('blob');
-                    var file = new File([pdfBlob], filename, { type: 'application/pdf', lastModified: Date.now() });
-                    var shareData = {
-                        title: 'Benjamin Barker Studios Profile',
-                        files: [file]
-                    };
-
-                    if (navigator.canShare(shareData)) {
-                        navigator.share(shareData)
-                            .then(function () { btn.innerText = originalText; })
-                            .catch(function (err) { console.log('Share cancelled'); btn.innerText = originalText; });
-                    } else {
-                        alert("Your browser cannot share PDFs directly.");
-                        btn.innerText = originalText;
-                    }
+                        if (navigator.canShare(shareData)) {
+                            navigator.share(shareData)
+                                .then(function () { btn.innerText = originalText; })
+                                .catch(function () { btn.innerText = originalText; });
+                        } else {
+                            alert("Your browser cannot share PNG images directly.");
+                            btn.innerText = originalText;
+                        }
+                    }, 'image/png');
                 } catch (err) {
-                    console.error("PDF generation failed:", err);
+                    console.error("Image generation failed:", err);
                     btn.innerText = originalText;
+                    alert("Could not generate image. Please take a screenshot instead.");
                 }
             }).catch(function (err) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
                 btn.innerText = originalText;
                 console.error("Canvas rendering failed:", err);
+                alert("Export failed. Please take a screenshot.");
             });
         }, 250);
-
     }
+
     else if (action === "worksheet") { navigateWorksheet(); }
     else if (action === "toggle-item") {
         var itemId = target.dataset.itemId;
@@ -5851,8 +5750,11 @@ function renderColourDirectionResult() {
         "</div>" +
         '<div class="arch-card-actions">' +
         '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
+        '<button class="arch-btn-stroke" data-action="share-native">Share to Phone</button>' +
         '<button class="arch-btn-stroke" data-action="colour-restart">Start Again</button>' +
         "</div>" +
+
+
         (links.length > 0
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
@@ -5989,204 +5891,5 @@ function renderColourDirection() {
         "</div>"
     );
 }
-// ============================================
-// URL STATE SHARING (STAFF HANDOFF)
-// ============================================
 
-function generateShareLink() {
-    var url = window.location.origin + window.location.pathname;
-    var params = [];
-
-    if (appState.archetypeKey) {
-        params.push("arch=" + encodeURIComponent(appState.archetypeKey));
-    }
-
-    if (appState.selPalette) {
-        params.push("pal=" + encodeURIComponent(appState.selPalette));
-    }
-
-    if (appState.selClimate) {
-        params.push("clim=" + encodeURIComponent(appState.selClimate));
-    }
-
-    if (appState.selFocus) {
-        params.push("focus=" + encodeURIComponent(appState.selFocus));
-    }
-
-    if (appState.selFit) {
-        params.push("fit=" + encodeURIComponent(appState.selFit));
-    }
-
-    if (appState.selColourUse) {
-        params.push("colourUse=" + encodeURIComponent(appState.selColourUse));
-    }
-
-    if (appState.clientName) {
-        params.push("name=" + encodeURIComponent(appState.clientName));
-    }
-
-    if (params.length > 0) {
-        return url + "?" + params.join("&");
-    }
-
-    return url;
-}
-
-
-function parseUrlState() {
-    if (!window.location.search) return false;
-
-    try {
-        var search = window.location.search.substring(1);
-        var params = {};
-        var pairs = search.split("&");
-
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i].split("=");
-            // SAFE CHECK: Ensure pair actually exists before calling .replace()
-            if (pair.length === 2 && pair !== undefined) {
-                params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
-            }
-        }
-
-        if (params.arch && typeof archetypeProfiles !== 'undefined' && archetypeProfiles[params.arch]) {
-            console.log("📥 Loading bespoke profile from QR Code/URL...");
-
-            appState.archetypeKey = params.arch;
-            appState.selPalette = params.pal || "";
-            appState.selClimate = params.clim || "";
-            appState.selFocus = params.focus || "";
-            appState.selFit = params.fit || "";
-            appState.selColourUse = params.colourUse || "";
-            appState.clientName = params.name || "";
-
-            appState.quizStep = 0;
-            appState.quizAnswers = [];
-            appState.quizAnswersById = {};
-            appState.quizPath = [];
-            appState.history = [];
-            appState.sharedResultLoaded = true;
-
-            appState.view = "result";
-
-            // Clean the URL without reloading the page
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            return true;
-        }
-    } catch (e) {
-        console.error("Failed to parse URL state:", e);
-    }
-
-    return false;
-}
-
-
-
-
-
-// ============================================
-// URL STATE SHARING & QR CODE GENERATION
-// ============================================
-
-function generateShareLink() {
-    // Get the exact base URL without any previous parameters
-    var url = window.location.origin + window.location.pathname;
-    var params = [];
-
-    // Safely encode the profile data into the URL
-    if (appState.archetypeKey) params.push('arch=' + encodeURIComponent(appState.archetypeKey));
-    if (appState.selPalette) params.push('pal=' + encodeURIComponent(appState.selPalette));
-    if (appState.selClimate) params.push('clim=' + encodeURIComponent(appState.selClimate));
-    if (appState.clientName) params.push('name=' + encodeURIComponent(appState.clientName));
-
-    if (params.length > 0) {
-        return url + '?' + params.join('&');
-    }
-    return url;
-}
-
-function parseUrlState() {
-    if (!window.location.search) return false;
-
-    try {
-        var search = window.location.search.substring(1);
-        var params = {};
-        var pairs = search.split("&");
-
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i].split("=");
-
-            // Indestructible check: Must have 2 parts, and part 2 MUST be a string
-            if (pair.length === 2 && typeof pair === "string") {
-                try {
-                    // Replace + with space, then decode safely
-                    var cleanValue = pair.split("+").join(" ");
-                    params[pair] = decodeURIComponent(cleanValue);
-                } catch (decodeErr) {
-                    // If decoding fails (bad URI), just use the raw string
-                    params[pair] = pair;
-                }
-            }
-        }
-
-        if (params.arch && typeof archetypeProfiles !== 'undefined' && archetypeProfiles[params.arch]) {
-            console.log("📥 Loading bespoke profile from QR Code/URL:", params.arch);
-
-            appState.archetypeKey = params.arch;
-            appState.selPalette = params.pal || "";
-            appState.selClimate = params.clim || "";
-            appState.selFocus = params.focus || "";
-            appState.selFit = params.fit || "";
-            appState.selColourUse = params.colourUse || "";
-            appState.clientName = params.name || "";
-
-            appState.quizStep = 0;
-            appState.quizAnswers = [];
-            appState.quizAnswersById = {};
-            appState.quizPath = [];
-            appState.history = [];
-            appState.sharedResultLoaded = true;
-
-            appState.view = "result";
-
-            // Clean the URL without reloading the page
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            return true;
-        }
-    } catch (e) {
-        console.error("Failed to parse URL state:", e);
-    }
-
-    return false;
-}
-
-
-
-// ============================================
-// BOOT SEQUENCE (BULLETPROOF)
-// ============================================
-
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("🚀 App booting...");
-
-    var loadedFromUrl = parseUrlState();
-    console.log("🔗 Loaded from URL?", loadedFromUrl);
-    console.log("Теst: Current Archetype:", appState.archetypeKey);
-
-    if (loadedFromUrl) {
-        // Force the app into result mode
-        appState.view = "result";
-        appState.sharedResultLoaded = true;
-
-        // Save to local storage immediately
-        localStorage.setItem("bbs_session", JSON.stringify(appState));
-        console.log("💾 URL state saved to memory. Rendering result...");
-        render({ animate: false });
-    } else {
-        // Normal boot
-        console.log("🏠 Normal boot. Rendering home/welcome...");
-        render();
-    }
-});
+render();
