@@ -6362,10 +6362,12 @@ function parseUrlState() {
 
         for (var i = 0; i < pairs.length; i++) {
             var pair = pairs[i].split("=");
-            if (pair.length === 2) {
+            // The crucial fix is right here:
+            if (pair.length === 2 && pair !== undefined) {
                 params[pair] = decodeURIComponent(pair.replace(/\+/g, " "));
             }
         }
+
 
         if (params.arch && archetypeProfiles[params.arch]) {
             appState.archetypeKey = params.arch;
