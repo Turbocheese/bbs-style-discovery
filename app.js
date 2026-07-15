@@ -2530,23 +2530,6 @@ function getGarmentDrawLabel() {
 
     return "";
 }
-function syncQuizAnswersFromPath() {
-    var path = getCurrentQuizPath();
-    var synced = Array(path.length).fill(null);
-
-    for (var i = 0; i < path.length; i++) {
-        var questionId = path[i];
-        if (
-            appState.quizAnswersById &&
-            appState.quizAnswersById[questionId] !== undefined &&
-            appState.quizAnswersById[questionId] !== null
-        ) {
-            synced[i] = appState.quizAnswersById[questionId];
-        }
-    }
-
-    appState.quizAnswers = synced;
-}
 function applyOnboardingArchetypeAdjustments(scores) {
     var adjusted = {
         c: scores.c || 0,
@@ -3024,52 +3007,6 @@ function getResultDescription(
     return archetype.desc;
 }
 
-function getResultNotes(archetype, climateLabel, palette, colourUse) {
-    var notes = [];
-    var garmentDrawLabel = getGarmentDrawLabel();
-
-    if (archetype && Array.isArray(archetype.notes)) {
-        for (var i = 0; i < archetype.notes.length; i++) {
-            notes.push(archetype.notes[i]);
-        }
-    }
-
-    if (garmentDrawLabel === "Cloth First") {
-        notes.push(
-            "Prioritise cloth handle, breathability, and surface character early — the fabric itself should do much of the work."
-        );
-    } else if (garmentDrawLabel === "Shape First") {
-        notes.push(
-            "Pay close attention to silhouette, rise, shoulder line, and trouser shape — proportion will influence the result more than styling tricks."
-        );
-    } else if (garmentDrawLabel === "Detail First") {
-        notes.push(
-            "Use finishing, construction, and smaller design decisions to create distinction — details should feel intentional, not decorative."
-        );
-    } else if (garmentDrawLabel === "Wardrobe First") {
-        notes.push(
-            "Build around pieces that combine easily and repeat well — coherence and flexibility will make the wardrobe stronger over time."
-        );
-    }
-
-    var climateNote = getClimateNote(climateLabel);
-    if (climateNote) {
-        notes.push(climateNote);
-    }
-
-    var paletteNote = getPaletteNote(palette);
-    if (paletteNote) {
-        notes.push(paletteNote);
-    }
-
-    var colourUseNote = getColourUseNote(colourUse);
-    if (colourUseNote) {
-        notes.push(colourUseNote);
-    }
-
-    return notes;
-}
-
 function scoreArchetypeAnswers() {
     var sc = {
         c: 0,
@@ -3127,17 +3064,6 @@ function scoreArchetypeAnswers() {
     }
 
     return sc;
-}
-
-function getColourDirectionSummary(colourUse) {
-    if (colourUse === "Mostly neutrals") return "Calm, tonal, and understated.";
-    if (colourUse === "One accent colour")
-        return "A quiet base with one controlled accent.";
-    if (colourUse === "More playful colour")
-        return "More expressive colour, balanced with restraint.";
-    if (colourUse === "I'm not sure yet")
-        return "Start with strong foundations, then build colour gradually.";
-    return "";
 }
 
 function getCombinedArchetypeExploreLinks(
@@ -3358,7 +3284,16 @@ try {
     console.log("Local storage disabled");
 }
 
-var appState = savedSession ? JSON.parse(savedSession) : getFreshState();
+var appState;
+try {
+    appState = savedSession ? JSON.parse(savedSession) : getFreshState();
+} catch (e) {
+    console.log("Corrupted session data, starting fresh");
+    try {
+        localStorage.removeItem("bbs_session");
+    } catch (e2) {}
+    appState = getFreshState();
+}
 
 // ============================================
 // NAVIGATION
@@ -4608,6 +4543,77 @@ function renderWorksheet() {
 }
 
 
+function renderElementToCanvas(element, options) {
+    options = options || {};
+    var config = {
+        scale: 3,
+        backgroundColor: options.backgroundColor || "#ffffff",
+        logging: false
+    };
+    if (options.useCORS) config.useCORS = true;
+    if (options.windowWidth) config.windowWidth = options.windowWidth;
+    if (options.onclone) config.onclone = options.onclone;
+    return html2canvas(element, config);
+}
+
+function canvasToPDF(canvas, options) {
+    options = options || {};
+    var imgWidth = 210;
+    var imgHeight = (canvas.height * imgWidth) / canvas.width;
+    var orientation = options.orientation || (imgHeight > imgWidth ? "portrait" : "landscape");
+
+    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
+    var imgData = canvas.toDataURL("image/png");
+
+    var xOffset = 0, yOffset = 0;
+    var pageHeight = orientation === "portrait" ? 297 : 210;
+
+    if (imgHeight < pageHeight) {
+        yOffset = (pageHeight - imgHeight) / 2;
+    } else {
+        imgHeight = pageHeight - 20;
+        imgWidth = (canvas.width * imgHeight) / canvas.height;
+        yOffset = 10;
+        if (imgWidth > 210) {
+            imgWidth = 190;
+            imgHeight = (canvas.height * imgWidth) / canvas.width;
+            xOffset = 10;
+        }
+    }
+
+    pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+    pdf.save(options.filename);
+}
+
+function shareCanvasAsPNG(canvas, options) {
+    options = options || {};
+    try {
+        canvas.toBlob(function (blob) {
+            if (!blob) {
+                throw new Error("Canvas toBlob failed");
+            }
+            var file = new File([blob], options.filename, { type: "image/png", lastModified: Date.now() });
+            var shareData = {
+                title: options.title || "Benjamin Barker Studios Profile",
+                files: [file]
+            };
+
+            if (navigator.canShare(shareData)) {
+                navigator.share(shareData)
+                    .then(function () { if (options.onDone) options.onDone(); })
+                    .catch(function () { if (options.onDone) options.onDone(); });
+            } else {
+                alert("Your browser cannot share PNG images directly.");
+                if (options.onDone) options.onDone();
+            }
+        }, "image/png");
+    } catch (err) {
+        console.error("Image generation failed:", err);
+        if (options.onDone) options.onDone();
+        alert("Could not generate image. Please take a screenshot instead.");
+    }
+}
+
 function exportWorksheetPDF() {
     if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
         alert("Export libraries not loaded. Please refresh and try again.");
@@ -4673,24 +4679,12 @@ function exportWorksheetPDF() {
     document.body.appendChild(tempContainer);
 
     setTimeout(function () {
-        html2canvas(tempContainer, {
-            scale: 3,
-            backgroundColor: '#ffffff',
-            logging: false
-        }).then(function (canvas) {
+        renderElementToCanvas(tempContainer, { backgroundColor: '#ffffff' }).then(function (canvas) {
             try {
-                var imgWidth = 210;
-                var imgHeight = (canvas.height * imgWidth) / canvas.width;
-                var pdf = new window.jspdf.jsPDF({
+                canvasToPDF(canvas, {
                     orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
+                    filename: 'BBS-Wardrobe-Strategy-' + clientName.replace(/\s+/g, '') + '.pdf'
                 });
-
-                var imgData = canvas.toDataURL('image/png');
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                pdf.save('BBS-Wardrobe-Strategy-' + clientName.replace(/\s+/g, '') + '.pdf');
-
                 document.body.removeChild(tempContainer);
             } catch (err) {
                 document.body.removeChild(tempContainer);
@@ -5320,11 +5314,9 @@ document.body.addEventListener("click", function (e) {
   card.classList.add("is-exporting");
 
   setTimeout(function () {
-    html2canvas(card, {
-      scale: 3,
+    renderElementToCanvas(card, {
       backgroundColor: "#050505",
       useCORS: true,
-      logging: false,
       windowWidth: 1000,
       onclone: function (clonedDoc) {
         var clonedCard = clonedDoc.getElementById("arch-style-card");
@@ -5335,31 +5327,7 @@ document.body.addEventListener("click", function (e) {
       }
     }).then(function (canvas) {
       try {
-        var imgWidth = 210;
-        var imgHeight = (canvas.height * imgWidth) / canvas.width;
-        var orientation = imgHeight > imgWidth ? "portrait" : "landscape";
-
-        var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
-        var imgData = canvas.toDataURL("image/png");
-
-        var xOffset = 0, yOffset = 0;
-        var pageHeight = orientation === "portrait" ? 297 : 210;
-
-        if (imgHeight < pageHeight) {
-          yOffset = (pageHeight - imgHeight) / 2;
-        } else {
-          imgHeight = pageHeight - 20;
-          imgWidth = (canvas.width * imgHeight) / canvas.height;
-          yOffset = 10;
-          if (imgWidth > 210) {
-            imgWidth = 190;
-            imgHeight = (canvas.height * imgWidth) / canvas.width;
-            xOffset = 10;
-          }
-        }
-
-        pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
-        pdf.save(filePrefix + clientName + ".pdf");
+        canvasToPDF(canvas, { filename: filePrefix + clientName + ".pdf" });
         card.classList.remove("is-exporting");
       } catch (err) {
         card.classList.remove("is-exporting");
@@ -5406,11 +5374,9 @@ document.body.addEventListener("click", function (e) {
         if (!isWorksheet) shareCard.classList.add("is-exporting");
 
         setTimeout(function () {
-            html2canvas(shareCard, {
-                scale: 3,
+            renderElementToCanvas(shareCard, {
                 backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
                 useCORS: true,
-                logging: false,
                 windowWidth: 1000,
                 onclone: function (clonedDoc) {
                     var clonedCard = isWorksheet
@@ -5426,31 +5392,10 @@ document.body.addEventListener("click", function (e) {
             }).then(function (canvas) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
 
-                try {
-                    canvas.toBlob(function (blob) {
-                        if (!blob) {
-                            throw new Error('Canvas toBlob failed');
-                        }
-                        var file = new File([blob], filename, { type: 'image/png', lastModified: Date.now() });
-                        var shareData = {
-                            title: 'Benjamin Barker Studios Profile',
-                            files: [file]
-                        };
-
-                        if (navigator.canShare(shareData)) {
-                            navigator.share(shareData)
-                                .then(function () { btn.innerText = originalText; })
-                                .catch(function () { btn.innerText = originalText; });
-                        } else {
-                            alert("Your browser cannot share PNG images directly.");
-                            btn.innerText = originalText;
-                        }
-                    }, 'image/png');
-                } catch (err) {
-                    console.error("Image generation failed:", err);
-                    btn.innerText = originalText;
-                    alert("Could not generate image. Please take a screenshot instead.");
-                }
+                shareCanvasAsPNG(canvas, {
+                    filename: filename,
+                    onDone: function () { btn.innerText = originalText; }
+                });
             }).catch(function (err) {
                 if (!isWorksheet) shareCard.classList.remove("is-exporting");
                 btn.innerText = originalText;
@@ -5535,24 +5480,6 @@ document.addEventListener("input", function (e) {
 // ============================================
 // COLOUR DIRECTION HELPERS
 // ==========================================
-function navigateColourDirection() {
-    // If they already started, resume
-    if (
-        appState.colourAnswersById &&
-        Object.keys(appState.colourAnswersById).length > 0
-    ) {
-        appState.view = "colour-direction";
-        render({ animate: true });
-        return;
-    }
-
-    // Otherwise, start fresh
-    appState.view = "colour-direction";
-    appState.colourStep = 0;
-    appState.colourAnswersById = {};
-    appState.colourResultKey = null;
-    render({ animate: true });
-}
 function renderColourDirectionResult() {
     var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
     var resultKey = getColourDirectionProfileKey(scores);
