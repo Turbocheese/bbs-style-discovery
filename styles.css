@@ -3560,7 +3560,7 @@ textarea {
     max-width: 44rem !important;
     width: 100% !important;
     margin: 0 auto !important;
-    padding: 3rem 2rem !important;
+    padding: 1rem 2rem 3rem !important;
     display: flex !important;
     flex-direction: column !important;
 }
@@ -6505,5 +6505,21 @@ textarea {
         border-radius: 12px;
         border-left: 1px solid rgba(200, 191, 176, 0.8);
         border-top: 3px solid var(--accent);
+    }
+}
+
+/* ============================================
+   FAB CLEARANCE
+   Bottom padding so end-of-page content (buttons,
+   list rows) never sits under the fixed FAB.
+   ============================================ */
+
+body.has-fab #app {
+    padding-bottom: 130px !important;
+}
+
+@media (max-width: 560px) {
+    body.has-fab #app {
+        padding-bottom: 110px !important;
     }
 }

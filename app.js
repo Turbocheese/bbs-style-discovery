@@ -3474,6 +3474,7 @@ function syncFabVisibility() {
     if (!fab) return;
     var shouldShow = appState.view !== "welcome";
     fab.style.display = shouldShow ? "flex" : "none";
+    document.body.classList.toggle("has-fab", shouldShow);
 }
 // ============================================
 // RENDER WELCOME
@@ -4399,7 +4400,9 @@ function renderWorksheet() {
         var colorChipHTML = colorChip ? '<div class="worksheet-item-color-chip" style="background-color: ' + colorChip.color + ';" title="' + colorChip.note + '"></div>' : '';
 
         var tierClass = 'tier-' + (item.tier || 'foundation');
-        var tierLabel = item.tier === 'foundation' ? 'Foundation' : item.tier === 'enhancement' ? 'Enhancement' : 'Luxury';
+        // Badge = investment tier; section = acquisition order. Labels must not
+        // collide with the "Foundation Pieces" / "Refinements" section names.
+        var tierLabel = item.tier === 'foundation' ? 'Essential' : item.tier === 'enhancement' ? 'Upgrade' : 'Luxury';
 
         var html = '<div class="worksheet-item' + checkedClass + expandedClass + '" data-item-id="' + item.id + '">';
         html += '<div class="worksheet-item-priority">' + item.priority + '</div>';
@@ -4477,7 +4480,9 @@ function renderWorksheet() {
     if (lensRules && lensRules.length > 0) {
         rulesHTML += '<div class="worksheet-rules-card">';
         rulesHTML += '<div class="worksheet-rules-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg> Sartorial Principles</div>';
-        rulesHTML += '<p class="worksheet-rules-intro">With a focus on <strong>' + garmentDrawLabel + '</strong>, keep these guiding principles in mind:</p>';
+        rulesHTML += garmentDrawLabel
+            ? '<p class="worksheet-rules-intro">With a focus on <strong>' + garmentDrawLabel + '</strong>, keep these guiding principles in mind:</p>'
+            : '<p class="worksheet-rules-intro">Keep these guiding principles in mind:</p>';
         rulesHTML += '<ul class="worksheet-rules-list">';
         for (var r = 0; r < lensRules.length; r++) {
             rulesHTML += '<li>' + lensRules[r] + '</li>';
