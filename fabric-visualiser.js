@@ -536,7 +536,7 @@ function renderFabricVisualiser() {
         '<div class="vis-shell">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">See It In Cloth</h1>" +
-        '<p class="vis-lead">Select a cloth from the bunch. The garment re-renders instantly &mdash; the way it would leave the workshop.</p>' +
+        '<p class="vis-lead">Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop.</p>' +
         '<div class="vis-stage">' +
         '<div class="vis-fabric-layer" id="vis-fabric-a" style="background-image:url(' + getFabricTile(activeKey) + ')"></div>' +
         '<div class="vis-fabric-layer" id="vis-fabric-b"></div>' +
@@ -546,7 +546,7 @@ function renderFabricVisualiser() {
         '<div class="vis-swatch-tray">' + swatchesHTML + "</div>" +
         recoStripHTML +
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
-        '<div class="vis-footnote">Preview woven from placeholder textures &mdash; final renders will use photographed cloth.</div>' +
+        '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );

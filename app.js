@@ -3516,7 +3516,7 @@ function renderWelcome() {
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
         "<h1>Your wardrobe,<br>considered.</h1>" +
-        '<p class="welcome-intro">Two minutes, a few questions &mdash; your personal style, mapped.</p>' +
+        '<p class="welcome-intro">Two minutes, a few questions. Your personal style, mapped.</p>' +
         "</div>" +
         '<div class="welcome-form-card">' +
         '<div class="welcome-form">' +
@@ -3526,7 +3526,7 @@ function renderWelcome() {
         '" autocomplete="given-name" autocorrect="off" spellcheck="false">' +
         "</div>" +
         '<div class="welcome-actions">' +
-        '<button class="button-primary" data-action="save-name">Begin the Experience</button>' +
+        '<button class="button-primary" data-action="save-name">Begin the Discovery</button>' +
         "</div>" +
         "</div>" +
         "</div>" +
@@ -3593,7 +3593,7 @@ function renderHome() {
         '<div class="home-card-tag">Wardrobe Blueprint</div>' +
         '<h2 class="home-card-title">Style<br>Direction</h2>' +
         '<p class="home-card-body">A personal profile mapping your ideal cloth, cut, and silhouette.</p>' +
-        '<div class="home-card-cta">Begin Assessment &rarr;</div>' +
+        '<div class="home-card-cta">Take the style quiz &rarr;</div>' +
         "</div>" +
         "</div>" +
         // TOP RIGHT: Colour
@@ -3605,7 +3605,7 @@ function renderHome() {
         '<div class="home-card-tag">Tonal Match</div>' +
         '<h2 class="home-card-title">Colour<br>Direction</h2>' +
         '<p class="home-card-body">Find the exact palettes and contrast architecture that harmonise with you.</p>' +
-        '<div class="home-card-cta">Begin Assessment &rarr;</div>' +
+        '<div class="home-card-cta">Take the colour quiz &rarr;</div>' +
         "</div>" +
         "</div>" +
         // BOTTOM LEFT: Guide
