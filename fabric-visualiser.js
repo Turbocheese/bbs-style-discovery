@@ -7,10 +7,15 @@
 // image when photography lands (see image pipeline).
 // ============================================
 
+// Each cloth carries a `mill` (from the houses BBS stocks — see
+// cloth_origins in data.js) and a `guidePath` into the guide tree:
+// the original 8 link to their fabric topics, the mill-attributed
+// additions link to the mill's own topic page.
 var FABRIC_LIBRARY = [
     {
         key: "hopsack",
         name: "Navy Hopsack",
+        mill: "Vitale Barberis Canonico",
         composition: "100% Wool",
         weight: "260 g",
         character: "Open basket weave with surface depth. Breathes well, resists wrinkling, and reads as texture rather than pattern.",
@@ -31,6 +36,7 @@ var FABRIC_LIBRARY = [
     {
         key: "fresco",
         name: "Slate Fresco",
+        mill: "Huddersfield",
         composition: "100% High-Twist Wool",
         weight: "250 g",
         character: "The tropical workhorse. Open, porous weave with a dry crisp hand — cool in heat, sharp all day.",
@@ -53,6 +59,7 @@ var FABRIC_LIBRARY = [
     {
         key: "high_twist_wool",
         name: "Midnight High-Twist",
+        mill: "Reda",
         composition: "100% Wool",
         weight: "270 g",
         character: "Springy, resilient yarn that shrugs off creases. The travel cloth — composed after a red-eye.",
@@ -73,6 +80,7 @@ var FABRIC_LIBRARY = [
     {
         key: "linen_suiting",
         name: "Flax Irish Linen",
+        mill: "Solbiati",
         composition: "100% Linen",
         weight: "290 g",
         character: "Dry, cool, and honest — the slubs and creases are the point. Elegance that loosens as the day goes on.",
@@ -97,6 +105,7 @@ var FABRIC_LIBRARY = [
     {
         key: "worsted_wool",
         name: "Charcoal Worsted",
+        mill: "Alfred Brown",
         composition: "Super 120s Wool",
         weight: "280 g",
         character: "Smooth, fine, and quietly formal. The businessman's cloth — clean drape, subtle twill, no argument.",
@@ -117,6 +126,7 @@ var FABRIC_LIBRARY = [
     {
         key: "wool_silk_linen",
         name: "Taupe Wool-Silk-Linen",
+        mill: "Loro Piana",
         composition: "Wool / Silk / Linen",
         weight: "240 g",
         character: "Three fibres, one cloth: wool's drape, silk's low sheen, linen's dry touch. The occasion jacket blend.",
@@ -136,6 +146,7 @@ var FABRIC_LIBRARY = [
     {
         key: "summer_tweed",
         name: "Sand Summer Tweed",
+        mill: "Harrisons",
         composition: "Wool / Silk Blend",
         weight: "255 g",
         character: "Tweed character without tweed weight — herringbone texture and flecks in a breathable summer hand.",
@@ -169,6 +180,7 @@ var FABRIC_LIBRARY = [
     {
         key: "wool_linen",
         name: "Stone Wool-Linen",
+        mill: "Standeven",
         composition: "Wool / Linen",
         weight: "250 g",
         character: "Linen's texture tempered by wool's recovery. Softly rumpled, never sloppy — the smart-casual anchor.",
@@ -186,6 +198,156 @@ var FABRIC_LIBRARY = [
             }
         },
     },
+    {
+        key: "fox_flannel",
+        name: "Chalkstripe Grey Flannel",
+        mill: "Fox Brothers",
+        composition: "100% Woollen Flannel",
+        weight: "310 g",
+        character: "The definitive flannel, milled in Somerset since 1772. Soft, matte, and quietly authoritative under a chalk stripe.",
+        guidePath: ["cloth_origins", "suiting", "english", "fox"],
+        drawTile: function (g) {
+            g.fillStyle = "#6e6c6a";
+            g.fillRect(0, 0, 96, 96);
+            for (var i = 0; i < 700; i++) {
+                var lite = Math.random() > 0.5;
+                g.fillStyle = lite
+                    ? "rgba(200,198,194," + 0.10 * Math.random() + ")"
+                    : "rgba(40,40,42," + 0.10 * Math.random() + ")";
+                g.fillRect(Math.random() * 96, Math.random() * 96, 2.5, 1.2);
+            }
+            for (var x = 12; x < 96; x += 32) {
+                g.fillStyle = "rgba(235,232,226,0.16)";
+                g.fillRect(x - 1, 0, 3, 96);
+                g.fillStyle = "rgba(235,232,226,0.5)";
+                g.fillRect(x, 0, 1, 96);
+            }
+        },
+    },
+    {
+        key: "dormeuil_glencheck",
+        name: "Prince of Wales Check",
+        mill: "Dormeuil",
+        composition: "100% Wool",
+        weight: "270 g",
+        character: "The gentleman's pattern — glen check discipline with Parisian polish. Wears as a suit or breaks apart beautifully.",
+        guidePath: ["cloth_origins", "suiting", "french", "dormeuil"],
+        drawTile: function (g) {
+            g.fillStyle = "#b3aea4";
+            g.fillRect(0, 0, 96, 96);
+            // alternating fine-check blocks
+            g.fillStyle = "rgba(60,58,54,0.22)";
+            for (var by = 0; by < 96; by += 48) {
+                for (var bx = 0; bx < 96; bx += 48) {
+                    if ((bx / 48 + by / 48) % 2 === 0) {
+                        for (var y = by; y < by + 48; y += 4) {
+                            for (var x = bx; x < bx + 48; x += 4) {
+                                if ((x / 4 + y / 4) % 2 === 0) g.fillRect(x, y, 2, 2);
+                            }
+                        }
+                    }
+                }
+            }
+            // overcheck lines
+            g.strokeStyle = "rgba(44,42,40,0.45)";
+            g.lineWidth = 1;
+            [0, 48].forEach(function (o) {
+                g.beginPath(); g.moveTo(o, 0); g.lineTo(o, 96); g.stroke();
+                g.beginPath(); g.moveTo(0, o); g.lineTo(96, o); g.stroke();
+            });
+        },
+    },
+    {
+        key: "drago_birdseye",
+        name: "Navy Birdseye",
+        mill: "Drago",
+        composition: "Super 130s Wool",
+        weight: "260 g",
+        character: "Solid at arm's length, alive up close — a pin-dot weave that gives navy quiet dimension. Boardroom-proof.",
+        guidePath: ["cloth_origins", "suiting", "italian", "drago"],
+        drawTile: function (g) {
+            g.fillStyle = "#1f2940";
+            g.fillRect(0, 0, 96, 96);
+            g.fillStyle = "rgba(210,214,222,0.30)";
+            for (var y = 0; y < 96; y += 6) {
+                for (var x = 0; x < 96; x += 6) {
+                    var ox = (y / 6) % 2 === 0 ? 0 : 3;
+                    g.fillRect(x + ox, y, 1.6, 1.6);
+                }
+            }
+        },
+    },
+    {
+        key: "hs_gabardine",
+        name: "Ecru Wool Gabardine",
+        mill: "Holland & Sherry",
+        composition: "100% Worsted Wool",
+        weight: "290 g",
+        character: "Steep-twill smoothness with real body. The summer-city trouser cloth — sharp crease, soft colour.",
+        guidePath: ["cloth_origins", "suiting", "english", "holland_sherry"],
+        drawTile: function (g) {
+            g.fillStyle = "#ddd3bf";
+            g.fillRect(0, 0, 96, 96);
+            g.strokeStyle = "rgba(150,138,115,0.30)";
+            g.lineWidth = 1.2;
+            for (var i = -192; i < 96; i += 3) {
+                g.beginPath();
+                g.moveTo(i, 96);
+                g.lineTo(i + 192, 0);
+                g.stroke();
+            }
+        },
+    },
+    {
+        key: "standeven_herringbone",
+        name: "Storm Blue Herringbone",
+        mill: "Standeven",
+        composition: "Wool / Linen",
+        weight: "265 g",
+        character: "A weatherworn blue with a fine broken-twill rhythm. Odd-jacket cloth with instant depth.",
+        guidePath: ["cloth_origins", "suiting", "english", "standeven"],
+        drawTile: function (g) {
+            g.fillStyle = "#46586b";
+            g.fillRect(0, 0, 96, 96);
+            g.lineWidth = 1.8;
+            for (var r = 0; r < 16; r++) {
+                var y = r * 6 + 3;
+                var flip = r % 2 === 1;
+                g.strokeStyle = "rgba(220,228,236,0.16)";
+                for (var x = 0; x < 96; x += 6) {
+                    g.beginPath();
+                    if (flip) {
+                        g.moveTo(x, y - 2.2);
+                        g.lineTo(x + 6, y + 2.2);
+                    } else {
+                        g.moveTo(x, y + 2.2);
+                        g.lineTo(x + 6, y - 2.2);
+                    }
+                    g.stroke();
+                }
+            }
+        },
+    },
+    {
+        key: "piacenza_camel",
+        name: "Camel Cashmere Blend",
+        mill: "Piacenza",
+        composition: "Cashmere / Wool",
+        weight: "320 g",
+        character: "Biella's oldest cashmere house. A warm camel jacketing with a soft nap that photographs like candlelight.",
+        guidePath: ["cloth_origins", "suiting", "italian", "piacenza"],
+        drawTile: function (g) {
+            g.fillStyle = "#b98f5e";
+            g.fillRect(0, 0, 96, 96);
+            for (var i = 0; i < 900; i++) {
+                var lite = Math.random() > 0.45;
+                g.fillStyle = lite
+                    ? "rgba(240,220,190," + 0.09 * Math.random() + ")"
+                    : "rgba(120,85,45," + 0.09 * Math.random() + ")";
+                g.fillRect(Math.random() * 96, Math.random() * 96, 1.6, 2.6);
+            }
+        },
+    },
 ];
 
 var _fabricTileCache = {};
@@ -195,6 +357,25 @@ function getFabricByKey(key) {
         if (FABRIC_LIBRARY[i].key === key) return FABRIC_LIBRARY[i];
     }
     return FABRIC_LIBRARY[0];
+}
+
+// Cloths recommended for the client's style archetype, derived from
+// the archetype's existing exploreNext guide links (fabrics/suiting/*).
+// Returns [] when no archetype result exists yet.
+function getRecommendedFabricKeys() {
+    if (!appState.archetypeKey || typeof archetypeProfiles === "undefined") return [];
+    var profile = archetypeProfiles[appState.archetypeKey];
+    if (!profile || !profile.exploreNext) return [];
+    var keys = [];
+    for (var i = 0; i < profile.exploreNext.length; i++) {
+        var path = profile.exploreNext[i];
+        if (path.length === 3 && path[0] === "fabrics" && path[1] === "suiting") {
+            for (var j = 0; j < FABRIC_LIBRARY.length; j++) {
+                if (FABRIC_LIBRARY[j].key === path[2]) keys.push(path[2]);
+            }
+        }
+    }
+    return keys;
 }
 
 function getFabricTile(key) {
@@ -327,15 +508,26 @@ function getVisualiserShirtOverlaySVG() {
 // ============================================
 
 function renderFabricVisualiser() {
-    var activeKey = appState.visFabricKey || FABRIC_LIBRARY[0].key;
+    var recommended = getRecommendedFabricKeys();
+    var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
     var fabric = getFabricByKey(activeKey);
+
+    var recoStripHTML = "";
+    if (recommended.length && typeof archetypeProfiles !== "undefined") {
+        var archetypeName = archetypeProfiles[appState.archetypeKey].name;
+        recoStripHTML =
+            '<div class="vis-reco-strip">Marked cloths are recommended for <em>' +
+            archetypeName +
+            "</em></div>";
+    }
 
     var swatchesHTML = "";
     for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
         var f = FABRIC_LIBRARY[i];
         var sel = f.key === activeKey ? " sel" : "";
+        var reco = recommended.indexOf(f.key) !== -1 ? " reco" : "";
         swatchesHTML +=
-            '<button class="vis-swatch' + sel + '" data-action="vis-pick-fabric" data-fabric="' + f.key + '" aria-label="' + f.name + '">' +
+            '<button class="vis-swatch' + sel + reco + '" data-action="vis-pick-fabric" data-fabric="' + f.key + '" aria-label="' + f.name + '" title="' + f.name + '">' +
             '<span class="vis-swatch-cloth" style="background-image:url(' + getFabricTile(f.key) + ')"></span>' +
             "</button>";
     }
@@ -352,6 +544,7 @@ function renderFabricVisualiser() {
         getVisualiserJacketSVG() +
         "</div>" +
         '<div class="vis-swatch-tray">' + swatchesHTML + "</div>" +
+        recoStripHTML +
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
         '<div class="vis-footnote">Preview woven from placeholder textures &mdash; final renders will use photographed cloth.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
@@ -364,6 +557,8 @@ function getFabricInfoHTML(fabric) {
         '<div class="vis-info-head">' +
         '<h2 class="vis-fabric-name">' + fabric.name + "</h2>" +
         '<div class="vis-fabric-specs">' +
+        '<span class="vis-spec">' + fabric.mill + "</span>" +
+        '<span class="vis-spec-divider"></span>' +
         '<span class="vis-spec">' + fabric.composition + "</span>" +
         '<span class="vis-spec-divider"></span>' +
         '<span class="vis-spec">' + fabric.weight + "</span>" +
@@ -404,6 +599,7 @@ function visApplyFabric(key) {
     var swatches = document.querySelectorAll(".vis-swatch");
     for (var i = 0; i < swatches.length; i++) {
         var isSel = swatches[i].getAttribute("data-fabric") === key;
-        swatches[i].className = "vis-swatch" + (isSel ? " sel" : "");
+        var isReco = swatches[i].className.indexOf("reco") !== -1;
+        swatches[i].className = "vis-swatch" + (isReco ? " reco" : "") + (isSel ? " sel" : "");
     }
 }

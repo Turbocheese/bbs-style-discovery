@@ -7127,3 +7127,36 @@ textarea {
 .home-card-watermark--secondary {
     color: rgba(107, 97, 85, 0.055) !important;
 }
+
+/* --- Cloth Room: archetype recommendations --- */
+.vis-swatch.reco::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #b08d5f;
+    border: 1.5px solid var(--surface);
+    z-index: 1;
+}
+
+.vis-reco-strip {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin: -0.4rem 0 1.4rem;
+    text-align: center;
+}
+
+    .vis-reco-strip em {
+        font-family: "EB Garamond", serif;
+        font-style: italic;
+        text-transform: none;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+    }

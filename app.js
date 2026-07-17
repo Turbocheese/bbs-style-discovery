@@ -4338,7 +4338,9 @@ function renderResult() {
         '<div class="arch-card-actions">' +
         '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
+        '<button class="arch-btn-stroke" data-action="fabric-vis">See Your Cloths</button>' +
         '<button class="arch-btn-stroke" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-stroke" data-action="export-dossier">Export Client Dossier</button>' +
         '</div>' +
 
         '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
@@ -4554,6 +4556,7 @@ function renderWorksheet() {
     html += outfitsHTML;
     html += '<div class="worksheet-actions">';
     html += '<button class="button-primary" data-action="export-worksheet">Export Worksheet</button>';
+    html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="export-dossier">Export Client Dossier</button>';
     html += '<button class="button-primary" style="background:transparent; color:#2a2218; border: 1px solid #2a2218;" data-action="share-native">Share to Phone</button>';
     html += '<button data-action="back">Back to Result</button>';
     html += '</div></div>';
@@ -4577,13 +4580,11 @@ function renderElementToCanvas(element, options) {
     return html2canvas(element, config);
 }
 
-function canvasToPDF(canvas, options) {
-    options = options || {};
+// Adds one canvas to the pdf's CURRENT page with page-fit + centering.
+// Shared by canvasToPDF (single page) and canvasesToPDF (multi-page).
+function fitCanvasToA4Page(pdf, canvas, orientation) {
     var imgWidth = 210;
     var imgHeight = (canvas.height * imgWidth) / canvas.width;
-    var orientation = options.orientation || (imgHeight > imgWidth ? "portrait" : "landscape");
-
-    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
     var imgData = canvas.toDataURL("image/png");
 
     var xOffset = 0, yOffset = 0;
@@ -4603,6 +4604,25 @@ function canvasToPDF(canvas, options) {
     }
 
     pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+}
+
+function canvasToPDF(canvas, options) {
+    options = options || {};
+    var imgHeight = (canvas.height * 210) / canvas.width;
+    var orientation = options.orientation || (imgHeight > 210 ? "portrait" : "landscape");
+    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
+    fitCanvasToA4Page(pdf, canvas, orientation);
+    pdf.save(options.filename);
+}
+
+function canvasesToPDF(canvases, options) {
+    options = options || {};
+    var orientation = options.orientation || "portrait";
+    var pdf = new window.jspdf.jsPDF({ orientation: orientation, unit: "mm", format: "a4" });
+    for (var i = 0; i < canvases.length; i++) {
+        if (i > 0) pdf.addPage("a4", orientation);
+        fitCanvasToA4Page(pdf, canvases[i], orientation);
+    }
     pdf.save(options.filename);
 }
 
@@ -4718,6 +4738,184 @@ function exportWorksheetPDF() {
             alert('Export failed. Please take a screenshot of your worksheet.');
         });
     }, 100);
+}
+
+
+function exportClientDossier() {
+    if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
+        alert("Export libraries not loaded. Please refresh and try again.");
+        return;
+    }
+    if (!appState.archetypeKey) {
+        alert("Complete the Style Direction consultation first.");
+        return;
+    }
+
+    var archetype = archetypeProfiles[appState.archetypeKey];
+    var colourProfile = appState.colourResultKey ? getColourDirectionProfileData(appState.colourResultKey) : null;
+    var clientName = appState.clientName || "Client";
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var now = new Date();
+    var dateLabel = now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
+
+    var pageStyle = 'width:800px; padding:70px 80px; background:#faf8f3; font-family:Manrope,sans-serif; color:#2a2218; box-sizing:border-box; min-height:1080px;';
+    var eyebrow = 'font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:#a8998a;';
+    var serif = "font-family:'EB Garamond',Georgia,serif;";
+    var hairline = 'border:none; border-top:1px solid #ddd5c8; margin:28px 0;';
+
+    // Page 1 — cover
+    var cover =
+        '<div class="dossier-page" style="' + pageStyle + ' text-align:center; display:flex; flex-direction:column; justify-content:center;">' +
+        '<div style="' + serif + ' font-size:34px; letter-spacing:0.04em;">BBS</div>' +
+        '<div style="' + eyebrow + ' margin:6px 0 90px;">Benjamin Barker Studios</div>' +
+        '<div style="' + eyebrow + '">Client Dossier</div>' +
+        '<div style="' + serif + ' font-size:52px; margin:18px 0 6px;">' + clientName + '</div>' +
+        '<div style="font-size:12px; color:#6b6155; margin-bottom:70px;">' + dateLabel + '</div>' +
+        '<hr style="' + hairline + ' width:60px; margin:0 auto 70px;">' +
+        '<div style="' + eyebrow + '">Style Direction</div>' +
+        '<div style="' + serif + ' font-size:26px; font-style:italic; margin:8px 0 30px;">' + archetype.name + '</div>' +
+        (colourProfile
+            ? '<div style="' + eyebrow + '">Colour Direction</div>' +
+            '<div style="' + serif + ' font-size:26px; font-style:italic; margin-top:8px;">' + colourProfile.name + '</div>'
+            : '') +
+        '</div>';
+
+    // Page 2 — style direction
+    var notesHTML = '';
+    if (archetype.notes) {
+        for (var n = 0; n < archetype.notes.length; n++) {
+            notesHTML += '<div style="' + serif + ' font-size:17px; line-height:1.65; margin-bottom:12px;">&mdash;&nbsp; ' + archetype.notes[n] + '</div>';
+        }
+    }
+    var tagsHTML = '';
+    if (archetype.tags) {
+        for (var t = 0; t < archetype.tags.length; t++) {
+            tagsHTML += '<span style="' + eyebrow + ' border:1px solid #ddd5c8; padding:6px 12px; margin-right:8px;">' + archetype.tags[t] + '</span>';
+        }
+    }
+    var prefRows = '';
+    var prefs = [
+        ["Climate", appState.selClimate],
+        ["Palette", appState.selPalette],
+        ["Colour Use", appState.selColourUse],
+    ];
+    for (var pr = 0; pr < prefs.length; pr++) {
+        if (prefs[pr][1]) {
+            prefRows +=
+                '<div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #ddd5c8;">' +
+                '<span style="' + eyebrow + '">' + prefs[pr][0] + '</span>' +
+                '<span style="font-size:13px;">' + prefs[pr][1] + '</span>' +
+                '</div>';
+        }
+    }
+    var stylePage =
+        '<div class="dossier-page" style="' + pageStyle + '">' +
+        '<div style="' + eyebrow + '">01 &mdash; Style Direction</div>' +
+        '<div style="' + serif + ' font-size:38px; margin:14px 0 2px;">' + archetype.name + '</div>' +
+        '<div style="' + eyebrow + ' margin-bottom:26px;">' + archetype.sub + '</div>' +
+        '<div style="' + serif + ' font-size:19px; font-style:italic; line-height:1.6; margin-bottom:30px;">' + archetype.desc + '</div>' +
+        '<hr style="' + hairline + '">' + notesHTML +
+        '<hr style="' + hairline + '">' +
+        '<div style="margin-bottom:26px;">' + tagsHTML + '</div>' +
+        prefRows +
+        '</div>';
+
+    // Page 3 — colour direction (only if completed)
+    var colourPage = '';
+    if (colourProfile) {
+        function swatchRow(label, colours) {
+            var row = '<div style="' + eyebrow + ' margin:26px 0 12px;">' + label + '</div><div>';
+            for (var c = 0; c < colours.length; c++) {
+                row +=
+                    '<div style="display:inline-block; text-align:center; margin:0 16px 10px 0;">' +
+                    '<div style="width:54px; height:54px; border-radius:50%; background:' + colours[c].hex + '; border:1px solid rgba(42,34,24,0.15); margin:0 auto 8px;"></div>' +
+                    '<div style="font-size:10px; letter-spacing:0.08em; color:#6b6155;">' + colours[c].name + '</div>' +
+                    '</div>';
+            }
+            return row + '</div>';
+        }
+        colourPage =
+            '<div class="dossier-page" style="' + pageStyle + '">' +
+            '<div style="' + eyebrow + '">02 &mdash; Colour Direction</div>' +
+            '<div style="' + serif + ' font-size:38px; margin:14px 0 26px;">' + colourProfile.name + '</div>' +
+            '<div style="' + serif + ' font-size:19px; font-style:italic; line-height:1.6; margin-bottom:14px;">' + colourProfile.desc + '</div>' +
+            swatchRow("Best Colours", colourProfile.bestColours) +
+            swatchRow("Strong Neutrals", colourProfile.strongNeutrals) +
+            swatchRow("Accent Colours", colourProfile.accentColours) +
+            '<hr style="' + hairline + '">' +
+            '<div style="' + eyebrow + ' margin-bottom:10px;">Contrast &mdash; ' + colourProfile.contrast + '</div>' +
+            '<div style="' + serif + ' font-size:16px; line-height:1.6;">' + colourProfile.contrastNote + '</div>' +
+            '</div>';
+    }
+
+    // Page 4 — wardrobe strategy
+    var template = getWardrobeTemplate(appState.archetypeKey);
+    var checklist = appState.wardrobeChecklist || {};
+    var wardrobePage = '';
+    if (template) {
+        var foundationItems = filterItemsByClimate(template.foundation, appState.selClimate || "");
+        var refinementItems = filterItemsByClimate(template.refinements, appState.selClimate || "");
+        foundationItems.sort(function (a, b) { return a.priority - b.priority; });
+        refinementItems.sort(function (a, b) { return a.priority - b.priority; });
+
+        function itemRows(items) {
+            var rows = '';
+            for (var i = 0; i < items.length; i++) {
+                var st = checklist[items[i].id] || { checked: false };
+                rows +=
+                    '<div style="display:flex; align-items:baseline; gap:14px; padding:11px 0; border-bottom:1px solid #ddd5c8;">' +
+                    '<span style="' + serif + ' font-size:15px; color:#a8998a; min-width:22px;">' + items[i].priority + '</span>' +
+                    '<span style="font-size:14px;">' + (st.checked ? '&#9745;' : '&#9744;') + '</span>' +
+                    '<span style="' + serif + ' font-size:17px;">' + items[i].item + '</span>' +
+                    '</div>';
+            }
+            return rows;
+        }
+        wardrobePage =
+            '<div class="dossier-page" style="' + pageStyle + '">' +
+            '<div style="' + eyebrow + '">' + (colourProfile ? '03' : '02') + ' &mdash; Wardrobe Strategy</div>' +
+            '<div style="' + serif + ' font-size:38px; margin:14px 0 30px;">Building Plan</div>' +
+            '<div style="' + eyebrow + ' margin-bottom:6px;">Phase 1 &mdash; Foundation Pieces</div>' +
+            itemRows(foundationItems) +
+            '<div style="' + eyebrow + ' margin:34px 0 6px;">Phase 2 &mdash; Refinements</div>' +
+            itemRows(refinementItems) +
+            '<div style="' + eyebrow + ' margin-top:60px; text-align:center;">benjaminbarkerstudios.com</div>' +
+            '</div>';
+    }
+
+    var container = document.createElement("div");
+    container.innerHTML = cover + stylePage + colourPage + wardrobePage;
+    container.style.position = "absolute";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    document.body.appendChild(container);
+
+    var pageNodes = container.querySelectorAll(".dossier-page");
+    var canvases = [];
+    var chain = Promise.resolve();
+
+    function renderPage(node) {
+        chain = chain.then(function () {
+            return renderElementToCanvas(node, { backgroundColor: "#faf8f3" }).then(function (canvas) {
+                canvases.push(canvas);
+            });
+        });
+    }
+    for (var pn = 0; pn < pageNodes.length; pn++) renderPage(pageNodes[pn]);
+
+    chain
+        .then(function () {
+            canvasesToPDF(canvases, {
+                orientation: "portrait",
+                filename: "BBS-Client-Dossier-" + clientName.replace(/\s+/g, "") + ".pdf",
+            });
+            document.body.removeChild(container);
+        })
+        .catch(function (err) {
+            document.body.removeChild(container);
+            console.error("Dossier export failed:", err);
+            alert("Could not generate the dossier. Please try again.");
+        });
 }
 
 
@@ -5467,6 +5665,9 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "fabric-vis") {
         navigate("fabric-visualiser");
+    }
+    else if (action === "export-dossier") {
+        exportClientDossier();
     }
     else if (action === "vis-pick-fabric") {
         var fabricKey = target.dataset.fabric;
