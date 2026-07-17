@@ -7160,3 +7160,275 @@ textarea {
         letter-spacing: 0.02em;
         color: var(--muted);
     }
+
+/* ============================================================
+   WARM MAISON REFINEMENT — layer 2
+   Softens the maison layer per founder direction: whisper
+   radii, soft warm shadows on elevated moments, bronze
+   accents, staggered reveals, touch-first interaction.
+   ============================================================ */
+
+:root {
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 4px;
+    --bronze: #9a7b4f;
+    --shadow-warm: 0 14px 44px rgba(78, 58, 38, 0.10);
+}
+
+/* --- Critical repair: result-card action buttons lost their fill
+       under the maison button override (ivory text on ivory) --- */
+.arch-btn-fill {
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+    border-color: var(--accent) !important;
+}
+
+.arch-btn-stroke {
+    background: transparent !important;
+    color: var(--text) !important;
+    border: 1px solid var(--line-strong) !important;
+}
+
+/* Result actions: single calm column on touch, two columns wide */
+.arch-card-actions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 10px !important;
+    width: 100%;
+    max-width: 26rem;
+    margin: 1.6rem auto 0 !important;
+}
+
+@media (min-width: 560px) {
+    .arch-card-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+        .arch-card-actions button:first-child {
+            grid-column: 1 / -1;
+        }
+}
+
+/* --- Whisper radius returns to the flattened panels --- */
+button,
+.home-card,
+.home-cloth-room,
+.home-quick-queries,
+.arch-opt,
+.topic-spec-sheet,
+.topic-related-card,
+.topic-meta-card,
+.topic-image-editorial,
+.result-next-card-v2,
+.worksheet-item,
+.worksheet-outfit-card,
+.worksheet-rules-card,
+.worksheet-progress-wrap,
+.lookbook-item,
+.welcome-input,
+.vis-stage,
+.vis-info,
+.arch-explore-card,
+.arch-journey-bridge,
+.bespoke-insight-card {
+    border-radius: 3px !important;
+}
+
+/* --- Soft warm depth on the moments that carry weight --- */
+.arch-style-card,
+.vis-stage,
+.arch-journey-bridge {
+    box-shadow: var(--shadow-warm) !important;
+}
+
+.fab {
+    box-shadow: 0 8px 30px rgba(42, 34, 24, 0.28) !important;
+}
+
+/* --- Bronze accent threads through the micro-labels --- */
+.welcome-kicker,
+.vis-eyebrow,
+.home-card-tag,
+.arch-result-label,
+.arch-q-label,
+.worksheet-eyebrow,
+.guide-eyebrow-v2,
+.arch-card-section-label {
+    color: var(--bronze) !important;
+}
+
+.arch-pip.on {
+    background: var(--bronze) !important;
+}
+
+.arch-result-divider {
+    background: var(--bronze) !important;
+    opacity: 0.6;
+}
+
+/* --- Welcome: the input becomes an underline, the moment breathes --- */
+.welcome-input {
+    border: none !important;
+    border-bottom: 1px solid var(--line-strong) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    font-family: "EB Garamond", serif !important;
+    font-size: 1.5rem !important;
+    text-align: center;
+    padding: 10px 4px !important;
+    transition: border-color 0.35s ease;
+}
+
+    .welcome-input:focus {
+        outline: none !important;
+        border-bottom-color: var(--accent) !important;
+        box-shadow: none !important;
+    }
+
+.welcome-form-card {
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+
+/* --- Staggered reveals (one-shot per view render) --- */
+@keyframes maisonRise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-hero { animation: maisonRise 0.6s ease 0.05s both; }
+.welcome-form-card { animation: maisonRise 0.6s ease 0.22s both; }
+
+.home-hero-v2 { animation: maisonRise 0.55s ease 0.02s both; }
+.home-card-grid-triad .home-card:nth-child(1) { animation: maisonRise 0.55s ease 0.10s both; }
+.home-card-grid-triad .home-card:nth-child(2) { animation: maisonRise 0.55s ease 0.18s both; }
+.home-card-grid-triad .home-card:nth-child(3) { animation: maisonRise 0.55s ease 0.26s both; }
+.home-card-grid-triad .home-card:nth-child(4) { animation: maisonRise 0.55s ease 0.34s both; }
+.home-cloth-room { animation: maisonRise 0.55s ease 0.42s both; }
+.home-quick-queries { animation: maisonRise 0.55s ease 0.50s both; }
+
+.arch-result-label { animation: maisonRise 0.6s ease 0.05s both; }
+.arch-result-name { animation: maisonRise 0.6s ease 0.15s both; }
+.arch-result-divider { animation: maisonRise 0.6s ease 0.25s both; }
+.arch-result-desc,
+.arch-result-secondary { animation: maisonRise 0.6s ease 0.32s both; }
+.arch-card-wrap { animation: maisonRise 0.7s ease 0.45s both; }
+.arch-card-actions { animation: maisonRise 0.6s ease 0.62s both; }
+.arch-journey-bridge { animation: maisonRise 0.6s ease 0.72s both; }
+
+/* Quiz: gentle step transition (replays intentionally per step) */
+.arch-q-title { animation: maisonRise 0.28s ease both; }
+.arch-grid { animation: maisonRise 0.32s ease 0.04s both; }
+
+/* Colour result + guide + worksheet get a single soft entrance */
+.colour-result-shell,
+.guide-shell-v2,
+.topic-shell,
+.worksheet-shell {
+    animation: maisonRise 0.5s ease both;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --- Touch-first: hovers become taps on coarse pointers --- */
+@media (hover: none) {
+    button:hover {
+        background: transparent !important;
+        color: var(--text) !important;
+        border-color: var(--line-strong) !important;
+    }
+
+    .button-primary:hover,
+    .arch-btn-fill:hover {
+        background: var(--accent) !important;
+        color: #f4f0e8 !important;
+        border-color: var(--accent) !important;
+    }
+
+    button:active {
+        background: var(--accent) !important;
+        color: #f4f0e8 !important;
+        border-color: var(--accent) !important;
+    }
+
+    .arch-opt:active,
+    .home-card:active,
+    .home-cloth-room:active,
+    .topic-related-card:active,
+    .worksheet-item:active {
+        background: #ffffff !important;
+        border-color: var(--line-strong) !important;
+    }
+
+    .vis-swatch:active {
+        background: none !important;
+        transform: scale(0.9);
+    }
+}
+
+/* --- Journey bridge and explore cards join the hairline language --- */
+.arch-journey-bridge {
+    border: 1px solid var(--line) !important;
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+}
+
+    .arch-journey-bridge .arch-journey-bridge-label {
+        color: var(--bronze) !important;
+    }
+
+    .arch-journey-bridge .arch-journey-bridge-title {
+        color: #f4f0e8 !important;
+    }
+
+.arch-explore-card {
+    border: 1px solid var(--line) !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+    .arch-explore-card:active,
+    .arch-explore-card:hover {
+        background: #ffffff !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+/* --- Discovery panel joins the maison surface --- */
+.discovery-panel {
+    background: var(--surface) !important;
+    border-left: 1px solid var(--line) !important;
+    box-shadow: -20px 0 60px rgba(42, 34, 24, 0.10) !important;
+}
+
+.query-btn {
+    border-radius: 3px !important;
+}
+
+/* Bridge description must read on the dark bridge */
+.arch-journey-bridge p,
+.arch-journey-bridge .arch-journey-bridge-desc {
+    color: rgba(244, 240, 232, 0.75) !important;
+}
+
+.arch-journey-bridge svg {
+    color: #f4f0e8 !important;
+}
+
+/* Welcome kicker in the maison micro-label voice */
+.welcome-kicker {
+    font-family: "Manrope", sans-serif !important;
+    font-size: 0.62rem !important;
+    letter-spacing: 0.3em !important;
+    text-transform: uppercase !important;
+}

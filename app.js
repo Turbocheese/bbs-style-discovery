@@ -4262,9 +4262,9 @@ function renderResult() {
         "</div>" +
         '<div class="arch-result-divider"></div>' +
         '<p class="arch-result-desc">' + resultDesc + "</p>" +
-        '<p class="arch-result-secondary">' +
-        (secondaryArchetype ? "Secondary influence: " + secondaryArchetype.name : "Secondary influence: none") +
-        "</p>" +
+        (secondaryArchetype
+            ? '<p class="arch-result-secondary">Secondary influence: ' + secondaryArchetype.name + "</p>"
+            : "") +
         '<div class="arch-card-wrap">' +
         '<div class="arch-style-card" id="arch-style-card">' +
         '<div class="arch-card-top">' +
@@ -4276,32 +4276,28 @@ function renderResult() {
         '<div class="arch-card-persona-sub">' + archetype.sub + "</div>" +
         '<div class="arch-card-rule"></div>' +
         '<div class="arch-card-section-label">Your Profile</div>' +
-        '<div class="arch-card-baseline-grid">' +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Climate</div>' +
-        '<div class="arch-card-baseline-val">' + climateLabel + "</div>" +
-        "</div>" +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Style Lens</div>' +
-        '<div class="arch-card-baseline-val">' + (garmentDrawLabel || "\u2014") + "</div>" +
-        "</div>" +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Goal</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selFocus || "\u2014") + "</div>" +
-        "</div>" +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Fit</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selFit || "\u2014") + "</div>" +
-        "</div>" +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Palette</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selPalette || "\u2014") + "</div>" +
-        "</div>" +
-        '<div class="arch-card-baseline-item">' +
-        '<div class="arch-card-baseline-lbl">Colour Use</div>' +
-        '<div class="arch-card-baseline-val">' + (appState.selColourUse || "\u2014") + "</div>" +
-        "</div>" +
-        "</div>" +
+        (function () {
+            // Only show profile facts the client actually gave \u2014 no "\u2014" placeholders
+            var facts = [
+                ["Climate", climateLabel],
+                ["Style Lens", garmentDrawLabel],
+                ["Goal", appState.selFocus],
+                ["Fit", appState.selFit],
+                ["Palette", appState.selPalette],
+                ["Colour Use", appState.selColourUse],
+            ];
+            var grid = '<div class="arch-card-baseline-grid">';
+            for (var fi = 0; fi < facts.length; fi++) {
+                if (facts[fi][1]) {
+                    grid +=
+                        '<div class="arch-card-baseline-item">' +
+                        '<div class="arch-card-baseline-lbl">' + facts[fi][0] + "</div>" +
+                        '<div class="arch-card-baseline-val">' + facts[fi][1] + "</div>" +
+                        "</div>";
+                }
+            }
+            return grid + "</div>";
+        })() +
         '<div class="arch-card-section-label">Core Principles</div>' +
         '<div class="arch-card-notes" style="margin-bottom: 1.6rem;">' + coreNotesHTML + "</div>" +
         '<div class="arch-card-section-label">Bespoke Insights</div>' +
