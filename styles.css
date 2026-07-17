@@ -7720,3 +7720,284 @@ button,
     transition: none;
     animation: tapeCycle 1.5s var(--ease-standard) infinite;
 }
+
+/* ============================================================
+   ARCHETYPE GALLERY — browse all 24 style directions + 8 colour
+   rooms without taking the quizzes. Marks are serif monograms on
+   muted tints until real archetype illustrations exist
+   (archetype.galleryImage slots straight in).
+   ============================================================ */
+
+/* Home entry strip: three overlapping monogram tiles as the visual */
+.home-gallery-monograms {
+    display: flex;
+    flex: none;
+}
+
+.hgm-tile {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    background: #e9e2d6;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+}
+
+.hgm-tile:nth-child(2) { background: #dde3e6; margin-left: -8px; transform: rotate(2deg); }
+.hgm-tile:nth-child(3) { background: #dfe3da; margin-left: -8px; transform: rotate(-2deg); }
+
+/* Gallery shell */
+.gallery-shell {
+    max-width: 44rem;
+    margin: 0 auto;
+    animation: maisonRise 0.5s ease both;
+}
+
+.gallery-hero {
+    text-align: center;
+    margin-bottom: 2.6rem;
+}
+
+.gallery-lead {
+    font-size: 0.95rem;
+    color: var(--muted);
+    max-width: 30rem;
+    margin: 0 auto;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 3.4rem;
+}
+
+@media (max-width: 640px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.gallery-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 16px 10px 14px !important;
+    min-height: auto;
+    text-align: center;
+    background: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    cursor: pointer;
+}
+
+.gallery-card:hover,
+.gallery-card:active {
+    background: var(--bg) !important;
+    border-color: var(--line-strong) !important;
+    color: var(--text) !important;
+}
+
+.gallery-mark {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    border-radius: 3px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.gallery-mark img { width: 100%; height: 100%; object-fit: cover; }
+
+.gallery-mark--large {
+    width: 96px;
+    height: 96px;
+    font-size: 2.2rem;
+    margin: 0 auto 1.2rem;
+}
+
+.gallery-card-name {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.25;
+}
+
+.gallery-card-sub {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+/* Colour rooms */
+.gallery-colour-heading {
+    font-family: "EB Garamond", Georgia, serif;
+    font-weight: 500;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.4rem;
+}
+
+.gallery-colour-section .gallery-lead { text-align: center; margin-bottom: 1.6rem; }
+
+.gallery-colour-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 3rem;
+}
+
+@media (max-width: 640px) {
+    .gallery-colour-grid { grid-template-columns: 1fr; }
+}
+
+.gallery-colour-card {
+    border: 1px solid var(--line);
+    padding: 18px 18px 16px;
+    background: var(--surface);
+}
+
+.gallery-colour-chips { display: flex; gap: 6px; margin-bottom: 10px; }
+
+.gallery-colour-chip {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(17, 17, 16, 0.12);
+}
+
+.gallery-colour-name {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.gallery-colour-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+/* Detail view */
+.gallery-shell--detail { max-width: 38rem; }
+
+.gallery-detail-head { text-align: center; margin-bottom: 1.6rem; }
+
+.gallery-detail-sub {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    margin-top: 0.5rem;
+}
+
+.gallery-detail-desc {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 1.8rem;
+}
+
+.gallery-detail-notes {
+    list-style: none;
+    border-top: 1px solid var(--line);
+    margin-bottom: 1.6rem;
+}
+
+.gallery-detail-notes li {
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.gallery-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 2.4rem;
+}
+
+.gallery-detail-tag {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line-strong);
+    padding: 6px 12px;
+}
+
+.gallery-detail-explore { margin-bottom: 2.4rem; }
+
+.gallery-detail-explore .gallery-colour-heading { margin-bottom: 1rem; }
+
+.gallery-explore-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px !important;
+    margin-bottom: 8px;
+    background: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    min-height: 44px;
+}
+
+.gallery-explore-link:hover,
+.gallery-explore-link:active {
+    background: var(--bg) !important;
+    border-color: var(--line-strong) !important;
+    color: var(--text) !important;
+}
+
+.gallery-explore-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.gallery-explore-intro {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.gallery-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 1rem;
+}
+
+.gallery-hero h1 { max-width: none; }

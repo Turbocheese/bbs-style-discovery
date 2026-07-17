@@ -528,6 +528,37 @@ function diversifyResults(results) {
 
     return diversified;
 }
+// In-store vocabulary -> guide vocabulary. A search for any key also
+// searches its mapped terms, so "blazer" finds the jacket topics even
+// though the guide never uses the word. Keep entries verifiable: every
+// mapped term should actually hit topics (see verify/smoke checks).
+var KEYWORD_SYNONYMS = {
+    blazer: ["jacket", "odd jacket"],
+    sportcoat: ["odd jacket", "jacket"],
+    "sport coat": ["odd jacket", "jacket"],
+    tux: ["dinner jacket", "black tie"],
+    tuxedo: ["dinner jacket", "black tie"],
+    chinos: ["trousers"],
+    slacks: ["trousers"],
+    pants: ["trousers"],
+    waistcoat: ["vest"],
+    trainers: ["sneaker"],
+    handkerchief: ["pocket square"],
+    necktie: ["tie"],
+    "smoking jacket": ["dinner jacket"],
+    "lounge suit": ["suit"],
+};
+
+function expandSearchTerms(term) {
+    var terms = [term];
+    for (var key in KEYWORD_SYNONYMS) {
+        if (term.indexOf(key) !== -1) {
+            terms = terms.concat(KEYWORD_SYNONYMS[key]);
+        }
+    }
+    return terms;
+}
+
 function queryByKeyword(keyword, filters) {
     var allTopics = findAllTopics(guideTree);
     var term = (keyword || "").trim().toLowerCase();
@@ -535,30 +566,33 @@ function queryByKeyword(keyword, filters) {
 
     if (!term) return [];
 
+    var terms = expandSearchTerms(term);
+
     var results = allTopics.filter(function (topic) {
         var title = (topic.title || "").toLowerCase();
         var intro = (topic.intro || "").toLowerCase();
         var tags = (topic.tags || []).join(" ").toLowerCase();
         var metadata = topic.metadata || {};
 
-        // NEW: Search through the actual body paragraphs and headings
-        var sectionMatch = false;
-        if (topic.sections && Array.isArray(topic.sections)) {
-            for (var s = 0; s < topic.sections.length; s++) {
-                var secHeading = (topic.sections[s].heading || "").toLowerCase();
-                var secBody = (topic.sections[s].body || "").toLowerCase();
-                if (secHeading.indexOf(term) !== -1 || secBody.indexOf(term) !== -1) {
-                    sectionMatch = true;
-                    break;
+        var keywordMatch = false;
+        for (var ti = 0; ti < terms.length && !keywordMatch; ti++) {
+            var t = terms[ti];
+            if (title.indexOf(t) !== -1 || intro.indexOf(t) !== -1 || tags.indexOf(t) !== -1) {
+                keywordMatch = true;
+                break;
+            }
+            // Search through the actual body paragraphs and headings
+            if (topic.sections && Array.isArray(topic.sections)) {
+                for (var s = 0; s < topic.sections.length; s++) {
+                    var secHeading = (topic.sections[s].heading || "").toLowerCase();
+                    var secBody = (topic.sections[s].body || "").toLowerCase();
+                    if (secHeading.indexOf(t) !== -1 || secBody.indexOf(t) !== -1) {
+                        keywordMatch = true;
+                        break;
+                    }
                 }
             }
         }
-
-        var keywordMatch =
-            title.indexOf(term) !== -1 ||
-            intro.indexOf(term) !== -1 ||
-            tags.indexOf(term) !== -1 ||
-            sectionMatch;
 
         if (!keywordMatch) return false;
 

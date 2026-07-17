@@ -3274,6 +3274,7 @@ function getFreshState() {
         colourResultKey: null,
         wardrobeChecklist: {},
         visFabricKey: null,
+        galleryKey: null,
     };
 }
 
@@ -3647,6 +3648,20 @@ function renderHome() {
         '<p class="home-card-body">Select a cloth and watch the garment re-render in it, live.</p>' +
         "</div>" +
         '<div class="home-cloth-room-cta">Enter &rarr;</div>' +
+        "</div>" +
+        // Full-width strip: Archetype Gallery entry
+        '<div class="home-cloth-room home-gallery-strip" data-action="archetype-gallery">' +
+        '<div class="home-gallery-monograms" aria-hidden="true">' +
+        '<span class="hgm-tile">RM</span>' +
+        '<span class="hgm-tile">TT</span>' +
+        '<span class="hgm-tile">QC</span>' +
+        "</div>" +
+        '<div class="home-cloth-room-content">' +
+        '<div class="home-card-tag">The Gallery</div>' +
+        '<h2 class="home-cloth-room-title">The Style Archetypes</h2>' +
+        '<p class="home-card-body">Browse all twenty-four style directions and eight colour rooms.</p>' +
+        "</div>" +
+        '<div class="home-cloth-room-cta">Browse &rarr;</div>' +
         "</div>" +
         // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
         '<div class="home-quick-queries">' +
@@ -5263,6 +5278,130 @@ function renderTopic(node) {
 
 
 // ============================================
+// RENDER — ARCHETYPE GALLERY
+// ============================================
+
+// Muted brand-adjacent tints, cycled deterministically by index.
+var GALLERY_TINTS = ["#e9e2d6", "#dde3e6", "#e4e0d3", "#dfe3da", "#e7ddd1", "#dcdfe4", "#e8e1da", "#e2e0d8"];
+
+function getArchetypeInitials(name) {
+    var words = name.replace(/^The /, "").split(" ");
+    var ini = "";
+    for (var i = 0; i < words.length && ini.length < 2; i++) ini += words[i].charAt(0);
+    return ini.toUpperCase();
+}
+
+// The mark tile: shows archetype.galleryImage when real illustrations
+// exist; until then, a serif monogram on a tinted ground.
+function getGalleryMarkHTML(archetype, index, large) {
+    var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
+    if (archetype.galleryImage) {
+        return '<span class="' + cls + '"><img src="' + archetype.galleryImage + '" alt=""></span>';
+    }
+    return (
+        '<span class="' + cls + '" style="background-color: ' +
+        GALLERY_TINTS[index % GALLERY_TINTS.length] +
+        '">' + getArchetypeInitials(archetype.name) + "</span>"
+    );
+}
+
+function renderArchetypeGallery() {
+    var keys = Object.keys(archetypeProfiles);
+
+    if (appState.galleryKey && archetypeProfiles[appState.galleryKey]) {
+        return renderArchetypeDetail(archetypeProfiles[appState.galleryKey], keys.indexOf(appState.galleryKey));
+    }
+
+    var html = '<div class="gallery-shell">';
+    html += '<div class="gallery-hero">';
+    html += '<span class="welcome-kicker">The Archetype Gallery</span>';
+    html += "<h1>Twenty-four ways<br>to dress well.</h1>";
+    html += '<p class="gallery-lead">Every style direction the quiz can land on. Find yours, or browse the rest.</p>';
+    html += "</div>";
+
+    html += '<div class="gallery-grid">';
+    for (var i = 0; i < keys.length; i++) {
+        var a = archetypeProfiles[keys[i]];
+        html += '<button class="gallery-card" type="button" data-action="gallery-open" data-key="' + a.key + '">';
+        html += getGalleryMarkHTML(a, i, false);
+        html += '<span class="gallery-card-name">' + a.name + "</span>";
+        html += '<span class="gallery-card-sub">' + a.sub + "</span>";
+        html += "</button>";
+    }
+    html += "</div>";
+
+    html += '<div class="gallery-colour-section">';
+    html += '<h2 class="gallery-colour-heading">The Colour Rooms</h2>';
+    html += '<p class="gallery-lead">Eight colour directions from the colour quiz.</p>';
+    html += '<div class="gallery-colour-grid">';
+    var cKeys = Object.keys(colourDirectionProfiles);
+    for (var c = 0; c < cKeys.length; c++) {
+        var p = colourDirectionProfiles[cKeys[c]];
+        var chips = "";
+        for (var s = 0; s < p.bestColours.length; s++) {
+            chips += '<span class="gallery-colour-chip" style="background-color: ' + p.bestColours[s].hex + '" title="' + p.bestColours[s].name + '"></span>';
+        }
+        html += '<div class="gallery-colour-card">';
+        html += '<div class="gallery-colour-chips">' + chips + "</div>";
+        html += '<div class="gallery-colour-name">' + p.name + "</div>";
+        html += '<p class="gallery-colour-desc">' + p.desc + "</p>";
+        html += "</div>";
+    }
+    html += "</div></div>";
+
+    html += '<div class="gallery-nav"><button data-action="home">Home</button></div>';
+    html += "</div>";
+    return html;
+}
+
+function renderArchetypeDetail(archetype, index) {
+    var html = '<div class="gallery-shell gallery-shell--detail">';
+    html += '<div class="gallery-detail-head">';
+    html += getGalleryMarkHTML(archetype, index, true);
+    html += '<span class="welcome-kicker">Style Archetype</span>';
+    html += "<h1>" + archetype.name + "</h1>";
+    html += '<p class="gallery-detail-sub">' + archetype.sub + "</p>";
+    html += "</div>";
+
+    html += '<p class="gallery-detail-desc">' + archetype.desc + "</p>";
+
+    if (archetype.notes && archetype.notes.length) {
+        html += '<ul class="gallery-detail-notes">';
+        for (var n = 0; n < archetype.notes.length; n++) {
+            html += "<li>" + archetype.notes[n] + "</li>";
+        }
+        html += "</ul>";
+    }
+
+    if (archetype.tags && archetype.tags.length) {
+        html += '<div class="gallery-detail-tags">';
+        for (var t = 0; t < archetype.tags.length; t++) {
+            html += '<span class="gallery-detail-tag">' + archetype.tags[t] + "</span>";
+        }
+        html += "</div>";
+    }
+
+    var links = getArchetypeExploreLinks(archetype);
+    if (links.length) {
+        html += '<div class="gallery-detail-explore">';
+        html += '<h2 class="gallery-colour-heading">In the Guide</h2>';
+        for (var l = 0; l < links.length; l++) {
+            html += '<button class="gallery-explore-link" type="button" data-action="gallery-explore" data-path="' + links[l].path.join(">") + '">';
+            html += '<span class="gallery-explore-title">' + links[l].title + "</span>";
+            html += '<span class="gallery-explore-intro">' + (links[l].intro || "") + "</span>";
+            html += "</button>";
+        }
+        html += "</div>";
+    }
+
+    html += '<div class="gallery-nav">';
+    html += '<button data-action="gallery-back">&larr; All Archetypes</button>';
+    html += '<button data-action="home">Home</button>';
+    html += "</div></div>";
+    return html;
+}
+
+// ============================================
 // RENDER — MAIN ROUTER
 // ============================================
 
@@ -5312,6 +5451,9 @@ function render(options) {
             break;
         case "fabric-visualiser":
             content = renderFabricVisualiser();
+            break;
+        case "archetype-gallery":
+            content = renderArchetypeGallery();
             break;
         default:
             content = appState.clientName ? renderHome() : renderWelcome();
@@ -5765,6 +5907,23 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "fabric-vis") {
         runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
+    }
+    else if (action === "archetype-gallery") {
+        runMeasureMoment("Unfolding the archetypes…", function () {
+            appState.galleryKey = null;
+            navigate("archetype-gallery");
+        }, 650);
+    }
+    else if (action === "gallery-open") {
+        appState.galleryKey = target.dataset.key;
+        render({ animate: true });
+    }
+    else if (action === "gallery-back") {
+        appState.galleryKey = null;
+        render({ animate: true });
+    }
+    else if (action === "gallery-explore") {
+        navigateGuide(target.dataset.path.split(">"));
     }
     else if (action === "export-dossier") {
         exportClientDossier();
