@@ -586,14 +586,14 @@ button:disabled {
 }
 
 .welcome-hero {
-    margin-bottom: 2.8rem;
+    margin-bottom: 3.4rem;
 }
 
     .welcome-hero h1 {
         font-size: 3.2rem;
         line-height: 1.05;
         letter-spacing: -0.015em;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.4rem;
         max-width: none;
     }
 
@@ -7408,6 +7408,9 @@ button,
     font-size: 0.62rem !important;
     letter-spacing: 0.3em !important;
     text-transform: uppercase !important;
+    /* Breathing room: the kicker was sitting directly on the headline. */
+    display: block;
+    margin-bottom: 1.3rem;
 }
 
 /* ============================================================
