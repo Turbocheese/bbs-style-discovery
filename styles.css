@@ -51,37 +51,6 @@
     --dur-slow: 380ms;
 }
 /* ============================================
-   APP SHELL — FORCE RESTORE
-   ============================================ */
-
-body {
-    font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 16px;
-    line-height: 1.7;
-    color: #111110;
-    background: linear-gradient(160deg, #f5f0e8 0%, #ede6d5 100%);
-    min-height: 100vh;
-    padding: 32px 20px;
-}
-
-#app {
-    max-width: 940px;
-    margin: 0 auto;
-    background: #faf8f4;
-    border: 1px solid rgba(200, 191, 176, 0.4);
-    box-shadow: 0 12px 36px rgba(17, 17, 16, 0.09);
-    padding: 72px 56px;
-    min-height: 86vh;
-    border-radius: 14px;
-    opacity: 1;
-    transition: opacity 0.2s ease;
-}
-
-    #app.is-transitioning {
-        opacity: 0;
-    }
-
-/* ============================================
      BASE
      ============================================ */
 
@@ -2954,9 +2923,13 @@ textarea {
     }
 
     .arch-pref-btn.active {
-        background: #050505;
-        border-color: #050505;
-        color: #f3efe9;
+        /* !important: without it this loses to the later blanket
+           button { background: transparent !important } reset —
+           the same bug that hid the FAB's fill. Selected onboarding
+           choices were rendering as if unselected. */
+        background: #050505 !important;
+        border-color: #050505 !important;
+        color: #f3efe9 !important;
     }
 
 .arch-pref-main {
@@ -3349,13 +3322,6 @@ textarea {
     box-shadow: none;
 }
 
-    .arch-restart:hover {
-        color: var(--text);
-        background: none;
-        box-shadow: none;
-        transform: none;
-    }
-
 /* Guide links section */
 .arch-explore-section {
     max-width: 460px;
@@ -3682,26 +3648,6 @@ textarea {
     margin-bottom: 2.8rem;
 }
 
-.home-brand-mark {
-    font-family: "EB Garamond", Georgia, serif;
-    font-size: 1.6rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text);
-    line-height: 1;
-}
-
-.home-brand-name {
-    font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--soft);
-    padding-left: 12px;
-    border-left: 1px solid rgba(200, 191, 176, 0.5);
-}
-
 /* Hero */
 .home-hero-v2 {
     margin-bottom: 2rem;
@@ -3778,14 +3724,6 @@ textarea {
 .home-card:hover .home-card-watermark {
     opacity: 0.2;
     transform: translateY(-1px);
-}
-
-.home-card-watermark--primary {
-    color: var(--accent);
-}
-
-.home-card-watermark--secondary {
-    color: var(--muted);
 }
 
 /* Content pushes to bottom */
@@ -5228,13 +5166,6 @@ textarea {
 }
 
 /* 2. THE HOME SCREEN TRIAD (Balanced Architecture) */
-.home-card-grid-triad {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 2rem;
-}
-
 .home-card-triad-guide {
     grid-column: 1 / -1; /* Forces the guide to span the entire bottom row */
 }
@@ -5421,13 +5352,6 @@ textarea {
    HOME CARDS — PREMIUM EDITORIAL REDESIGN
    ============================================ */
 
-.home-card-grid-triad {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 2rem;
-}
-
 .home-card {
     border-radius: 12px;
     padding: 22px;
@@ -5458,15 +5382,6 @@ textarea {
     box-shadow: 0 4px 16px rgba(17, 17, 16, 0.04);
 }
 
-    .home-card--primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(17, 17, 16, 0.08);
-    }
-
-.home-card-watermark--primary {
-    color: rgba(17, 17, 16, 0.04);
-}
-
 /* Secondary Cards (Libraries) - Recessed, Soft, Frameless Feel */
 .home-card--secondary {
     background: rgba(255, 255, 255, 0.35);
@@ -5478,10 +5393,6 @@ textarea {
         background: rgba(255, 255, 255, 0.7);
         border-color: rgba(200, 191, 176, 0.9);
     }
-
-.home-card-watermark--secondary {
-    color: rgba(107, 97, 85, 0.08);
-}
 
 /* Typography Overrides */
 .home-card-title {
@@ -5630,10 +5541,6 @@ textarea {
         box-shadow: 0 10px 28px rgba(17, 17, 16, 0.08);
     }
 
-.home-card-watermark--primary {
-    color: rgba(17, 17, 16, 0.08); /* Doubled opacity so icons pop */
-}
-
 /* Secondary Cards (Libraries) - Soft taupe accent */
 .home-card--secondary {
     border: 1px solid rgba(200, 191, 176, 0.6);
@@ -5647,10 +5554,6 @@ textarea {
         border-top-color: rgba(160, 150, 130, 0.8);
         box-shadow: 0 10px 28px rgba(17, 17, 16, 0.06);
     }
-
-.home-card-watermark--secondary {
-    color: rgba(107, 97, 85, 0.09); /* Doubled opacity so icons pop */
-}
 
 /* Typography Overrides */
 .home-card-title {
@@ -5679,16 +5582,6 @@ textarea {
     right: 18px;
     pointer-events: none;
     transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-/* Primary Cards (Consultations) */
-.home-card-watermark--primary {
-    color: rgba(17, 17, 16, 0.25); /* Tripled the opacity */
-}
-
-/* Secondary Cards (Libraries) */
-.home-card-watermark--secondary {
-    color: rgba(107, 97, 85, 0.35); /* Tripled the opacity */
 }
 
 /* Make the icon "wake up" slightly when the card is hovered/tapped */
@@ -7450,62 +7343,70 @@ button,
    BRAND PRECISION PASS — signature + token discipline
    Appended as a final override layer per project convention.
 
-   Signature element, v2 (after founder feedback that v1's floating
-   ticks read as "weird"): a continuous tape-measure ribbon. Each
-   step is a segment printed with ruler ticks; completed/current
-   segments read as the dark, "pulled-out" length of tape, upcoming
-   segments as the pale, still-coiled length. Advancing steps darkens
-   the next segment with a smooth transition — the tape unrolling.
+   Signature element, v4 (after founder feedback that the v3 reel
+   "case" read as an odd square-with-a-circle): just the tape itself
+   — the inch side of the blade, no instrument body. A single
+   continuous strip printed with ruler ticks; the pulled-out length
+   is one absolutely-positioned fill, animated via a plain CSS width
+   transition on every re-render — no animation library needed, this
+   is exactly what CSS transitions are for. A metal end-clip rides
+   the tape's leading edge.
    ============================================================ */
 
-.arch-pips {
+.arch-tape {
     display: flex !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    gap: 2px !important;
-    height: 26px;
-    padding: 0;
-    border: none !important;
-    border-radius: 2px;
-    overflow: hidden;
-    background: var(--surface-2) !important;
-    box-shadow: inset 0 0 0 1px var(--line-strong);
+    align-items: center !important;
+    width: 100% !important;
+    margin-bottom: 2rem !important;
 }
 
-.arch-pip {
-    flex: 1 !important;
-    width: auto !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    background-color: transparent !important;
+.arch-tape-track {
+    position: relative;
+    flex: 1;
+    height: 14px;
+    border-radius: 2px;
+    background-color: var(--surface-2);
     background-image: repeating-linear-gradient(
         90deg,
         var(--line-strong) 0, var(--line-strong) 1px,
-        transparent 1px, transparent 8px
-    ) !important;
-    box-shadow: none !important;
-    transition: background-color var(--dur-slow) var(--ease-out),
-                box-shadow var(--dur-slow) var(--ease-out);
+        transparent 1px, transparent 10px
+    );
+    box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
-.arch-pip.on,
-.arch-pip.cur {
-    background-color: var(--text) !important;
+.arch-tape-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    border-radius: 2px 0 0 2px;
+    background-color: var(--text);
     background-image: repeating-linear-gradient(
         90deg,
-        rgba(244, 240, 232, 0.5) 0, rgba(244, 240, 232, 0.5) 1px,
-        transparent 1px, transparent 8px
-    ) !important;
+        rgba(244, 240, 232, 0.55) 0, rgba(244, 240, 232, 0.55) 1px,
+        transparent 1px, transparent 10px
+    );
+    /* The unroll itself — a plain width transition on the fill,
+       driven by the inline width app.js sets on every render. */
+    transition: width var(--dur-slow) var(--ease-out);
 }
 
-.arch-pip.cur {
-    /* Leading edge of the unrolled tape — a bright seam where the
-       measure is "currently being pulled". */
-    box-shadow: inset 2px 0 0 rgba(244, 240, 232, 0.65) !important;
+.arch-tape-tip {
+    /* metal end-clip riding the leading edge of the pulled tape */
+    position: absolute;
+    right: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 20px;
+    border-radius: 1px;
+    background: var(--text);
+    box-shadow: 0 0 0 1px var(--bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .arch-pip {
+    .arch-tape-fill {
         transition: none;
     }
 }
@@ -7575,7 +7476,7 @@ button,
 .query-btn,
 .vis-swatch,
 .fab,
-.arch-pips {
+.arch-tape {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;

@@ -3682,17 +3682,23 @@ function renderDiscover() {
         helperText = "Adjusted for a wardrobe built around ease.";
     }
 
-    var pipsHTML = '<div class="arch-pips">';
-    for (var p = 0; p < totalSteps; p++) {
-        var pipClass = "arch-pip";
-        if (p < appState.quizStep) {
-            pipClass += " on";
-        } else if (p === appState.quizStep) {
-            pipClass += " cur";
-        }
-        pipsHTML += '<span class="' + pipClass + '"></span>';
-    }
-    pipsHTML += "</div>";
+    var tapePct = Math.max(0, Math.min(100, (appState.quizStep / totalSteps) * 100));
+    var pipsHTML =
+        '<div class="arch-tape" role="progressbar" aria-valuenow="' +
+        (appState.quizStep + 1) +
+        '" aria-valuemin="1" aria-valuemax="' +
+        totalSteps +
+        '" aria-label="Step ' +
+        (appState.quizStep + 1) +
+        " of " +
+        totalSteps +
+        '">' +
+        '<span class="arch-tape-track">' +
+        '<span class="arch-tape-fill" style="width: ' +
+        tapePct +
+        '%"><span class="arch-tape-tip"></span></span>' +
+        "</span>" +
+        "</div>";
 
     var gridHTML = '<div class="arch-grid">';
     for (var i = 0; i < q.opts.length; i++) {
@@ -5964,17 +5970,23 @@ function renderColourDirection() {
     var isLastStep = appState.colourStep === totalSteps - 1;
     var canContinue = currentAnswer !== null && currentAnswer !== undefined;
 
-    var pipsHTML = '<div class="arch-pips">';
-    for (var p = 0; p < totalSteps; p++) {
-        var pipClass = "arch-pip";
-        if (p < appState.colourStep) {
-            pipClass += " on";
-        } else if (p === appState.colourStep) {
-            pipClass += " cur";
-        }
-        pipsHTML += '<span class="' + pipClass + '"></span>';
-    }
-    pipsHTML += "</div>";
+    var tapePct = Math.max(0, Math.min(100, (appState.colourStep / totalSteps) * 100));
+    var pipsHTML =
+        '<div class="arch-tape" role="progressbar" aria-valuenow="' +
+        (appState.colourStep + 1) +
+        '" aria-valuemin="1" aria-valuemax="' +
+        totalSteps +
+        '" aria-label="Step ' +
+        (appState.colourStep + 1) +
+        " of " +
+        totalSteps +
+        '">' +
+        '<span class="arch-tape-track">' +
+        '<span class="arch-tape-fill" style="width: ' +
+        tapePct +
+        '%"><span class="arch-tape-tip"></span></span>' +
+        "</span>" +
+        "</div>";
 
     var optionsHTML = '<div class="arch-grid">';
 
