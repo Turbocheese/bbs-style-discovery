@@ -1703,16 +1703,20 @@ textarea {
     }
 
     .query-btn.primary {
-        background: var(--accent);
-        color: #f8f5ef;
-        border-color: var(--accent);
+        /* !important: the maison button{background:transparent!important}
+           reset was eating this fill, leaving pale text on a pale panel
+           — the Search button was nearly invisible. Same cascade bug
+           as the FAB and onboarding selections. */
+        background: var(--accent) !important;
+        color: #f8f5ef !important;
+        border-color: var(--accent) !important;
         font-weight: 600;
     }
 
         .query-btn.primary:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-            color: #f8f5ef;
+            background: var(--accent-hover) !important;
+            border-color: var(--accent-hover) !important;
+            color: #f8f5ef !important;
         }
 
     .query-btn.is-active {
@@ -1751,7 +1755,12 @@ textarea {
 }
 
 .keyword-search-input {
-    padding-left: 40px;
+    /* This input shares .filter-select with the dropdowns, and that
+       rule sits later in the file — !important so its padding
+       shorthand can't reset the icon clearance, and no select
+       chevron on a text input. */
+    padding-left: 40px !important;
+    background-image: none !important;
     margin-bottom: 10px;
 }
 
@@ -7193,9 +7202,11 @@ button,
     }
 
 .welcome-form-card {
+    /* No box — founder feedback: the bordered card around the name
+       field read as a weird crowding frame. The input's own underline
+       is the only chrome the form needs. */
     background: transparent !important;
-    border: 1px solid var(--line) !important;
-    border-radius: 3px !important;
+    border: none !important;
     box-shadow: none !important;
 }
 
@@ -7343,14 +7354,16 @@ button,
    BRAND PRECISION PASS — signature + token discipline
    Appended as a final override layer per project convention.
 
-   Signature element, v4 (after founder feedback that the v3 reel
-   "case" read as an odd square-with-a-circle): just the tape itself
-   — the inch side of the blade, no instrument body. A single
-   continuous strip printed with ruler ticks; the pulled-out length
-   is one absolutely-positioned fill, animated via a plain CSS width
-   transition on every re-render — no animation library needed, this
-   is exactly what CSS transitions are for. A metal end-clip rides
-   the tape's leading edge.
+   Signature element, v5 (founder: overhead view of the blade with
+   the question numbers printed like inch markings, and some depth
+   so it doesn't read flat): the tape strip carries a printed inch
+   scale — one number per question, minor ticks between — plus a
+   subtle top-sheen/bottom-shade gradient so the blade reads as a
+   slightly curved ribbon rather than a flat bar. One number layer
+   serves both states: white text under mix-blend-mode: difference
+   self-inverts as the dark fill slides beneath it, so the unroll
+   animation (still a plain CSS width transition) sweeps across the
+   numbers. A metal end-clip rides the tape's leading edge.
    ============================================================ */
 
 .arch-tape {
@@ -7363,15 +7376,24 @@ button,
 .arch-tape-track {
     position: relative;
     flex: 1;
-    height: 14px;
-    border-radius: 2px;
-    background-color: var(--surface-2);
-    background-image: repeating-linear-gradient(
-        90deg,
-        var(--line-strong) 0, var(--line-strong) 1px,
-        transparent 1px, transparent 10px
-    );
-    box-shadow: inset 0 0 0 1px var(--line-strong);
+    height: 24px;
+    border-radius: 3px;
+    /* Warm ivory a half-step off the white card, hairline ring, no
+       drop shadow — the unpulled tape recedes into the page instead
+       of reading as a bright steel ruler. */
+    background-color: #f7f4ee;
+    background-image:
+        /* blade curvature: soft sheen along the top edge, faint shade below */
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 40%, rgba(17, 17, 16, 0.04) 100%),
+        /* minor inch ticks, hanging from the top edge like a real blade */
+        repeating-linear-gradient(
+            90deg,
+            rgba(17, 17, 16, 0.12) 0, rgba(17, 17, 16, 0.12) 1px,
+            transparent 1px, transparent 9px
+        );
+    background-size: 100% 100%, 100% 45%;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .arch-tape-fill {
@@ -7380,16 +7402,47 @@ button,
     left: 0;
     bottom: 0;
     width: 0%;
-    border-radius: 2px 0 0 2px;
+    border-radius: 3px 0 0 3px;
     background-color: var(--text);
-    background-image: repeating-linear-gradient(
-        90deg,
-        rgba(244, 240, 232, 0.55) 0, rgba(244, 240, 232, 0.55) 1px,
-        transparent 1px, transparent 10px
-    );
+    background-image:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 45%),
+        repeating-linear-gradient(
+            90deg,
+            rgba(244, 240, 232, 0.5) 0, rgba(244, 240, 232, 0.5) 1px,
+            transparent 1px, transparent 9px
+        );
+    background-size: 100% 100%, 100% 45%;
+    background-repeat: no-repeat;
     /* The unroll itself — a plain width transition on the fill,
        driven by the inline width app.js sets on every render. */
     transition: width var(--dur-slow) var(--ease-out);
+}
+
+/* Printed inch scale: one number per question. White + difference
+   blend self-inverts over whatever is beneath — dark on the pale
+   unpulled tape, pale on the dark pulled tape — so a single layer
+   works and the animated fill edge sweeps visibly across each number. */
+.arch-tape-scale {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    pointer-events: none;
+}
+
+.arch-tape-num {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: #ffffff;
+    mix-blend-mode: difference;
+    opacity: 0.72;
 }
 
 .arch-tape-tip {
@@ -7399,10 +7452,10 @@ button,
     top: 50%;
     transform: translateY(-50%);
     width: 6px;
-    height: 20px;
+    height: 30px;
     border-radius: 1px;
     background: var(--text);
-    box-shadow: 0 0 0 1px var(--bg);
+    box-shadow: 0 0 0 1px var(--bg), 0 1px 3px rgba(17, 17, 16, 0.3);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -7480,4 +7533,27 @@ button,
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+/* --- Panel close: a plain quiet X. The maison FAB-exemption rule
+   earlier gave .toggle-discovery a shadowed circle, which made the
+   tiny X read as a weird floating lozenge in the panel header. --- */
+.toggle-discovery {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+}
+
+.toggle-discovery:hover,
+.toggle-discovery:active {
+    background: transparent !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
 }

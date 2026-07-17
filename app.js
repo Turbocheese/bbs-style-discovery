@@ -3489,7 +3489,7 @@ function renderWelcome() {
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
         "<h1>Your wardrobe,<br>considered.</h1>" +
-        '<p class="welcome-intro">A personal consultation experience designed to help you find your direction in tailoring, cloth, and colour. It takes two minutes. The result lasts.</p>' +
+        '<p class="welcome-intro">A two-minute consultation to find your direction in tailoring, cloth, and colour.</p>' +
         "</div>" +
         '<div class="welcome-form-card">' +
         '<div class="welcome-form">' +
@@ -3497,7 +3497,6 @@ function renderWelcome() {
         '<input id="client-name-input" class="welcome-input" type="text" placeholder="Your first name" value="' +
         (appState.clientName || "") +
         '" autocomplete="given-name" autocorrect="off" spellcheck="false">' +
-        '<p class="welcome-hint">This helps us make the experience feel personal. We do not store or share your name.</p>' +
         "</div>" +
         '<div class="welcome-actions">' +
         '<button class="button-primary" data-action="save-name">Begin the Experience</button>' +
@@ -3683,6 +3682,10 @@ function renderDiscover() {
     }
 
     var tapePct = Math.max(0, Math.min(100, (appState.quizStep / totalSteps) * 100));
+    var tapeNumsHTML = "";
+    for (var tn = 0; tn < totalSteps; tn++) {
+        tapeNumsHTML += '<span class="arch-tape-num">' + (tn + 1) + "</span>";
+    }
     var pipsHTML =
         '<div class="arch-tape" role="progressbar" aria-valuenow="' +
         (appState.quizStep + 1) +
@@ -3697,6 +3700,9 @@ function renderDiscover() {
         '<span class="arch-tape-fill" style="width: ' +
         tapePct +
         '%"><span class="arch-tape-tip"></span></span>' +
+        '<span class="arch-tape-scale">' +
+        tapeNumsHTML +
+        "</span>" +
         "</span>" +
         "</div>";
 
@@ -5971,6 +5977,10 @@ function renderColourDirection() {
     var canContinue = currentAnswer !== null && currentAnswer !== undefined;
 
     var tapePct = Math.max(0, Math.min(100, (appState.colourStep / totalSteps) * 100));
+    var tapeNumsHTML = "";
+    for (var tn = 0; tn < totalSteps; tn++) {
+        tapeNumsHTML += '<span class="arch-tape-num">' + (tn + 1) + "</span>";
+    }
     var pipsHTML =
         '<div class="arch-tape" role="progressbar" aria-valuenow="' +
         (appState.colourStep + 1) +
@@ -5985,6 +5995,9 @@ function renderColourDirection() {
         '<span class="arch-tape-fill" style="width: ' +
         tapePct +
         '%"><span class="arch-tape-tip"></span></span>' +
+        '<span class="arch-tape-scale">' +
+        tapeNumsHTML +
+        "</span>" +
         "</span>" +
         "</div>";
 
