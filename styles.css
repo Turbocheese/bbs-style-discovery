@@ -6837,3 +6837,293 @@ body.has-fab #app {
     .home-cloth-room-cta { width: 100%; }
     .vis-swatch { width: 50px; height: 50px; }
 }
+
+/* ============================================================
+   MAISON LAYER — luxury editorial elevation
+   Print-like restraint: sharp corners, hairline rules instead
+   of card shadows, typography-led hierarchy, generous air.
+   Appended as a final override layer per project convention.
+   ============================================================ */
+
+:root {
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-pill: 0;
+    --shadow-sm: none;
+    --shadow-md: 0 1px 0 rgba(42, 34, 24, 0.06);
+    --shadow-lg: none;
+    --bg: #f2ede4;
+    --surface: #faf8f3;
+    --line: #ddd5c8;
+    --line-strong: #b8ad9c;
+}
+
+/* --- Page frame: flat ivory sheet with a single hairline --- */
+#app {
+    border-radius: 0 !important;
+    border: 1px solid var(--line) !important;
+    box-shadow: none !important;
+    background: var(--surface) !important;
+}
+
+/* --- Global typography: lighter, larger, more air --- */
+h1 {
+    font-weight: 500 !important;
+    letter-spacing: 0.005em;
+}
+
+/* --- Buttons: rectangular, letterspaced, quiet until touched --- */
+button {
+    border-radius: 0 !important;
+    font-size: 0.68rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    padding: 15px 28px !important;
+    background: transparent !important;
+    border: 1px solid var(--line-strong) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease !important;
+}
+
+    button:hover {
+        background: var(--accent) !important;
+        color: #f4f0e8 !important;
+        border-color: var(--accent) !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    button:active:not(.fab):not(.toggle-discovery) {
+        transform: none !important;
+        opacity: 0.85;
+    }
+
+.button-primary {
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+
+    .button-primary:hover {
+        background: var(--accent-hover) !important;
+        border-color: var(--accent-hover) !important;
+    }
+
+button:disabled {
+    background: transparent !important;
+    border-color: var(--line) !important;
+    color: var(--soft) !important;
+}
+
+/* FAB and discovery toggle stay circular — exempt from the flattening */
+.fab,
+.toggle-discovery {
+    border-radius: 50% !important;
+    padding: 0 !important;
+    box-shadow: 0 2px 14px rgba(42, 34, 24, 0.22) !important;
+}
+
+/* Swatches stay circular */
+.vis-swatch,
+.vis-swatch-cloth,
+.vis-swatch::after,
+.hcr-chip,
+.colour-hero-swatch,
+.palette-swatch-circle {
+    border-radius: 50% !important;
+}
+
+/* --- Home: editorial panels, not app cards --- */
+.home-card {
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    border-top: 1px solid var(--line) !important;
+    box-shadow: none !important;
+    padding: 28px 26px !important;
+    transition: background 0.4s ease, border-color 0.4s ease !important;
+}
+
+    .home-card:hover {
+        transform: none !important;
+        background: #ffffff !important;
+        border-color: var(--line-strong) !important;
+        box-shadow: none !important;
+    }
+
+.home-card--primary {
+    border-top: 1px solid var(--line) !important;
+}
+
+.home-card--secondary {
+    border-top: 1px solid var(--line) !important;
+}
+
+.home-card-title {
+    font-weight: 500 !important;
+    font-size: 1.75rem !important;
+}
+
+.home-card-tag {
+    font-weight: 500 !important;
+    letter-spacing: 0.26em !important;
+    color: var(--soft) !important;
+}
+
+.home-card-cta {
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    font-size: 0.62rem !important;
+}
+
+.home-cloth-room {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transition: background 0.4s ease, border-color 0.4s ease !important;
+}
+
+    .home-cloth-room:hover {
+        transform: none !important;
+        background: #ffffff !important;
+        border-color: var(--line-strong) !important;
+        box-shadow: none !important;
+    }
+
+.home-quick-queries {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid var(--line) !important;
+    background: transparent !important;
+}
+
+.quick-query-btn {
+    border: none !important;
+    background: transparent !important;
+    letter-spacing: 0.14em !important;
+}
+
+    .quick-query-btn:hover {
+        background: var(--accent-soft) !important;
+        color: var(--text) !important;
+    }
+
+/* --- Quiz: gallery-plaque options --- */
+.arch-opt {
+    border-radius: 0 !important;
+    border: 1px solid var(--line) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+    .arch-opt:hover {
+        background: #ffffff !important;
+        border-color: var(--line-strong) !important;
+        transform: none !important;
+    }
+
+    .arch-opt.sel {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+    }
+
+/* --- Content blocks flattened to hairline panels --- */
+.topic-spec-sheet,
+.topic-related-card,
+.topic-meta-card,
+.topic-image-editorial,
+.result-card,
+.result-info-card,
+.result-next-card-v2,
+.result-cta-v2-inner,
+.worksheet-item,
+.worksheet-outfit-card,
+.worksheet-rules-card,
+.worksheet-progress-wrap,
+.top-picks-group,
+.lookbook-item,
+.welcome-input,
+.welcome-actions,
+.orientation-notice,
+.vis-stage,
+.vis-info,
+.home-hero-card {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.worksheet-progress-bar,
+.worksheet-progress-fill {
+    border-radius: 0 !important;
+}
+
+.welcome-input,
+textarea {
+    border-radius: 0 !important;
+}
+
+/* Keep a whisper of depth on the two stages that need it */
+.vis-stage {
+    box-shadow: inset 0 0 60px rgba(42, 34, 24, 0.04) !important;
+}
+
+/* --- Hairline dividers gain presence, shadows disappear --- */
+.worksheet-item,
+.topic-related-card,
+.result-next-card-v2 {
+    border: 1px solid var(--line) !important;
+}
+
+    .worksheet-item:hover,
+    .topic-related-card:hover,
+    .result-next-card-v2:hover {
+        transform: none !important;
+        border-color: var(--line-strong) !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+    }
+
+/* --- Maison layer: exemptions and refinements --- */
+
+/* Swatch buttons are pure cloth chips — undo the global button chrome
+   (its padding collapses the 56px chip's content box to zero width) */
+.vis-swatch {
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    min-height: 0 !important;
+}
+
+    .vis-swatch:hover {
+        background: none !important;
+    }
+
+/* Change-client: a whisper of a text link, not a button */
+.home-change-name {
+    border: none !important;
+    background: transparent !important;
+    padding: 6px 4px !important;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.2em !important;
+    color: var(--soft) !important;
+    text-decoration: none !important;
+}
+
+    .home-change-name:hover {
+        background: transparent !important;
+        color: var(--accent) !important;
+    }
+
+/* Watermarks recede further behind the type */
+.home-card-watermark--primary {
+    color: rgba(42, 34, 24, 0.05) !important;
+}
+
+.home-card-watermark--secondary {
+    color: rgba(107, 97, 85, 0.055) !important;
+}

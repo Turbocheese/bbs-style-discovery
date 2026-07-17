@@ -29,8 +29,9 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 
 Do not reorder. Do not move the validation runner.
 
-**Cache busting:** `app.js` is loaded as `app.js?v=N`. When you change `app.js`,
-bump `N` in index.html. (Other files have no version param.)
+**Cache busting:** `app.js` is loaded as `app.js?v=N` and `styles.css` as
+`styles.css?v=N`. When you change either file, bump its `N` in index.html.
+(Other files have no version param.)
 
 **CDN dependency:** html2canvas and jsPDF come from cdnjs at runtime. All export
 code must keep the existing `typeof html2canvas === "undefined"` guards — the app
