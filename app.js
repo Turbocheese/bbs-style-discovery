@@ -4875,7 +4875,18 @@ function exportClientDossier() {
             '<div style="' + serif + ' font-size:38px; margin:14px 0 26px;">' + colourProfile.name + '</div>' +
             '<div style="' + serif + ' font-size:19px; font-style:italic; line-height:1.6; margin-bottom:14px;">' + colourProfile.desc + '</div>' +
             swatchRow("Best Colours", colourProfile.bestColours) +
-            swatchRow("Strong Neutrals", colourProfile.strongNeutrals) +
+            (function () {
+                // Mutually exclusive lists, matching the result card.
+                var seen = {};
+                for (var bi = 0; bi < colourProfile.bestColours.length; bi++) {
+                    seen[colourProfile.bestColours[bi].name] = true;
+                }
+                var uniq = [];
+                for (var ni = 0; ni < colourProfile.strongNeutrals.length; ni++) {
+                    if (!seen[colourProfile.strongNeutrals[ni].name]) uniq.push(colourProfile.strongNeutrals[ni]);
+                }
+                return uniq.length > 0 ? swatchRow("Strong Neutrals", uniq) : "";
+            })() +
             swatchRow("Accent Colours", colourProfile.accentColours) +
             '<hr style="' + hairline + '">' +
             '<div style="' + eyebrow + ' margin-bottom:10px;">Contrast &mdash; ' + colourProfile.contrast + '</div>' +
@@ -5897,8 +5908,22 @@ function renderColourDirectionResult() {
         heroPaletteHTML +
         '<div class="arch-card-section-label">Best On You</div>' +
         renderColourList(profile.bestColours) +
-        '<div class="arch-card-section-label">Strong Neutrals</div>' +
-        renderColourList(profile.strongNeutrals) +
+        // Strong Neutrals minus anything already shown in Best On You —
+        // the raw lists overlap heavily and read as padding. Founder
+        // call: the lists must be mutually exclusive on the card.
+        (function () {
+            var seen = {};
+            for (var bi = 0; bi < profile.bestColours.length; bi++) {
+                seen[profile.bestColours[bi].name] = true;
+            }
+            var uniqueNeutrals = [];
+            for (var ni = 0; ni < profile.strongNeutrals.length; ni++) {
+                if (!seen[profile.strongNeutrals[ni].name]) uniqueNeutrals.push(profile.strongNeutrals[ni]);
+            }
+            return uniqueNeutrals.length > 0
+                ? '<div class="arch-card-section-label">Strong Neutrals</div>' + renderColourList(uniqueNeutrals)
+                : "";
+        })() +
         '<div class="arch-card-section-label">Accent Colours</div>' +
         renderColourList(profile.accentColours) +
         // 🌟 THE NEW GAUNTLET OF BESPOKE INSIGHTS

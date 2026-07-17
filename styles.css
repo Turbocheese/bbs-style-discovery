@@ -4890,6 +4890,26 @@ textarea {
     transform: translateY(0);
 }
 
+/* Touch: hover never fires on the iPad this runs on, so mirror the
+   expand on press — and keep the colour names always readable since
+   a hover-reveal would otherwise never show them. */
+@media (hover: none) {
+    .colour-hero-swatch-name {
+        opacity: 0.85;
+        transform: translateY(0);
+    }
+
+    .colour-hero-palette .colour-hero-swatch:active {
+        flex: 1.8;
+        filter: brightness(1.05);
+        z-index: 2;
+    }
+
+    .colour-hero-swatch:active .colour-hero-swatch-name {
+        opacity: 1;
+    }
+}
+
 @keyframes paletteReveal {
     from {
         opacity: 0;
@@ -4951,6 +4971,14 @@ textarea {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* Bronze accent on the insight icons so they read as deliberate
+   punctuation rather than generic filler glyphs. !important because
+   the icon markup carries an inline color. */
+.bespoke-insight-header svg {
+    color: #9a7b4f !important;
+    flex: none;
 }
 
 .bespoke-insight-title {
@@ -6877,12 +6905,13 @@ button:disabled {
     box-shadow: 0 2px 14px rgba(17, 17, 16, 0.22) !important;
 }
 
-/* Swatches stay circular */
+/* Swatches stay circular — but NOT .colour-hero-swatch: those are
+   flexible bands in the result card's seamless palette ribbon, and
+   50% radius on a 76x110 band renders a distended ellipse. */
 .vis-swatch,
 .vis-swatch-cloth,
 .vis-swatch::after,
 .hcr-chip,
-.colour-hero-swatch,
 .palette-swatch-circle {
     border-radius: 50% !important;
 }
@@ -7587,6 +7616,19 @@ button,
     background: transparent !important;
     color: var(--text) !important;
     box-shadow: none !important;
+}
+
+/* --- Result page headline joins the brand's serif display voice.
+   Everywhere else display type is EB Garamond (welcome, guide);
+   the uppercase grotesque stays on the black shareable card, where
+   it reads as "document" — but the page headline above it should
+   speak like the rest of the app. --- */
+.arch-result-name {
+    font-family: "EB Garamond", Georgia, serif !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: -0.005em !important;
+    font-size: clamp(2rem, 4.5vw, 2.9rem) !important;
 }
 
 /* --- Result card reveal: the payoff moment. Deepens the maison
