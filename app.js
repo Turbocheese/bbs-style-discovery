@@ -4620,7 +4620,10 @@ function renderElementToCanvas(element, options) {
 function fitCanvasToA4Page(pdf, canvas, orientation) {
     var imgWidth = 210;
     var imgHeight = (canvas.height * imgWidth) / canvas.width;
-    var imgData = canvas.toDataURL("image/png");
+    // JPEG, not PNG: these are flat-colour card renders, visually
+    // identical at 0.92 quality but ~20x smaller. PNG here produced
+    // 30-90MB PDFs that no one could email or share to a phone.
+    var imgData = canvas.toDataURL("image/jpeg", 0.92);
 
     var xOffset = 0, yOffset = 0;
     var pageHeight = orientation === "portrait" ? 297 : 210;
@@ -4638,7 +4641,7 @@ function fitCanvasToA4Page(pdf, canvas, orientation) {
         }
     }
 
-    pdf.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+    pdf.addImage(imgData, "JPEG", xOffset, yOffset, imgWidth, imgHeight);
 }
 
 function canvasToPDF(canvas, options) {
@@ -5545,7 +5548,7 @@ document.body.addEventListener("click", function (e) {
         }
         appState.archetypeKey = primaryKey;
 
-        runMeasureMoment("Taking your measure…", function () {
+        runMeasureMoment("Taking your measurements…", function () {
             appState.view = "result";
             render({ animate: true });
         });

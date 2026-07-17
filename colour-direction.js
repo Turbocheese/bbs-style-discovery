@@ -734,7 +734,7 @@ var colourDirectionProfiles = {
         },
         contrastArchitecture: {
             title: "Luminous Anchors",
-            desc: "Most men anchor their outfits with dark colours. You should anchor yours with light. A warm sand jacket over an ivory shirt presents a vibrant, clear silhouette that honors your profile perfectly.",
+            desc: "Most men anchor their outfits with dark colours. You should anchor yours with light. A warm sand jacket over an ivory shirt presents a vibrant, clear silhouette that honours your profile perfectly.",
         },
         hardware: {
             title: "Light & Lively",

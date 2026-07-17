@@ -173,7 +173,7 @@ var wardrobeTemplates = {
                         note: "True navy — your unshakeable anchor",
                     },
                 },
-                why: "Navy is the most versatile color in menswear. Your restrained aesthetic needs this.",
+                why: "Navy is the most versatile colour in menswear. Your restrained aesthetic needs this.",
                 guide: ["colour_wardrobe", "core_colours", "navy"],
             },
             {
@@ -555,7 +555,7 @@ var wardrobeTemplates = {
                 tier: "enhancement",
                 climate: ["all"],
                 paletteGuidance: {
-                    all: { color: "#5D718A", note: "Tonal colors to match trousers" },
+                    all: { color: "#5D718A", note: "Tonal colours to match trousers" },
                 },
                 why: "Replaces the tailored jacket on highly casual days without looking sloppy.",
                 guide: ["tailoring"],
@@ -994,7 +994,7 @@ var wardrobeTemplates = {
                 tier: "enhancement",
                 climate: ["all"],
                 paletteGuidance: {
-                    all: { color: "#5D718A", note: "Tonal colors matching jackets" },
+                    all: { color: "#5D718A", note: "Tonal colours matching jackets" },
                 },
                 why: "A fine-gauge crewneck replaces a shirt effortlessly in your wardrobe.",
                 guide: ["tailoring"],
@@ -1221,7 +1221,7 @@ var wardrobeTemplates = {
                 tier: "enhancement",
                 climate: ["all"],
                 paletteGuidance: {
-                    all: { color: "#B45C39", note: "Pull colors from your jacket weave" },
+                    all: { color: "#B45C39", note: "Pull colours from your jacket weave" },
                 },
                 why: "Pocket squares with complex borders, textured knit ties. The devil is in the details.",
                 guide: ["accessories"],
@@ -1262,7 +1262,7 @@ var wardrobeTemplates = {
                 paletteGuidance: {
                     all: { color: "#D5A19C", note: "Soft pinks, ochres, teals" },
                 },
-                why: "You are one of the few archetypes that can deploy a bright accent color effectively.",
+                why: "You are one of the few archetypes that can deploy a bright accent colour effectively.",
                 guide: ["colour_wardrobe", "texture_vs_colour"],
             },
         ],
@@ -1481,14 +1481,14 @@ var wardrobeTemplates = {
             },
             {
                 id: "h_r2",
-                item: "Heritage color palette",
+                item: "Heritage colour palette",
                 priority: 7,
                 tier: "enhancement",
                 climate: ["all"],
                 paletteGuidance: {
                     "Heritage Browns": { color: "#666A42", note: "Olive, rust, tobacco" },
                 },
-                why: "Deploying historical colors (hunting greens, equestrian browns) in modern city cuts.",
+                why: "Deploying historical colours (hunting greens, equestrian browns) in modern city cuts.",
                 guide: ["colour_wardrobe", "core_colours"],
             },
         ],

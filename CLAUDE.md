@@ -119,12 +119,13 @@ Work is not finished until all of these pass:
 1. **Syntax:** `node --check` on every `.js` file you touched.
 2. **Validator:** load the app and confirm the console shows validation passing with
    zero errors (the inline runner calls `runValidation()` on every load).
-3. **No console errors** on load or during the flows you touched. (Blocked-CDN
-   errors for cdnjs are expected in sandboxed environments — see below.)
-4. **Behavioral check of the actual flow you changed** — drive it in a real browser
-   (Playwright headless is fine), not just a code read. Minimum smoke set when
-   touching app.js: welcome → name → home; style quiz reaches a result; colour quiz
-   reaches a result; worksheet renders.
+3. **No console errors** on load or during the flows you touched.
+4. **Run the committed smoke harness: `node verify/smoke.js`** (see the file
+   header for setup — `npx serve .` + `npm i --no-save playwright`). It covers
+   the full behavioral check automatically: load + validator, all menu entries,
+   both quizzes to result, worksheet, dossier export, offline boot, and fails
+   on any console error or 4xx/5xx response. For flows it doesn't cover, drive
+   them in Playwright yourself.
 5. **If you touched export/share code:** exercise all three paths (style card PDF,
    colour card PDF, worksheet PDF) and native share. In sandboxes that block cdnjs,
    stub `window.html2canvas` and `window.jspdf` via an init script and assert the

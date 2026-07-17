@@ -10,13 +10,9 @@ var lookbookData = [
         season: "Spring / Summer",
         tags: ["Linen", "Earth & Olive", "Soft Tailoring"],
     },
-    {
-        id: "look-02",
-        img: "https://images.unsplash.com/photo-1593030761757-71fae46fa26c?auto=format&fit=crop&q=80&w=800",
-        title: "High-Twist Tropical Worsted",
-        season: "Core Wardrobe",
-        tags: ["Navy", "Crispaire", "Business Attire"],
-    },
+    // look-02 ("High-Twist Tropical Worsted") removed: its Unsplash
+    // hotlink went dead and rendered a broken tile. Restore with a
+    // real BBS asset when campaign photography lands.
     {
         id: "look-03",
         img: "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&q=80&w=800",
@@ -53,7 +49,7 @@ function renderLookbook() {
 
         html += '<div class="lookbook-item">';
         html +=
-            '<img src="' + item.img + '" alt="' + item.title + '" loading="lazy">';
+            '<img src="' + item.img + '" alt="' + item.title + '" loading="lazy" onerror="this.closest(\'.lookbook-item\').style.display=\'none\'">';
         html += '<div class="lookbook-item-overlay">';
         html += '<div class="lookbook-item-season">' + item.season + "</div>";
         html += '<div class="lookbook-item-title">' + item.title + "</div>";
