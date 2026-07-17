@@ -3273,6 +3273,7 @@ function getFreshState() {
         colourAnswersById: {},
         colourResultKey: null,
         wardrobeChecklist: {},
+        visFabricKey: null,
     };
 }
 
@@ -3605,6 +3606,21 @@ function renderHome() {
         '<div class="home-card-cta">View Gallery &rarr;</div>' +
         "</div>" +
         "</div>" +
+        "</div>" +
+        // Full-width atelier strip: Fabric Visualiser entry
+        '<div class="home-cloth-room" data-action="fabric-vis">' +
+        '<div class="home-cloth-room-swatches" aria-hidden="true">' +
+        '<span class="hcr-chip hcr-chip--navy"></span>' +
+        '<span class="hcr-chip hcr-chip--flax"></span>' +
+        '<span class="hcr-chip hcr-chip--charcoal"></span>' +
+        '<span class="hcr-chip hcr-chip--sand"></span>' +
+        "</div>" +
+        '<div class="home-cloth-room-content">' +
+        '<div class="home-card-tag">Atelier Preview</div>' +
+        '<h2 class="home-cloth-room-title">The Cloth Room</h2>' +
+        '<p class="home-card-body">Select a cloth and watch the garment re-render in it, live.</p>' +
+        "</div>" +
+        '<div class="home-cloth-room-cta">Enter &rarr;</div>' +
         "</div>" +
         // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
         '<div class="home-quick-queries">' +
@@ -5047,6 +5063,9 @@ function render(options) {
         case "worksheet": // 🆕 ADD THIS CASE
             content = renderWorksheet();
             break;
+        case "fabric-visualiser":
+            content = renderFabricVisualiser();
+            break;
         default:
             content = appState.clientName ? renderHome() : renderWelcome();
     }
@@ -5445,6 +5464,16 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "export-worksheet") {
         exportWorksheetPDF();
+    }
+    else if (action === "fabric-vis") {
+        navigate("fabric-visualiser");
+    }
+    else if (action === "vis-pick-fabric") {
+        var fabricKey = target.dataset.fabric;
+        if (!fabricKey) return;
+        appState.visFabricKey = fabricKey;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        visApplyFabric(fabricKey);
     }
 });
 
