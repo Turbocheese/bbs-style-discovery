@@ -986,3 +986,75 @@
 
 
 
+
+---
+
+# ADDENDUM — 17–18 July 2026
+
+(This addendum is plain markdown; the historical text above it was damaged by
+an earlier paste — every line carries a stray "# " prefix — but is preserved
+as-is for its content. For current technical truth, CLAUDE.md and
+PROJECT_CONTEXT.md are authoritative.)
+
+## Product reframing
+
+The quizzes are officially a fun, wow-factor experience for customers, NOT a
+consultation. All UI copy now reflects this ("Take the style quiz",
+"Begin the Discovery", "Taking your measurements…"). Service language is out.
+
+## What changed since the last handover
+
+**Design**
+- Brand-exact tokens pulled from benjaminbarkerstudios.com's live theme:
+  ink #111110, cream #eae5dd, taupe #a4a19c, bronze #9a7b4f micro-labels.
+- New signature element: the tape measure. Quiz progress is a numbered tape
+  blade, the worksheet progress bar shares the language, and loading
+  interstitials ("measure moments") animate the tape unrolling.
+- Colour result: palette renders as a seamless ribbon (a circular-swatch
+  rule had distorted it), serif page headlines, Strong Neutrals de-duplicated
+  against Best On You, touch-press swatch expansion.
+- Welcome page decluttered; British-spelling pass across user-facing copy.
+- A recurring cascade bug family was exterminated: a blanket
+  button-transparency reset had silently hidden the FAB fill, onboarding
+  selections, and the panel Search button at various times.
+
+**Kiosk behaviour**
+- Idle attract-reset: 3 minutes untouched wipes the session and returns to
+  welcome. The staff double-tap-logo reset remains.
+- Touch-first pass: 44px targets, press states, no iOS focus-zoom.
+
+**Infrastructure**
+- Fully offline: fonts self-hosted, html2canvas + jsPDF vendored, service
+  worker (sw.js) precaches everything. Deploy note: bump CACHE_VERSION and
+  the ?v= entries in sw.js with every release.
+- Hosted on GitHub Pages: https://turbocheese.github.io/bbs-style-discovery/
+  (HTTPS, offline verified live). Add to Home Screen on the iPad for
+  standalone full-screen mode.
+- PDF exports shrunk ~100x (JPEG instead of PNG): the Client Dossier went
+  from 93MB to under 1MB, now actually shareable.
+- New: Client Dossier multi-page PDF export; the Cloth Room (live fabric
+  visualiser); export buttons show a "Preparing…" busy state.
+
+**Verification (new discipline)**
+- `node verify/smoke.js` — automated full-app smoke (Playwright). Caught a
+  dead lookbook image hotlink and a sitewide favicon 404 on its first runs.
+- `node verify/audit.js` — data health. The "console audit scripts" the old
+  docs referenced never existed in the repo; this replaces them.
+
+## Two honest corrections to the old record
+
+1. **The auto-enrichment script does not exist.** The old docs describe a
+   metadata-inference safety net at the bottom of data.js. It is not in the
+   committed code and apparently never was. Write explicit metadata.
+2. **topic_kind coverage was never 100%.** The audited truth: 181 of 288
+   topics have an explicit topic_kind; 107 (mostly tailoring sub-trees) have
+   none. The app renders fine via fallbacks. Backfill when convenient using
+   METADATA_GOVERNANCE.md's assignment rules; never let the count grow.
+
+## Still blocked on business inputs
+
+1. Staff testing (highest leverage, zero code).
+2. Photography (unlocks the lookbook — currently two placeholder photos, one
+   dead hotlink already removed — plus Cloth Room real renders, topic images).
+3. Product linking (schema ready in PRODUCT_LINKING_SCHEMA.md; needs
+   confirmed SKUs and photography).

@@ -15,13 +15,17 @@ The goal is to keep the discovery engine:
 
 ## Current Coverage State
 
-As of the latest audit:
+As of the 18 July 2026 audit (`node verify/audit.js`):
 - 288 topics total
-- 0 topics with missing metadata
-- 0 topics with missing topic_kind
-- 0 suspicious topic_kind classifications
+- 0 topics with missing metadata objects
+- 0 topics missing core fields (formality + versatility)
+- **107 topics with missing topic_kind** (mostly tailoring sub-trees).
+  Earlier versions of this document claimed 0 — that was never true of the
+  committed code. Rendering falls back gracefully, but backfill per the
+  assignment rules below when touching those topics, and never let the
+  count grow.
 
-Maintain this state. Run audit scripts after any bulk edits.
+Run `node verify/audit.js` after any bulk edits.
 
 ---
 
@@ -37,55 +41,28 @@ Do not add fields or values casually.
 
 ---
 
-## Audit Scripts
+## Audit Script
 
-Two audit scripts exist and should be run after any significant 
-edit to `data.js`:
-
-### Metadata audit
-Checks:
+Run `node verify/audit.js` from the repo root after any significant edit
+to `data.js`. It checks:
 - completely missing metadata objects
-- missing formality field
-- missing versatility field
+- missing formality / versatility fields
+- missing or invalid topic_kind values
+- total topic count (expected 288)
 
-Target output:
-✅ NO MISSING METADATA ✅ NO MISSING CORE FIELDS
-
-
-
-### Topic kind audit
-Checks:
-- missing topic_kind values
-- invalid topic_kind values
-- likely misclassifications based on path
-
-Target output:
-✅ NO MISSING TOPIC KINDS ✅ NO SUSPICIOUS CLASSIFICATIONS
-
-
+(The two "console audit scripts" earlier versions of this document
+described were never committed to the repo; `verify/audit.js` is their
+committed replacement.)
 
 ---
 
-## Auto-Enrichment Script
+## Auto-Enrichment Script — DOES NOT EXIST
 
-A runtime enrichment function exists at the bottom of `data.js`.
-
-It reads topic tags and infers:
-- climate
-- seasonality
-- formality
-- use_cases
-- bbs_signature
-- versatility
-- priority
-- weight
-
-It does NOT override explicitly set metadata values.
-
-It acts as a safety net for future topics that are added without 
-full metadata.
-
-Do not remove this script.
+Earlier versions of this document described a runtime enrichment function
+at the bottom of `data.js` that inferred metadata from tags. **Verified
+July 2026: no such script exists in the committed code** (it was
+apparently a console one-off). There is no metadata safety net — write
+explicit metadata on every new topic.
 
 ---
 
@@ -274,17 +251,17 @@ Do not add placeholder or external URLs to production data.
 3. add metadata using approved vocabulary
 4. set versatility conservatively
 5. set bbs_signature selectively
-6. run both audit scripts
+6. run `node verify/audit.js`
 7. confirm audit passes cleanly
 
 ### When editing existing metadata
 1. check whether the change affects ranking
 2. check whether the change affects query match behavior
 3. confirm vocabulary remains inside approved values
-4. run both audit scripts after editing
+4. run `node verify/audit.js` after editing
 
 ### Recommended audit cadence
-Run both audit scripts:
+Run `node verify/audit.js`:
 - after adding any new topic
 - after bulk metadata edits
 - before any staff demo or testing session
