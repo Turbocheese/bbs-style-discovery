@@ -30,12 +30,16 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 Do not reorder. Do not move the validation runner.
 
 **Cache busting:** `app.js` is loaded as `app.js?v=N` and `styles.css` as
-`styles.css?v=N`. When you change either file, bump its `N` in index.html.
-(Other files have no version param.)
+`styles.css?v=N`. When you change either file, bump its `N` in index.html AND
+update the matching `?v=` entries + `CACHE_VERSION` in `sw.js` — the service
+worker precaches by exact URL, so a mismatched version serves stale files.
+(Other files have no version param but are also precached; bump `CACHE_VERSION`
+whenever any cached file changes.)
 
-**CDN dependency:** html2canvas and jsPDF come from cdnjs at runtime. All export
-code must keep the existing `typeof html2canvas === "undefined"` guards — the app
-must degrade to an alert, never crash, when offline.
+**Dependencies are fully vendored:** html2canvas and jsPDF live in `vendor/`,
+fonts in `fonts/` — no CDN at runtime, and `sw.js` makes the whole app work
+offline. Keep the existing `typeof html2canvas === "undefined"` guards in export
+code anyway — the app must degrade to an alert, never crash.
 
 ## State model
 

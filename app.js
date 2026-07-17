@@ -5345,6 +5345,34 @@ function render(options) {
 }
 
 // ============================================
+// IDLE ATTRACT-RESET (in-store kiosk behaviour)
+// ============================================
+
+// An abandoned iPad should never greet the next customer with the
+// previous client's name and half-finished quiz. After 3 minutes
+// without interaction on any non-welcome screen, wipe the session
+// (same as the staff double-tap-logo reset) and return to welcome.
+var IDLE_RESET_MS = 3 * 60 * 1000;
+var _idleTimer = null;
+
+function _armIdleReset() {
+    clearTimeout(_idleTimer);
+    _idleTimer = setTimeout(function () {
+        if (appState.view === "welcome") return;
+        localStorage.removeItem("bbs_session");
+        appState = getFreshState();
+        render({ animate: true });
+    }, IDLE_RESET_MS);
+}
+
+// pointerdown (not click — the delegated click handler stays the only
+// one, per project rule) covers touch, mouse, and pencil alike.
+["pointerdown", "keydown", "scroll"].forEach(function (evt) {
+    document.addEventListener(evt, _armIdleReset, { passive: true });
+});
+_armIdleReset();
+
+// ============================================
 // CLICK EVENT HANDLER
 // ============================================
 
