@@ -3477,6 +3477,33 @@ function syncFabVisibility() {
     fab.style.display = shouldShow ? "flex" : "none";
     document.body.classList.toggle("has-fab", shouldShow);
 }
+
+// ============================================
+// MEASURE MOMENT — brief quiz-to-result interstitial
+// ============================================
+
+// The one deliberate pause in the app: shown between submitting a
+// consultation and revealing the result, with the tape sweeping to
+// full. Everything else renders instantly on purpose.
+function runMeasureMoment(label, done, ms) {
+    // Default 1500ms plays the full unroll/hold/roll-back cycle
+    // (result reveals); menu entries pass ~650ms so the cut lands
+    // just as the tape finishes unrolling.
+    ms = ms || 1500;
+    var app = document.getElementById("app");
+    if (!app) { done(); return; }
+    // The unroll/roll-back cycle is a CSS keyframe loop (tapeCycle in
+    // styles.css) — no inline width driving needed here.
+    app.innerHTML =
+        '<div class="measure-moment">' +
+        '<span class="welcome-kicker">One Moment</span>' +
+        '<h2 class="measure-moment-title">' + label + "</h2>" +
+        '<div class="arch-tape measure-moment-tape" aria-hidden="true">' +
+        '<span class="arch-tape-track">' +
+        '<span class="arch-tape-fill"><span class="arch-tape-tip"></span></span>' +
+        "</span></div></div>";
+    setTimeout(done, ms);
+}
 // ============================================
 // RENDER WELCOME
 // ============================================
@@ -3489,7 +3516,7 @@ function renderWelcome() {
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
         "<h1>Your wardrobe,<br>considered.</h1>" +
-        '<p class="welcome-intro">A two-minute consultation to find your direction in tailoring, cloth, and colour.</p>' +
+        '<p class="welcome-intro">Two minutes, a few questions &mdash; your personal style, mapped.</p>' +
         "</div>" +
         '<div class="welcome-form-card">' +
         '<div class="welcome-form">' +
@@ -3570,7 +3597,7 @@ function renderHome() {
         "</div>" +
         "</div>" +
         // TOP RIGHT: Colour
-        '<div class="home-card home-card--primary" onclick="navigateColourDirection()">' +
+        '<div class="home-card home-card--primary" data-action="colour-direction">' +
         '<div class="home-card-watermark home-card-watermark--primary">' +
         paletteSVG +
         "</div>" +
@@ -3594,7 +3621,7 @@ function renderHome() {
         "</div>" +
         "</div>" +
         // BOTTOM RIGHT: Lookbook
-        '<div class="home-card home-card--secondary" onclick="navigateLookbook()">' +
+        '<div class="home-card home-card--secondary" data-action="lookbook">' +
         '<div class="home-card-watermark home-card-watermark--secondary">' +
         imageSVG +
         "</div>" +
@@ -4755,7 +4782,7 @@ function exportClientDossier() {
         return;
     }
     if (!appState.archetypeKey) {
-        alert("Complete the Style Direction consultation first.");
+        alert("Complete the Style Direction quiz first.");
         return;
     }
 
@@ -5334,8 +5361,27 @@ document.body.addEventListener("click", function (e) {
 
     var action = target.dataset.action;
 
-    if (action === "discover") { navigateDiscover(); }
-    else if (action === "guide") { navigateGuide([]); }
+    // Export/share buttons: html2canvas+jsPDF genuinely take a beat on
+    // iPad, and the button sitting inert reads as broken. Busy the
+    // button and block double-fires while the export runs.
+    if ((action === "save-card" || action === "share-native" || action === "export-worksheet" || action === "export-dossier") && target.tagName === "BUTTON") {
+        if (target.disabled) return;
+        var busyLabel = target.textContent;
+        target.disabled = true;
+        target.textContent = "Preparing…";
+        // ponytail: fixed restore timer — the export paths share no
+        // done-callback to hook; 4s comfortably covers observed export
+        // time. Wire real completion hooks if exports ever grow slower.
+        setTimeout(function () {
+            target.disabled = false;
+            target.textContent = busyLabel;
+        }, 4000);
+    }
+
+    if (action === "discover") { runMeasureMoment("Sharpening the chalk…", navigateDiscover, 650); }
+    else if (action === "guide") { runMeasureMoment("Opening the guide…", function () { navigateGuide([]); }, 650); }
+    else if (action === "colour-direction") { runMeasureMoment("Preparing the colour room…", navigateColourDirection, 650); }
+    else if (action === "lookbook") { runMeasureMoment("Opening the lookbook…", navigateLookbook, 650); }
     else if (action === "quick-query") {
         var queryType = target.dataset.query;
         var panel = document.getElementById("discovery-panel");
@@ -5460,8 +5506,10 @@ document.body.addEventListener("click", function (e) {
         }
         appState.archetypeKey = primaryKey;
 
-        appState.view = "result";
-        render({ animate: true });
+        runMeasureMoment("Taking your measure…", function () {
+            appState.view = "result";
+            render({ animate: true });
+        });
     }
     else if (action === "colour-pick") {
         var colourIdx = parseInt(target.dataset.index, 10);
@@ -5489,8 +5537,10 @@ document.body.addEventListener("click", function (e) {
             appState.colourStep++;
             render({ animate: false });
         } else {
-            appState.view = "colour-result";
-            render({ animate: true });
+            runMeasureMoment("Reading your colours…", function () {
+                appState.view = "colour-result";
+                render({ animate: true });
+            });
         }
     }
     else if (action === "colour-back") {
@@ -5635,7 +5685,7 @@ document.body.addEventListener("click", function (e) {
         }, 250);
     }
 
-    else if (action === "worksheet") { navigateWorksheet(); }
+    else if (action === "worksheet") { runMeasureMoment("Laying out your wardrobe…", navigateWorksheet, 650); }
     else if (action === "toggle-item") {
         var itemId = target.dataset.itemId;
         if (!itemId) return;
@@ -5672,7 +5722,7 @@ document.body.addEventListener("click", function (e) {
         exportWorksheetPDF();
     }
     else if (action === "fabric-vis") {
-        navigate("fabric-visualiser");
+        runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
     else if (action === "export-dossier") {
         exportClientDossier();

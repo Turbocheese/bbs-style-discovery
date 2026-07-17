@@ -7557,3 +7557,44 @@ button,
     color: var(--text) !important;
     box-shadow: none !important;
 }
+
+/* --- Measure moment: the one deliberate pause (quiz -> result).
+   Centered kicker + serif line, tape sweeping to full beneath. --- */
+.measure-moment {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    text-align: center;
+    animation: maisonRise 0.4s ease both;
+}
+
+.measure-moment-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-weight: 500;
+    font-size: 1.6rem;
+    color: var(--text);
+}
+
+.measure-moment .arch-tape {
+    max-width: 20rem;
+    margin-bottom: 0 !important;
+}
+
+/* Unroll, hold at full for a beat, snap back — one cycle per loop.
+   Replaces a would-be GIF: zero assets, crisp at any DPI, and the
+   global reduced-motion rule stills it automatically. */
+@keyframes tapeCycle {
+    0% { width: 0%; }
+    42% { width: 100%; }
+    58% { width: 100%; }
+    92% { width: 0%; }
+    100% { width: 0%; }
+}
+
+.measure-moment .arch-tape-fill {
+    transition: none;
+    animation: tapeCycle 1.5s var(--ease-standard) infinite;
+}
