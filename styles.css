@@ -126,13 +126,15 @@ h2 {
 }
 
 h1 {
-    font-size: 2.75rem;
+    /* Fluid between phone and tablet/desktop rather than snapping at
+       breakpoints — scales continuously, caps at the old fixed size. */
+    font-size: clamp(1.9rem, 1.3rem + 4vw, 2.75rem);
     margin-bottom: 1rem;
     max-width: 16ch;
 }
 
 h2 {
-    font-size: 1.55rem;
+    font-size: clamp(1.3rem, 1.1rem + 1.5vw, 1.55rem);
     margin-bottom: 0.75rem;
 }
 
@@ -1809,13 +1811,16 @@ textarea {
 
 .filter-select {
     width: 100%;
+    min-height: 44px;
     padding: 11px 14px;
     margin-bottom: 10px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.8);
     font-family: "Manrope", sans-serif;
-    font-size: 0.9rem;
+    /* 16px minimum — anything smaller triggers an automatic zoom-in
+       on focus in iOS Safari, jarring on a touch device. */
+    font-size: 1rem;
     color: var(--text);
     transition: border-color 0.18s ease;
     appearance: none;
@@ -7131,14 +7136,10 @@ textarea {
         color: var(--accent) !important;
     }
 
-/* Watermarks recede further behind the type */
-.home-card-watermark--primary {
-    color: rgba(17, 17, 16, 0.05) !important;
-}
-
-.home-card-watermark--secondary {
-    color: rgba(107, 97, 85, 0.055) !important;
-}
+/* Watermark icons: previously crushed to ~5% opacity here ("recede
+   further behind the type") — too faint to read as icons at all.
+   Left unset so the --primary/--secondary opacity rules above (0.6 /
+   0.45) win instead. */
 
 /* --- Cloth Room: archetype recommendations --- */
 .vis-swatch.reco::before {
@@ -7449,52 +7450,88 @@ button,
    BRAND PRECISION PASS — signature + token discipline
    Appended as a final override layer per project convention.
 
-   Signature element: quiz/worksheet progress reads as a tailor's
-   tape measure — a hairline baseline with rising ticks, alternating
-   major/minor like inch marks, current step as the tallest mark.
-   Drawn from the subject (bespoke tailoring) rather than a generic
-   dot/bar progress indicator.
+   Signature element, v2 (after founder feedback that v1's floating
+   ticks read as "weird"): a continuous tape-measure ribbon. Each
+   step is a segment printed with ruler ticks; completed/current
+   segments read as the dark, "pulled-out" length of tape, upcoming
+   segments as the pale, still-coiled length. Advancing steps darkens
+   the next segment with a smooth transition — the tape unrolling.
    ============================================================ */
 
 .arch-pips {
     display: flex !important;
-    align-items: flex-end !important;
-    justify-content: space-between !important;
-    gap: 0 !important;
-    height: 22px;
-    padding-bottom: 7px;
-    border-bottom: 1px solid var(--line-strong) !important;
-    background: none !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 2px !important;
+    height: 26px;
+    padding: 0;
+    border: none !important;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--surface-2) !important;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
 .arch-pip {
-    flex: none !important;
-    width: 2px !important;
-    height: 8px !important;
+    flex: 1 !important;
+    width: auto !important;
+    height: 100% !important;
     border-radius: 0 !important;
-    background: var(--line-strong) !important;
-    transition: height var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
-}
-
-.arch-pip:nth-child(odd) {
-    height: 13px !important;
-}
-
-.arch-pip.on {
-    height: 16px !important;
-    background: var(--text) !important;
+    background-color: transparent !important;
+    background-image: repeating-linear-gradient(
+        90deg,
+        var(--line-strong) 0, var(--line-strong) 1px,
+        transparent 1px, transparent 8px
+    ) !important;
     box-shadow: none !important;
+    transition: background-color var(--dur-slow) var(--ease-out),
+                box-shadow var(--dur-slow) var(--ease-out);
+}
+
+.arch-pip.on,
+.arch-pip.cur {
+    background-color: var(--text) !important;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(244, 240, 232, 0.5) 0, rgba(244, 240, 232, 0.5) 1px,
+        transparent 1px, transparent 8px
+    ) !important;
 }
 
 .arch-pip.cur {
-    height: 22px !important;
-    width: 2px !important;
-    background: var(--text) !important;
+    /* Leading edge of the unrolled tape — a bright seam where the
+       measure is "currently being pulled". */
+    box-shadow: inset 2px 0 0 rgba(244, 240, 232, 0.65) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .arch-pip {
         transition: none;
+    }
+}
+
+/* --- FAB: restore its solid fill. The maison layer's blanket
+   `button { background: transparent !important }` reset (this file,
+   earlier) silently ate the FAB's --accent background since the
+   original .fab rule wasn't !important — left it looking like an
+   near-invisible outline circle. --- */
+.fab {
+    background: var(--accent) !important;
+    color: #f8f5ef !important;
+}
+
+/* --- Tap feedback: the touch :active state below forced a literal
+   #ffffff fill, which is invisible against the (also white) resting
+   background of these cards — pressing gave no visible feedback.
+   Use the cream page background instead so a press always reads. --- */
+@media (hover: none) {
+    .arch-opt:active,
+    .home-card:active,
+    .home-cloth-room:active,
+    .topic-related-card:active,
+    .worksheet-item:active {
+        background: var(--bg) !important;
+        border-color: var(--line-strong) !important;
     }
 }
 
@@ -7506,7 +7543,40 @@ button,
     .arch-btn-back,
     .arch-btn-home,
     .query-btn,
+    .filter-select,
     button[data-action] {
         min-height: 44px;
     }
+}
+
+/* --- Touch responsiveness: kill the ~300ms tap delay / double-tap-
+   zoom on every interactive control. Native inputs keep default
+   touch-action so text selection/scrolling inside them still works. --- */
+button,
+[data-action],
+.arch-opt,
+.arch-pref-btn,
+.home-card,
+.query-btn,
+.vis-swatch,
+.worksheet-item,
+.fab {
+    touch-action: manipulation;
+}
+
+/* Suppress the iOS press-and-hold callout (copy/select/save-image menu)
+   on interactive chrome — buttons, nav, cards, swatches — without
+   touching real content. Guide/result body copy stays selectable. */
+button,
+[data-action],
+.arch-opt,
+.arch-pref-btn,
+.home-card,
+.query-btn,
+.vis-swatch,
+.fab,
+.arch-pips {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
