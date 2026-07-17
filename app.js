@@ -3652,9 +3652,9 @@ function renderHome() {
         // Full-width strip: Archetype Gallery entry
         '<div class="home-cloth-room home-gallery-strip" data-action="archetype-gallery">' +
         '<div class="home-gallery-monograms" aria-hidden="true">' +
-        '<span class="hgm-tile">RM</span>' +
-        '<span class="hgm-tile">TT</span>' +
-        '<span class="hgm-tile">QC</span>' +
+        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("v") : "RM") + "</span>" +
+        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("g") : "TT") + "</span>" +
+        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("k") : "QC") + "</span>" +
         "</div>" +
         '<div class="home-cloth-room-content">' +
         '<div class="home-card-tag">The Gallery</div>' +
@@ -5291,12 +5291,15 @@ function getArchetypeInitials(name) {
     return ini.toUpperCase();
 }
 
-// The mark tile: shows archetype.galleryImage when real illustrations
-// exist; until then, a serif monogram on a tinted ground.
+// The mark tile: real illustrations (archetype.galleryImage) win, then
+// the SVG avatar busts, then a serif monogram on a tinted ground.
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
-        return '<span class="' + cls + '"><img src="' + archetype.galleryImage + '" alt=""></span>';
+        return '<span class="' + cls + ' gallery-mark--avatar"><img src="' + archetype.galleryImage + '" alt=""></span>';
+    }
+    if (typeof getArchetypeAvatarSVG === "function") {
+        return '<span class="' + cls + ' gallery-mark--avatar">' + getArchetypeAvatarSVG(archetype.key) + "</span>";
     }
     return (
         '<span class="' + cls + '" style="background-color: ' +

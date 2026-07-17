@@ -56,13 +56,14 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `lookbook.js` — lookbook rendering
 - `wardrobe-templates.js` — worksheet templates per archetype
 - `fabric-visualiser.js` — the Cloth Room
+- `archetype-avatars.js` — SVG avatar busts for the Archetype Gallery
 - `app.js` — views, quizzes, worksheet, exports, navigation, kiosk behaviours
 - `sw.js` — service worker (bump CACHE_VERSION on every deploy that changes cached files)
 - `verify/smoke.js` — automated smoke harness
 
 ### Critical script load order
 data.js → validator.js → query.js → discovery-ui.js → colour-direction.js →
-lookbook.js → wardrobe-templates.js → fabric-visualiser.js →
+lookbook.js → wardrobe-templates.js → fabric-visualiser.js → archetype-avatars.js →
 vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js → inline
 validation runner + SW registration. This order is critical and must not change.
 

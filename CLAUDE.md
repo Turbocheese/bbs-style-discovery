@@ -32,10 +32,11 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 6. `lookbook.js` — editorial lookbook
 7. `wardrobe-templates.js` — worksheet templates per archetype
 8. `fabric-visualiser.js` — the Cloth Room (SVG garment re-rendered in tap-selected cloths)
-9. `vendor/html2canvas.min.js` (vendored, was cdnjs)
-10. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
-11. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
-12. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
+9. `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
+10. `vendor/html2canvas.min.js` (vendored, was cdnjs)
+11. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
+12. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
+13. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 
 Do not reorder. Do not move the validation runner.
 
