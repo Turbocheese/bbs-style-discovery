@@ -6,6 +6,37 @@
    ============================================ */
 
 /* ============================================
+   FONTS — self-hosted variable fonts (latin subset)
+   Replaces the Google Fonts CDN link: no fallback-serif flash on
+   cold load, and the type works offline on the in-store iPad.
+   Missing non-latin glyphs fall through to Georgia/system per-glyph.
+   ============================================ */
+
+@font-face {
+    font-family: "EB Garamond";
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url("./fonts/eb-garamond-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "EB Garamond";
+    font-style: italic;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url("./fonts/eb-garamond-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 200 800;
+    font-display: swap;
+    src: url("./fonts/manrope-latin.woff2") format("woff2");
+}
+
+/* ============================================
    RESET & ROOT
    ============================================ */
 
@@ -7556,6 +7587,18 @@ button,
     background: transparent !important;
     color: var(--text) !important;
     box-shadow: none !important;
+}
+
+/* --- Result card reveal: the payoff moment. Deepens the maison
+   maisonRise (16px fade) into a longer rise-and-settle with a hint
+   of scale, timed to start as the measure moment's tape snaps back. --- */
+@keyframes cardReveal {
+    from { opacity: 0; transform: translateY(26px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.arch-card-wrap {
+    animation: cardReveal 0.8s var(--ease-out) 0.35s both;
 }
 
 /* --- Measure moment: the one deliberate pause (quiz -> result).
