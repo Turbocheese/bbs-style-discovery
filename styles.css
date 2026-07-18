@@ -8682,3 +8682,234 @@ button,
 }
 
 .ds-garment-label { bottom: 1px; }
+
+/* ============================================================
+   FLIP CARDS + TASTEFUL 3D
+   Touch-first: no hover dependency, 44px+ targets, transform and
+   opacity only (never layout properties), and every effect is
+   switched off under prefers-reduced-motion.
+   ============================================================ */
+
+.flip-card {
+    position: relative;
+    perspective: 1400px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.flip-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.72s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+
+/* A press dips the card slightly into the page — physical, not bouncy */
+.flip-card:active .flip-card-inner { transform: scale(0.985); }
+.flip-card.flipped:active .flip-card-inner { transform: rotateY(180deg) scale(0.985); }
+
+.flip-card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    border-radius: inherit;
+}
+
+.flip-card-front { transform: rotateY(0deg); }
+.flip-card-back { transform: rotateY(180deg); }
+
+/* The back of a lookbook card: paper, not photograph */
+.lookbook-item .flip-card-back {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.8rem 1.6rem;
+    text-align: center;
+}
+
+.flip-back-eyebrow {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 0.6rem;
+}
+
+.flip-back-title {
+    font-family: "EB Garamond", serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 0.9rem;
+}
+
+.flip-back-note {
+    font-family: "EB Garamond", serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 1.4rem;
+}
+
+.flip-back-link {
+    border: none !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--line-strong) !important;
+    border-radius: 0 !important;
+    padding: 6px 2px !important;
+    min-height: 0 !important;
+    align-self: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.64rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+    cursor: pointer;
+}
+
+/* Quiet affordance so the flip is discoverable without a hover state */
+.flip-hint {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 1px 3px rgba(17, 17, 16, 0.5);
+    pointer-events: none;
+}
+
+.flip-card-back .flip-hint {
+    color: var(--soft);
+    text-shadow: none;
+}
+
+/* Lookbook tiles become flip cards: fixed portrait ratio so both faces
+   occupy the same box (the faces are absolutely positioned). */
+.lookbook-item.flip-card {
+    aspect-ratio: 2 / 3;
+    height: auto;
+}
+
+.lookbook-item .flip-card-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---- Depth on tap for the main card surfaces ---- */
+.home-card,
+.gallery-card,
+.result-next-card-v2,
+.topic-related-card {
+    transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.home-card:active,
+.gallery-card:active,
+.result-next-card-v2:active,
+.topic-related-card:active {
+    transform: scale(0.982);
+}
+
+/* View transitions deliberately left alone: #app already runs a
+   viewFadeIn animation, and an added transform transition on the same
+   property fights it and jitters. */
+
+@media (prefers-reduced-motion: reduce) {
+    .flip-card-inner { transition: none; }
+    .flip-card:active .flip-card-inner,
+    .flip-card.flipped:active .flip-card-inner { transform: none; }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .home-card, .gallery-card, .result-next-card-v2, .topic-related-card { transition: none; }
+    .home-card:active, .gallery-card:active,
+    .result-next-card-v2:active, .topic-related-card:active { transform: none; }
+}
+
+/* Topic flip card: description on the front, the garment on the back */
+.topic-flip {
+    width: 100%;
+    max-width: 22rem;
+    aspect-ratio: 2 / 3;
+    margin: 1.6rem auto 0;
+    border-radius: var(--radius-sm);
+}
+
+.topic-flip-front {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1.7rem;
+    text-align: center;
+}
+
+.topic-flip-eyebrow {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.56rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 0.7rem;
+}
+
+.topic-flip-title {
+    font-family: "EB Garamond", serif;
+    font-size: 1.7rem;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+}
+
+.topic-flip-intro {
+    font-family: "EB Garamond", serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0;
+}
+
+.topic-flip-back { background: var(--ink); }
+
+.topic-flip-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* The turn hint sits over photography of unknown tone — a scrim keeps
+   it legible against a pale studio backdrop as well as a dark one. */
+.lookbook-item .flip-card-front .flip-hint,
+.topic-flip-back .flip-hint {
+    background: rgba(17, 17, 16, 0.55);
+    padding: 4px 8px;
+    border-radius: 2px;
+    color: #fdfcf9;
+    text-shadow: none;
+}
+
+/* .topic-image-editorial (lines ~1588, 2580) is now unused: topic images
+   render through .topic-flip instead. Left in place deliberately — it is
+   the fallback styling if the flip card is ever reverted. */

@@ -4523,6 +4523,7 @@ window.guideTree = {
                                     ],
                                     intro: "A field-inspired jacket with relaxed authority.",
                                     metadata: {
+                                        image_refs: ["images/lookbook/bbs-editorial-037.jpg"],
                                         climate: ["tropical", "warm_climate"],
                                         seasonality: ["year_round"],
                                         formality: ["casual", "smart_casual"],

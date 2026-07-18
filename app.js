@@ -5250,12 +5250,26 @@ function renderTopic(node) {
         node.metadata.image_refs &&
         node.metadata.image_refs.length > 0
     ) {
+        // Flip card: the description is the front, the garment itself is
+        // the back. (Index [0] deliberately — concatenating the array
+        // stringified every entry into one broken src.)
         imageHTML =
-            '<div class="topic-image-editorial"><img src="' +
-            node.metadata.image_refs +
-            '" alt="' +
-            node.title +
-            ' reference image" loading="lazy"></div>';
+            '<div class="flip-card topic-flip" data-action="flip-card" role="button" tabindex="0" aria-label="' +
+            node.title + ' — tap to see it">' +
+            '<div class="flip-card-inner">' +
+            '<div class="flip-card-face flip-card-front topic-flip-front">' +
+            '<div class="topic-flip-eyebrow">See it</div>' +
+            '<div class="topic-flip-title">' + node.title + "</div>" +
+            '<p class="topic-flip-intro">' + (node.intro || "") + "</p>" +
+            '<div class="flip-hint">Tap to turn</div>' +
+            "</div>" +
+            '<div class="flip-card-face flip-card-back topic-flip-back">' +
+            '<img src="' + node.metadata.image_refs[0] + '" alt="' + node.title +
+            '" loading="lazy" onerror="this.closest(\'.flip-card\').style.display=\'none\'">' +
+            '<div class="flip-hint">Tap to turn back</div>' +
+            "</div>" +
+            "</div>" +
+            "</div>";
     }
 
     var topicKindLabel = "";
@@ -6054,6 +6068,13 @@ document.body.addEventListener("click", function (e) {
             render({ animate: false });
         }
     }
+    else if (action === "flip-card") {
+        var card = target.closest(".flip-card");
+        if (!card) return;
+        var nowFlipped = !card.classList.contains("flipped");
+        card.classList.toggle("flipped", nowFlipped);
+        card.setAttribute("aria-pressed", nowFlipped ? "true" : "false");
+    }
     else if (action === "vis-ens-export") {
         exportEnsembleSpec();
     }
@@ -6071,6 +6092,16 @@ document.addEventListener("keydown", function (e) {
     if (appState.view === "welcome" && e.key === "Enter") {
         var input = document.getElementById("client-name-input");
         if (input && input.value.trim()) saveClientName(input.value);
+    }
+
+    // Flip cards are divs (a <button> wrapper fights the maison button
+    // cascade), so they need their own Enter/Space activation.
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        var focused = document.activeElement;
+        if (focused && focused.classList && focused.classList.contains("flip-card")) {
+            e.preventDefault();
+            focused.click();
+        }
     }
 });
 
