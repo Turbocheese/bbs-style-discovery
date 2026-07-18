@@ -9314,33 +9314,24 @@ textarea:focus-visible,
 
 .welcome-portrait {
     position: relative;
-    width: clamp(186px, 28vw, 238px);
-    aspect-ratio: 3 / 4;
+    /* The figures are cut out of their background, so the frame is
+       gone: they are all trimmed to the same height and vary in
+       width, which is why this sizes by height and contains. */
+    height: clamp(240px, 29vh, 340px);
+    width: min(92%, 380px);
     margin: clamp(1.6rem, 4vh, 2.5rem) auto clamp(1.8rem, 4.5vh, 2.8rem);
-    background: #fdf1d3;
-    border: 1px solid rgba(17, 17, 16, 0.07);
-    border-radius: 3px;
-    overflow: hidden;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    box-shadow:
-        0 1px 2px rgba(17, 17, 16, 0.05),
-        0 22px 50px -30px rgba(17, 17, 16, 0.45);
-    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.28, 1),
-                box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.28, 1);
+    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.28, 1);
     animation: welcomeRise 0.75s cubic-bezier(0.22, 0.61, 0.28, 1) 0.05s both;
 }
 
-.welcome-portrait:active {
-    transform: scale(0.985);
-    box-shadow:
-        0 1px 2px rgba(17, 17, 16, 0.06),
-        0 14px 34px -26px rgba(17, 17, 16, 0.5);
-}
+.welcome-portrait:active { transform: scale(0.975); }
 
 .welcome-portrait:focus-visible {
     outline: 2px solid var(--bronze);
-    outline-offset: 4px;
+    outline-offset: 8px;
+    border-radius: 2px;
 }
 
 .welcome-portrait img {
@@ -9348,11 +9339,14 @@ textarea:focus-visible,
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
-    /* slight overscan: a couple of the illustrations carry a faint
-       drawn frame at the very edge */
-    transform: scale(1.03);
+    /* drop-shadow follows the alpha channel, so the shadow wraps the
+       figure itself rather than a box: a tight contact shadow plus a
+       soft ambient one to lift it off the page */
+    filter:
+        drop-shadow(0 2px 2px rgba(17, 17, 16, 0.12))
+        drop-shadow(0 16px 20px rgba(17, 17, 16, 0.16));
 }
 
 /* The incoming portrait is clipped away, then drawn down */
@@ -9471,18 +9465,21 @@ textarea:focus-visible,
 
 /* Landscape iPad is 810px tall: keep the CTA above the fold */
 @media (orientation: landscape) and (max-height: 900px) {
-    .welcome-shell { padding-block: clamp(1rem, 3vh, 1.8rem) clamp(1.2rem, 3vh, 2rem); }
+    .welcome-shell { padding-block: clamp(0.5rem, 1.4vh, 0.9rem) clamp(0.8rem, 2vh, 1.4rem); }
 
     .welcome-portrait {
-        width: clamp(140px, 17vw, 186px);
-        margin: clamp(1rem, 2.4vh, 1.6rem) auto clamp(1.1rem, 2.6vh, 1.8rem);
+        height: clamp(158px, 22vh, 188px);
+        width: min(92%, 300px);
+        margin: clamp(0.6rem, 1.4vh, 1rem) auto clamp(0.7rem, 1.6vh, 1.1rem);
     }
 
-    .welcome-hero { margin-bottom: clamp(0.9rem, 2vh, 1.4rem); }
+    .welcome-hero { margin-bottom: clamp(0.6rem, 1.4vh, 1rem); }
 
-    .welcome-hero h1 { font-size: clamp(1.9rem, 3.8vw, 2.5rem); line-height: 1.08; }
+    .welcome-hero h1 { font-size: clamp(1.8rem, 3.4vw, 2.25rem); line-height: 1.06; margin-bottom: 0.5rem; }
 
-    .welcome-form-card { padding: clamp(1rem, 2vh, 1.4rem) clamp(1.2rem, 2.4vw, 1.7rem); }
+    .welcome-intro { margin-bottom: 0; }
+
+    .welcome-form-card { padding: clamp(0.9rem, 1.8vh, 1.2rem) clamp(1.1rem, 2.2vw, 1.5rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {

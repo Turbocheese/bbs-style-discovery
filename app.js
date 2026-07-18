@@ -3556,7 +3556,7 @@ function getWelcomePortrait() {
     return (
         '<div class="welcome-portrait" data-action="welcome-portrait" data-key="' + key + '"' +
         ' role="button" tabindex="0" aria-label="A style archetype. Tap to see another.">' +
-        '<img src="' + archetypeProfiles[key].galleryImage + '" alt="" decoding="async">' +
+        '<img src="images/archetypes/cutout/' + key + '.webp" alt="" decoding="async">' +
         "</div>"
     );
 }
@@ -3577,7 +3577,7 @@ function swapWelcomePortrait(el) {
     incoming.className = "welcome-portrait-incoming";
     incoming.alt = "";
     incoming.decoding = "async";
-    incoming.src = archetypeProfiles[key].galleryImage;
+    incoming.src = "images/archetypes/cutout/" + key + ".webp";
 
     var reduced = window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
