@@ -8099,7 +8099,7 @@ button,
 
 /* Mode toggle: a text link, not a button (undo global button chrome —
    same pattern as .home-change-name) */
-.vis-compare-toggle {
+.vis-mode-toggle {
     border: none !important;
     border-bottom: 1px solid var(--line-strong) !important;
     border-radius: 0 !important;
@@ -8115,7 +8115,7 @@ button,
     cursor: pointer;
 }
 
-.vis-compare-toggle:hover {
+.vis-mode-toggle:hover {
     background: transparent !important;
     border-color: var(--accent) !important;
 }
@@ -8494,3 +8494,191 @@ button,
     stroke-width: 4px;
     stroke-linejoin: round;
 }
+
+/* ============================================================
+   CLOTH ROOM — ENSEMBLE MODE ("Design an outfit")
+   Flat-lay stage (jacket | vest + trousers), garment tabs,
+   shared swatch language from the Cloth Room, jacket style menu.
+   ============================================================ */
+
+.vis-mode-toggles {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ds-stage {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 30rem;
+    background: radial-gradient(ellipse 80% 65% at 50% 40%, #ffffff 0%, #f4efe7 58%, #eae3d7 100%);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px;
+    box-shadow: var(--shadow-warm);
+}
+
+.ds-stage-left { flex: 1.35; min-width: 0; }
+
+.ds-stage-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ds-garment {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    .ds-garment.active {
+        border-color: var(--bronze);
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+.ds-garment--jacket { aspect-ratio: 440 / 540; }
+.ds-garment--vest { aspect-ratio: 440 / 360; }
+.ds-garment--trousers { aspect-ratio: 440 / 440; }
+
+.ds-garment .ds-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.ds-fabric-layer {
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    background-size: 48px 48px;
+}
+
+.ds-garment .ds-shading {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+
+.ds-garment-label {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--soft);
+    pointer-events: none;
+}
+
+.ds-garment.active .ds-garment-label { color: var(--bronze); }
+
+.ds-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 1.6rem 0 0.2rem;
+}
+
+.ds-tab {
+    padding: 10px 20px !important;
+    font-size: 0.62rem !important;
+}
+
+    .ds-tab.sel {
+        background: var(--accent) !important;
+        color: #f4f0e8 !important;
+        border-color: var(--accent) !important;
+    }
+
+.ds-swatch-tray { margin: 1.2rem 0 0.6rem; }
+
+.ds-style-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0.6rem 0 0.4rem;
+    align-items: center;
+}
+
+.ds-style-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ds-style-opt {
+    padding: 9px 16px !important;
+    font-size: 0.56rem !important;
+    letter-spacing: 0.14em !important;
+}
+
+    .ds-style-opt.sel {
+        background: var(--accent) !important;
+        color: #f4f0e8 !important;
+        border-color: var(--accent) !important;
+    }
+
+.ds-selected-cloth {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0.8rem 0 0.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ds-selected-name {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text);
+}
+
+.ds-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.2rem;
+}
+
+.ds-shell .vis-eyebrow { animation: maisonRise 0.5s ease 0.02s both; }
+.ds-stage { animation: maisonRise 0.55s ease 0.12s both; }
+.ds-tabs { animation: maisonRise 0.5s ease 0.22s both; }
+
+@media (max-width: 430px) {
+    .ds-stage { padding: 10px; gap: 8px; }
+    .ds-tab { padding: 10px 14px !important; }
+}
+
+/* Ensemble: reserve a caption strip at the foot of each garment box.
+   The vest and trouser art fills its box to the hem, so a label pinned
+   to the bottom sat on the artwork (the jacket's viewBox has slack).
+   Height must be an explicit calc, not auto: an SVG with width:100%
+   and height:auto sizes from its own viewBox ratio and ignores the
+   top/bottom stretch. */
+.ds-garment .ds-fabric-layer,
+.ds-garment .ds-overlay,
+.ds-garment .ds-shading {
+    bottom: 15px;
+    height: calc(100% - 15px);
+}
+
+.ds-garment-label { bottom: 1px; }

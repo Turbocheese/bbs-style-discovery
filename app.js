@@ -3277,6 +3277,8 @@ function getFreshState() {
         visFabricKeyB: null,
         visCompare: false,
         visCompareSide: "b",
+        visEnsemble: false,
+        visEnsembleState: null,
         galleryKey: null,
     };
 }
@@ -5571,7 +5573,7 @@ document.body.addEventListener("click", function (e) {
     // Export/share buttons: html2canvas+jsPDF genuinely take a beat on
     // iPad, and the button sitting inert reads as broken. Busy the
     // button and block double-fires while the export runs.
-    if ((action === "save-card" || action === "share-native" || action === "export-worksheet" || action === "export-dossier") && target.tagName === "BUTTON") {
+    if ((action === "save-card" || action === "share-native" || action === "export-worksheet" || action === "export-dossier" || action === "vis-ens-export" || action === "vis-ens-share") && target.tagName === "BUTTON") {
         if (target.disabled) return;
         var busyLabel = target.textContent;
         target.disabled = true;
@@ -5965,6 +5967,7 @@ document.body.addEventListener("click", function (e) {
     else if (action === "map-see-cloth") {
         appState.visFabricKey = target.dataset.fabric;
         appState.visCompare = false;
+        appState.visEnsemble = false;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
@@ -5985,7 +5988,10 @@ document.body.addEventListener("click", function (e) {
     else if (action === "vis-pick-fabric") {
         var fabricKey = target.dataset.fabric;
         if (!fabricKey) return;
-        if (appState.visCompare) {
+        if (appState.visEnsemble) {
+            visEnsApplyFabric(fabricKey);
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+        } else if (appState.visCompare) {
             var pickSide = appState.visCompareSide === "a" ? "a" : "b";
             if (pickSide === "a") appState.visFabricKey = fabricKey;
             else appState.visFabricKeyB = fabricKey;
@@ -6000,6 +6006,7 @@ document.body.addEventListener("click", function (e) {
     else if (action === "vis-compare-toggle") {
         appState.visCompare = !appState.visCompare;
         if (appState.visCompare) {
+            appState.visEnsemble = false;
             // Solidify both sides so partial updates always have keys.
             var visReco = getRecommendedFabricKeys();
             if (!appState.visFabricKey) {
@@ -6019,6 +6026,39 @@ document.body.addEventListener("click", function (e) {
             localStorage.setItem("bbs_session", JSON.stringify(appState));
             visSetCompareSide(appState.visCompareSide);
         }
+    }
+    else if (action === "vis-ensemble-toggle") {
+        appState.visEnsemble = !appState.visEnsemble;
+        if (appState.visEnsemble) appState.visCompare = false;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render({ animate: true });
+    }
+    else if (action === "vis-ens-garment") {
+        var ensGarment = target.dataset.garment;
+        if (!ensGarment) return;
+        var ensState = getVisEnsembleState();
+        if (ensState.activeGarment !== ensGarment) {
+            ensState.activeGarment = ensGarment;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            render({ animate: false });
+        }
+    }
+    else if (action === "vis-ens-style") {
+        var ensGroup = target.dataset.group;
+        var ensValue = target.dataset.value;
+        if (!ensGroup || !ensValue) return;
+        var ensState2 = getVisEnsembleState();
+        if (ensState2.style[ensGroup] !== ensValue) {
+            ensState2.style[ensGroup] = ensValue;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            render({ animate: false });
+        }
+    }
+    else if (action === "vis-ens-export") {
+        exportEnsembleSpec();
+    }
+    else if (action === "vis-ens-share") {
+        shareEnsemble(target.closest("button"));
     }
 });
 

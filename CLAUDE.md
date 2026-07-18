@@ -31,7 +31,7 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 5. `colour-direction.js` — colour quiz data/scoring (separate feature by design)
 6. `lookbook.js` — editorial lookbook
 7. `wardrobe-templates.js` — worksheet templates per archetype
-8. `fabric-visualiser.js` — the Cloth Room (SVG garment re-rendered in tap-selected cloths, plus a two-cloth side-by-side compare mode)
+8. `fabric-visualiser.js` — the Cloth Room. Three mutually exclusive modes off one view: single cloth, two-cloth compare, and ensemble (three-piece flat-lay with per-garment cloths + jacket styling, exports a Design Spec PDF). Mode flags live in `appState` (`visCompare`, `visEnsemble`) and `renderFabricVisualiser()` routes on them — keep them mutually exclusive when adding a mode.
 9. `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
 10. `mill-map.js` — the Mill Map ("Provenance Chart"). Coastlines in `MAP_COASTS` are **generated**, not hand-drawn: Natural Earth 50m land polygons (public domain), clipped to the chart bbox and Douglas-Peucker simplified. Regenerate with `tools/make-coasts.js` (see its header) if the bbox changes — do not hand-edit the coordinate arrays.
 11. `vendor/html2canvas.min.js` (vendored, was cdnjs)

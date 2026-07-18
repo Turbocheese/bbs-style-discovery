@@ -19,7 +19,9 @@ It is a fully operational product with:
 - a structured menswear guide: 312 topics across six sections
 - metadata-backed search, filtering, and ranked explainable discovery
 - the Cloth Room: an SVG garment re-rendered live in tap-selected cloths,
-  with a two-cloth side-by-side compare mode for at-the-rack decisions
+  with a two-cloth side-by-side compare mode for at-the-rack decisions and
+  an ensemble mode (jacket/vest/trousers, each cloth-swappable, with jacket
+  closure/lapel/pocket options and a Design Spec PDF export)
 - the Mill Map ("Provenance Chart"): a geographically accurate SVG chart of
   Europe and the Mediterranean (Natural Earth 50m coastlines) with a tappable
   marker for all 40 houses in Cloth Origins, district charts for West
