@@ -9349,19 +9349,31 @@ textarea:focus-visible,
         drop-shadow(0 16px 20px rgba(17, 17, 16, 0.16));
 }
 
-/* The incoming portrait is clipped away, then drawn down */
-.welcome-portrait-incoming {
+/* The swap: the figure clears, then the new one draws in from the top.
+   One <img> the whole way through, so two figures can never stack. */
+.welcome-portrait img {
+    transition: opacity 0.22s ease;
+}
+
+.welcome-portrait.is-clearing img {
+    opacity: 0;
+}
+
+/* new source is in place, clipped to nothing and fully opaque */
+.welcome-portrait.is-drawing img {
+    opacity: 1;
+    transition: none;
     clip-path: inset(0 0 100% 0);
-    z-index: 2;
 }
 
-.is-revealing .welcome-portrait-incoming {
+/* ...then drawn down */
+.welcome-portrait.is-drawn img {
     clip-path: inset(0 0 0 0);
-    transition: clip-path 0.85s cubic-bezier(0.65, 0, 0.2, 1);
+    transition: clip-path 0.72s cubic-bezier(0.62, 0, 0.2, 1);
 }
 
-/* A 1.5px bronze band on a full-height layer, so translateY(100%)
-   walks the line the whole way down the frame */
+/* A fine bronze edge rides the draw — the tape-blade cue used
+   elsewhere in the app */
 .welcome-portrait::after {
     content: "";
     position: absolute;
@@ -9376,14 +9388,14 @@ textarea:focus-visible,
     pointer-events: none;
 }
 
-.is-revealing::after {
-    animation: wwEdge 0.85s cubic-bezier(0.65, 0, 0.2, 1);
+.welcome-portrait.is-drawn::after {
+    animation: wpDraw 0.72s cubic-bezier(0.62, 0, 0.2, 1);
 }
 
-@keyframes wwEdge {
+@keyframes wpDraw {
     0%   { opacity: 0; transform: translateY(0); }
-    10%  { opacity: 0.85; }
-    90%  { opacity: 0.85; }
+    12%  { opacity: 0.8; }
+    88%  { opacity: 0.8; }
     100% { opacity: 0; transform: translateY(100%); }
 }
 
@@ -9493,8 +9505,9 @@ textarea:focus-visible,
     .welcome-form-card,
     .welcome-form::after,
     .welcome-form::before { transition: none; }
-    .is-revealing .welcome-portrait-incoming { transition: none; }
-    .is-revealing::after { animation: none; }
+    .welcome-portrait img { transition: none; }
+    .welcome-portrait.is-drawn img { transition: none; }
+    .welcome-portrait.is-drawn::after { animation: none; }
 }
 
 /* --- Welcome portrait: centred in its band, and larger -------------

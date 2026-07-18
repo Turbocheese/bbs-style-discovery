@@ -3565,69 +3565,79 @@ function getWelcomePortrait() {
     );
 }
 
-// Swap to a different archetype, revealed top-to-bottom behind a fine
-// bronze edge — the same cue the tape blade uses elsewhere.
+// Swap to a different archetype. The current figure is cleared first,
+// then the new one draws itself in from the top — an ink line coming
+// down the page. Deliberately sequential: it reuses the single <img>
+// element, so two figures can never be on screen at once.
 function swapWelcomePortrait(el) {
     if (!el || el.classList.contains("is-swapping")) return;
+    var img = el.querySelector("img");
+    if (!img) return;
+
     var keys = getWelcomePortraitKeys();
     var current = el.getAttribute("data-key");
     var pool = keys.filter(function (k) { return k !== current; });
     if (!pool.length) return;
     var key = pool[Math.floor(Math.random() * pool.length)];
 
-    el.classList.add("is-swapping");
-
-    var incoming = document.createElement("img");
-    incoming.className = "welcome-portrait-incoming";
-    incoming.alt = "";
-    incoming.decoding = "async";
-    incoming.src = "images/archetypes/cutout/" + key + ".webp";
-
     var reduced = window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    var finished = false;
+    el.classList.add("is-swapping");
 
-    function run() {
-        el.appendChild(incoming);
+    // Decode first: the draw-in must never expose a half-loaded figure
+    var next = new Image();
+    next.decoding = "async";
+    next.src = getArchetypeCutout(key);
+
+    function ready() {
         if (reduced) {
-            finish();
+            img.src = next.src;
+            el.setAttribute("data-key", key);
+            el.classList.remove("is-swapping");
             return;
         }
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () { el.classList.add("is-revealing"); });
-        });
-        // Driven by the transition itself, not a fixed timer: on a busy
-        // frame the wipe can start late, and tearing the old image out
-        // on a timer then flashes it for a moment mid-reveal.
-        incoming.addEventListener("transitionend", function onEnd(e) {
-            if (e.propertyName !== "clip-path") return;
-            incoming.removeEventListener("transitionend", onEnd);
-            finish();
-        });
-        // Fallback in case the transition never fires (e.g. the tab is
-        // backgrounded part-way through)
-        setTimeout(finish, 2000);
-    }
 
-    function finish() {
-        if (finished) return;
-        finished = true;
-        // Promote the incoming image to the base layer BEFORE removing
-        // the outgoing one, so there is never a frame with neither.
-        incoming.className = "";
-        el.setAttribute("data-key", key);
-        el.classList.remove("is-swapping", "is-revealing");
-        var imgs = el.querySelectorAll("img");
-        for (var i = 0; i < imgs.length; i++) {
-            if (imgs[i] !== incoming) imgs[i].remove();
+        var cleared = false;
+        function onCleared(e) {
+            if (e && e.propertyName !== "opacity") return;
+            if (cleared) return;
+            cleared = true;
+            img.removeEventListener("transitionend", onCleared);
+
+            // Old figure is fully gone before the new source is set
+            img.src = next.src;
+            el.setAttribute("data-key", key);
+            el.classList.add("is-drawing");   // clipped to nothing, opaque
+            el.classList.remove("is-clearing");
+
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    el.classList.add("is-drawn");   // runs the reveal
+                });
+            });
+
+            var done = false;
+            function finish(ev) {
+                if (ev && ev.propertyName !== "clip-path") return;
+                if (done) return;
+                done = true;
+                img.removeEventListener("transitionend", finish);
+                el.classList.remove("is-drawing", "is-drawn", "is-swapping");
+            }
+            img.addEventListener("transitionend", finish);
+            setTimeout(finish, 1600);
         }
+
+        img.addEventListener("transitionend", onCleared);
+        setTimeout(onCleared, 600);
+        requestAnimationFrame(function () { el.classList.add("is-clearing"); });
     }
 
-    // Decode before revealing, so the wipe never uncovers a blank frame
-    if (incoming.decode) incoming.decode().then(run).catch(run);
-    else { incoming.onload = run; incoming.onerror = function () { el.classList.remove("is-swapping"); }; }
+    if (next.decode) next.decode().then(ready).catch(ready);
+    else { next.onload = ready; next.onerror = function () { el.classList.remove("is-swapping"); }; }
 }
+
 
 function renderWelcome() {
     return (
