@@ -16,15 +16,15 @@ It is a fully operational product with:
 - premium result cards for both, with PDF export and native PNG sharing
 - a Client Dossier multi-page PDF export
 - a wardrobe worksheet tied to the style result (checklist, progress, exports)
-- a structured menswear guide: 297 topics across six sections
+- a structured menswear guide: 312 topics across six sections
 - metadata-backed search, filtering, and ranked explainable discovery
 - the Cloth Room: an SVG garment re-rendered live in tap-selected cloths,
   with a two-cloth side-by-side compare mode for at-the-rack decisions
-- the Mill Map ("Provenance Chart"): a stylised SVG chart of Europe and the
-  Mediterranean with a tappable marker for every house in Cloth Origins,
-  district charts for West Yorkshire and Northern Italy, region filters, a
-  Singapore home inset (Officine Paladino), and cross-links to/from the
-  Cloth Room
+- the Mill Map ("Provenance Chart"): a geographically accurate SVG chart of
+  Europe and the Mediterranean (Natural Earth 50m coastlines) with a tappable
+  marker for all 40 houses in Cloth Origins, district charts for West
+  Yorkshire (8) and Northern Italy (18), region filters, a Singapore home
+  inset (Officine Paladino), and cross-links to/from the Cloth Room
 - an editorial lookbook (placeholder imagery, pending photography)
 - full offline operation via a service worker, with all dependencies vendored
 - kiosk behaviours: idle attract-reset, staff double-tap-logo reset,
@@ -63,7 +63,8 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `wardrobe-templates.js` — worksheet templates per archetype
 - `fabric-visualiser.js` — the Cloth Room
 - `archetype-avatars.js` — SVG avatar busts for the Archetype Gallery
-- `mill-map.js` — the Mill Map (pin data, chart SVG builders, partial updates)
+- `mill-map.js` — the Mill Map (generated Natural Earth coastlines, pin data,
+  chart SVG builders, district de-overlap relaxation, partial updates)
 - `app.js` — views, quizzes, worksheet, exports, navigation, kiosk behaviours
 - `sw.js` — service worker (bump CACHE_VERSION on every deploy that changes cached files)
 - `verify/smoke.js` — automated smoke harness
@@ -79,7 +80,7 @@ inline validation runner + SW registration. This order is critical and must not 
 Four layers:
 
 **1. Content layer (data.js)** — nested JS object tree, two node types
-(group/topic), 297 topics across six top-level sections (About BBS, Tailoring,
+(group/topic), 312 topics across six top-level sections (About BBS, Tailoring,
 Fabrics, Colour and Wardrobe, Cloth Origins and Mills, Accessories). Every
 topic has explicit `topic_kind`, tags, intro, metadata, sections.
 Note: the "auto-enrichment script at the bottom of data.js" described in older
@@ -115,12 +116,14 @@ measure-moment loading interstitial, and kiosk behaviours.
 
 ## 5. Data State
 
-- 297 topics; 0 missing metadata objects; 0 missing core fields (audited
+- 312 topics; 0 missing metadata objects; 0 missing core fields (audited
   18 July 2026 via `node verify/audit.js`).
-- **topic_kind: 199 of 297 topics have it explicitly; 98 (mostly tailoring
+- **topic_kind: 214 of 312 topics have it explicitly; 98 (all tailoring
   sub-trees) do not.** All cloth_origins topics are covered (backfilled July
   2026). Rendering falls back gracefully, but backfill the rest per
   METADATA_GOVERNANCE.md when touching those topics.
+- Cloth Origins now spans 40 houses across England, Scotland, Ireland, France,
+  Italy, Switzerland, Turkey, Egypt and Singapore.
 - topic_kind values: garment, garment_detail, fabric, fabric_reference,
   wardrobe_strategy, brand_philosophy, guide.
 - Image pipeline: `image_refs` renders with graceful fallback; photography pending.

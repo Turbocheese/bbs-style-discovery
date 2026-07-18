@@ -8478,3 +8478,19 @@ button,
     stroke-width: 3.5px;
     stroke-linejoin: round;
 }
+
+/* District chart: hairline from a relaxed pin back to its true spot */
+.map-leader {
+    stroke: rgba(17, 17, 16, 0.22);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+}
+
+/* District town labels sit under the pins — give them a halo so a
+   pin label landing nearby stays legible */
+.map-place-label--town {
+    paint-order: stroke;
+    stroke: #f5f1e8;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}

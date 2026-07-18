@@ -7,7 +7,7 @@
 //   node verify/audit.js
 //
 // Targets: 0 missing metadata, 0 missing core fields, 0 missing or
-// invalid topic_kind, total topics = 297.
+// invalid topic_kind, total topics = 312.
 
 // data.js's final line references `guideTree` bare, which in a browser
 // resolves through window's global scope — so window must BE the global
@@ -56,12 +56,12 @@ function report(label, arr) {
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
 }
 
-console.log("Total topics scanned: " + topics.length + (topics.length === 297 ? "  (expected 297: PASS)" : "  (EXPECTED 297: FAIL)"));
+console.log("Total topics scanned: " + topics.length + (topics.length === 312 ? "  (expected 312: PASS)" : "  (EXPECTED 312: FAIL)"));
 report("no missing metadata objects", missingMeta);
 report("no missing core fields (formality + versatility)", missingCore);
 report("no missing topic_kind", missingKind);
 report("no invalid topic_kind values", invalidKind);
 
-var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 297 ? 0 : 1);
+var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1);
 console.log(failed === 0 ? "\nAUDIT: ALL GREEN" : "\nAUDIT: FAILURES PRESENT");
 process.exit(failed === 0 ? 0 : 1);

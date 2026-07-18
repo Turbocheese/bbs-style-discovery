@@ -16,7 +16,7 @@ The goal is to keep the discovery engine:
 ## Current Coverage State
 
 As of the 18 July 2026 audit (`node verify/audit.js`):
-- 297 topics total (288 + 9 mill/merchant topics added with the Mill Map)
+- 312 topics total (288 + 24 mill/merchant topics added with the Mill Map)
 - 0 topics with missing metadata objects
 - 0 topics missing core fields (formality + versatility)
 - **98 topics with missing topic_kind** (mostly tailoring sub-trees).
@@ -49,7 +49,7 @@ to `data.js`. It checks:
 - completely missing metadata objects
 - missing formality / versatility fields
 - missing or invalid topic_kind values
-- total topic count (expected 297)
+- total topic count (expected 312)
 
 (The two "console audit scripts" earlier versions of this document
 described were never committed to the repo; `verify/audit.js` is their
