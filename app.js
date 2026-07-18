@@ -15,6 +15,7 @@ var BBS_LOGO =
 var archetypeProfiles = {
     v: {
         key: "v",
+        galleryImage: "images/archetypes/v.jpeg",
         name: "The Riviera Minimalist",
         sub: "Warm Ease",
         desc: "You look best in light, relaxed pieces that feel elegant without effort — soft structure, warm neutrals, and a wardrobe shaped by ease, sun, and movement.",
@@ -33,6 +34,7 @@ var archetypeProfiles = {
     },
     o: {
         key: "o",
+        galleryImage: "images/archetypes/o.jpeg",
         name: "The Occasion Modernist",
         sub: "Polished Presence",
         desc: "You are at your best when dressing with intent — sharper tailoring, cleaner formality, and pieces that feel elevated enough for meaningful occasions.",
@@ -51,6 +53,7 @@ var archetypeProfiles = {
     },
     c: {
         key: "c",
+        galleryImage: "images/archetypes/c.jpeg",
         name: "The Craftsman",
         sub: "Built with Conviction",
         desc: "You value garments with integrity — strong cloth, thoughtful construction, and pieces that hold their shape and relevance over time.",
@@ -69,6 +72,7 @@ var archetypeProfiles = {
     },
     m: {
         key: "m",
+        galleryImage: "images/archetypes/m.jpeg",
         name: "The Relaxed Modernist",
         sub: "Ease with Polish",
         desc: "You dress best in pieces that feel clean, modern, and easy to wear — relaxed enough for real life, but always pulled together.",
@@ -87,6 +91,7 @@ var archetypeProfiles = {
     },
     g: {
         key: "g",
+        galleryImage: "images/archetypes/g.jpeg",
         name: "The Traditionalist",
         sub: "Timeless Menswear",
         desc: "You are most at home in classic menswear codes — balanced tailoring, reliable elegance, and pieces that feel appropriate across occasions.",
@@ -105,6 +110,7 @@ var archetypeProfiles = {
     },
     q: {
         key: "q",
+        galleryImage: "images/archetypes/q.jpeg",
         name: "The Quiet Classicist",
         sub: "Understated Refinement",
         desc: "You prefer restraint over display — a wardrobe built on calm colours, clean lines, and quality that speaks softly rather than loudly.",
@@ -123,6 +129,7 @@ var archetypeProfiles = {
     },
     a: {
         key: "a",
+        galleryImage: "images/archetypes/a.jpeg",
         name: "The Modern Architect",
         sub: "Line and Precision",
         desc: "You are drawn to clarity in silhouette — strong shape, controlled detail, and garments that feel designed rather than merely styled.",
@@ -141,6 +148,7 @@ var archetypeProfiles = {
     },
     u: {
         key: "u",
+        galleryImage: "images/archetypes/u.jpeg",
         name: "The Utilitarian",
         sub: "Practical Elegance",
         desc: "You want a wardrobe that works hard — resilient, versatile, and composed enough to move across different settings without fuss.",
@@ -159,6 +167,7 @@ var archetypeProfiles = {
     },
     t: {
         key: "t",
+        galleryImage: "images/archetypes/t.jpeg",
         name: "The City Innovator",
         sub: "Performance with Polish",
         desc: "You want tailoring that performs in real life — breathable, resilient, and sharp enough to stay composed through long modern days.",
@@ -177,6 +186,7 @@ var archetypeProfiles = {
     },
     s: {
         key: "s",
+        galleryImage: "images/archetypes/s.jpeg",
         name: "The New Minimalist",
         sub: "Relaxed Clarity",
         desc: "You dress best in modern casual pieces with clean restraint — soft jackets, easy silhouettes, and a wardrobe that feels light, calm, and current.",
@@ -195,6 +205,7 @@ var archetypeProfiles = {
     },
     r: {
         key: "r",
+        galleryImage: "images/archetypes/r.jpeg",
         name: "The Soft Classicist",
         sub: "Effortless Elegance",
         desc: "You are at your best in soft tailoring, rich texture, and combinations that feel elegant without ever seeming too formal or too deliberate.",
@@ -213,6 +224,7 @@ var archetypeProfiles = {
     },
     e: {
         key: "e",
+        galleryImage: "images/archetypes/e.jpeg",
         name: "The Contrast Curator",
         sub: "Texture and Character",
         desc: "You enjoy wardrobes with nuance — mixing texture, pattern, and tonal contrast in a way that feels considered, fresh, and personal.",
@@ -231,6 +243,7 @@ var archetypeProfiles = {
     },
     b: {
         key: "b",
+        galleryImage: "images/archetypes/b.jpeg",
         name: "The Tropical Traditionalist",
         sub: "Classic Codes, Tropical Weight",
         desc: "You dress best in classic tailoring adapted intelligently for heat — breathable suiting, cleaner structure, and timeless menswear forms refined for tropical life rather than borrowed unchanged from colder traditions.",
@@ -249,6 +262,7 @@ var archetypeProfiles = {
     },
     h: {
         key: "h",
+        galleryImage: "images/archetypes/h.jpeg",
         name: "The Heritage Modernist",
         sub: "Tradition with Intention",
         desc: "You dress best in classic menswear codes refined for modern life — heritage references, balanced tailoring, and pieces that feel rooted in tradition but edited with enough clarity to remain current and relevant.",
@@ -267,6 +281,7 @@ var archetypeProfiles = {
     },
     l: {
         key: "l",
+        galleryImage: "images/archetypes/l.jpeg",
         name: "The Layering Specialist",
         sub: "Depth Through Composition",
         desc: "You dress best through composition rather than statement — layering cloth, proportion, and colour with enough control that the wardrobe feels rich, adaptive, and seasonally intelligent without ever seeming overworked.",
@@ -285,6 +300,7 @@ var archetypeProfiles = {
     },
     x: {
         key: "x",
+        galleryImage: "images/archetypes/x.jpeg",
         name: "The Texture Minimalist",
         sub: "Tactile Restraint",
         desc: "You dress best in restrained wardrobes enriched by cloth character — tonal dressing, quiet palettes, and fabric surfaces that create depth through touch, weave, and subtle variation rather than obvious colour or pattern.",
@@ -303,6 +319,7 @@ var archetypeProfiles = {
     },
     p: {
         key: "p",
+        galleryImage: "images/archetypes/p.jpeg",
         name: "The Performance Casual",
         sub: "Technical Ease",
         desc: "You dress best in casual pieces that perform quietly — resilient fabrics, relaxed silhouettes, and a wardrobe built for movement, comfort, and repeat wear without looking overtly technical or overly athletic.",
@@ -321,6 +338,7 @@ var archetypeProfiles = {
     },
     k: {
         key: "k",
+        galleryImage: "images/archetypes/k.jpeg",
         name: "The Occasion Maximalist",
         sub: "Bold Celebration",
         desc: "You are at your best when occasion dressing carries real presence — stronger shape, richer colour, and pieces that feel elevated enough to mark the moment without losing elegance or control.",
@@ -339,6 +357,7 @@ var archetypeProfiles = {
     },
     w: {
         key: "w",
+        galleryImage: "images/archetypes/w.jpeg",
         name: "The Coastal Modernist",
         sub: "Sun, Salt, and Ease",
         desc: "You dress best in warm-weather pieces that feel light, open, and naturally polished — relaxed tailoring, sun-washed tones, and a wardrobe shaped by air, movement, and a quieter kind of confidence.",
@@ -357,6 +376,7 @@ var archetypeProfiles = {
     },
     f: {
         key: "f",
+        galleryImage: "images/archetypes/f.jpeg",
         name: "The Urban Formalist",
         sub: "City Sharp",
         desc: "You dress best in sharper city tailoring — clean suiting, disciplined lines, and a wardrobe that feels polished, direct, and composed enough for professional life without becoming stiff or old-fashioned.",
@@ -375,6 +395,7 @@ var archetypeProfiles = {
     },
     n: {
         key: "n",
+        galleryImage: "images/archetypes/n.jpeg",
         name: "The Pattern Enthusiast",
         sub: "Confident Variation",
         desc: "You dress best when pattern is used with confidence and control — checks, stripes, and textured surfaces that add rhythm and individuality without tipping into excess.",
@@ -393,6 +414,7 @@ var archetypeProfiles = {
     },
     d: {
         key: "d",
+        galleryImage: "images/archetypes/d.jpeg",
         name: "The Neo-Traditionalist",
         sub: "Modern Heritage",
         desc: "You dress best in traditional forms updated with clarity — classic tailoring, familiar menswear codes, and pieces that feel rooted in heritage but cut for present-day life rather than preserved unchanged.",
@@ -411,6 +433,7 @@ var archetypeProfiles = {
     },
     y: {
         key: "y",
+        galleryImage: "images/archetypes/y.jpeg",
         name: "The Quiet Modernist",
         sub: "Understated Innovation",
         desc: "You dress best in modern wardrobes that stay calm — clean silhouettes, minimal finishing, and pieces that feel current through proportion, line, and subtle innovation rather than obvious trend.",
@@ -429,6 +452,7 @@ var archetypeProfiles = {
     },
     z: {
         key: "z",
+        galleryImage: "images/archetypes/z.jpeg",
         name: "The Seasonal Purist",
         sub: "Weather-Led Dressing",
         desc: "You dress best when the wardrobe responds honestly to the season — lighter cloths in heat, richer textures in cooler months, and combinations that feel shaped by weather, atmosphere, and the rhythm of the year.",
@@ -3657,9 +3681,7 @@ function renderHome() {
         // Full-width strip: Archetype Gallery entry
         '<div class="home-cloth-room home-gallery-strip" data-action="archetype-gallery">' +
         '<div class="home-gallery-monograms" aria-hidden="true">' +
-        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("v") : "RM") + "</span>" +
-        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("g") : "TT") + "</span>" +
-        '<span class="hgm-tile">' + (typeof getArchetypeAvatarSVG === "function" ? getArchetypeAvatarSVG("k") : "QC") + "</span>" +
+        getHomeStripTile("v") + getHomeStripTile("g") + getHomeStripTile("k") +
         "</div>" +
         '<div class="home-cloth-room-content">' +
         '<div class="home-card-tag">The Gallery</div>' +
@@ -4347,6 +4369,11 @@ function renderResult() {
         (name ? '<div class="arch-card-client">Name: ' + name + "</div>" : "") +
         '<div class="arch-card-persona">' + archetype.name + "</div>" +
         '<div class="arch-card-persona-sub">' + archetype.sub + "</div>" +
+        // The portrait sits inside the exported card, not just on the
+        // page, so the shared PNG/PDF carries the illustration too.
+        (archetype.galleryImage
+            ? '<div class="arch-card-portrait"><img src="' + archetype.galleryImage + '" alt="' + archetype.name + '"></div>'
+            : "") +
         '<div class="arch-card-rule"></div>' +
         '<div class="arch-card-section-label">Your Profile</div>' +
         (function () {
@@ -5326,10 +5353,24 @@ function getArchetypeInitials(name) {
 
 // The mark tile: real illustrations (archetype.galleryImage) win, then
 // the SVG avatar busts, then a serif monogram on a tinted ground.
+// Home strip preview tile — mirrors the gallery's source priority so
+// the strip never shows an avatar while the gallery shows a portrait.
+function getHomeStripTile(key) {
+    var profile = typeof archetypeProfiles !== "undefined" ? archetypeProfiles[key] : null;
+    if (profile && profile.galleryImage) {
+        return '<span class="hgm-tile hgm-tile--photo"><img src="' + profile.galleryImage + '" alt="" loading="lazy"></span>';
+    }
+    if (typeof getArchetypeAvatarSVG === "function") {
+        return '<span class="hgm-tile">' + getArchetypeAvatarSVG(key) + "</span>";
+    }
+    return '<span class="hgm-tile"></span>';
+}
+
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
-        return '<span class="' + cls + ' gallery-mark--avatar"><img src="' + archetype.galleryImage + '" alt=""></span>';
+        return '<span class="' + cls + ' gallery-mark--avatar gallery-mark--photo">' +
+            '<img src="' + archetype.galleryImage + '" alt="" loading="lazy"></span>';
     }
     if (typeof getArchetypeAvatarSVG === "function") {
         return '<span class="' + cls + ' gallery-mark--avatar">' + getArchetypeAvatarSVG(archetype.key) + "</span>";
@@ -5358,7 +5399,8 @@ function renderArchetypeGallery() {
     html += '<div class="gallery-grid">';
     for (var i = 0; i < keys.length; i++) {
         var a = archetypeProfiles[keys[i]];
-        html += '<button class="gallery-card" type="button" data-action="gallery-open" data-key="' + a.key + '">';
+        html += '<button class="gallery-card' + (a.galleryImage ? " gallery-card--photo" : "") +
+            '" type="button" data-action="gallery-open" data-key="' + a.key + '">';
         html += getGalleryMarkHTML(a, i, false);
         html += '<span class="gallery-card-name">' + a.name + "</span>";
         html += '<span class="gallery-card-sub">' + a.sub + "</span>";
