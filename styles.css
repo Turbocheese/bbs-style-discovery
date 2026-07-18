@@ -8913,3 +8913,13 @@ button,
 /* .topic-image-editorial (lines ~1588, 2580) is now unused: topic images
    render through .topic-flip instead. Left in place deliberately — it is
    the fallback styling if the flip card is ever reverted. */
+
+/* Generated/photographed archetype images dropped into the
+   galleryImage slot fill the same 4:5 box the SVG avatars use. */
+.gallery-mark--avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+}
