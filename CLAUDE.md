@@ -31,7 +31,7 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 5. `colour-direction.js` — colour quiz data/scoring (separate feature by design)
 6. `lookbook.js` — editorial lookbook
 7. `wardrobe-templates.js` — worksheet templates per archetype
-8. `fabric-visualiser.js` — the Cloth Room (SVG garment re-rendered in tap-selected cloths)
+8. `fabric-visualiser.js` — the Cloth Room (SVG garment re-rendered in tap-selected cloths, plus a two-cloth side-by-side compare mode)
 9. `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
 10. `vendor/html2canvas.min.js` (vendored, was cdnjs)
 11. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)

@@ -3274,6 +3274,9 @@ function getFreshState() {
         colourResultKey: null,
         wardrobeChecklist: {},
         visFabricKey: null,
+        visFabricKeyB: null,
+        visCompare: false,
+        visCompareSide: "b",
         galleryKey: null,
     };
 }
@@ -5934,9 +5937,40 @@ document.body.addEventListener("click", function (e) {
     else if (action === "vis-pick-fabric") {
         var fabricKey = target.dataset.fabric;
         if (!fabricKey) return;
-        appState.visFabricKey = fabricKey;
+        if (appState.visCompare) {
+            var pickSide = appState.visCompareSide === "a" ? "a" : "b";
+            if (pickSide === "a") appState.visFabricKey = fabricKey;
+            else appState.visFabricKeyB = fabricKey;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            visApplyCompareFabric(pickSide, fabricKey);
+        } else {
+            appState.visFabricKey = fabricKey;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            visApplyFabric(fabricKey);
+        }
+    }
+    else if (action === "vis-compare-toggle") {
+        appState.visCompare = !appState.visCompare;
+        if (appState.visCompare) {
+            // Solidify both sides so partial updates always have keys.
+            var visReco = getRecommendedFabricKeys();
+            if (!appState.visFabricKey) {
+                appState.visFabricKey = visReco.length ? visReco[0] : FABRIC_LIBRARY[0].key;
+            }
+            if (!appState.visFabricKeyB || appState.visFabricKeyB === appState.visFabricKey) {
+                appState.visFabricKeyB = visDefaultCompareKey(appState.visFabricKey);
+            }
+            appState.visCompareSide = "b";
+        }
         localStorage.setItem("bbs_session", JSON.stringify(appState));
-        visApplyFabric(fabricKey);
+        render({ animate: true });
+    }
+    else if (action === "vis-side") {
+        if (target.dataset.side && appState.visCompareSide !== target.dataset.side) {
+            appState.visCompareSide = target.dataset.side;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            visSetCompareSide(appState.visCompareSide);
+        }
     }
 });
 

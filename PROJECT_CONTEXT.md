@@ -18,7 +18,8 @@ It is a fully operational product with:
 - a wardrobe worksheet tied to the style result (checklist, progress, exports)
 - a structured menswear guide: 288 topics across six sections
 - metadata-backed search, filtering, and ranked explainable discovery
-- the Cloth Room: an SVG garment re-rendered live in tap-selected cloths
+- the Cloth Room: an SVG garment re-rendered live in tap-selected cloths,
+  with a two-cloth side-by-side compare mode for at-the-rack decisions
 - an editorial lookbook (placeholder imagery, pending photography)
 - full offline operation via a service worker, with all dependencies vendored
 - kiosk behaviours: idle attract-reset, staff double-tap-logo reset,

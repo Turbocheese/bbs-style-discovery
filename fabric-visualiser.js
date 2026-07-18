@@ -507,30 +507,53 @@ function getVisualiserShirtOverlaySVG() {
 // VIEW
 // ============================================
 
-function renderFabricVisualiser() {
+// The cloth the compare view opens against: the next recommendation
+// for the client's archetype, else the next cloth in the bunch.
+function visDefaultCompareKey(aKey) {
     var recommended = getRecommendedFabricKeys();
-    var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
-    var fabric = getFabricByKey(activeKey);
-
-    var recoStripHTML = "";
-    if (recommended.length && typeof archetypeProfiles !== "undefined") {
-        var archetypeName = archetypeProfiles[appState.archetypeKey].name;
-        recoStripHTML =
-            '<div class="vis-reco-strip">Marked cloths are recommended for <em>' +
-            archetypeName +
-            "</em></div>";
+    for (var i = 0; i < recommended.length; i++) {
+        if (recommended[i] !== aKey) return recommended[i];
     }
+    for (var j = 0; j < FABRIC_LIBRARY.length; j++) {
+        if (FABRIC_LIBRARY[j].key === aKey) {
+            return FABRIC_LIBRARY[(j + 1) % FABRIC_LIBRARY.length].key;
+        }
+    }
+    return FABRIC_LIBRARY[1].key;
+}
 
+function getVisRecoStripHTML(recommended) {
+    if (!recommended.length || typeof archetypeProfiles === "undefined") return "";
+    return (
+        '<div class="vis-reco-strip">Marked cloths are recommended for <em>' +
+        archetypeProfiles[appState.archetypeKey].name +
+        "</em></div>"
+    );
+}
+
+// selKey gets the accent ring; altKey (compare mode: the cloth dressed
+// on the other side) gets a quiet one.
+function getVisSwatchesHTML(recommended, selKey, altKey) {
     var swatchesHTML = "";
     for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
         var f = FABRIC_LIBRARY[i];
-        var sel = f.key === activeKey ? " sel" : "";
-        var reco = recommended.indexOf(f.key) !== -1 ? " reco" : "";
+        var cls = "vis-swatch";
+        if (recommended.indexOf(f.key) !== -1) cls += " reco";
+        if (f.key === selKey) cls += " sel";
+        else if (altKey && f.key === altKey) cls += " sel-alt";
         swatchesHTML +=
-            '<button class="vis-swatch' + sel + reco + '" data-action="vis-pick-fabric" data-fabric="' + f.key + '" aria-label="' + f.name + '" title="' + f.name + '">' +
+            '<button class="' + cls + '" data-action="vis-pick-fabric" data-fabric="' + f.key + '" aria-label="' + f.name + '" title="' + f.name + '">' +
             '<span class="vis-swatch-cloth" style="background-image:url(' + getFabricTile(f.key) + ')"></span>' +
             "</button>";
     }
+    return swatchesHTML;
+}
+
+function renderFabricVisualiser() {
+    var recommended = getRecommendedFabricKeys();
+    var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
+    if (appState.visCompare) return renderClothCompare(activeKey, recommended);
+    var fabric = getFabricByKey(activeKey);
 
     return (
         '<div class="vis-shell">' +
@@ -543,9 +566,55 @@ function renderFabricVisualiser() {
         getVisualiserShirtOverlaySVG() +
         getVisualiserJacketSVG() +
         "</div>" +
-        '<div class="vis-swatch-tray">' + swatchesHTML + "</div>" +
-        recoStripHTML +
+        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
+        getVisRecoStripHTML(recommended) +
+        '<button class="vis-compare-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
+        '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
+        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
+        "</div>"
+    );
+}
+
+// One side of the compare view. Both stages repeat the jacket SVG, so
+// its clip/gradient ids appear twice: url(#) resolves to the first
+// copy, the copies are identical, and the clipPath uses
+// objectBoundingBox units — each layer clips in its own box.
+function getVisCompareStageHTML(side, key) {
+    var active = appState.visCompareSide === side;
+    return (
+        '<div class="vis-cmp-side' + (active ? " active" : "") + '" data-action="vis-side" data-side="' + side + '">' +
+        '<div class="vis-stage vis-stage--cmp">' +
+        '<div class="vis-fabric-layer" id="vis-cmp-base-' + side + '" style="background-image:url(' + getFabricTile(key) + ')"></div>' +
+        '<div class="vis-fabric-layer" id="vis-cmp-fade-' + side + '"></div>' +
+        getVisualiserShirtOverlaySVG() +
+        getVisualiserJacketSVG() +
+        "</div>" +
+        '<div class="vis-cmp-tag">' + (active ? "Now dressing" : "Tap to dress") + "</div>" +
+        "</div>"
+    );
+}
+
+function renderClothCompare(aKey, recommended) {
+    var bKey = appState.visFabricKeyB || visDefaultCompareKey(aKey);
+    var side = appState.visCompareSide === "a" ? "a" : "b";
+    var selKey = side === "a" ? aKey : bKey;
+    var altKey = side === "a" ? bKey : aKey;
+
+    return (
+        '<div class="vis-shell">' +
+        '<div class="vis-eyebrow">The Cloth Room</div>' +
+        "<h1 class=\"vis-title\">Two Cloths, One Decision</h1>" +
+        '<p class="vis-lead">Tap a garment to choose a side, then tap a cloth from the bunch to dress it.</p>' +
+        '<div class="vis-compare-grid">' +
+        getVisCompareStageHTML("a", aKey) +
+        getVisCompareStageHTML("b", bKey) +
+        '<div class="vis-info vis-info--cmp" id="vis-info-a">' + getFabricInfoHTML(getFabricByKey(aKey)) + "</div>" +
+        '<div class="vis-info vis-info--cmp" id="vis-info-b">' + getFabricInfoHTML(getFabricByKey(bKey)) + "</div>" +
+        "</div>" +
+        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, selKey, altKey) + "</div>" +
+        getVisRecoStripHTML(recommended) +
+        '<button class="vis-compare-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
@@ -571,12 +640,10 @@ function getFabricInfoHTML(fabric) {
     );
 }
 
-// Partial DOM update on swatch tap — crossfades the fabric
-// layers instead of re-rendering the whole view.
-function visApplyFabric(key) {
-    var a = document.getElementById("vis-fabric-a");
-    var b = document.getElementById("vis-fabric-b");
-    var info = document.getElementById("vis-info");
+// Crossfade a stage's paired fabric layers to a new cloth.
+function visCrossfade(baseId, fadeId, key) {
+    var a = document.getElementById(baseId);
+    var b = document.getElementById(fadeId);
     if (!a || !b) return;
 
     var tile = getFabricTile(key);
@@ -593,13 +660,48 @@ function visApplyFabric(key) {
         b.style.transition = "none";
         b.style.opacity = "0";
     }, 480);
+}
 
-    if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
-
+function visSyncSwatchMarks(selKey, altKey) {
     var swatches = document.querySelectorAll(".vis-swatch");
     for (var i = 0; i < swatches.length; i++) {
-        var isSel = swatches[i].getAttribute("data-fabric") === key;
+        var k = swatches[i].getAttribute("data-fabric");
         var isReco = swatches[i].className.indexOf("reco") !== -1;
-        swatches[i].className = "vis-swatch" + (isReco ? " reco" : "") + (isSel ? " sel" : "");
+        swatches[i].className =
+            "vis-swatch" +
+            (isReco ? " reco" : "") +
+            (k === selKey ? " sel" : altKey && k === altKey ? " sel-alt" : "");
     }
+}
+
+// Partial DOM update on swatch tap — crossfades the fabric
+// layers instead of re-rendering the whole view.
+function visApplyFabric(key) {
+    visCrossfade("vis-fabric-a", "vis-fabric-b", key);
+    var info = document.getElementById("vis-info");
+    if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
+    visSyncSwatchMarks(key, null);
+}
+
+// Compare mode: dress one side. Call after appState is updated.
+function visApplyCompareFabric(side, key) {
+    visCrossfade("vis-cmp-base-" + side, "vis-cmp-fade-" + side, key);
+    var info = document.getElementById("vis-info-" + side);
+    if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
+    var otherKey = side === "a" ? appState.visFabricKeyB : appState.visFabricKey;
+    visSyncSwatchMarks(key, otherKey);
+}
+
+// Compare mode: switch which side the next swatch tap dresses.
+function visSetCompareSide(side) {
+    var sides = document.querySelectorAll(".vis-cmp-side");
+    for (var i = 0; i < sides.length; i++) {
+        var isActive = sides[i].getAttribute("data-side") === side;
+        sides[i].className = "vis-cmp-side" + (isActive ? " active" : "");
+        var tag = sides[i].querySelector(".vis-cmp-tag");
+        if (tag) tag.textContent = isActive ? "Now dressing" : "Tap to dress";
+    }
+    var selKey = side === "a" ? appState.visFabricKey : appState.visFabricKeyB;
+    var altKey = side === "a" ? appState.visFabricKeyB : appState.visFabricKey;
+    visSyncSwatchMarks(selKey, altKey);
 }
