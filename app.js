@@ -3538,127 +3538,80 @@ function runMeasureMoment(label, done, ms) {
 // RENDER WELCOME
 // ============================================
 
-// The welcome screen doubles as the in-store attract screen (the idle
-// reset lands here), so it carries a row of archetype portraits between
-// the logo and the headline. The frames stay put; one at a time, a
-// single frame is quietly re-hung with a different archetype. Ambient,
-// not a carousel.
-var WW_SLOTS = 7;
-
-function getWelcomeGalleryWall() {
-    if (typeof archetypeProfiles === "undefined") return "";
-    var keys = Object.keys(archetypeProfiles).filter(function (k) {
+// A single archetype portrait fills the space between the logo and the
+// headline. Random on each visit; tapping it shows another. Uses the
+// full-size illustration (one image, not a grid, so quality wins over
+// the thumbnail's weight saving).
+function getWelcomePortraitKeys() {
+    if (typeof archetypeProfiles === "undefined") return [];
+    return Object.keys(archetypeProfiles).filter(function (k) {
         return archetypeProfiles[k].galleryImage;
     });
-    if (keys.length < WW_SLOTS + 2) return "";
-
-    // Shuffle so the opening set differs between sessions
-    var pool = keys.slice();
-    for (var i = pool.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
-    }
-
-    var tiles = "";
-    for (var s = 0; s < WW_SLOTS; s++) {
-        // 400px thumbnails: these render ~130px wide, and decoding the
-        // full 1152px originals here cost seconds. Not lazy — a frame
-        // that loads late reads as a broken tile.
-        tiles +=
-            '<span class="ww-frame" data-slot="' + s + '" data-key="' + pool[s] + '">' +
-            '<img src="images/archetypes/thumb/' + pool[s] + '.jpg" alt="" decoding="async">' +
-            "</span>";
-    }
-
-    return '<div class="welcome-wall" aria-hidden="true">' + tiles + "</div>";
 }
 
-// One frame at a time, on a slow cycle. Self-cancelling: the timer
-// stops as soon as the wall leaves the DOM (every view swaps #app's
-// innerHTML, so an uncancelled timer would tick against detached nodes).
-var _wwTimer = null;
-
-function startWelcomeWallCycle() {
-    if (_wwTimer) { clearInterval(_wwTimer); _wwTimer = null; }
-    if (typeof archetypeProfiles === "undefined") return;
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    var allKeys = Object.keys(archetypeProfiles).filter(function (k) {
-        return archetypeProfiles[k].galleryImage;
-    });
-
-    _wwTimer = setInterval(function () {
-        var wall = document.querySelector(".welcome-wall");
-        if (!wall || !document.body.contains(wall)) {
-            clearInterval(_wwTimer);
-            _wwTimer = null;
-            return;
-        }
-
-        // Only re-hang frames that are actually visible at this width
-        var frames = Array.prototype.filter.call(
-            wall.querySelectorAll(".ww-frame"),
-            function (f) { return f.offsetParent !== null && !f.classList.contains("is-swapping"); }
-        );
-        if (!frames.length) return;
-
-        var onWall = Array.prototype.map.call(
-            wall.querySelectorAll(".ww-frame"),
-            function (f) { return f.getAttribute("data-key"); }
-        );
-        var candidates = allKeys.filter(function (k) { return onWall.indexOf(k) === -1; });
-        if (!candidates.length) return;
-
-        var frame = frames[Math.floor(Math.random() * frames.length)];
-        var nextKey = candidates[Math.floor(Math.random() * candidates.length)];
-        swapWelcomeFrame(frame, nextKey);
-    }, 4200);
+function getWelcomePortrait() {
+    var keys = getWelcomePortraitKeys();
+    if (!keys.length) return "";
+    var key = keys[Math.floor(Math.random() * keys.length)];
+    return (
+        '<div class="welcome-portrait" data-action="welcome-portrait" data-key="' + key + '"' +
+        ' role="button" tabindex="0" aria-label="A style archetype. Tap to see another.">' +
+        '<img src="' + archetypeProfiles[key].galleryImage + '" alt="" decoding="async">' +
+        "</div>"
+    );
 }
 
-// The transition: the incoming portrait is unveiled top-to-bottom
-// behind a fine bronze edge — a bolt of cloth being drawn down, which
-// is the same language as the tape blade used elsewhere.
-function swapWelcomeFrame(frame, key) {
-    if (!frame || frame.classList.contains("is-swapping")) return;
-    frame.classList.add("is-swapping");
+// Swap to a different archetype, revealed top-to-bottom behind a fine
+// bronze edge — the same cue the tape blade uses elsewhere.
+function swapWelcomePortrait(el) {
+    if (!el || el.classList.contains("is-swapping")) return;
+    var keys = getWelcomePortraitKeys();
+    var current = el.getAttribute("data-key");
+    var pool = keys.filter(function (k) { return k !== current; });
+    if (!pool.length) return;
+    var key = pool[Math.floor(Math.random() * pool.length)];
+
+    el.classList.add("is-swapping");
 
     var incoming = document.createElement("img");
-    incoming.className = "ww-incoming";
+    incoming.className = "welcome-portrait-incoming";
     incoming.alt = "";
     incoming.decoding = "async";
-    incoming.src = "images/archetypes/thumb/" + key + ".jpg";
+    incoming.src = archetypeProfiles[key].galleryImage;
+
+    var reduced = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function run() {
-        frame.appendChild(incoming);
-        // next frame, so the starting clip is committed before it animates
+        el.appendChild(incoming);
+        if (reduced) {
+            finish();
+            return;
+        }
         requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                frame.classList.add("is-revealing");
-            });
+            requestAnimationFrame(function () { el.classList.add("is-revealing"); });
         });
-
-        setTimeout(function () {
-            var old = frame.querySelector("img:not(.ww-incoming)");
-            if (old) old.remove();
-            incoming.className = "";
-            frame.setAttribute("data-key", key);
-            frame.classList.remove("is-swapping", "is-revealing");
-        }, 1150);
+        setTimeout(finish, 1000);
     }
 
-    if (incoming.decode) {
-        incoming.decode().then(run).catch(run);
-    } else {
-        incoming.onload = run;
-        incoming.onerror = function () { frame.classList.remove("is-swapping"); };
+    function finish() {
+        var old = el.querySelector("img:not(.welcome-portrait-incoming)");
+        if (old) old.remove();
+        incoming.className = "";
+        el.setAttribute("data-key", key);
+        el.classList.remove("is-swapping", "is-revealing");
     }
+
+    // Decode before revealing, so the wipe never uncovers a blank frame
+    if (incoming.decode) incoming.decode().then(run).catch(run);
+    else { incoming.onload = run; incoming.onerror = function () { el.classList.remove("is-swapping"); }; }
 }
 
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
         BBS_LOGO +
-        getWelcomeGalleryWall() +
+        getWelcomePortrait() +
         '<div class="welcome-content-block">' +
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
@@ -3676,33 +3629,12 @@ function renderWelcome() {
         '<button class="button-primary" data-action="save-name">Begin the Discovery</button>' +
         "</div>" +
         "</div>" +
-        // Real figures from the live data — quiet proof of depth
-        '<div class="welcome-proof">' +
-        '<span><strong>24</strong> style directions</span>' +
-        '<span class="welcome-proof-dot"></span>' +
-        '<span><strong>8</strong> colour rooms</span>' +
-        '<span class="welcome-proof-dot"></span>' +
-        "<span><strong>" + (typeof guideTree !== "undefined" ? countGuideTopics() : 312) + "</strong> guide topics</span>" +
-        "</div>" +
         "</div>" +
         "</div>"
     );
 }
 
-// Counted from the tree rather than hardcoded, so the welcome screen
-// can never advertise a stale number.
-var _topicCountCache = null;
-function countGuideTopics() {
-    if (_topicCountCache !== null) return _topicCountCache;
-    var n = 0;
-    (function walk(node) {
-        if (!node || typeof node !== "object") return;
-        if (node.type === "topic") n++;
-        if (node.children) for (var k in node.children) walk(node.children[k]);
-    })(guideTree);
-    _topicCountCache = n;
-    return n;
-}
+
 
 // ============================================
 // RENDER HOME
@@ -5719,7 +5651,6 @@ function render(options) {
         app.innerHTML = content;
         syncFabVisibility();
         if (appState.view === "welcome") {
-            startWelcomeWallCycle();
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
                 setTimeout(function () {
@@ -5735,7 +5666,6 @@ function render(options) {
         app.innerHTML = content;
         syncFabVisibility();
         if (appState.view === "welcome") {
-            startWelcomeWallCycle();
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
                 setTimeout(function () {
@@ -6287,6 +6217,9 @@ document.body.addEventListener("click", function (e) {
             render({ animate: false });
         }
     }
+    else if (action === "welcome-portrait") {
+        swapWelcomePortrait(target.closest(".welcome-portrait"));
+    }
     else if (action === "flip-card") {
         var card = target.closest(".flip-card");
         if (!card) return;
@@ -6313,11 +6246,13 @@ document.addEventListener("keydown", function (e) {
         if (input && input.value.trim()) saveClientName(input.value);
     }
 
-    // Flip cards are divs (a <button> wrapper fights the maison button
-    // cascade), so they need their own Enter/Space activation.
+    // Flip cards and the welcome portrait are divs (a <button> wrapper
+    // fights the maison button cascade), so they need their own
+    // Enter/Space activation.
     if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
         var focused = document.activeElement;
-        if (focused && focused.classList && focused.classList.contains("flip-card")) {
+        if (focused && focused.classList &&
+            (focused.classList.contains("flip-card") || focused.classList.contains("welcome-portrait"))) {
             e.preventDefault();
             focused.click();
         }

@@ -9296,69 +9296,85 @@ textarea:focus-visible,
 }
 
 /* ============================================================
-   WELCOME — the archetype wall
-   A fixed row of framed portraits between the logo and the
-   headline. Nothing scrolls or drifts; every few seconds one
-   frame is re-hung with a different archetype, revealed
-   top-to-bottom behind a fine bronze edge. Ambient, not a
-   carousel — motion that reads as the wall being changed
-   rather than as animation for its own sake.
+   WELCOME
+   One archetype portrait between the logo and the headline,
+   given the same treatment it has on the archetype detail page
+   (cream field, fine border, soft lift) so the screen belongs to
+   the same app. Random on load; tapping it shows another,
+   revealed top-to-bottom behind a bronze hairline — the cue the
+   tape blade uses elsewhere.
    ============================================================ */
 
-.welcome-wall {
+.welcome-shell {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: clamp(8px, 1.4vw, 16px);
-    margin: clamp(1.6rem, 4vh, 2.8rem) auto clamp(1.8rem, 4.5vh, 3rem);
-    padding: 0 4px;
+    flex-direction: column;
+    align-items: center;
+    padding-block: clamp(1.5rem, 4vh, 2.6rem) clamp(2rem, 6vh, 3.5rem);
 }
 
-.ww-frame {
+.welcome-portrait {
     position: relative;
-    display: block;
-    flex: 0 1 auto;
-    width: clamp(78px, 12vw, 132px);
+    width: clamp(186px, 28vw, 238px);
     aspect-ratio: 3 / 4;
+    margin: clamp(1.6rem, 4vh, 2.5rem) auto clamp(1.8rem, 4.5vh, 2.8rem);
     background: #fdf1d3;
+    border: 1px solid rgba(17, 17, 16, 0.07);
+    border-radius: 3px;
     overflow: hidden;
-    border-radius: 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.05),
+        0 22px 50px -30px rgba(17, 17, 16, 0.45);
+    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.28, 1),
+                box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.28, 1);
+    animation: welcomeRise 0.75s cubic-bezier(0.22, 0.61, 0.28, 1) 0.05s both;
+}
+
+.welcome-portrait:active {
+    transform: scale(0.985);
     box-shadow:
         0 1px 2px rgba(17, 17, 16, 0.06),
-        0 10px 26px -18px rgba(17, 17, 16, 0.5);
+        0 14px 34px -26px rgba(17, 17, 16, 0.5);
 }
 
-.ww-frame img {
+.welcome-portrait:focus-visible {
+    outline: 2px solid var(--bronze);
+    outline-offset: 4px;
+}
+
+.welcome-portrait img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    /* slight overscan: a couple of the illustrations carry a faint
+       drawn frame at the very edge */
+    transform: scale(1.03);
 }
 
-/* The incoming portrait is clipped to nothing, then drawn down */
-.ww-incoming {
+/* The incoming portrait is clipped away, then drawn down */
+.welcome-portrait-incoming {
     clip-path: inset(0 0 100% 0);
     z-index: 2;
 }
 
-.is-revealing .ww-incoming {
+.is-revealing .welcome-portrait-incoming {
     clip-path: inset(0 0 0 0);
-    transition: clip-path 0.95s cubic-bezier(0.65, 0, 0.2, 1);
+    transition: clip-path 0.85s cubic-bezier(0.65, 0, 0.2, 1);
 }
 
-/* The edge that travels with the reveal — one hairline of bronze,
-   the same cue the tape blade uses elsewhere */
-.ww-frame::after {
+/* A 1.5px bronze band on a full-height layer, so translateY(100%)
+   walks the line the whole way down the frame */
+.welcome-portrait::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     height: 100%;
-    /* a 1.5px bronze band at the top of a full-height layer, so
-       translateY(100%) walks the line the whole way down the frame */
     background: linear-gradient(to bottom, var(--bronze) 0 1.5px, transparent 1.5px);
     opacity: 0;
     transform: translateY(0);
@@ -9367,7 +9383,7 @@ textarea:focus-visible,
 }
 
 .is-revealing::after {
-    animation: wwEdge 0.95s cubic-bezier(0.65, 0, 0.2, 1);
+    animation: wwEdge 0.85s cubic-bezier(0.65, 0, 0.2, 1);
 }
 
 @keyframes wwEdge {
@@ -9377,51 +9393,26 @@ textarea:focus-visible,
     100% { opacity: 0; transform: translateY(100%); }
 }
 
-/* Portrait iPad: the outer pair would crowd the column */
-@media (max-width: 900px) {
-    .ww-frame:first-child,
-    .ww-frame:last-child { display: none; }
-}
-
-@media (max-width: 560px) {
-    .ww-frame:nth-child(2),
-    .ww-frame:nth-last-child(2) { display: none; }
-}
-
-/* Landscape has the width for the full set but less height to spend */
-@media (orientation: landscape) {
-    .welcome-wall {
-        margin: clamp(1rem, 2.5vh, 1.8rem) auto clamp(1.2rem, 3vh, 2rem);
-    }
-
-    .ww-frame { width: clamp(70px, 8.5vw, 112px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .is-revealing .ww-incoming { transition: none; }
-    .is-revealing::after { animation: none; }
-}
-
-/* ============================================================
-   WELCOME — column
-   ============================================================ */
+/* ---- Column ------------------------------------------------------ */
 
 .welcome-content-block {
+    width: 100%;
     animation: welcomeRise 0.7s cubic-bezier(0.22, 0.61, 0.28, 1) both;
 }
 
-.welcome-hero .welcome-kicker { animation: welcomeRise 0.6s cubic-bezier(0.22,0.61,0.28,1) 0.06s both; }
-.welcome-hero h1              { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.13s both; }
-.welcome-intro                { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.21s both; }
-.welcome-form-card            { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.29s both; }
-.welcome-proof                { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.38s both; }
+.welcome-hero .welcome-kicker { animation: welcomeRise 0.6s cubic-bezier(0.22,0.61,0.28,1) 0.12s both; }
+.welcome-hero h1              { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.19s both; }
+.welcome-intro                { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.27s both; }
+.welcome-form-card            { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.35s both; }
 
 @keyframes welcomeRise {
     from { opacity: 0; transform: translate3d(0, 14px, 0); }
     to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* The card lifts when the field is focused — depth that responds */
+.welcome-hero { margin-bottom: clamp(1.4rem, 3.5vh, 2.2rem); }
+
+/* Card lifts when the field is focused — depth that responds */
 .welcome-form-card {
     position: relative;
     background: #ffffff;
@@ -9478,82 +9469,33 @@ textarea:focus-visible,
 
 .welcome-form:focus-within::before { opacity: 1; }
 
-/* Proof strip */
-.welcome-proof {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px 14px;
-    margin-top: 1.8rem;
-    font-family: "Manrope", sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--soft);
-}
+/* Landscape iPad is 810px tall: keep the CTA above the fold */
+@media (orientation: landscape) and (max-height: 900px) {
+    .welcome-shell { padding-block: clamp(1rem, 3vh, 1.8rem) clamp(1.2rem, 3vh, 2rem); }
 
-.welcome-proof strong {
-    font-family: "EB Garamond", serif;
-    font-style: italic;
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-    color: var(--text);
-    margin-right: 3px;
-}
+    .welcome-portrait {
+        width: clamp(140px, 17vw, 186px);
+        margin: clamp(1rem, 2.4vh, 1.6rem) auto clamp(1.1rem, 2.6vh, 1.8rem);
+    }
 
-.welcome-proof-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--line-strong);
+    .welcome-hero { margin-bottom: clamp(0.9rem, 2vh, 1.4rem); }
+
+    .welcome-hero h1 { font-size: clamp(1.9rem, 3.8vw, 2.5rem); line-height: 1.08; }
+
+    .welcome-form-card { padding: clamp(1rem, 2vh, 1.4rem) clamp(1.2rem, 2.4vw, 1.7rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .welcome-portrait,
     .welcome-content-block,
     .welcome-hero .welcome-kicker,
     .welcome-hero h1,
     .welcome-intro,
-    .welcome-form-card,
-    .welcome-proof { animation: none; }
+    .welcome-form-card { animation: none; }
+    .welcome-portrait,
     .welcome-form-card,
     .welcome-form::after,
     .welcome-form::before { transition: none; }
-}
-
-/* A couple of the generated illustrations carry a faint drawn frame at
-   the very edge. Cropped at source where found (f, r); this slight
-   overscan keeps any that slip through from reading as a border. */
-.ww-frame img { transform: scale(1.03); }
-
-/* Landscape iPad is only 810px tall and the wall now occupies real
-   flow space, so the primary CTA has to be protected: fewer frames,
-   smaller frames, tighter rhythm, shorter headline. */
-@media (orientation: landscape) and (max-height: 900px) {
-    .ww-frame:first-child,
-    .ww-frame:last-child { display: none; }
-
-    .ww-frame { width: clamp(64px, 7vw, 92px); }
-
-    .welcome-wall {
-        margin: clamp(0.7rem, 1.6vh, 1.1rem) auto clamp(0.8rem, 1.8vh, 1.2rem);
-        gap: 10px;
-    }
-
-    .welcome-hero { margin-bottom: clamp(0.7rem, 1.6vh, 1.1rem); }
-
-    .welcome-hero h1 {
-        font-size: clamp(1.9rem, 3.8vw, 2.5rem);
-        line-height: 1.08;
-    }
-
-    .welcome-intro { margin-bottom: 0; }
-
-    .welcome-form-card {
-        padding: clamp(1rem, 2vh, 1.4rem) clamp(1.2rem, 2.4vw, 1.7rem);
-    }
-
-    .welcome-proof { margin-top: 1rem; }
+    .is-revealing .welcome-portrait-incoming { transition: none; }
+    .is-revealing::after { animation: none; }
 }
