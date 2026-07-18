@@ -9294,3 +9294,324 @@ textarea:focus-visible,
     background: transparent;
     text-shadow: none;
 }
+
+/* ============================================================
+   WELCOME — "The Gallery Wall"
+   Doubles as the in-store attract screen. A slow 3D wall of the
+   archetype illustrations sits behind the sign-in card; only the
+   two track elements animate (translate3d), so the cost is two
+   composited layers rather than fifty.
+   ============================================================ */
+
+.welcome-shell {
+    position: relative;
+    isolation: isolate;
+    min-height: 100%;
+    overflow: hidden;
+}
+
+/* --- The wall ---------------------------------------------------- */
+.welcome-wall {
+    position: absolute;
+    inset: -6% -12% auto -12%;
+    height: 78%;
+    z-index: 0;
+    pointer-events: none;
+    perspective: 1400px;
+    perspective-origin: 50% 30%;
+}
+
+.welcome-wall-stage {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2.2vw, 26px);
+    transform: rotateX(34deg) rotateZ(-8deg) translateY(-4%);
+    transform-style: preserve-3d;
+}
+
+.ww-row {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.ww-track {
+    display: flex;
+    gap: clamp(12px, 2vw, 24px);
+    width: max-content;
+    will-change: transform;
+}
+
+.ww-row--a .ww-track { animation: wwDriftA 78s linear infinite; }
+.ww-row--b .ww-track { animation: wwDriftB 96s linear infinite; }
+
+@keyframes wwDriftA {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes wwDriftB {
+    from { transform: translate3d(-50%, 0, 0); }
+    to   { transform: translate3d(0, 0, 0); }
+}
+
+.ww-tile {
+    flex: 0 0 auto;
+    width: clamp(104px, 15vw, 190px);
+    aspect-ratio: 3 / 4;
+    background: #fdf1d3;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px -22px rgba(17, 17, 16, 0.5);
+}
+
+.ww-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Fades the wall into the page so type never fights imagery */
+.welcome-wall-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.72) 46%, #ffffff 88%),
+        radial-gradient(ellipse 60% 55% at 50% 42%, rgba(255,255,255,0.55), transparent 70%);
+}
+
+/* --- Foreground -------------------------------------------------- */
+.welcome-shell > .bbs-logo,
+.welcome-content-block {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-content-block {
+    animation: welcomeRise 0.8s cubic-bezier(0.22, 0.61, 0.28, 1) both;
+}
+
+/* Staggered entrance — one orchestrated sequence, not scattered effects */
+.welcome-hero .welcome-kicker { animation: welcomeRise 0.7s cubic-bezier(0.22,0.61,0.28,1) 0.10s both; }
+.welcome-hero h1              { animation: welcomeRise 0.8s cubic-bezier(0.22,0.61,0.28,1) 0.18s both; }
+.welcome-intro                { animation: welcomeRise 0.8s cubic-bezier(0.22,0.61,0.28,1) 0.28s both; }
+.welcome-form-card            { animation: welcomeRise 0.8s cubic-bezier(0.22,0.61,0.28,1) 0.38s both; }
+.welcome-proof                { animation: welcomeRise 0.8s cubic-bezier(0.22,0.61,0.28,1) 0.50s both; }
+
+@keyframes welcomeRise {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* The card lifts off the wall, and rises further when the field is
+   focused — depth that responds rather than depth for its own sake */
+.welcome-form-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.86);
+    -webkit-backdrop-filter: blur(14px) saturate(1.05);
+    backdrop-filter: blur(14px) saturate(1.05);
+    border: 1px solid rgba(17, 17, 16, 0.07);
+    border-radius: 4px;
+    padding: clamp(1.6rem, 3.4vw, 2.4rem) clamp(1.4rem, 3vw, 2.2rem);
+    box-shadow:
+        0 2px 6px -2px rgba(17, 17, 16, 0.08),
+        0 24px 60px -30px rgba(17, 17, 16, 0.42);
+    transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.28, 1),
+                box-shadow 0.45s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.welcome-form-card:focus-within {
+    transform: translate3d(0, -4px, 0);
+    box-shadow:
+        0 2px 6px -2px rgba(17, 17, 16, 0.10),
+        0 34px 70px -30px rgba(17, 17, 16, 0.5);
+}
+
+/* Input underline as a tape-measure blade — the app's signature motif,
+   reused rather than a new idea. The blade fills as the field focuses. */
+.welcome-form {
+    position: relative;
+}
+
+.welcome-form::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--ink, #111110);
+    transform: scaleX(0);
+    transform-origin: 50% 50%;
+    transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.welcome-form:focus-within::after { transform: scaleX(1); }
+
+.welcome-form::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    height: 7px;
+    opacity: 0;
+    background-image: repeating-linear-gradient(
+        to right,
+        var(--line-strong) 0 1px,
+        transparent 1px 14px
+    );
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.welcome-form:focus-within::before { opacity: 1; }
+
+/* --- Proof strip -------------------------------------------------- */
+.welcome-proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    margin-top: 2rem;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.welcome-proof strong {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    margin-right: 3px;
+}
+
+.welcome-proof-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--line-strong);
+}
+
+/* --- Landscape: the wall would crowd a short viewport ------------- */
+@media (orientation: landscape) and (max-height: 720px) {
+    .welcome-wall { height: 62%; }
+    .ww-tile { width: clamp(88px, 11vw, 140px); }
+}
+
+/* --- Reduced motion: the wall holds still, everything still lands -- */
+@media (prefers-reduced-motion: reduce) {
+    .ww-row--a .ww-track,
+    .ww-row--b .ww-track { animation: none; }
+    .ww-row--b .ww-track { transform: translate3d(-25%, 0, 0); }
+    .welcome-content-block,
+    .welcome-hero .welcome-kicker,
+    .welcome-hero h1,
+    .welcome-intro,
+    .welcome-form-card,
+    .welcome-proof { animation: none; }
+    .welcome-form-card { transition: none; }
+    .welcome-form::after,
+    .welcome-form::before { transition: none; }
+}
+
+/* --- Welcome wall corrections after first render ------------------ */
+
+/* Full-bleed: #app constrains width, so the wall breaks out to the
+   viewport rather than sitting in the content column as a box. */
+.welcome-wall {
+    left: 50%;
+    right: auto;
+    width: 100vw;
+    margin-left: -50vw;
+    inset-block: 0 auto;
+    top: clamp(96px, 13vh, 150px);   /* starts below the logo */
+    height: clamp(230px, 34vh, 380px);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 62%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 62%, transparent 100%);
+}
+
+/* The logo owns its own layer above the wall */
+.welcome-shell > .bbs-logo {
+    z-index: 2;
+    position: relative;
+}
+
+/* The maison layer zeroes radius and shadow on welcome surfaces, which
+   flattened the glass card — restore it at the same weight. */
+.welcome-form-card {
+    border-radius: 4px !important;
+    box-shadow:
+        0 2px 6px -2px rgba(17, 17, 16, 0.08),
+        0 24px 60px -30px rgba(17, 17, 16, 0.42) !important;
+}
+
+    .welcome-form-card:focus-within {
+        box-shadow:
+            0 2px 6px -2px rgba(17, 17, 16, 0.10),
+            0 34px 70px -30px rgba(17, 17, 16, 0.5) !important;
+    }
+
+/* Pull the sign-in block up into the space the wall vacates */
+.welcome-content-block { margin-top: clamp(1rem, 3vh, 2.5rem); }
+.welcome-hero { margin-bottom: clamp(1.4rem, 3vh, 2.2rem); }
+
+/* --- Welcome wall: band, not backdrop -----------------------------
+   Two corrections: the shell's overflow:hidden was clipping the
+   full-bleed wall back to the content column, and the hero text was
+   landing on top of the figures. The wall is now a defined band and
+   the sign-in column begins below it, so nothing overlaps and the
+   scrim can be gentler (the art stays visible). */
+.welcome-shell {
+    --wall-top: clamp(84px, 12vh, 132px);
+    --wall-h: clamp(190px, 28vh, 320px);
+    overflow: visible;
+}
+
+.welcome-wall {
+    top: var(--wall-top);
+    height: var(--wall-h);
+    overflow: hidden;               /* clip here, not on the shell */
+}
+
+.welcome-content-block {
+    margin-top: calc(var(--wall-h) - clamp(4px, 1vh, 14px));
+}
+
+/* Gentler now that type no longer sits on the art */
+.welcome-wall-scrim {
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.86) 92%, #ffffff 100%);
+}
+
+.welcome-wall-stage {
+    transform: rotateX(26deg) rotateZ(-6deg);
+}
+
+/* Landscape iPad is 810px tall: the band plus the full column pushed
+   the primary CTA below the fold. Compress the band and the rhythm so
+   "Begin the Discovery" is always reachable without scrolling. */
+@media (orientation: landscape) {
+    .welcome-shell {
+        --wall-top: clamp(64px, 8vh, 92px);
+        --wall-h: clamp(120px, 20vh, 190px);
+    }
+
+    .ww-tile { width: clamp(80px, 10vw, 128px); }
+
+    .welcome-hero { margin-bottom: clamp(0.8rem, 2vh, 1.4rem); }
+
+    .welcome-hero h1 { font-size: clamp(2rem, 4.4vw, 3rem); }
+
+    .welcome-form-card { padding: clamp(1.1rem, 2.4vw, 1.6rem) clamp(1.2rem, 2.6vw, 1.8rem); }
+
+    .welcome-proof { margin-top: 1.2rem; }
+}

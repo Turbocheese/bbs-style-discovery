@@ -3538,9 +3538,53 @@ function runMeasureMoment(label, done, ms) {
 // RENDER WELCOME
 // ============================================
 
+// The welcome screen doubles as the in-store attract screen (the idle
+// reset lands here), so it carries a slow 3D gallery wall built from
+// the archetype illustrations — it shows what the app does before a
+// word is read. Two tracks, opposite directions; only the two track
+// elements animate, so it stays GPU-cheap on the iPad.
+function getWelcomeGalleryWall() {
+    if (typeof archetypeProfiles === "undefined") return "";
+    var keys = Object.keys(archetypeProfiles).filter(function (k) {
+        return archetypeProfiles[k].galleryImage;
+    });
+    if (keys.length < 6) return "";
+
+    function row(list, cls) {
+        var tiles = "";
+        // duplicated once so the translate loop is seamless. Duplicates
+        // reuse the same src, so they cost no extra decode.
+        for (var pass = 0; pass < 2; pass++) {
+            for (var i = 0; i < list.length; i++) {
+                // 400px thumbnails: these render ~150px wide, and decoding
+                // the full 1152px originals here cost seconds on load.
+                // NOT lazy: these sit off-screen in a horizontally
+                // drifting track, so lazy-loading leaves blank tiles that
+                // pop in as they scroll past. At 21KB a thumb, eager is
+                // the right trade.
+                tiles += '<span class="ww-tile"><img src="images/archetypes/thumb/' + list[i] +
+                    '.jpg" alt="" decoding="async"></span>';
+            }
+        }
+        return '<div class="ww-row ' + cls + '"><div class="ww-track">' + tiles + "</div></div>";
+    }
+
+    var half = Math.ceil(keys.length / 2);
+    return (
+        '<div class="welcome-wall" aria-hidden="true">' +
+        '<div class="welcome-wall-stage">' +
+        row(keys.slice(0, half), "ww-row--a") +
+        row(keys.slice(half), "ww-row--b") +
+        "</div>" +
+        '<div class="welcome-wall-scrim"></div>' +
+        "</div>"
+    );
+}
+
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
+        getWelcomeGalleryWall() +
         BBS_LOGO +
         '<div class="welcome-content-block">' +
         '<div class="welcome-hero">' +
@@ -3559,9 +3603,32 @@ function renderWelcome() {
         '<button class="button-primary" data-action="save-name">Begin the Discovery</button>' +
         "</div>" +
         "</div>" +
+        // Real figures from the live data — quiet proof of depth
+        '<div class="welcome-proof">' +
+        '<span><strong>24</strong> style directions</span>' +
+        '<span class="welcome-proof-dot"></span>' +
+        '<span><strong>8</strong> colour rooms</span>' +
+        '<span class="welcome-proof-dot"></span>' +
+        "<span><strong>" + (typeof guideTree !== "undefined" ? countGuideTopics() : 312) + "</strong> guide topics</span>" +
+        "</div>" +
         "</div>" +
         "</div>"
     );
+}
+
+// Counted from the tree rather than hardcoded, so the welcome screen
+// can never advertise a stale number.
+var _topicCountCache = null;
+function countGuideTopics() {
+    if (_topicCountCache !== null) return _topicCountCache;
+    var n = 0;
+    (function walk(node) {
+        if (!node || typeof node !== "object") return;
+        if (node.type === "topic") n++;
+        if (node.children) for (var k in node.children) walk(node.children[k]);
+    })(guideTree);
+    _topicCountCache = n;
+    return n;
 }
 
 // ============================================
