@@ -3542,6 +3542,10 @@ function runMeasureMoment(label, done, ms) {
 // headline. Random on each visit; tapping it shows another. Uses the
 // full-size illustration (one image, not a grid, so quality wins over
 // the thumbnail's weight saving).
+function getArchetypeCutout(key) {
+    return "images/archetypes/cutout/" + key + ".webp";
+}
+
 function getWelcomePortraitKeys() {
     if (typeof archetypeProfiles === "undefined") return [];
     return Object.keys(archetypeProfiles).filter(function (k) {
@@ -3556,7 +3560,7 @@ function getWelcomePortrait() {
     return (
         '<div class="welcome-portrait" data-action="welcome-portrait" data-key="' + key + '"' +
         ' role="button" tabindex="0" aria-label="A style archetype. Tap to see another.">' +
-        '<img src="images/archetypes/cutout/' + key + '.webp" alt="" decoding="async">' +
+        '<img src="' + getArchetypeCutout(key) + '" alt="" decoding="async">' +
         "</div>"
     );
 }
@@ -3582,6 +3586,8 @@ function swapWelcomePortrait(el) {
     var reduced = window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    var finished = false;
+
     function run() {
         el.appendChild(incoming);
         if (reduced) {
@@ -3591,15 +3597,31 @@ function swapWelcomePortrait(el) {
         requestAnimationFrame(function () {
             requestAnimationFrame(function () { el.classList.add("is-revealing"); });
         });
-        setTimeout(finish, 1000);
+        // Driven by the transition itself, not a fixed timer: on a busy
+        // frame the wipe can start late, and tearing the old image out
+        // on a timer then flashes it for a moment mid-reveal.
+        incoming.addEventListener("transitionend", function onEnd(e) {
+            if (e.propertyName !== "clip-path") return;
+            incoming.removeEventListener("transitionend", onEnd);
+            finish();
+        });
+        // Fallback in case the transition never fires (e.g. the tab is
+        // backgrounded part-way through)
+        setTimeout(finish, 2000);
     }
 
     function finish() {
-        var old = el.querySelector("img:not(.welcome-portrait-incoming)");
-        if (old) old.remove();
+        if (finished) return;
+        finished = true;
+        // Promote the incoming image to the base layer BEFORE removing
+        // the outgoing one, so there is never a frame with neither.
         incoming.className = "";
         el.setAttribute("data-key", key);
         el.classList.remove("is-swapping", "is-revealing");
+        var imgs = el.querySelectorAll("img");
+        for (var i = 0; i < imgs.length; i++) {
+            if (imgs[i] !== incoming) imgs[i].remove();
+        }
     }
 
     // Decode before revealing, so the wipe never uncovers a blank frame
@@ -5433,7 +5455,7 @@ function getArchetypeInitials(name) {
 function getHomeStripTile(key) {
     var profile = typeof archetypeProfiles !== "undefined" ? archetypeProfiles[key] : null;
     if (profile && profile.galleryImage) {
-        return '<span class="hgm-tile hgm-tile--photo"><img src="' + profile.galleryImage + '" alt="" loading="lazy"></span>';
+        return '<span class="hgm-tile hgm-tile--photo"><img src="' + getArchetypeCutout(key) + '" alt="" loading="lazy"></span>';
     }
     if (typeof getArchetypeAvatarSVG === "function") {
         return '<span class="hgm-tile">' + getArchetypeAvatarSVG(key) + "</span>";
@@ -5456,8 +5478,11 @@ function isLightHex(hex) {
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
+        // Cutout (figure on transparency) everywhere the mark sits on a
+        // light surface. The result card keeps the framed illustration —
+        // it is near-black, and a dinner jacket cut out on it vanishes.
         return '<span class="' + cls + ' gallery-mark--avatar gallery-mark--photo">' +
-            '<img src="' + archetype.galleryImage + '" alt="" loading="lazy"></span>';
+            '<img src="' + getArchetypeCutout(archetype.key) + '" alt="" loading="lazy"></span>';
     }
     if (typeof getArchetypeAvatarSVG === "function") {
         return '<span class="' + cls + ' gallery-mark--avatar">' + getArchetypeAvatarSVG(archetype.key) + "</span>";

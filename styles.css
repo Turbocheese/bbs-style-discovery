@@ -9496,3 +9496,80 @@ textarea:focus-visible,
     .is-revealing .welcome-portrait-incoming { transition: none; }
     .is-revealing::after { animation: none; }
 }
+
+/* --- Welcome portrait: centred in its band, and larger -------------
+   The gap below the figure was 77px against 40px above: the portrait's
+   own margin plus a 32px padding-top on the content block. Zeroing
+   that padding and using one equal margin both centres the figure
+   between the logo and the kicker and frees ~37px, which goes into
+   the figure rather than into whitespace. */
+.welcome-content-block { padding-top: 0 !important; }
+
+.welcome-portrait {
+    height: clamp(268px, 33.5vh, 384px);
+    margin-block: clamp(1.4rem, 3.2vh, 2.2rem);
+}
+
+@media (orientation: landscape) and (max-height: 900px) {
+    .welcome-portrait {
+        height: clamp(160px, 23vh, 200px);
+        margin-block: clamp(0.6rem, 1.5vh, 1rem);
+    }
+}
+
+/* --- Cutouts in the gallery, detail page and home strip -----------
+   The mark now carries a figure on transparency, so the cream tile
+   goes away: contain (not cover) so figures aren't cropped, on the
+   card's own surface, with the same drop-shadow used on the welcome
+   screen. Widths vary between figures, heights don't — sizing by
+   height keeps every archetype standing the same height. */
+.gallery-mark--photo {
+    background: none !important;
+    aspect-ratio: auto;
+    height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.gallery-mark--photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 1px 1px rgba(17, 17, 16, 0.10))
+        drop-shadow(0 10px 12px rgba(17, 17, 16, 0.14));
+}
+
+/* The card is a plain surface again — the full-bleed cream tile was
+   only there to carry the illustration's own background */
+.gallery-card--photo {
+    padding: 18px 10px 16px !important;
+    background: var(--surface) !important;
+}
+
+    .gallery-card--photo .gallery-mark--photo {
+        margin-bottom: 14px;
+        border-radius: 0;
+    }
+
+.gallery-mark--large.gallery-mark--photo {
+    height: 300px;
+    max-width: 320px;
+}
+
+/* Home strip: three small figures rather than three cream chips */
+.hgm-tile--photo {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.hgm-tile--photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: 50% 50%;
+    filter: drop-shadow(0 4px 6px rgba(17, 17, 16, 0.16));
+}
