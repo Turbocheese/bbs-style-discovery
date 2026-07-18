@@ -16,14 +16,15 @@ The goal is to keep the discovery engine:
 ## Current Coverage State
 
 As of the 18 July 2026 audit (`node verify/audit.js`):
-- 288 topics total
+- 297 topics total (288 + 9 mill/merchant topics added with the Mill Map)
 - 0 topics with missing metadata objects
 - 0 topics missing core fields (formality + versatility)
-- **107 topics with missing topic_kind** (mostly tailoring sub-trees).
-  Earlier versions of this document claimed 0 — that was never true of the
-  committed code. Rendering falls back gracefully, but backfill per the
-  assignment rules below when touching those topics, and never let the
-  count grow.
+- **98 topics with missing topic_kind** (mostly tailoring sub-trees).
+  All cloth_origins topics were backfilled with `fabric_reference` in July
+  2026. Earlier versions of this document claimed 0 missing — that was never
+  true of the committed code. Rendering falls back gracefully, but backfill
+  per the assignment rules below when touching those topics, and never let
+  the count grow.
 
 Run `node verify/audit.js` after any bulk edits.
 
@@ -48,7 +49,7 @@ to `data.js`. It checks:
 - completely missing metadata objects
 - missing formality / versatility fields
 - missing or invalid topic_kind values
-- total topic count (expected 288)
+- total topic count (expected 297)
 
 (The two "console audit scripts" earlier versions of this document
 described were never committed to the repo; `verify/audit.js` is their

@@ -1,6 +1,6 @@
 # CLAUDE.md — BBS Style Discovery
 
-In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 288-topic
+In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 297-topic
 menswear guide, wardrobe worksheet, and PDF/PNG exports. Vanilla JS/HTML/CSS,
 no framework, no build step, no backend, no runtime dependencies (everything is
 vendored). It runs by opening `index.html` (or any static file server), and is
@@ -24,7 +24,7 @@ Deep context lives in the other docs — read them only when needed:
 
 Script order in `index.html` is load-bearing (globals defined top-down). Current, real order:
 
-1. `data.js` — guide tree (`window.guideTree`, exactly **288 topics**)
+1. `data.js` — guide tree (`window.guideTree`, exactly **297 topics**)
 2. `validator.js` — structural validation of the tree
 3. `query.js` — search/ranking/related-topics engine
 4. `discovery-ui.js` — FAB + slide-out discovery panel, result cards
@@ -33,10 +33,11 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 7. `wardrobe-templates.js` — worksheet templates per archetype
 8. `fabric-visualiser.js` — the Cloth Room (SVG garment re-rendered in tap-selected cloths, plus a two-cloth side-by-side compare mode)
 9. `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
-10. `vendor/html2canvas.min.js` (vendored, was cdnjs)
-11. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
-12. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
-13. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
+10. `mill-map.js` — the Mill Map ("Provenance Chart": stylised SVG Europe chart, house pins, district charts, Singapore inset)
+11. `vendor/html2canvas.min.js` (vendored, was cdnjs)
+12. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
+13. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
+14. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 
 Do not reorder. Do not move the validation runner.
 
@@ -154,13 +155,14 @@ Other UI invariants:
   of data.js" described in the older docs does NOT exist in the code (it was
   apparently a console one-off, never committed). Write explicit metadata; there
   is no safety net.
-- Topic count is currently 288. If you add/remove topics, update the count where it
-  appears in docs, and re-run the audits (below).
-- **True topic_kind coverage (audited 18 July 2026): 181 of 288 topics have an
-  explicit topic_kind; 107 (mostly tailoring sub-trees) have none.** The older
-  docs' claim of full coverage was never true of the committed code. Rendering
-  falls back gracefully, so this is a data-quality gap, not a bug — backfill per
-  METADATA_GOVERNANCE.md's assignment rules when touching those topics.
+- Topic count is currently 297 (288 + 9 mill/merchant topics added July 2026). If
+  you add/remove topics, update the count where it appears in docs (and the
+  expected total in `verify/audit.js`), and re-run the audits (below).
+- **True topic_kind coverage (audited 18 July 2026): 199 of 297 topics have an
+  explicit topic_kind; 98 (mostly tailoring sub-trees) have none.** All
+  cloth_origins topics are now fully covered. Rendering falls back gracefully, so
+  this is a data-quality gap, not a bug — backfill per METADATA_GOVERNANCE.md's
+  assignment rules when touching those topics.
 - Duplicate topic concepts across contexts (Oxford, Travel, etc.) are intentional;
   disambiguation is `getTopicContextLabel()` in discovery-ui.js.
 - Colour result rendering de-duplicates Strong Neutrals against Best On You at

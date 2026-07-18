@@ -8119,3 +8119,362 @@ button,
     background: transparent !important;
     border-color: var(--accent) !important;
 }
+
+/* ============================================================
+   MILL MAP — "The Provenance Chart"
+   ============================================================ */
+
+.map-shell { max-width: 46rem; }
+
+/* Region chips */
+.map-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: -0.6rem 0 1.4rem;
+}
+
+.map-chip {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 7px 14px !important;
+    min-height: 0 !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.map-chip.sel {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+/* The chart stage */
+.map-stage {
+    width: 100%;
+    background: radial-gradient(ellipse 80% 70% at 50% 40%, #fbf9f4 0%, #f5f1e8 60%, #efe9dd 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    padding: 6px 6px 2px;
+}
+
+.map-chart { display: block; width: 100%; height: auto; }
+
+.map-grid { stroke: rgba(17, 17, 16, 0.05); stroke-width: 1; }
+
+.map-land {
+    fill: #ece5d7;
+    stroke: #3d3931;
+    stroke-width: 1.1;
+    stroke-opacity: 0.5;
+    stroke-linejoin: round;
+}
+
+.map-place-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    fill: var(--soft);
+    text-anchor: middle;
+}
+
+.map-place-label--town { font-size: 12px; letter-spacing: 0.18em; }
+
+.map-town-tick { stroke: var(--soft); stroke-width: 1.2; }
+
+.map-sea-label {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 16px;
+    fill: rgba(17, 17, 16, 0.28);
+    text-anchor: middle;
+}
+
+/* Markers */
+@keyframes mapPinIn { from { opacity: 0; } to { opacity: 1; } }
+
+.map-pin, .map-cluster { cursor: pointer; animation: mapPinIn 0.45s ease backwards; }
+
+.map-pin-hit { fill: transparent; }
+
+.map-pin-ring { fill: #fdfcf9; stroke: #111110; stroke-width: 1.6; }
+.map-pin-ring--dash { stroke-dasharray: 3 3; }
+.map-pin-dot { fill: #111110; }
+
+.map-pin.sel .map-pin-dot { fill: #9a7b4f; }
+
+.map-pin.sel .map-pin-ring {
+    stroke: #9a7b4f;
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mapPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mapPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+}
+
+.map-pin.dim, .map-cluster.dim, .map-inset.dim { opacity: 0.15; pointer-events: none; }
+
+.map-pin-name {
+    font-family: "Manrope", sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    fill: #111110;
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: #f5f1e8;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}
+
+.map-cluster-disc { fill: #111110; }
+
+.map-cluster-count {
+    font-family: "EB Garamond", serif;
+    font-size: 14px;
+    fill: #f7f4ed;
+    text-anchor: middle;
+}
+
+.map-cluster-name {
+    font-family: "Manrope", sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    fill: var(--muted);
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: #f5f1e8;
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}
+
+/* Singapore inset */
+.map-inset-ring {
+    fill: #fdfcf9;
+    stroke: #111110;
+    stroke-width: 1.2;
+    stroke-dasharray: 4 5;
+    opacity: 0.9;
+}
+
+.map-inset-eyebrow, .map-inset-sub {
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    fill: var(--soft);
+    text-anchor: middle;
+}
+
+.map-inset-name {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 16px;
+    fill: #111110;
+    text-anchor: middle;
+}
+
+/* District bar */
+.map-district-bar {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.8rem 1rem 0.2rem;
+}
+
+.map-zoom-out {
+    border: none !important;
+    background: transparent !important;
+    padding: 6px 4px !important;
+    min-height: 0 !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+    border-bottom: 1px solid var(--line-strong) !important;
+    border-radius: 0 !important;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.map-district-title {
+    font-family: "EB Garamond", serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--text);
+}
+
+.map-district-sub {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-style: normal;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-top: 2px;
+}
+
+/* Detail card (extends .vis-info) */
+.map-detail { margin-top: 1.4rem; max-width: 30rem; }
+
+.map-detail-empty {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--soft);
+    padding: 0.4rem 0;
+}
+
+.map-detail-name {
+    font-family: "EB Garamond", serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--text);
+    margin: 0 0 0.35rem;
+}
+
+.map-detail-meta {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 0.7rem;
+}
+
+.map-detail-blurb {
+    font-family: "EB Garamond", serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 1rem;
+}
+
+.map-detail-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+}
+
+/* House index */
+.map-index {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 1.2rem 1.6rem;
+    margin-top: 1.8rem;
+}
+
+.map-index-region {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a7b4f;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+}
+
+.map-index-entry {
+    display: block;
+    width: 100%;
+    text-align: left !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 8px 2px !important;
+    min-height: 44px;
+    border-bottom: 1px solid rgba(17, 17, 16, 0.05) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.map-index-name {
+    display: block;
+    font-family: "EB Garamond", serif;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.map-index-entry.sel .map-index-name { color: #9a7b4f; font-style: italic; }
+
+.map-index-place {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-top: 2px;
+}
+
+/* Cloth Room: mill name taps through to the chart */
+.vis-spec-link {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 0 2px !important;
+    min-height: 0 !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+    border-bottom: 1px dotted var(--line-strong) !important;
+    border-radius: 0 !important;
+    cursor: pointer;
+}
+
+/* Home strip decoration: three chart markers */
+.home-map-marks {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.hmm-pin {
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid var(--text);
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--text) 0 2.5px, #fdfcf9 2.5px);
+    margin-right: 9px;
+}
+
+.hmm-pin--mid { margin-top: -14px; }
+.hmm-pin--far { margin-top: 12px; width: 12px; height: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .map-pin, .map-cluster { animation: none; }
+    .map-pin.sel .map-pin-ring { animation: none; }
+}
+
+.map-pin-tag {
+    font-family: "Manrope", sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    fill: var(--muted);
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: #f5f1e8;
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+}

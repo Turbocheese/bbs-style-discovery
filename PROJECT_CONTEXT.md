@@ -16,10 +16,15 @@ It is a fully operational product with:
 - premium result cards for both, with PDF export and native PNG sharing
 - a Client Dossier multi-page PDF export
 - a wardrobe worksheet tied to the style result (checklist, progress, exports)
-- a structured menswear guide: 288 topics across six sections
+- a structured menswear guide: 297 topics across six sections
 - metadata-backed search, filtering, and ranked explainable discovery
 - the Cloth Room: an SVG garment re-rendered live in tap-selected cloths,
   with a two-cloth side-by-side compare mode for at-the-rack decisions
+- the Mill Map ("Provenance Chart"): a stylised SVG chart of Europe and the
+  Mediterranean with a tappable marker for every house in Cloth Origins,
+  district charts for West Yorkshire and Northern Italy, region filters, a
+  Singapore home inset (Officine Paladino), and cross-links to/from the
+  Cloth Room
 - an editorial lookbook (placeholder imagery, pending photography)
 - full offline operation via a service worker, with all dependencies vendored
 - kiosk behaviours: idle attract-reset, staff double-tap-logo reset,
@@ -58,6 +63,7 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `wardrobe-templates.js` — worksheet templates per archetype
 - `fabric-visualiser.js` — the Cloth Room
 - `archetype-avatars.js` — SVG avatar busts for the Archetype Gallery
+- `mill-map.js` — the Mill Map (pin data, chart SVG builders, partial updates)
 - `app.js` — views, quizzes, worksheet, exports, navigation, kiosk behaviours
 - `sw.js` — service worker (bump CACHE_VERSION on every deploy that changes cached files)
 - `verify/smoke.js` — automated smoke harness
@@ -65,15 +71,15 @@ Future: product linking to real inventory, customer-facing adaptation.
 ### Critical script load order
 data.js → validator.js → query.js → discovery-ui.js → colour-direction.js →
 lookbook.js → wardrobe-templates.js → fabric-visualiser.js → archetype-avatars.js →
-vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js → inline
-validation runner + SW registration. This order is critical and must not change.
+mill-map.js → vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js →
+inline validation runner + SW registration. This order is critical and must not change.
 
 ## 3. Architecture
 
 Four layers:
 
 **1. Content layer (data.js)** — nested JS object tree, two node types
-(group/topic), 288 topics across six top-level sections (About BBS, Tailoring,
+(group/topic), 297 topics across six top-level sections (About BBS, Tailoring,
 Fabrics, Colour and Wardrobe, Cloth Origins and Mills, Accessories). Every
 topic has explicit `topic_kind`, tags, intro, metadata, sections.
 Note: the "auto-enrichment script at the bottom of data.js" described in older
@@ -109,11 +115,11 @@ measure-moment loading interstitial, and kiosk behaviours.
 
 ## 5. Data State
 
-- 288 topics; 0 missing metadata objects; 0 missing core fields (audited
+- 297 topics; 0 missing metadata objects; 0 missing core fields (audited
   18 July 2026 via `node verify/audit.js`).
-- **topic_kind: 181 of 288 topics have it explicitly; 107 (mostly tailoring
-  sub-trees) do not.** Earlier claims of full coverage were never true of the
-  committed code — rendering falls back gracefully, but backfill these per
+- **topic_kind: 199 of 297 topics have it explicitly; 98 (mostly tailoring
+  sub-trees) do not.** All cloth_origins topics are covered (backfilled July
+  2026). Rendering falls back gracefully, but backfill the rest per
   METADATA_GOVERNANCE.md when touching those topics.
 - topic_kind values: garment, garment_detail, fabric, fabric_reference,
   wardrobe_strategy, brand_philosophy, guide.

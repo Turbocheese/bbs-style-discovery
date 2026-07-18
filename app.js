@@ -3666,6 +3666,20 @@ function renderHome() {
         "</div>" +
         '<div class="home-cloth-room-cta">Browse &rarr;</div>' +
         "</div>" +
+        // Full-width strip: Mill Map entry
+        '<div class="home-cloth-room home-map-strip" data-action="mill-map">' +
+        '<div class="home-map-marks" aria-hidden="true">' +
+        '<span class="hmm-pin"></span>' +
+        '<span class="hmm-pin hmm-pin--mid"></span>' +
+        '<span class="hmm-pin hmm-pin--far"></span>' +
+        "</div>" +
+        '<div class="home-cloth-room-content">' +
+        '<div class="home-card-tag">The Provenance Chart</div>' +
+        '<h2 class="home-cloth-room-title">The Mill Map</h2>' +
+        '<p class="home-card-body">Every cloth traces back to a place. Meet the houses, from Biella to home.</p>' +
+        "</div>" +
+        '<div class="home-cloth-room-cta">Chart &rarr;</div>' +
+        "</div>" +
         // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
         '<div class="home-quick-queries">' +
         '<button class="quick-query-btn" data-action="quick-query" data-query="tropical_work">' +
@@ -5461,6 +5475,9 @@ function render(options) {
         case "archetype-gallery":
             content = renderArchetypeGallery();
             break;
+        case "mill-map":
+            content = renderMillMap();
+            break;
         default:
             content = appState.clientName ? renderHome() : renderWelcome();
     }
@@ -5919,6 +5936,37 @@ document.body.addEventListener("click", function (e) {
             appState.galleryKey = null;
             navigate("archetype-gallery");
         }, 650);
+    }
+    else if (action === "mill-map") {
+        mapResetState();
+        runMeasureMoment("Charting the mills…", function () { navigate("mill-map"); }, 650);
+    }
+    else if (action === "mill-map-focus") {
+        var focusPin = getMillPinByName(target.dataset.mill);
+        mapResetState();
+        if (focusPin) {
+            _mapSelected = focusPin.key;
+            if (focusPin.cluster) _mapDistrict = focusPin.cluster;
+        }
+        runMeasureMoment("Charting the mills…", function () { navigate("mill-map"); }, 650);
+    }
+    else if (action === "map-pin") {
+        mapSelectPin(target.dataset.key);
+    }
+    else if (action === "map-cluster") {
+        mapOpenDistrict(target.dataset.district);
+    }
+    else if (action === "map-zoom-out") {
+        mapCloseDistrict();
+    }
+    else if (action === "map-region") {
+        mapSetRegion(target.dataset.region);
+    }
+    else if (action === "map-see-cloth") {
+        appState.visFabricKey = target.dataset.fabric;
+        appState.visCompare = false;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
     else if (action === "gallery-open") {
         appState.galleryKey = target.dataset.key;

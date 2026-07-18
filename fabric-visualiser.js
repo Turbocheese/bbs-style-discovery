@@ -622,11 +622,16 @@ function renderClothCompare(aKey, recommended) {
 }
 
 function getFabricInfoHTML(fabric) {
+    // The mill name taps through to its marker on the Mill Map.
+    var millSpec =
+        typeof getMillPinByName === "function" && getMillPinByName(fabric.mill)
+            ? '<button class="vis-spec vis-spec-link" data-action="mill-map-focus" data-mill="' + fabric.mill + '">' + fabric.mill + "</button>"
+            : '<span class="vis-spec">' + fabric.mill + "</span>";
     return (
         '<div class="vis-info-head">' +
         '<h2 class="vis-fabric-name">' + fabric.name + "</h2>" +
         '<div class="vis-fabric-specs">' +
-        '<span class="vis-spec">' + fabric.mill + "</span>" +
+        millSpec +
         '<span class="vis-spec-divider"></span>' +
         '<span class="vis-spec">' + fabric.composition + "</span>" +
         '<span class="vis-spec-divider"></span>' +
