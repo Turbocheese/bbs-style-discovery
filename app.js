@@ -3565,10 +3565,13 @@ function getWelcomePortrait() {
     );
 }
 
-// Swap to a different archetype. The current figure is cleared first,
-// then the new one draws itself in from the top — an ink line coming
-// down the page. Deliberately sequential: it reuses the single <img>
-// element, so two figures can never be on screen at once.
+// Swap to a different archetype: fade the figure out, exchange the
+// source while nothing is on screen, fade the new one in.
+//
+// Sequential, not a crossfade — these are cut-out figures on
+// transparency, and dissolving one into another ghosts two different
+// silhouettes together. Reusing the single <img> element also means
+// there is never a second image to leave behind.
 function swapWelcomePortrait(el) {
     if (!el || el.classList.contains("is-swapping")) return;
     var img = el.querySelector("img");
@@ -3585,7 +3588,7 @@ function swapWelcomePortrait(el) {
 
     el.classList.add("is-swapping");
 
-    // Decode first: the draw-in must never expose a half-loaded figure
+    // Decode first, so the fade-in never reveals a half-loaded figure
     var next = new Image();
     next.decoding = "async";
     next.src = getArchetypeCutout(key);
@@ -3605,28 +3608,23 @@ function swapWelcomePortrait(el) {
             cleared = true;
             img.removeEventListener("transitionend", onCleared);
 
-            // Old figure is fully gone before the new source is set
+            // Nothing is on screen at this point — swap, then fade up
             img.src = next.src;
             el.setAttribute("data-key", key);
-            el.classList.add("is-drawing");   // clipped to nothing, opaque
-            el.classList.remove("is-clearing");
-
             requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    el.classList.add("is-drawn");   // runs the reveal
-                });
+                el.classList.remove("is-clearing");
             });
 
             var done = false;
             function finish(ev) {
-                if (ev && ev.propertyName !== "clip-path") return;
+                if (ev && ev.propertyName !== "opacity") return;
                 if (done) return;
                 done = true;
                 img.removeEventListener("transitionend", finish);
-                el.classList.remove("is-drawing", "is-drawn", "is-swapping");
+                el.classList.remove("is-swapping");
             }
             img.addEventListener("transitionend", finish);
-            setTimeout(finish, 1600);
+            setTimeout(finish, 1200);   // fallback if the tab is backgrounded
         }
 
         img.addEventListener("transitionend", onCleared);
@@ -3637,6 +3635,7 @@ function swapWelcomePortrait(el) {
     if (next.decode) next.decode().then(ready).catch(ready);
     else { next.onload = ready; next.onerror = function () { el.classList.remove("is-swapping"); }; }
 }
+
 
 
 function renderWelcome() {
