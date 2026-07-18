@@ -3551,7 +3551,7 @@ function renderWelcome() {
         '<div class="welcome-form-card">' +
         '<div class="welcome-form">' +
         '<label class="welcome-label" for="client-name-input">How shall we address you?</label>' +
-        '<input id="client-name-input" class="welcome-input" type="text" placeholder="Your first name" value="' +
+        '<input id="client-name-input" class="welcome-input" type="text" aria-label="Client first name" placeholder="Your first name" value="' +
         (appState.clientName || "") +
         '" autocomplete="given-name" autocorrect="off" spellcheck="false">' +
         "</div>" +
@@ -4520,7 +4520,10 @@ function renderWorksheet() {
 
         var html = '<div class="worksheet-item' + checkedClass + expandedClass + '" data-item-id="' + item.id + '">';
         html += '<div class="worksheet-item-priority">' + item.priority + '</div>';
-        html += '<div class="worksheet-item-check" data-action="toggle-item" data-item-id="' + item.id + '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
+        html += '<div class="worksheet-item-check" data-action="toggle-item" data-item-id="' + item.id +
+            '" role="checkbox" tabindex="0" aria-checked="' + (isChecked ? "true" : "false") +
+            '" aria-label="' + String(item.item || "Wardrobe item").replace(/"/g, "&quot;") +
+            '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
 
         html += '<div class="worksheet-item-content">';
         html += '<div class="worksheet-item-main">';
@@ -5366,6 +5369,18 @@ function getHomeStripTile(key) {
     return '<span class="hgm-tile"></span>';
 }
 
+// Relative luminance test (WCAG): true when a colour is pale enough
+// that white text on it would fail contrast.
+function isLightHex(hex) {
+    if (!hex || hex.charAt(0) !== "#" || hex.length < 7) return false;
+    var n = parseInt(hex.slice(1, 7), 16);
+    var ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(function (v) {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2] > 0.35;
+}
+
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
@@ -5433,22 +5448,34 @@ function renderArchetypeGallery() {
 }
 
 function renderArchetypeDetail(archetype, index) {
+    var allKeys = Object.keys(archetypeProfiles);
+    var pos = allKeys.indexOf(archetype.key);
+    var prevKey = allKeys[(pos - 1 + allKeys.length) % allKeys.length];
+    var nextKey = allKeys[(pos + 1) % allKeys.length];
+    var counter = ("0" + (pos + 1)).slice(-2) + " / " + allKeys.length;
+
     var html = '<div class="gallery-shell gallery-shell--detail">';
+
+    // Hero: eyebrow leads, portrait anchors, name and sub follow —
+    // one centred column with a constrained measure throughout.
     html += '<div class="gallery-detail-head">';
+    html += '<span class="welcome-kicker">Style Archetype &middot; ' + counter + "</span>";
     html += getGalleryMarkHTML(archetype, index, true);
-    html += '<span class="welcome-kicker">Style Archetype</span>';
     html += "<h1>" + archetype.name + "</h1>";
     html += '<p class="gallery-detail-sub">' + archetype.sub + "</p>";
+    html += '<div class="gallery-detail-rule"></div>';
     html += "</div>";
 
     html += '<p class="gallery-detail-desc">' + archetype.desc + "</p>";
 
     if (archetype.notes && archetype.notes.length) {
-        html += '<ul class="gallery-detail-notes">';
+        // Centred rows with hairline separators — a left-aligned bulleted
+        // list inside a centred column was the main alignment break here.
+        html += '<div class="gallery-detail-notes">';
         for (var n = 0; n < archetype.notes.length; n++) {
-            html += "<li>" + archetype.notes[n] + "</li>";
+            html += '<div class="gallery-detail-note">' + archetype.notes[n] + "</div>";
         }
-        html += "</ul>";
+        html += "</div>";
     }
 
     if (archetype.tags && archetype.tags.length) {
@@ -5471,6 +5498,14 @@ function renderArchetypeDetail(archetype, index) {
         }
         html += "</div>";
     }
+
+    // Step through all 24 without returning to the grid each time.
+    html += '<div class="gallery-pager">';
+    html += '<button class="gallery-pager-btn" data-action="gallery-open" data-key="' + prevKey +
+        '" aria-label="Previous archetype: ' + archetypeProfiles[prevKey].name + '">&larr; <span>' + archetypeProfiles[prevKey].name + "</span></button>";
+    html += '<button class="gallery-pager-btn" data-action="gallery-open" data-key="' + nextKey +
+        '" aria-label="Next archetype: ' + archetypeProfiles[nextKey].name + '"><span>' + archetypeProfiles[nextKey].name + "</span> &rarr;</button>";
+    html += "</div>";
 
     html += '<div class="gallery-nav">';
     html += '<button data-action="gallery-back">&larr; All Archetypes</button>';
@@ -6181,8 +6216,12 @@ function renderColourDirectionResult() {
 
     var heroPaletteHTML = '<div class="colour-hero-palette">';
     for (var h = 0; h < profile.bestColours.length; h++) {
+        // White-on-pale was unreadable (Off-White scored 1.14:1). Pick the
+        // label colour from the swatch's own luminance instead.
         heroPaletteHTML +=
-            '<div class="colour-hero-swatch" style="background-color: ' +
+            '<div class="colour-hero-swatch' +
+            (isLightHex(profile.bestColours[h].hex) ? " colour-hero-swatch--light" : "") +
+            '" style="background-color: ' +
             profile.bestColours[h].hex +
             ';" title="' +
             profile.bestColours[h].name +

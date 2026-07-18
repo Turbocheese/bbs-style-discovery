@@ -57,7 +57,7 @@
     --surface-2: #f3f3f3;
     --text: #111110;
     --muted: #6b675f;
-    --soft: #a4a19c;
+    --soft: #78756f;              /* was #a4a19c (2.57:1 on white — failed AA) */
     --line: rgba(17, 17, 16, 0.08);
     --line-strong: rgba(17, 17, 16, 0.18);
     --accent: #111110;
@@ -357,7 +357,7 @@ button:disabled {
 
 .bbs-logo-name {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -431,7 +431,7 @@ button:disabled {
     align-items: center;
     gap: 8px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.64rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -614,7 +614,7 @@ button:disabled {
 .welcome-label {
     display: block;
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -688,7 +688,7 @@ button:disabled {
 
 .discover-step-meta {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -730,7 +730,7 @@ button:disabled {
 
 .discover-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -815,7 +815,7 @@ button:disabled {
 
 .discover-choice-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -959,7 +959,7 @@ textarea {
 
 .result-eyebrow-v2 {
     font-family: "Manrope", sans-serif;
-    font-size: 0.66rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -997,7 +997,7 @@ textarea {
 
 .result-stylist-card-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1036,7 +1036,7 @@ textarea {
 
 .result-info-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1076,7 +1076,7 @@ textarea {
 
 .result-cta-v2-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1183,7 +1183,7 @@ textarea {
 
 .result-next-card-kind {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1192,7 +1192,7 @@ textarea {
 
 .result-next-card-context {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     color: var(--soft);
 }
 
@@ -1238,7 +1238,7 @@ textarea {
 
 .guide-eyebrow-v2 {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1300,7 +1300,7 @@ textarea {
 
 .guide-list-item-v2-index {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     color: var(--soft);
@@ -1316,7 +1316,7 @@ textarea {
 
 .guide-list-item-v2-kind {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1379,7 +1379,7 @@ textarea {
 .topic-type-badge {
     display: inline-block;
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1431,7 +1431,7 @@ textarea {
     align-items: center;
     gap: 6px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1479,7 +1479,7 @@ textarea {
 
 .topic-spec-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1540,7 +1540,7 @@ textarea {
 
 .topic-related-type {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1549,7 +1549,7 @@ textarea {
 
 .topic-related-context {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--soft);
 }
@@ -1647,7 +1647,7 @@ textarea {
 
 .discovery-header-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1701,7 +1701,7 @@ textarea {
 
 .panel-section-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -2070,7 +2070,7 @@ textarea {
 }
 
 .result-type-label {
-    font-size: 0.64rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -2092,7 +2092,7 @@ textarea {
 .result-badge {
     display: inline-flex;
     align-items: center;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 600;
     padding: 3px 6px;
     background: var(--surface-2);
@@ -2107,7 +2107,7 @@ textarea {
     background: transparent;
     border: none;
     padding: 0;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--accent);
     display: inline-flex;
@@ -2720,7 +2720,7 @@ textarea {
 
 .arch-q-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -2796,7 +2796,7 @@ textarea {
 
 .arch-opt-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -2825,7 +2825,7 @@ textarea {
 
 .arch-btn-back {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2853,7 +2853,7 @@ textarea {
 
 .arch-btn-next {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2890,7 +2890,7 @@ textarea {
 
 .arch-onboard-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -2923,7 +2923,7 @@ textarea {
 
 .arch-pref-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -2983,7 +2983,7 @@ textarea {
 
 .arch-pref-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 400;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -3029,7 +3029,7 @@ textarea {
 
 .arch-result-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.25em;
     text-transform: uppercase;
@@ -3097,7 +3097,7 @@ textarea {
 
 .arch-card-brand {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -3107,7 +3107,7 @@ textarea {
 
 .arch-card-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.5rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -3117,7 +3117,7 @@ textarea {
 
 .arch-card-client {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -3151,7 +3151,7 @@ textarea {
 .arch-card-persona-sub {
     font-family: "Manrope", sans-serif;
     font-weight: 400;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     opacity: 0.5;
@@ -3169,7 +3169,7 @@ textarea {
 .arch-card-section-label {
     font-family: "Manrope", sans-serif;
     font-weight: 600;
-    font-size: 0.5rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     opacity: 0.4;
@@ -3191,7 +3191,7 @@ textarea {
 
 .arch-card-baseline-lbl {
     font-family: "Manrope", sans-serif;
-    font-size: 0.42rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -3202,7 +3202,7 @@ textarea {
 
 .arch-card-baseline-val {
     font-family: "Manrope", sans-serif;
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -3246,7 +3246,7 @@ textarea {
 .arch-card-chip {
     font-family: "Manrope", sans-serif;
     font-weight: 500;
-    font-size: 0.48rem;
+    font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     border: 1px solid rgba(243, 239, 233, 0.15);
@@ -3266,7 +3266,7 @@ textarea {
 .arch-card-cta-text {
     font-family: "Manrope", sans-serif;
     font-weight: 600;
-    font-size: 0.52rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     opacity: 0.55;
@@ -3278,7 +3278,7 @@ textarea {
 .arch-card-url {
     font-family: "Manrope", sans-serif;
     font-weight: 400;
-    font-size: 0.48rem;
+    font-size: 0.7rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     opacity: 0.3;
@@ -3301,7 +3301,7 @@ textarea {
 .arch-btn-fill {
     font-family: "Manrope", sans-serif;
     font-weight: 700;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     background: var(--accent);
@@ -3323,7 +3323,7 @@ textarea {
 .arch-btn-stroke {
     font-family: "Manrope", sans-serif;
     font-weight: 700;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     background: transparent;
@@ -3346,7 +3346,7 @@ textarea {
 .arch-restart {
     font-family: "Manrope", sans-serif;
     font-weight: 400;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     background: none;
@@ -3372,7 +3372,7 @@ textarea {
 
 .arch-explore-heading {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -3414,7 +3414,7 @@ textarea {
 
 .arch-explore-kind {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -3593,7 +3593,7 @@ textarea {
 /* Fix subtitle colour — brown is wrong */
 .arch-opt-sub {
     color: #706c66 !important;
-    font-size: 0.58rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
     font-weight: 400 !important;
@@ -3647,7 +3647,7 @@ textarea {
 /* Home button in nav */
 .arch-btn-home {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -3780,7 +3780,7 @@ textarea {
 /* Label row — small caps above title */
 .home-card-label-row {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -3917,7 +3917,7 @@ textarea {
     align-items: center;
     gap: 6px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 500;
     color: var(--soft);
     letter-spacing: 0.02em;
@@ -3944,7 +3944,7 @@ textarea {
 
     .home-stat {
         padding: 0 12px;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
     }
 }
 /* ============================================
@@ -3978,7 +3978,7 @@ textarea {
 
 .home-brand-name {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -4128,7 +4128,7 @@ textarea {
     align-items: center;
     gap: 6px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 500;
     color: var(--soft);
     letter-spacing: 0.02em;
@@ -4226,7 +4226,7 @@ textarea {
 .arch-restart {
     font-family: "Manrope", sans-serif;
     font-weight: 500;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     background: none;
@@ -4305,7 +4305,7 @@ textarea {
 
 .arch-card-baseline-val {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -4872,7 +4872,7 @@ textarea {
 
 .colour-hero-swatch-name {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -5029,7 +5029,7 @@ textarea {
 
 .arch-journey-bridge-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -5080,7 +5080,7 @@ textarea {
 .arch-btn-fill {
     font-family: "Manrope", sans-serif;
     font-weight: 700;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     background: var(--accent);
@@ -5132,7 +5132,7 @@ textarea {
         bottom: 8px !important;
         left: 8px !important;
         right: 8px !important;
-        font-size: 0.45rem !important;
+        font-size: 0.7rem !important;
         line-height: 1.2 !important;
         text-align: left !important;
         white-space: normal !important;
@@ -5288,7 +5288,7 @@ textarea {
 
 .lookbook-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -5341,7 +5341,7 @@ textarea {
 
 .lookbook-item-season {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -5368,7 +5368,7 @@ textarea {
 
 .lookbook-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -5434,7 +5434,7 @@ textarea {
 
 .home-card-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -5589,7 +5589,7 @@ textarea {
 
 .home-card-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -5709,7 +5709,7 @@ textarea {
 
 .worksheet-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -5869,7 +5869,7 @@ textarea {
 
     .worksheet-progress-stat .stat-label {
         font-family: "Manrope", sans-serif;
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -6072,7 +6072,7 @@ textarea {
 
 .worksheet-item-tier {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -6103,7 +6103,7 @@ textarea {
 
 .worksheet-item-mills {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #8a5a3b;
     display: flex;
@@ -6199,7 +6199,7 @@ textarea {
 
 .worksheet-item-why-label {
     font-family: "Manrope", sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -6258,7 +6258,7 @@ textarea {
 
 .outfit-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -6267,7 +6267,7 @@ textarea {
 
 .outfit-status {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--muted);
     background: var(--surface-2);
@@ -6525,7 +6525,7 @@ body.has-fab #app {
 
 .vis-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--soft);
@@ -6694,7 +6694,7 @@ body.has-fab #app {
 
 .vis-spec {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--soft);
@@ -6717,7 +6717,7 @@ body.has-fab #app {
 
 .vis-guide-link {
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--accent);
@@ -6735,7 +6735,7 @@ body.has-fab #app {
 
 .vis-footnote {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.06em;
     color: var(--soft);
     margin-top: 1.1rem;
@@ -6801,7 +6801,7 @@ body.has-fab #app {
 
 .home-cloth-room-cta {
     font-family: "Manrope", sans-serif;
-    font-size: 0.66rem;
+    font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--accent);
@@ -6854,7 +6854,7 @@ h1 {
 /* --- Buttons: rectangular, letterspaced, quiet until touched --- */
 button {
     border-radius: 0 !important;
-    font-size: 0.68rem !important;
+    font-size: 0.7rem !important;
     font-weight: 500 !important;
     letter-spacing: 0.18em !important;
     text-transform: uppercase !important;
@@ -6956,7 +6956,7 @@ button:disabled {
 .home-card-cta {
     letter-spacing: 0.18em !important;
     text-transform: uppercase !important;
-    font-size: 0.62rem !important;
+    font-size: 0.7rem !important;
 }
 
 .home-cloth-room {
@@ -7087,7 +7087,7 @@ textarea {
     border: none !important;
     background: transparent !important;
     padding: 6px 4px !important;
-    font-size: 0.6rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.2em !important;
     color: var(--soft) !important;
     text-decoration: none !important;
@@ -7119,7 +7119,7 @@ textarea {
 
 .vis-reco-strip {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--soft);
@@ -7147,7 +7147,7 @@ textarea {
     --radius-sm: 3px;
     --radius-md: 4px;
     --radius-lg: 4px;
-    --bronze: #9a7b4f;
+    --bronze: #8a6d43;            /* was #9a7b4f (3.95:1 on white — failed AA) */
     --shadow-warm: 0 14px 44px rgba(78, 58, 38, 0.10);
 }
 
@@ -7405,7 +7405,7 @@ button,
 /* Welcome kicker in the maison micro-label voice */
 .welcome-kicker {
     font-family: "Manrope", sans-serif !important;
-    font-size: 0.62rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.3em !important;
     text-transform: uppercase !important;
     /* Breathing room: the kicker was sitting directly on the headline. */
@@ -7499,7 +7499,7 @@ button,
     justify-content: center;
     padding-bottom: 2px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     line-height: 1;
@@ -7838,7 +7838,7 @@ button,
 
 .gallery-card-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -7902,7 +7902,7 @@ button,
 
 .gallery-detail-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -7943,7 +7943,7 @@ button,
 
 .gallery-detail-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -8052,7 +8052,7 @@ button,
 
 .vis-cmp-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8076,7 +8076,7 @@ button,
 .vis-info--cmp .vis-guide-link {
     margin-top: auto;
     align-self: center;
-    font-size: 0.6rem !important;
+    font-size: 0.7rem !important;
     white-space: nowrap;
 }
 
@@ -8108,7 +8108,7 @@ button,
     min-height: 0 !important;
     margin: -0.4rem 0 1.5rem;
     font-family: "Manrope", sans-serif;
-    font-size: 0.68rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
     color: var(--accent) !important;
@@ -8142,7 +8142,7 @@ button,
     padding: 7px 14px !important;
     min-height: 0 !important;
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
     color: var(--muted) !important;
@@ -8250,7 +8250,7 @@ button,
 
 .map-cluster-name {
     font-family: "Manrope", sans-serif;
-    font-size: 10.5px;
+    font-size: 11.5px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     fill: var(--muted);
@@ -8272,7 +8272,7 @@ button,
 
 .map-inset-eyebrow, .map-inset-sub {
     font-family: "Manrope", sans-serif;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     fill: var(--soft);
@@ -8301,7 +8301,7 @@ button,
     padding: 6px 4px !important;
     min-height: 0 !important;
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
     color: var(--accent) !important;
@@ -8322,7 +8322,7 @@ button,
     display: block;
     font-family: "Manrope", sans-serif;
     font-style: normal;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8352,7 +8352,7 @@ button,
 
 .map-detail-meta {
     font-family: "Manrope", sans-serif;
-    font-size: 0.62rem;
+    font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8385,7 +8385,7 @@ button,
 
 .map-index-region {
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #9a7b4f;
@@ -8420,7 +8420,7 @@ button,
 .map-index-place {
     display: block;
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8434,7 +8434,7 @@ button,
     padding: 0 0 2px !important;
     min-height: 0 !important;
     font-family: "Manrope", sans-serif;
-    font-size: 0.6rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.18em !important;
     text-transform: uppercase;
     color: var(--accent) !important;
@@ -8469,7 +8469,7 @@ button,
 
 .map-pin-tag {
     font-family: "Manrope", sans-serif;
-    font-size: 10.5px;
+    font-size: 11.5px;
     letter-spacing: 0.06em;
     fill: var(--muted);
     text-anchor: middle;
@@ -8580,7 +8580,7 @@ button,
     right: 0;
     text-align: center;
     font-family: "Manrope", sans-serif;
-    font-size: 0.5rem;
+    font-size: 0.7rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8597,7 +8597,7 @@ button,
 
 .ds-tab {
     padding: 10px 20px !important;
-    font-size: 0.62rem !important;
+    font-size: 0.7rem !important;
 }
 
     .ds-tab.sel {
@@ -8625,7 +8625,7 @@ button,
 
 .ds-style-opt {
     padding: 9px 16px !important;
-    font-size: 0.56rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
 }
 
@@ -8744,7 +8744,7 @@ button,
 
 .flip-back-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
     color: var(--soft);
@@ -8776,7 +8776,7 @@ button,
     min-height: 0 !important;
     align-self: center;
     font-family: "Manrope", sans-serif;
-    font-size: 0.64rem !important;
+    font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
     color: var(--accent) !important;
@@ -8789,7 +8789,7 @@ button,
     right: 12px;
     bottom: 10px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.52rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.75);
@@ -8867,7 +8867,7 @@ button,
 
 .topic-flip-eyebrow {
     font-family: "Manrope", sans-serif;
-    font-size: 0.56rem;
+    font-size: 0.7rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--soft);
@@ -9009,4 +9009,288 @@ button,
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* ============================================================
+   UI/UX PASS — July 2026
+   Fixes measured by tmp/ux-audit.js against the ui-ux-pro-max
+   pre-delivery checklist (contrast, touch targets, type floor,
+   focus visibility, labelling). Every value here is a measured
+   correction, not a preference.
+   ============================================================ */
+
+/* --- 1. Dark-surface text tokens ---------------------------------
+   --soft/--bronze were darkened to pass AA on white, which cost
+   contrast on the ink card. Dark surfaces get their own values:
+   #a4a19c reads 7.34:1 on ink, #a98a5c reads 5.83:1. */
+:root {
+    --soft-on-dark: #a4a19c;
+    --bronze-on-dark: #a98a5c;
+}
+
+.discovery-header-eyebrow,
+.arch-card-section-label,
+.arch-card-baseline-lbl,
+.arch-card-tag,
+.arch-card-client {
+    color: var(--soft-on-dark) !important;
+}
+
+.arch-journey-bridge-label,
+.arch-card-brand {
+    color: var(--bronze-on-dark) !important;
+}
+
+/* --- 2. Colour swatch labels -------------------------------------
+   White on a pale swatch measured 1.14:1. Pale swatches take ink. */
+.colour-hero-swatch--light .colour-hero-swatch-name {
+    color: #111110;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.65);
+}
+
+/* --- 3. Touch targets --------------------------------------------
+   Everything interactive reaches 44px. Where the visual mark must
+   stay small, the tap area is grown with padding rather than by
+   scaling the mark. */
+.results-clear-btn {
+    min-height: 44px;
+}
+
+.worksheet-item-check {
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: -10px;              /* keep the visual box where it was */
+    flex: 0 0 44px;
+}
+
+.worksheet-item-check::before {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: inherit;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.flip-back-link,
+.vis-mode-toggle,
+.vis-spec-link,
+.map-chip,
+.map-zoom-out,
+.home-change-name,
+.arch-restart {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-chip {
+    padding: 10px 16px !important;
+}
+
+/* --- 4. Focus visibility -----------------------------------------
+   Keyboard focus was invisible on most controls. One consistent
+   ring, offset so it never sits under adjacent content. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[data-action]:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--bronze);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+/* --- 5. Map pin hit areas ----------------------------------------
+   Pins were 39-42px; the invisible hit circle grows to clear 44. */
+.map-pin .map-pin-hit { r: 25px; }
+.map-cluster .map-pin-hit { r: 28px; }
+
+/* ============================================================
+   ARCHETYPE DETAIL — rebuilt for a single centred column
+   Was a loose stack with left-aligned bullets inside a centred
+   layout. Now: one measure, one alignment, one vertical rhythm
+   (16 / 24 / 40 / 56), with the portrait as the anchor.
+   ============================================================ */
+
+.gallery-shell--detail {
+    max-width: 40rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.gallery-detail-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+    .gallery-detail-head .welcome-kicker {
+        margin-bottom: 1.5rem;
+    }
+
+    .gallery-detail-head h1 {
+        margin: 1.5rem 0 0.5rem;
+        max-width: 18ch;
+    }
+
+.gallery-detail-sub {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    margin: 0;
+}
+
+.gallery-detail-rule {
+    width: 40px;
+    height: 1px;
+    background: var(--line-strong);
+    margin: 2.5rem auto 0;
+}
+
+.gallery-detail-desc {
+    font-family: "EB Garamond", serif;
+    font-size: 1.18rem;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 40ch;          /* readable measure, not edge-to-edge */
+    margin: 2.5rem auto 0;
+}
+
+/* Notes: centred rows separated by hairlines */
+.gallery-detail-notes {
+    max-width: 32rem;
+    margin: 3.5rem auto 0;
+    border-top: 1px solid var(--line);
+}
+
+.gallery-detail-note {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--muted);
+    padding: 1.1rem 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.gallery-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2.5rem;
+}
+
+.gallery-detail-explore { margin-top: 3.5rem; }
+
+/* Pager: step through all 24 without returning to the grid */
+.gallery-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.2rem;
+}
+
+.gallery-pager-btn {
+    flex: 1 1 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none !important;
+    background: transparent !important;
+    padding: 10px 6px !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .gallery-pager-btn:last-child { justify-content: flex-end; text-align: right; }
+
+    .gallery-pager-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .gallery-pager-btn:active { color: var(--bronze) !important; }
+
+@media (max-width: 520px) {
+    .gallery-pager-btn span { display: none; }
+    .gallery-pager-btn { justify-content: center; }
+}
+
+/* Card tag must clear the watermark icon parked at top-right. Raising
+   the type floor widened the longest tags ("Wardrobe Blueprint") until
+   they ran under the glyph. */
+.home-card-tag,
+.home-cloth-room .home-card-tag {
+    padding-right: 62px;
+}
+
+.home-cloth-room .home-card-tag { padding-right: 0; }
+
+/* These four carry min-height: 0 !important from escaping the global
+   button chrome, which beat the 44px rule above. Same weight wins. */
+.flip-back-link,
+.vis-mode-toggle,
+.vis-spec-link,
+.map-chip,
+.map-zoom-out,
+.home-change-name,
+.arch-restart,
+.gallery-pager-btn {
+    min-height: 44px !important;
+}
+
+.vis-spec-link {
+    padding: 12px 4px !important;
+}
+
+.flip-back-link {
+    padding: 12px 6px !important;
+}
+
+/* --- Corrections after measuring real surfaces -------------------
+   The discovery panel header is light (#f3f3f3), not dark — it was
+   wrongly given the dark-surface token above. */
+.discovery-header-eyebrow {
+    color: #6e6b65 !important;
+}
+
+/* This one IS on ink, but a later, more specific rule was re-applying
+   the light-surface bronze. Match its specificity. */
+.arch-journey-bridge .arch-journey-bridge-label,
+.arch-journey-bridge-label {
+    color: var(--bronze-on-dark) !important;
+}
+
+/* Map index headings hardcoded the old bronze instead of the token */
+.map-index-region {
+    color: var(--bronze);
+}
+
+/* The topic flip's front face is paper, so its hint must be ink —
+   only the photo face needs the light-on-scrim treatment. */
+.topic-flip-front .flip-hint {
+    color: var(--soft);
+    background: transparent;
+    text-shadow: none;
 }

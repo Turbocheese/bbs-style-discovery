@@ -253,7 +253,8 @@ function mapPinMarkerSVG(pin, x, y, idx, labelMode) {
         }
     }
     return (
-        '<g class="' + cls + '" style="animation-delay:' + (idx * 45) + 'ms" transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')" data-action="map-pin" data-key="' + pin.key + '">' +
+        '<g class="' + cls + '" style="animation-delay:' + (idx * 45) + 'ms" transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')" data-action="map-pin" data-key="' + pin.key +
+        '" role="button" tabindex="0" aria-label="' + pin.name + ", " + pin.place + '">' +
         '<circle class="map-pin-hit" cx="0" cy="0" r="20"/>' +
         mark +
         label +
@@ -302,7 +303,8 @@ function getMillMapSVG() {
         var dp = mapProject(d.lon, d.lat);
         var dimD = _mapRegion !== "All" && ((dk === "yorkshire" && _mapRegion !== "Britain") || (dk === "n_italy" && _mapRegion !== "Italy"));
         svg +=
-            '<g class="map-cluster' + (dimD ? " dim" : "") + '" style="animation-delay:' + (idx++ * 45) + 'ms" transform="translate(' + dp.x.toFixed(1) + "," + dp.y.toFixed(1) + ')" data-action="map-cluster" data-district="' + dk + '">' +
+            '<g class="map-cluster' + (dimD ? " dim" : "") + '" style="animation-delay:' + (idx++ * 45) + 'ms" transform="translate(' + dp.x.toFixed(1) + "," + dp.y.toFixed(1) + ')" data-action="map-cluster" data-district="' + dk +
+            '" role="button" tabindex="0" aria-label="' + d.name + ", " + count + ' houses — open district chart">' +
             '<circle class="map-pin-hit" cx="0" cy="0" r="26"/>' +
             '<circle class="map-cluster-disc" cx="0" cy="0" r="13"/>' +
             '<text class="map-cluster-count" x="0" y="4">' + count + "</text>" +
@@ -326,7 +328,8 @@ function getMillMapSVG() {
         '<g class="map-inset' + (insDim ? " dim" : "") + '" transform="translate(' + (MAP_W - 96) + ',96)">' +
         '<circle class="map-inset-ring" cx="0" cy="0" r="62"/>' +
         '<text class="map-inset-eyebrow" x="0" y="-30">10,000 km east</text>' +
-        '<g class="map-pin' + (_mapSelected === ins.key ? " sel" : "") + '" data-action="map-pin" data-key="officine_paladino">' +
+        '<g class="map-pin' + (_mapSelected === ins.key ? " sel" : "") + '" data-action="map-pin" data-key="officine_paladino"' +
+        ' role="button" tabindex="0" aria-label="' + ins.name + ", " + ins.place + '">' +
         '<circle class="map-pin-hit" cx="0" cy="0" r="26"/>' +
         '<circle class="map-pin-ring" cx="0" cy="0" r="7"/>' +
         '<circle class="map-pin-dot" cx="0" cy="0" r="2.7"/>' +
