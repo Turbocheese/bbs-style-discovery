@@ -3539,53 +3539,126 @@ function runMeasureMoment(label, done, ms) {
 // ============================================
 
 // The welcome screen doubles as the in-store attract screen (the idle
-// reset lands here), so it carries a slow 3D gallery wall built from
-// the archetype illustrations — it shows what the app does before a
-// word is read. Two tracks, opposite directions; only the two track
-// elements animate, so it stays GPU-cheap on the iPad.
+// reset lands here), so it carries a row of archetype portraits between
+// the logo and the headline. The frames stay put; one at a time, a
+// single frame is quietly re-hung with a different archetype. Ambient,
+// not a carousel.
+var WW_SLOTS = 7;
+
 function getWelcomeGalleryWall() {
     if (typeof archetypeProfiles === "undefined") return "";
     var keys = Object.keys(archetypeProfiles).filter(function (k) {
         return archetypeProfiles[k].galleryImage;
     });
-    if (keys.length < 6) return "";
+    if (keys.length < WW_SLOTS + 2) return "";
 
-    function row(list, cls) {
-        var tiles = "";
-        // duplicated once so the translate loop is seamless. Duplicates
-        // reuse the same src, so they cost no extra decode.
-        for (var pass = 0; pass < 2; pass++) {
-            for (var i = 0; i < list.length; i++) {
-                // 400px thumbnails: these render ~150px wide, and decoding
-                // the full 1152px originals here cost seconds on load.
-                // NOT lazy: these sit off-screen in a horizontally
-                // drifting track, so lazy-loading leaves blank tiles that
-                // pop in as they scroll past. At 21KB a thumb, eager is
-                // the right trade.
-                tiles += '<span class="ww-tile"><img src="images/archetypes/thumb/' + list[i] +
-                    '.jpg" alt="" decoding="async"></span>';
-            }
-        }
-        return '<div class="ww-row ' + cls + '"><div class="ww-track">' + tiles + "</div></div>";
+    // Shuffle so the opening set differs between sessions
+    var pool = keys.slice();
+    for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
     }
 
-    var half = Math.ceil(keys.length / 2);
-    return (
-        '<div class="welcome-wall" aria-hidden="true">' +
-        '<div class="welcome-wall-stage">' +
-        row(keys.slice(0, half), "ww-row--a") +
-        row(keys.slice(half), "ww-row--b") +
-        "</div>" +
-        '<div class="welcome-wall-scrim"></div>' +
-        "</div>"
-    );
+    var tiles = "";
+    for (var s = 0; s < WW_SLOTS; s++) {
+        // 400px thumbnails: these render ~130px wide, and decoding the
+        // full 1152px originals here cost seconds. Not lazy — a frame
+        // that loads late reads as a broken tile.
+        tiles +=
+            '<span class="ww-frame" data-slot="' + s + '" data-key="' + pool[s] + '">' +
+            '<img src="images/archetypes/thumb/' + pool[s] + '.jpg" alt="" decoding="async">' +
+            "</span>";
+    }
+
+    return '<div class="welcome-wall" aria-hidden="true">' + tiles + "</div>";
+}
+
+// One frame at a time, on a slow cycle. Self-cancelling: the timer
+// stops as soon as the wall leaves the DOM (every view swaps #app's
+// innerHTML, so an uncancelled timer would tick against detached nodes).
+var _wwTimer = null;
+
+function startWelcomeWallCycle() {
+    if (_wwTimer) { clearInterval(_wwTimer); _wwTimer = null; }
+    if (typeof archetypeProfiles === "undefined") return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    var allKeys = Object.keys(archetypeProfiles).filter(function (k) {
+        return archetypeProfiles[k].galleryImage;
+    });
+
+    _wwTimer = setInterval(function () {
+        var wall = document.querySelector(".welcome-wall");
+        if (!wall || !document.body.contains(wall)) {
+            clearInterval(_wwTimer);
+            _wwTimer = null;
+            return;
+        }
+
+        // Only re-hang frames that are actually visible at this width
+        var frames = Array.prototype.filter.call(
+            wall.querySelectorAll(".ww-frame"),
+            function (f) { return f.offsetParent !== null && !f.classList.contains("is-swapping"); }
+        );
+        if (!frames.length) return;
+
+        var onWall = Array.prototype.map.call(
+            wall.querySelectorAll(".ww-frame"),
+            function (f) { return f.getAttribute("data-key"); }
+        );
+        var candidates = allKeys.filter(function (k) { return onWall.indexOf(k) === -1; });
+        if (!candidates.length) return;
+
+        var frame = frames[Math.floor(Math.random() * frames.length)];
+        var nextKey = candidates[Math.floor(Math.random() * candidates.length)];
+        swapWelcomeFrame(frame, nextKey);
+    }, 4200);
+}
+
+// The transition: the incoming portrait is unveiled top-to-bottom
+// behind a fine bronze edge — a bolt of cloth being drawn down, which
+// is the same language as the tape blade used elsewhere.
+function swapWelcomeFrame(frame, key) {
+    if (!frame || frame.classList.contains("is-swapping")) return;
+    frame.classList.add("is-swapping");
+
+    var incoming = document.createElement("img");
+    incoming.className = "ww-incoming";
+    incoming.alt = "";
+    incoming.decoding = "async";
+    incoming.src = "images/archetypes/thumb/" + key + ".jpg";
+
+    function run() {
+        frame.appendChild(incoming);
+        // next frame, so the starting clip is committed before it animates
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                frame.classList.add("is-revealing");
+            });
+        });
+
+        setTimeout(function () {
+            var old = frame.querySelector("img:not(.ww-incoming)");
+            if (old) old.remove();
+            incoming.className = "";
+            frame.setAttribute("data-key", key);
+            frame.classList.remove("is-swapping", "is-revealing");
+        }, 1150);
+    }
+
+    if (incoming.decode) {
+        incoming.decode().then(run).catch(run);
+    } else {
+        incoming.onload = run;
+        incoming.onerror = function () { frame.classList.remove("is-swapping"); };
+    }
 }
 
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
-        getWelcomeGalleryWall() +
         BBS_LOGO +
+        getWelcomeGalleryWall() +
         '<div class="welcome-content-block">' +
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
@@ -5646,6 +5719,7 @@ function render(options) {
         app.innerHTML = content;
         syncFabVisibility();
         if (appState.view === "welcome") {
+            startWelcomeWallCycle();
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
                 setTimeout(function () {
@@ -5661,6 +5735,7 @@ function render(options) {
         app.innerHTML = content;
         syncFabVisibility();
         if (appState.view === "welcome") {
+            startWelcomeWallCycle();
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
                 setTimeout(function () {
