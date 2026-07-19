@@ -507,6 +507,136 @@ function getMapStageHTML() {
     return getMillMapSVG();
 }
 
+// ============================================
+// THE GLOBE
+//
+// COBE (vendored, MIT, 12.9KB, no network) renders a dotted world with
+// markers placed by real lat/long — which every pin in MILL_MAP_PINS
+// already carries, so no new data was needed.
+//
+// It OPENS Cloth Origins rather than replacing the chart below it. A
+// globe cannot show the district detail: at world scale the 18 houses
+// around Biella collapse into a single dot, and de-overlapping those is
+// most of what the flat chart exists to do. So the globe answers "where
+// in the world does BBS cloth come from" and the chart answers "which
+// houses, and exactly where".
+//
+// Styling is house tokens, not COBE's defaults: ink land on a cream
+// sphere with bronze markers and no glow, so it reads as an engraved
+// terrestrial globe rather than a WebGL object dropped into an
+// editorial app.
+// ============================================
+
+var _globeHandle = null;
+var _globeRAF = null;
+
+function getMillGlobeHTML() {
+    return (
+        '<div class="map-globe-block">' +
+        '<canvas class="map-globe" id="map-globe" aria-hidden="true"></canvas>' +
+        '<p class="map-globe-note">Drag to turn the globe. Every marker is a house below.</p>' +
+        "</div>"
+    );
+}
+
+function startMillGlobe() {
+    if (_globeRAF) { cancelAnimationFrame(_globeRAF); _globeRAF = null; }
+    if (_globeHandle && _globeHandle.destroy) { _globeHandle.destroy(); _globeHandle = null; }
+
+    var cv = document.getElementById("map-globe");
+    // No WebGL, no COBE, or a browser that cannot run it: the chart
+    // below is the real feature, so the globe simply does not appear.
+    if (!cv || typeof window.createGlobe !== "function") {
+        var block = cv && cv.closest(".map-globe-block");
+        if (block) block.style.display = "none";
+        return;
+    }
+
+    var markers = [];
+    for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+        var p = MILL_MAP_PINS[i];
+        if (typeof p.lat !== "number" || typeof p.lon !== "number") continue;
+        markers.push({ location: [p.lat, p.lon], size: p.type === "origin" ? 0.03 : 0.045 });
+    }
+
+    var rect = cv.getBoundingClientRect();
+    var side = Math.max(240, Math.min(rect.width, 460));
+    var dark = document.documentElement.getAttribute("data-theme") === "dark";
+
+    // Opens on Europe, where most of the houses are.
+    var phi = 3.1;
+    var theta = 0.28;
+    var dragging = false;
+    var lastX = 0;
+    // Reduced motion stops the idle spin but keeps drag working — the
+    // globe stays fully usable, it just does not move on its own.
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var spin = reduced ? 0 : 0.0022;
+
+    // COBE 2.x has NO `onRender` callback — that is the 0.x API. Here
+    // the caller owns the loop and pushes new state in with update().
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    try {
+        _globeHandle = window.createGlobe(cv, {
+            devicePixelRatio: dpr,
+            width: side * dpr,
+            height: side * dpr,
+            phi: phi,
+            theta: theta,
+            dark: dark ? 1 : 0,
+            diffuse: 1.15,
+            mapSamples: 15000,
+            mapBrightness: dark ? 5.2 : 2.9,
+            baseColor: dark ? [0.16, 0.16, 0.15] : [0.937, 0.925, 0.902],
+            markerColor: [0.541, 0.427, 0.263],
+            glowColor: dark ? [0.18, 0.18, 0.17] : [0.965, 0.957, 0.941],
+            markers: markers,
+            // Keeps the drawn frame readable after compositing, which
+            // is what makes the globe screenshot-able at all — WebGL
+            // canvases otherwise return a blank buffer to any capture.
+            context: { preserveDrawingBuffer: true }
+        });
+    } catch (err) {
+        var b2 = cv.closest(".map-globe-block");
+        if (b2) b2.style.display = "none";
+        return;
+    }
+
+    function tick() {
+        if (!cv.isConnected || !_globeHandle) { _globeRAF = null; return; }
+        if (!dragging) phi += spin;
+        _globeHandle.update({ phi: phi, theta: theta });
+        _globeRAF = requestAnimationFrame(tick);
+    }
+    tick();
+
+    cv.style.width = side + "px";
+    cv.style.height = side + "px";
+
+    // Drag to turn. pointer events cover touch and mouse alike; the
+    // delegated click handler is untouched.
+    cv.addEventListener("pointerdown", function (e) {
+        dragging = true;
+        lastX = e.clientX;
+        cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
+    });
+    cv.addEventListener("pointermove", function (e) {
+        if (!dragging) return;
+        phi += (e.clientX - lastX) * 0.006;
+        lastX = e.clientX;
+    });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (evt) {
+        cv.addEventListener(evt, function () { dragging = false; });
+    });
+}
+
+function stopMillGlobe() {
+    if (_globeRAF) { cancelAnimationFrame(_globeRAF); _globeRAF = null; }
+    if (_globeHandle && _globeHandle.destroy) _globeHandle.destroy();
+    _globeHandle = null;
+}
+
 function renderMillMap() {
     var houses = 0, origins = 0;
     for (var i = 0; i < MILL_MAP_PINS.length; i++) {
@@ -518,6 +648,7 @@ function renderMillMap() {
         '<div class="vis-eyebrow">The Provenance Chart</div>' +
         "<h1 class=\"vis-title\">Where the Cloth Comes From</h1>" +
         '<p class="vis-lead">' + houses + " houses and " + (origins === 1 ? "one cotton origin" : origins + " cotton origins") + ", charted. Tap a marker to meet the house behind the cloth &mdash; the numbered discs open the two great mill districts.</p>" +
+        getMillGlobeHTML() +
         '<div class="map-chips">' + getMapChipsHTML() + "</div>" +
         '<div class="map-stage" id="map-stage">' + getMapStageHTML() + "</div>" +
         '<div class="vis-info map-detail" id="map-detail">' + getMapDetailHTML(getMillPin(_mapSelected)) + "</div>" +

@@ -10419,3 +10419,45 @@ textarea:focus-visible,
     pointer-events: none;
     display: block;
 }
+
+/* ============================================
+   THE GLOBE — CLOTH ORIGINS
+   Opens the Provenance Chart. Deliberately restrained: it is the
+   overview, and the flat chart below carries the district detail a
+   globe cannot show.
+   ============================================ */
+
+.map-globe-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 1.6rem;
+}
+
+.map-globe {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 1;
+    display: block;
+    touch-action: none; /* drag turns the globe rather than scrolling */
+    cursor: grab;
+}
+
+.map-globe:active { cursor: grabbing; }
+
+.map-globe-note {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--soft);
+    text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* The globe still renders and still turns by drag; it just does not
+       spin on its own. Handled in startMillGlobe via the spin rate. */
+    .map-globe { cursor: default; }
+}

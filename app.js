@@ -5918,6 +5918,12 @@ function render(options) {
         applyScrollReveals();
 
         if (appState.view === "welcome") startWelcomeTape();
+
+
+        if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
+
+
+        else if (typeof stopMillGlobe === "function") stopMillGlobe();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -5937,6 +5943,12 @@ function render(options) {
         applyScrollReveals();
 
         if (appState.view === "welcome") startWelcomeTape();
+
+
+        if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
+
+
+        else if (typeof stopMillGlobe === "function") stopMillGlobe();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
