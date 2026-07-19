@@ -10269,3 +10269,153 @@ textarea:focus-visible,
     background: var(--text) !important;
     color: #f7f4ed !important;
 }
+
+/* ============================================
+   HOME — BENTO TILES
+   The three atelier entries (Cloth Room, Gallery, Mill Map) were
+   three identically-shaped full-width strips stacked in a row, which
+   read as a list rather than a set of destinations. As a bento the
+   Cloth Room takes a double-width lead tile and the other two sit
+   beside it.
+
+   `.home-cloth-room` sets margin-top: 14px for its stacked life; inside
+   the grid that margin fights `gap`, so it is zeroed here.
+   ============================================ */
+
+.home-bento {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.home-bento > .home-cloth-room {
+    margin-top: 0;
+}
+
+@media (min-width: 700px) {
+    .home-bento {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* The lead tile spans both columns and stands taller, so the
+       Cloth Room reads as the main event rather than one of three. */
+    .home-bento-lead {
+        grid-column: 1 / -1;
+        padding-top: 1.7rem !important;
+        padding-bottom: 1.7rem !important;
+    }
+
+    /* The two tiles beside it stack their content instead of running
+       in a row — a half-width strip has no room for side-by-side. */
+    .home-bento > .home-cloth-room:not(.home-bento-lead) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .home-bento > .home-cloth-room:not(.home-bento-lead) .home-cloth-room-cta {
+        margin-top: auto;
+    }
+}
+
+/* ============================================
+   SCROLL REVEAL
+   Rows fade and rise as they enter the viewport, so a 148-topic
+   section arrives with editorial pacing rather than as a wall.
+
+   The hidden state is scoped to `.js-reveal`, a class only
+   applyScrollReveals() ever adds. If IntersectionObserver is absent,
+   motion is reduced, or that function never runs, nothing is hidden —
+   the failure mode is "no animation", never "no content".
+   ============================================ */
+
+#app.js-reveal .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.68, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+#app.js-reveal .reveal.in {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #app.js-reveal .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================
+   PRESS-POINT HIGHLIGHT ON CLOTH SWATCHES
+   The touch-native rebuild of 21st.dev's Spotlight Card: light blooms
+   from where the finger actually landed and sweeps across the weave.
+
+   It lives on .vis-swatch-cloth::before, not .vis-swatch::before,
+   because the swatch's own ::after is the selection ring at
+   `inset: -6px` — it deliberately extends outside the circle, so
+   `overflow: hidden` on the swatch would clip the ring off. The inner
+   cloth element can be clipped safely, and --press-x / --press-y
+   inherit down to it from the swatch.
+   ============================================ */
+
+.vis-swatch-cloth {
+    position: relative;
+    overflow: hidden;
+}
+
+.vis-swatch-cloth::before {
+    content: "";
+    position: absolute;
+    left: var(--press-x, 50%);
+    top: var(--press-y, 50%);
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle,
+        rgba(255, 255, 255, 0.62) 0%,
+        rgba(255, 255, 255, 0.22) 42%,
+        rgba(255, 255, 255, 0) 72%);
+    opacity: 0;
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.vis-swatch.lit .vis-swatch-cloth::before {
+    width: 240%;
+    height: 240%;
+    opacity: 1;
+    transition: width 0.6s cubic-bezier(0.16, 0.8, 0.3, 1),
+                height 0.6s cubic-bezier(0.16, 0.8, 0.3, 1),
+                opacity 0.6s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vis-swatch-cloth::before { display: none; }
+}
+
+/* ============================================
+   WELCOME TAPE BLADES
+   Sits behind every welcome element. The shell needs a stacking
+   context so the canvas can go underneath without the logo, portrait
+   and form needing individual z-index values.
+   ============================================ */
+
+.welcome-shell {
+    position: relative;
+    isolation: isolate;
+}
+
+.welcome-tape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    display: block;
+}

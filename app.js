@@ -3644,6 +3644,12 @@ function swapWelcomePortrait(el) {
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
+        // Tape blades drifting behind everything. 21st.dev's Background
+        // Paths idea, but carrying the house motif rather than generic
+        // lines — the tape measure already runs through quiz progress
+        // and the loading interstitial. Held at very low contrast: the
+        // portrait and the type are the content, this is only air.
+        '<canvas class="welcome-tape" id="welcome-tape" aria-hidden="true"></canvas>' +
         BBS_LOGO +
         getWelcomePortrait() +
         '<div class="welcome-content-block">' +
@@ -3808,8 +3814,14 @@ function renderHome() {
         "</div>" +
         "</div>" +
         "</div>" +
-// Full-width atelier strip: Fabric Visualiser entry
-        '<div class="home-cloth-room" data-action="fabric-vis">' +
+        // The three atelier entries were three identically-shaped
+        // full-width strips stacked in a row, which flattened them into
+        // a list. As a bento the Cloth Room takes a double tile — it is
+        // the deepest feature and the one staff demo from — while the
+        // Gallery and Mill Map sit beside it. Same three destinations,
+        // but the grid now says which one is the main event.
+        '<div class="home-bento">' +
+        '<div class="home-cloth-room home-bento-lead" data-action="fabric-vis">' +
         '<div class="home-cloth-room-swatches" aria-hidden="true">' +
         '<span class="hcr-chip hcr-chip--navy"></span>' +
         '<span class="hcr-chip hcr-chip--flax"></span>' +
@@ -3848,6 +3860,7 @@ function renderHome() {
         '<p class="home-card-body">Every cloth traces back to a place. Meet the houses, from Biella to home.</p>' +
         "</div>" +
         '<div class="home-cloth-room-cta">Chart &rarr;</div>' +
+        "</div>" +
         "</div>" +
         // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
         '<div class="home-quick-queries">' +
@@ -5201,7 +5214,7 @@ function renderGuideHome(node) {
         var child = node.children[key];
         var indexLabel = index < 10 ? "0" + index : "" + index;
         childrenHTML +=
-            '<div class="guide-list-item-v2" data-action="navigate-child" data-child="' +
+            '<div class="guide-list-item-v2 reveal" data-action="navigate-child" data-child="' +
             key +
             '">' +
             '<div class="guide-list-item-v2-index">' +
@@ -5262,7 +5275,7 @@ function renderGroup(node) {
         var indexLabel = index < 10 ? "0" + index : "" + index;
 
         childrenHTML +=
-            '<div class="guide-list-item-v2" data-action="navigate-child" data-child="' +
+            '<div class="guide-list-item-v2 reveal" data-action="navigate-child" data-child="' +
             key +
             '">' +
             '<div class="guide-list-item-v2-index">' +
@@ -5721,6 +5734,126 @@ function renderArchetypeDetail(archetype, index) {
 // RENDER — MAIN ROUTER
 // ============================================
 
+// Fades rows in as they enter the viewport. Guide sections deliver
+// every row at once — Tailoring alone is 148 topics — and staggering
+// the arrival gives the list editorial pacing instead of a wall.
+//
+// Failure-safe by construction: the hidden state lives on
+// `.js-reveal .reveal`, and only this function adds `js-reveal`. If
+// IntersectionObserver is missing, motion is reduced, or this never
+// runs, nothing is ever hidden — the failure mode is "no animation",
+// never "no content".
+// ============================================
+// WELCOME TAPE BLADES
+//
+// Canvas rather than hand-authored SVG paths, because the blades are
+// generated from a sine field and redrawn each frame.
+//
+// The loop is owned by a single handle so a re-render cannot leave a
+// second animation running against a detached canvas — the kind of
+// leak that only shows up as a warm iPad after an hour on the shop
+// floor. Frozen entirely under prefers-reduced-motion.
+// ============================================
+
+var _tapeRAF = null;
+
+function startWelcomeTape() {
+    if (_tapeRAF) { cancelAnimationFrame(_tapeRAF); _tapeRAF = null; }
+    var cv = document.getElementById("welcome-tape");
+    if (!cv || !cv.getContext) return;
+
+    var ctx = cv.getContext("2d");
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var w = 0, h = 0;
+
+    function size() {
+        var r = cv.getBoundingClientRect();
+        if (!r.width || !r.height) return false;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        cv.width = Math.round(r.width * dpr);
+        cv.height = Math.round(r.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        w = r.width; h = r.height;
+        return true;
+    }
+    if (!size()) return;
+
+    var t = 0;
+    var HAIR = "rgba(17,17,16,0.055)";
+    var TICK = "rgba(17,17,16,0.075)";
+    var MAJOR = "rgba(138,109,67,0.16)";
+
+    function frame() {
+        // The canvas is detached once the view changes; stop rather
+        // than keep drawing into nothing.
+        if (!cv.isConnected) { _tapeRAF = null; return; }
+        ctx.clearRect(0, 0, w, h);
+
+        for (var b = 0; b < 3; b++) {
+            var y = h * (0.2 + b * 0.3);
+            var amp = 14 + b * 6;
+            var drift = (t * (0.25 + b * 0.12)) % 44;
+
+            ctx.strokeStyle = HAIR;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (var x = 0; x <= w; x += 6) {
+                var yy = y + Math.sin(x / 210 + t / 260 + b * 1.7) * amp;
+                if (x === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+            }
+            ctx.stroke();
+
+            for (var x2 = -44 + drift; x2 <= w + 44; x2 += 11) {
+                var yy2 = y + Math.sin(x2 / 210 + t / 260 + b * 1.7) * amp;
+                var major = Math.round((x2 - drift) / 11) % 5 === 0;
+                ctx.strokeStyle = major ? MAJOR : TICK;
+                ctx.lineWidth = major ? 1.2 : 0.9;
+                ctx.beginPath();
+                ctx.moveTo(x2, yy2);
+                ctx.lineTo(x2, yy2 + (major ? 11 : 6));
+                ctx.stroke();
+            }
+        }
+
+        if (reduced) { _tapeRAF = null; return; }
+        t += 1;
+        _tapeRAF = requestAnimationFrame(frame);
+    }
+
+    window.addEventListener("resize", function () { if (cv.isConnected) size(); }, { passive: true });
+    frame();
+}
+
+function applyScrollReveals() {
+    var app = document.getElementById("app");
+    if (!app) return;
+    var items = app.querySelectorAll(".reveal");
+    if (!items.length) return;
+
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || typeof IntersectionObserver === "undefined") return;
+
+    app.classList.add("js-reveal");
+
+    var io = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+            if (!entries[i].isIntersecting) continue;
+            var el = entries[i].target;
+            // A short stagger by position within the batch, capped so a
+            // long list never leaves the last rows waiting seconds.
+            var idx = Number(el.getAttribute("data-reveal-i")) || 0;
+            el.style.transitionDelay = Math.min(idx % 8, 7) * 45 + "ms";
+            el.classList.add("in");
+            io.unobserve(el);
+        }
+    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+
+    for (var n = 0; n < items.length; n++) {
+        items[n].setAttribute("data-reveal-i", n);
+        io.observe(items[n]);
+    }
+}
+
 function render(options) {
     // 🌟 AUTO-SAVE TO IPAD MEMORY ON EVERY SCREEN CHANGE
     localStorage.setItem("bbs_session", JSON.stringify(appState));
@@ -5782,6 +5915,9 @@ function render(options) {
         app.innerHTML = content;
         app.classList.toggle("is-home", appState.view === "home");
         syncFabVisibility();
+        applyScrollReveals();
+
+        if (appState.view === "welcome") startWelcomeTape();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -5798,6 +5934,9 @@ function render(options) {
         app.innerHTML = content;
         app.classList.toggle("is-home", appState.view === "home");
         syncFabVisibility();
+        applyScrollReveals();
+
+        if (appState.view === "welcome") startWelcomeTape();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
@@ -5837,6 +5976,44 @@ function _armIdleReset() {
     document.addEventListener(evt, _armIdleReset, { passive: true });
 });
 _armIdleReset();
+
+// ============================================
+// PRESS-POINT HIGHLIGHT
+//
+// 21st.dev's most-liked card effect is a spotlight that tracks the
+// cursor. There is no cursor on an in-store iPad, so as published it
+// does nothing on the target device. Anchored to the touch point
+// instead it becomes native: the light blooms from exactly where the
+// finger landed and sweeps across the weave, which is what you do
+// holding real cloth up to a window.
+//
+// Separate from the delegated click handler by design — this is
+// pointerdown, and it must fire on press rather than on release, so
+// the highlight is under the finger while it is still down.
+// ============================================
+
+var PRESS_LIT_MS = 620;
+
+document.body.addEventListener("pointerdown", function (e) {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var el = e.target.closest(".vis-swatch");
+    if (!el) return;
+
+    var r = el.getBoundingClientRect();
+    el.style.setProperty("--press-x", (e.clientX - r.left) + "px");
+    el.style.setProperty("--press-y", (e.clientY - r.top) + "px");
+
+    // Restart cleanly if the same swatch is pressed twice quickly.
+    el.classList.remove("lit");
+    void el.offsetWidth;
+    el.classList.add("lit");
+
+    if (el._pressTimer) clearTimeout(el._pressTimer);
+    el._pressTimer = setTimeout(function () {
+        el.classList.remove("lit");
+        el._pressTimer = null;
+    }, PRESS_LIT_MS);
+}, { passive: true });
 
 // ============================================
 // CLICK EVENT HANDLER
