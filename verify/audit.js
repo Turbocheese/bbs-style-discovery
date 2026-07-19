@@ -121,6 +121,37 @@ for (var lt = 0; lt < linkTargets.length; lt++) {
     else if (node.type !== "topic") badLinkTarget.push(linkTargets[lt].join(" > ") + " (resolves to a group, not a topic)");
 }
 
+// ---- Mill pins ----
+//
+// The provenance tape renders a house's label, and printed the literal
+// word "undefined" for a pin that had none.
+//
+// The rule is scoped to pins carrying a founding year, because those
+// are the only ones the tape draws. Egyptian Cotton has short: "" ON
+// PURPOSE — line 250 of mill-map.js uses it to suppress that origin's
+// label on the chart — so a blanket "every pin needs a short" rule
+// would be wrong and would push someone into changing working output.
+var millSrc = require("fs").readFileSync(__dirname + "/../mill-map.js", "utf8");
+var pinNoShort = [];
+var pinNoGuide = [];
+try {
+    var sandbox = { window: {} };
+    var pinsMatch = millSrc.match(/var MILL_MAP_PINS = \[[\s\S]*?\n\];/);
+    if (pinsMatch) {
+        var MILL_MAP_PINS;
+        eval(pinsMatch[0]);
+        for (var mp = 0; mp < MILL_MAP_PINS.length; mp++) {
+            var pin = MILL_MAP_PINS[mp];
+            if (pin.est && !pin.short && !pin.name) pinNoShort.push("(pin with est " + pin.est + " has no label at all)");
+            if (pin.guidePath && !resolvePath(pin.guidePath)) {
+                pinNoGuide.push((pin.name || "?") + " -> " + pin.guidePath.join(" > "));
+            }
+        }
+    }
+} catch (e) {
+    pinNoShort.push("could not parse MILL_MAP_PINS: " + e.message);
+}
+
 function report(label, arr) {
     console.log((arr.length === 0 ? "  PASS  " : "  FAIL  ") + label + (arr.length ? " (" + arr.length + ")" : ""));
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
@@ -143,9 +174,13 @@ report("no unverified cloth carries a spec field", clothUnverifiedSpec);
 report("every verified cloth cites a source", clothVerifiedNoSource);
 console.log("\nCloth Room link targets checked: " + linkTargets.length);
 report("every link target resolves to a topic, not a group", badLinkTarget);
+console.log("\nMill pins scanned: " + (typeof MILL_MAP_PINS !== "undefined" ? MILL_MAP_PINS.length : 0));
+report("every dated mill pin has a label for the tape", pinNoShort);
+report("every mill pin's guidePath resolves", pinNoGuide);
 
 var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1) +
     clothDupKeys.length + clothBadMill.length + clothBadGuide.length + clothBadWeave.length +
-    clothUnverifiedSpec.length + clothVerifiedNoSource.length + badLinkTarget.length;
+    clothUnverifiedSpec.length + clothVerifiedNoSource.length + badLinkTarget.length +
+    pinNoShort.length + pinNoGuide.length;
 console.log(failed === 0 ? "\nAUDIT: ALL GREEN" : "\nAUDIT: FAILURES PRESENT");
 process.exit(failed === 0 ? 0 : 1);

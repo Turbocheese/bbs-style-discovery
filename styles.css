@@ -10561,3 +10561,161 @@ textarea:focus-visible,
     outline: 2px solid var(--bronze);
     outline-offset: 2px;
 }
+
+/* ============================================
+   THE PROVENANCE TAPE
+   29 houses founded between 1663 and 2021, drawn as a tape blade
+   because the tape measure is already this app's signature. It
+   measures years here instead of inches.
+   ============================================ */
+
+.ptape-block {
+    margin: 2.4rem 0 1.6rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid var(--line);
+    /* .map-shell is a flex container, and a flex item defaults to
+       min-width: auto — it refuses to shrink below its content, so the
+       long rail pushed this block to 840px inside a 680px parent and
+       the whole PAGE scrolled sideways. Releasing that lets
+       .ptape-scroll do its job and keep the scrolling internal. */
+    min-width: 0;
+    width: 100%;
+    align-self: stretch;
+}
+
+.ptape-head { text-align: center; margin-bottom: 1.4rem; }
+
+.ptape-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    color: var(--text);
+}
+
+.ptape-lead {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--soft);
+    margin: 0 auto;
+    max-width: 46ch;
+}
+
+/* The blade scrolls horizontally; only this element does, so the page
+   itself never scrolls sideways. */
+.ptape-scroll {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 6px;
+}
+
+.ptape-rail {
+    position: relative;
+    height: 210px;
+    margin: 0 40px;
+}
+
+.ptape-blade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 105px;
+    height: 2px;
+    background: var(--bronze);
+    opacity: 0.35;
+}
+
+.ptape-tick {
+    position: absolute;
+    top: 105px;
+    width: 1px;
+    height: 7px;
+    background: var(--line-strong);
+}
+
+.ptape-tick.major { height: 14px; background: var(--bronze); opacity: 0.55; }
+
+.ptape-year {
+    position: absolute;
+    top: 122px;
+    transform: translateX(-50%);
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--soft);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Houses alternate above and below the blade, which keeps close
+   founding years from colliding without moving any of them. */
+.ptape-house {
+    position: absolute;
+    justify-content: flex-start;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 !important;
+    min-height: 44px !important;
+    border: 0 !important;
+    background: transparent !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translateX(-50%);
+}
+
+/* Four lanes: two above the blade, two below. Each label sits at a
+   different depth so dense decades stay readable. */
+.ptape-house.lane0 { bottom: 105px; height: 92px; flex-direction: column-reverse; }
+.ptape-house.lane1 { bottom: 105px; height: 52px; flex-direction: column-reverse; }
+.ptape-house.lane2 { top: 107px; height: 52px; }
+.ptape-house.lane3 { top: 107px; height: 92px; }
+
+.ptape-stem {
+    flex: 1 1 auto;
+    width: 1px;
+    background: var(--line-strong);
+}
+
+.ptape-label {
+    display: block;
+    white-space: nowrap;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 5px 8px;
+}
+
+.ptape-label em {
+    display: block;
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+    color: var(--bronze);
+    letter-spacing: 0.14em;
+}
+
+.ptape-house:active .ptape-label { border-color: var(--line-strong); }
+.ptape-house:hover .ptape-label { background: var(--surface) !important; border-color: var(--line-strong); }
+.ptape-house:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+
+/* A bare `button:hover` in this file sets a dark background, and a
+   pseudo-class selector outranks a single class — so a tape marker
+   turned into a solid black box under the pointer. Exactly the bug
+   already fixed on the look cards; this is the same shape. */
+.ptape-house:hover,
+.ptape-house:focus,
+.ptape-house:active {
+    background: transparent !important;
+}
+
+.ptape-house:hover .ptape-label {
+    border-color: var(--line-strong);
+    background: var(--surface) !important;
+    color: var(--text) !important;
+}
