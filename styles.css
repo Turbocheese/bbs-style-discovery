@@ -6689,7 +6689,11 @@ body.has-fab #app {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    /* Wraps because a verified cloth can carry four specs (mill, bunch,
+       composition, weight) — without this they overflow the card
+       instead of falling to a second line. */
+    flex-wrap: wrap;
+    gap: 6px 10px;
 }
 
 .vis-spec {
@@ -6698,6 +6702,9 @@ body.has-fab #app {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--soft);
+    /* A weight ("370 g") must never break across lines — the wide
+       letter-spacing made the row narrow enough that it did. */
+    white-space: nowrap;
 }
 
 .vis-spec-divider {
@@ -9931,4 +9938,129 @@ textarea:focus-visible,
     color: var(--soft);
     font-weight: 400;
     letter-spacing: 0.12em;
+}
+
+/* ============================================
+   CLOTH ROOM — FILTER BAR
+   At 100+ cloths the swatch tray needs facets. Chips borrow the Mill
+   Map's language (.map-chip) so the interaction is one the app has
+   already taught, and carry !important to match the weight that
+   pins .vis-* and button styling elsewhere in this file.
+   ============================================ */
+
+.vis-filter-bar {
+    margin: 0 0 0.9rem;
+}
+
+.vis-filter-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.vis-filter-toggle,
+.vis-filter-clear {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 0 16px !important;
+    min-height: 44px !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.vis-filter-toggle[aria-expanded="true"] {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+.vis-filter-count {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--bronze);
+    color: #fff;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+
+.vis-filter-result {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+/* Collapsed by default so the tray stays the focus; the toggle is the
+   only way in, which keeps the bar to one row until it is wanted. */
+.vis-filter-groups {
+    display: none;
+}
+
+.vis-filter-groups.open {
+    display: block;
+    padding: 0.9rem 0 0.2rem;
+    border-top: 1px solid var(--line);
+}
+
+.vis-filter-group {
+    margin-bottom: 0.85rem;
+}
+
+.vis-filter-group-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bronze);
+}
+
+.vis-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.vis-filter-chip {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 0 14px !important;
+    min-height: 44px !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.vis-filter-chip.on {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+.vis-filter-chip:active {
+    transform: scale(0.97);
+}
+
+.vis-swatch-empty {
+    padding: 1.6rem 0;
+    text-align: center;
+    color: var(--soft);
+    font-size: 0.85rem;
 }

@@ -21,7 +21,10 @@ It is a fully operational product with:
 - the Cloth Room: an SVG garment re-rendered live in tap-selected cloths,
   with a two-cloth side-by-side compare mode for at-the-rack decisions and
   an ensemble mode (jacket/vest/trousers, each cloth-swappable, with jacket
-  closure/lapel/pocket options and a Design Spec PDF export)
+  closure/lapel/pocket options and a Design Spec PDF export). The library
+  holds 102 cloths across all 34 suiting houses, filterable by region,
+  weave, pattern, colour and weight; tiles are generated procedurally from
+  each cloth's weave parameters rather than hand-drawn
 - the Mill Map ("Provenance Chart"): a geographically accurate SVG chart of
   Europe and the Mediterranean (Natural Earth 50m coastlines) with a tappable
   marker for all 40 houses in Cloth Origins, district charts for West
@@ -63,6 +66,8 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `colour-direction.js` — colour quiz data/scoring
 - `lookbook.js` — lookbook rendering
 - `wardrobe-templates.js` — worksheet templates per archetype
+- `cloth-data.js` — the 102-cloth library (pure data; see its `verified` rule)
+- `weave-engine.js` — procedural cloth tiles from weave parameters
 - `fabric-visualiser.js` — the Cloth Room
 - `archetype-avatars.js` — SVG avatar busts for the Archetype Gallery
 - `mill-map.js` — the Mill Map (generated Natural Earth coastlines, pin data,
@@ -73,9 +78,12 @@ Future: product linking to real inventory, customer-facing adaptation.
 
 ### Critical script load order
 data.js → validator.js → query.js → discovery-ui.js → colour-direction.js →
-lookbook.js → wardrobe-templates.js → fabric-visualiser.js → archetype-avatars.js →
-mill-map.js → vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js →
+lookbook.js → wardrobe-templates.js → cloth-data.js → weave-engine.js →
+fabric-visualiser.js → archetype-avatars.js → mill-map.js →
+vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js →
 inline validation runner + SW registration. This order is critical and must not change.
+(cloth-data.js and weave-engine.js must precede fabric-visualiser.js, which
+reads `CLOTH_LIBRARY` and calls `drawClothTile` at module scope.)
 
 ## 3. Architecture
 

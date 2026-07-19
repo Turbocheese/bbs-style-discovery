@@ -2,353 +2,15 @@
 // BBS FABRIC VISUALISER — "The Cloth Room"
 // Layered 2D technique: tiled fabric texture under a
 // grayscale-shaded garment SVG (multiply blend).
-// Tiles are generated in canvas as placeholders; swap
-// each fabric's drawTile for a photographed swatch
-// image when photography lands (see image pipeline).
+// Tiles are rendered procedurally from each cloth's weave
+// parameters by weave-engine.js; swap getFabricTile for a
+// photographed swatch when photography lands.
 // ============================================
 
-// Each cloth carries a `mill` (from the houses BBS stocks — see
-// cloth_origins in data.js) and a `guidePath` into the guide tree:
-// the original 8 link to their fabric topics, the mill-attributed
-// additions link to the mill's own topic page.
-var FABRIC_LIBRARY = [
-    {
-        key: "hopsack",
-        name: "Navy Hopsack",
-        mill: "Vitale Barberis Canonico",
-        composition: "100% Wool",
-        weight: "260 g",
-        character: "Open basket weave with surface depth. Breathes well, resists wrinkling, and reads as texture rather than pattern.",
-        guidePath: ["fabrics", "suiting", "hopsack"],
-        drawTile: function (g) {
-            g.fillStyle = "#232f4b";
-            g.fillRect(0, 0, 96, 96);
-            g.lineWidth = 3;
-            for (var y = 0; y < 96; y += 6) {
-                for (var x = 0; x < 96; x += 6) {
-                    var lit = ((x + y) / 6) % 2 === 0;
-                    g.fillStyle = lit ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.10)";
-                    g.fillRect(x, y, 5, 5);
-                }
-            }
-        },
-    },
-    {
-        key: "fresco",
-        name: "Slate Fresco",
-        mill: "Huddersfield",
-        composition: "100% High-Twist Wool",
-        weight: "250 g",
-        character: "The tropical workhorse. Open, porous weave with a dry crisp hand — cool in heat, sharp all day.",
-        guidePath: ["fabrics", "suiting", "fresco"],
-        drawTile: function (g) {
-            g.fillStyle = "#54607a";
-            g.fillRect(0, 0, 96, 96);
-            for (var y = 2; y < 96; y += 4) {
-                for (var x = 2; x < 96; x += 4) {
-                    g.fillStyle = "rgba(20,24,34," + (0.10 + 0.1 * Math.random()) + ")";
-                    g.fillRect(x, y, 2, 2);
-                }
-            }
-            for (var i = 0; i < 300; i++) {
-                g.fillStyle = "rgba(255,255,255," + 0.05 * Math.random() + ")";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 1.5, 1.5);
-            }
-        },
-    },
-    {
-        key: "high_twist_wool",
-        name: "Midnight High-Twist",
-        mill: "Reda",
-        composition: "100% Wool",
-        weight: "270 g",
-        character: "Springy, resilient yarn that shrugs off creases. The travel cloth — composed after a red-eye.",
-        guidePath: ["fabrics", "suiting", "high_twist_wool"],
-        drawTile: function (g) {
-            g.fillStyle = "#1c2436";
-            g.fillRect(0, 0, 96, 96);
-            g.strokeStyle = "rgba(255,255,255,0.05)";
-            g.lineWidth = 1;
-            for (var i = -96; i < 192; i += 4) {
-                g.beginPath();
-                g.moveTo(i, 0);
-                g.lineTo(i + 96, 96);
-                g.stroke();
-            }
-        },
-    },
-    {
-        key: "linen_suiting",
-        name: "Flax Irish Linen",
-        mill: "Solbiati",
-        composition: "100% Linen",
-        weight: "290 g",
-        character: "Dry, cool, and honest — the slubs and creases are the point. Elegance that loosens as the day goes on.",
-        guidePath: ["fabrics", "suiting", "linen_suiting"],
-        drawTile: function (g) {
-            g.fillStyle = "#c8b494";
-            g.fillRect(0, 0, 96, 96);
-            for (var y = 0; y < 96; y += 3) {
-                g.fillStyle = "rgba(140,115,80," + (0.06 + 0.1 * Math.random()) + ")";
-                g.fillRect(0, y, 96, 1.5);
-            }
-            for (var i = 0; i < 26; i++) {
-                g.fillStyle = "rgba(105,85,60,0.35)";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 6 + Math.random() * 14, 1.6);
-            }
-            for (var j = 0; j < 20; j++) {
-                g.fillStyle = "rgba(255,250,240,0.30)";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 4 + Math.random() * 10, 1.2);
-            }
-        },
-    },
-    {
-        key: "worsted_wool",
-        name: "Charcoal Worsted",
-        mill: "Alfred Brown",
-        composition: "Super 120s Wool",
-        weight: "280 g",
-        character: "Smooth, fine, and quietly formal. The businessman's cloth — clean drape, subtle twill, no argument.",
-        guidePath: ["fabrics", "suiting", "worsted_wool"],
-        drawTile: function (g) {
-            g.fillStyle = "#3b3b40";
-            g.fillRect(0, 0, 96, 96);
-            g.strokeStyle = "rgba(255,255,255,0.045)";
-            g.lineWidth = 1.4;
-            for (var i = -96; i < 192; i += 3) {
-                g.beginPath();
-                g.moveTo(i, 96);
-                g.lineTo(i + 96, 0);
-                g.stroke();
-            }
-        },
-    },
-    {
-        key: "wool_silk_linen",
-        name: "Taupe Wool-Silk-Linen",
-        mill: "Loro Piana",
-        composition: "Wool / Silk / Linen",
-        weight: "240 g",
-        character: "Three fibres, one cloth: wool's drape, silk's low sheen, linen's dry touch. The occasion jacket blend.",
-        guidePath: ["fabrics", "suiting", "wool_silk_linen"],
-        drawTile: function (g) {
-            g.fillStyle = "#8d7f6d";
-            g.fillRect(0, 0, 96, 96);
-            for (var i = 0; i < 420; i++) {
-                var warm = Math.random() > 0.5;
-                g.fillStyle = warm
-                    ? "rgba(220,205,180," + 0.16 * Math.random() + ")"
-                    : "rgba(70,60,48," + 0.16 * Math.random() + ")";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 2.4, 1.4);
-            }
-        },
-    },
-    {
-        key: "summer_tweed",
-        name: "Sand Summer Tweed",
-        mill: "Harrisons",
-        composition: "Wool / Silk Blend",
-        weight: "255 g",
-        character: "Tweed character without tweed weight — herringbone texture and flecks in a breathable summer hand.",
-        guidePath: ["fabrics", "suiting", "summer_tweed"],
-        drawTile: function (g) {
-            g.fillStyle = "#a98e66";
-            g.fillRect(0, 0, 96, 96);
-            g.lineWidth = 2.4;
-            for (var r = 0; r < 12; r++) {
-                var y = r * 8 + 4;
-                var flip = r % 2 === 1;
-                g.strokeStyle = "rgba(70,52,30,0.28)";
-                for (var x = 0; x < 96; x += 8) {
-                    g.beginPath();
-                    if (flip) {
-                        g.moveTo(x, y - 3);
-                        g.lineTo(x + 8, y + 3);
-                    } else {
-                        g.moveTo(x, y + 3);
-                        g.lineTo(x + 8, y - 3);
-                    }
-                    g.stroke();
-                }
-            }
-            for (var i = 0; i < 14; i++) {
-                g.fillStyle = "rgba(245,240,228,0.5)";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 2, 2);
-            }
-        },
-    },
-    {
-        key: "wool_linen",
-        name: "Stone Wool-Linen",
-        mill: "Standeven",
-        composition: "Wool / Linen",
-        weight: "250 g",
-        character: "Linen's texture tempered by wool's recovery. Softly rumpled, never sloppy — the smart-casual anchor.",
-        guidePath: ["fabrics", "suiting", "wool_linen"],
-        drawTile: function (g) {
-            g.fillStyle = "#a49a88";
-            g.fillRect(0, 0, 96, 96);
-            for (var y = 0; y < 96; y += 4) {
-                g.fillStyle = "rgba(120,110,92," + (0.08 + 0.08 * Math.random()) + ")";
-                g.fillRect(0, y, 96, 2);
-            }
-            for (var i = 0; i < 16; i++) {
-                g.fillStyle = "rgba(85,76,60,0.30)";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 5 + Math.random() * 10, 1.5);
-            }
-        },
-    },
-    {
-        key: "fox_flannel",
-        name: "Chalkstripe Grey Flannel",
-        mill: "Fox Brothers",
-        composition: "100% Woollen Flannel",
-        weight: "310 g",
-        character: "The definitive flannel, milled in Somerset since 1772. Soft, matte, and quietly authoritative under a chalk stripe.",
-        guidePath: ["cloth_origins", "suiting", "english", "fox"],
-        drawTile: function (g) {
-            g.fillStyle = "#6e6c6a";
-            g.fillRect(0, 0, 96, 96);
-            for (var i = 0; i < 700; i++) {
-                var lite = Math.random() > 0.5;
-                g.fillStyle = lite
-                    ? "rgba(200,198,194," + 0.10 * Math.random() + ")"
-                    : "rgba(40,40,42," + 0.10 * Math.random() + ")";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 2.5, 1.2);
-            }
-            for (var x = 12; x < 96; x += 32) {
-                g.fillStyle = "rgba(235,232,226,0.16)";
-                g.fillRect(x - 1, 0, 3, 96);
-                g.fillStyle = "rgba(235,232,226,0.5)";
-                g.fillRect(x, 0, 1, 96);
-            }
-        },
-    },
-    {
-        key: "dormeuil_glencheck",
-        name: "Prince of Wales Check",
-        mill: "Dormeuil",
-        composition: "100% Wool",
-        weight: "270 g",
-        character: "The gentleman's pattern — glen check discipline with Parisian polish. Wears as a suit or breaks apart beautifully.",
-        guidePath: ["cloth_origins", "suiting", "french", "dormeuil"],
-        drawTile: function (g) {
-            g.fillStyle = "#b3aea4";
-            g.fillRect(0, 0, 96, 96);
-            // alternating fine-check blocks
-            g.fillStyle = "rgba(60,58,54,0.22)";
-            for (var by = 0; by < 96; by += 48) {
-                for (var bx = 0; bx < 96; bx += 48) {
-                    if ((bx / 48 + by / 48) % 2 === 0) {
-                        for (var y = by; y < by + 48; y += 4) {
-                            for (var x = bx; x < bx + 48; x += 4) {
-                                if ((x / 4 + y / 4) % 2 === 0) g.fillRect(x, y, 2, 2);
-                            }
-                        }
-                    }
-                }
-            }
-            // overcheck lines
-            g.strokeStyle = "rgba(44,42,40,0.45)";
-            g.lineWidth = 1;
-            [0, 48].forEach(function (o) {
-                g.beginPath(); g.moveTo(o, 0); g.lineTo(o, 96); g.stroke();
-                g.beginPath(); g.moveTo(0, o); g.lineTo(96, o); g.stroke();
-            });
-        },
-    },
-    {
-        key: "drago_birdseye",
-        name: "Navy Birdseye",
-        mill: "Drago",
-        composition: "Super 130s Wool",
-        weight: "260 g",
-        character: "Solid at arm's length, alive up close — a pin-dot weave that gives navy quiet dimension. Boardroom-proof.",
-        guidePath: ["cloth_origins", "suiting", "italian", "drago"],
-        drawTile: function (g) {
-            g.fillStyle = "#1f2940";
-            g.fillRect(0, 0, 96, 96);
-            g.fillStyle = "rgba(210,214,222,0.30)";
-            for (var y = 0; y < 96; y += 6) {
-                for (var x = 0; x < 96; x += 6) {
-                    var ox = (y / 6) % 2 === 0 ? 0 : 3;
-                    g.fillRect(x + ox, y, 1.6, 1.6);
-                }
-            }
-        },
-    },
-    {
-        key: "hs_gabardine",
-        name: "Ecru Wool Gabardine",
-        mill: "Holland & Sherry",
-        composition: "100% Worsted Wool",
-        weight: "290 g",
-        character: "Steep-twill smoothness with real body. The summer-city trouser cloth — sharp crease, soft colour.",
-        guidePath: ["cloth_origins", "suiting", "english", "holland_sherry"],
-        drawTile: function (g) {
-            g.fillStyle = "#ddd3bf";
-            g.fillRect(0, 0, 96, 96);
-            g.strokeStyle = "rgba(150,138,115,0.30)";
-            g.lineWidth = 1.2;
-            for (var i = -192; i < 96; i += 3) {
-                g.beginPath();
-                g.moveTo(i, 96);
-                g.lineTo(i + 192, 0);
-                g.stroke();
-            }
-        },
-    },
-    {
-        key: "standeven_herringbone",
-        name: "Storm Blue Herringbone",
-        mill: "Standeven",
-        composition: "Wool / Linen",
-        weight: "265 g",
-        character: "A weatherworn blue with a fine broken-twill rhythm. Odd-jacket cloth with instant depth.",
-        guidePath: ["cloth_origins", "suiting", "english", "standeven"],
-        drawTile: function (g) {
-            g.fillStyle = "#46586b";
-            g.fillRect(0, 0, 96, 96);
-            g.lineWidth = 1.8;
-            for (var r = 0; r < 16; r++) {
-                var y = r * 6 + 3;
-                var flip = r % 2 === 1;
-                g.strokeStyle = "rgba(220,228,236,0.16)";
-                for (var x = 0; x < 96; x += 6) {
-                    g.beginPath();
-                    if (flip) {
-                        g.moveTo(x, y - 2.2);
-                        g.lineTo(x + 6, y + 2.2);
-                    } else {
-                        g.moveTo(x, y + 2.2);
-                        g.lineTo(x + 6, y - 2.2);
-                    }
-                    g.stroke();
-                }
-            }
-        },
-    },
-    {
-        key: "piacenza_camel",
-        name: "Camel Cashmere Blend",
-        mill: "Piacenza",
-        composition: "Cashmere / Wool",
-        weight: "320 g",
-        character: "Biella's oldest cashmere house. A warm camel jacketing with a soft nap that photographs like candlelight.",
-        guidePath: ["cloth_origins", "suiting", "italian", "piacenza"],
-        drawTile: function (g) {
-            g.fillStyle = "#b98f5e";
-            g.fillRect(0, 0, 96, 96);
-            for (var i = 0; i < 900; i++) {
-                var lite = Math.random() > 0.45;
-                g.fillStyle = lite
-                    ? "rgba(240,220,190," + 0.09 * Math.random() + ")"
-                    : "rgba(120,85,45," + 0.09 * Math.random() + ")";
-                g.fillRect(Math.random() * 96, Math.random() * 96, 1.6, 2.6);
-            }
-        },
-    },
-];
+// Cloth records live in cloth-data.js and tiles are rendered by
+// weave-engine.js. FABRIC_LIBRARY is kept as the name the rest of
+// this file and app.js already use, so the split did not ripple.
+var FABRIC_LIBRARY = CLOTH_LIBRARY;
 
 var _fabricTileCache = {};
 
@@ -366,13 +28,18 @@ function getRecommendedFabricKeys() {
     if (!appState.archetypeKey || typeof archetypeProfiles === "undefined") return [];
     var profile = archetypeProfiles[appState.archetypeKey];
     if (!profile || !profile.exploreNext) return [];
+    // Matched on the cloth's guidePath, not its key. The original 14
+    // cloths were keyed after their guide topic ("hopsack", "fresco"),
+    // so comparing keys happened to work; with 100+ cloths named after
+    // real bunches it silently returns nothing. The guide path is what
+    // actually expresses "this cloth is that fabric".
     var keys = [];
     for (var i = 0; i < profile.exploreNext.length; i++) {
         var path = profile.exploreNext[i];
-        if (path.length === 3 && path[0] === "fabrics" && path[1] === "suiting") {
-            for (var j = 0; j < FABRIC_LIBRARY.length; j++) {
-                if (FABRIC_LIBRARY[j].key === path[2]) keys.push(path[2]);
-            }
+        if (path.length !== 3 || path[0] !== "fabrics" || path[1] !== "suiting") continue;
+        for (var j = 0; j < FABRIC_LIBRARY.length; j++) {
+            var gp = FABRIC_LIBRARY[j].guidePath;
+            if (gp && gp.length === 3 && gp[2] === path[2]) keys.push(FABRIC_LIBRARY[j].key);
         }
     }
     return keys;
@@ -384,7 +51,10 @@ function getFabricTile(key) {
     var c = document.createElement("canvas");
     c.width = 96;
     c.height = 96;
-    fabric.drawTile(c.getContext("2d"));
+    // A hand-written drawTile still wins if a cloth ever needs one the
+    // weave engine cannot express; none currently do.
+    if (typeof fabric.drawTile === "function") fabric.drawTile(c.getContext("2d"));
+    else drawClothTile(c.getContext("2d"), fabric);
     var url = c.toDataURL();
     _fabricTileCache[key] = url;
     return url;
@@ -531,12 +201,163 @@ function getVisRecoStripHTML(recommended) {
     );
 }
 
+// ============================================
+// FILTERING
+//
+// At 100+ cloths the tray stops being scannable, so it needs facets.
+// Mill is deliberately NOT a facet: 34 houses is far too many chips
+// for an iPad, so cloths filter by region — derived from millPath, so
+// it can never disagree with Cloth Origins — and the mill name stays
+// on the cloth itself where it belongs.
+// ============================================
+
+var VIS_FACETS = [
+    { key: "region", label: "Region" },
+    { key: "weave", label: "Weave" },
+    { key: "pattern", label: "Pattern" },
+    { key: "colour_family", label: "Colour" },
+    { key: "weight_class", label: "Weight" }
+];
+
+var VIS_REGION_LABELS = {
+    english: "England",
+    italian: "Italy",
+    french: "France",
+    scottish: "Scotland",
+    irish: "Ireland",
+    singaporean: "Singapore"
+};
+
+function getClothRegion(cloth) {
+    return cloth.millPath && cloth.millPath.length > 2 ? cloth.millPath[2] : "";
+}
+
+function getClothFacetValue(cloth, facetKey) {
+    return facetKey === "region" ? getClothRegion(cloth) : cloth[facetKey];
+}
+
+function getVisFilters() {
+    if (!appState.visFilters || typeof appState.visFilters !== "object") {
+        appState.visFilters = {};
+    }
+    for (var i = 0; i < VIS_FACETS.length; i++) {
+        var k = VIS_FACETS[i].key;
+        if (!appState.visFilters[k]) appState.visFilters[k] = [];
+    }
+    return appState.visFilters;
+}
+
+function toggleVisFilter(facet, value) {
+    var filters = getVisFilters();
+    if (!filters[facet]) return;
+    var at = filters[facet].indexOf(value);
+    if (at === -1) filters[facet].push(value);
+    else filters[facet].splice(at, 1);
+}
+
+function clearVisFilters() {
+    var filters = getVisFilters();
+    for (var i = 0; i < VIS_FACETS.length; i++) filters[VIS_FACETS[i].key] = [];
+}
+
+function countActiveVisFilters() {
+    var filters = getVisFilters();
+    var n = 0;
+    for (var i = 0; i < VIS_FACETS.length; i++) n += filters[VIS_FACETS[i].key].length;
+    return n;
+}
+
+// OR within a facet, AND across facets — the behaviour people expect
+// from faceted search, and the only combination where adding a chip
+// inside one group widens rather than narrows.
+function getFilteredCloths() {
+    var filters = getVisFilters();
+    var out = [];
+    for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
+        var cloth = FABRIC_LIBRARY[i];
+        var keep = true;
+        for (var f = 0; f < VIS_FACETS.length; f++) {
+            var facet = VIS_FACETS[f].key;
+            var chosen = filters[facet];
+            if (!chosen.length) continue;
+            if (chosen.indexOf(getClothFacetValue(cloth, facet)) === -1) {
+                keep = false;
+                break;
+            }
+        }
+        if (keep) out.push(cloth);
+    }
+    return out;
+}
+
+function facetValueLabel(facetKey, value) {
+    if (facetKey === "region") return VIS_REGION_LABELS[value] || value;
+    // "Plain" is a weave. An unpatterned cloth is "Solid" — labelling
+    // both the same put a PLAIN chip in two adjacent groups meaning two
+    // different things.
+    if (value === "none") return "Solid";
+    return value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
+}
+
+function getVisFilterBarHTML() {
+    var filters = getVisFilters();
+    var active = countActiveVisFilters();
+    var shown = getFilteredCloths().length;
+
+    var groupsHTML = "";
+    for (var f = 0; f < VIS_FACETS.length; f++) {
+        var facet = VIS_FACETS[f];
+        // Values are collected from the library rather than hardcoded,
+        // so a facet can never offer a chip that matches nothing.
+        var values = [];
+        for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
+            var v = getClothFacetValue(FABRIC_LIBRARY[i], facet.key);
+            if (v && values.indexOf(v) === -1) values.push(v);
+        }
+        values.sort();
+
+        var chipsHTML = "";
+        for (var c = 0; c < values.length; c++) {
+            var on = filters[facet.key].indexOf(values[c]) !== -1;
+            chipsHTML +=
+                '<button class="vis-filter-chip' + (on ? " on" : "") + '"' +
+                ' data-action="vis-filter" data-facet="' + facet.key + '" data-value="' + values[c] + '"' +
+                ' aria-pressed="' + (on ? "true" : "false") + '">' +
+                facetValueLabel(facet.key, values[c]) +
+                "</button>";
+        }
+        groupsHTML +=
+            '<div class="vis-filter-group">' +
+            '<span class="vis-filter-group-label">' + facet.label + "</span>" +
+            '<div class="vis-filter-chips">' + chipsHTML + "</div>" +
+            "</div>";
+    }
+
+    return (
+        '<div class="vis-filter-bar' + (active ? " has-active" : "") + '">' +
+        '<div class="vis-filter-head">' +
+        '<button class="vis-filter-toggle" data-action="vis-filter-toggle" aria-expanded="' +
+        (appState.visFiltersOpen ? "true" : "false") + '">Filter' +
+        (active ? ' <span class="vis-filter-count">' + active + "</span>" : "") +
+        "</button>" +
+        '<span class="vis-filter-result" role="status">' + shown + " of " + FABRIC_LIBRARY.length + " cloths</span>" +
+        (active ? '<button class="vis-filter-clear" data-action="vis-filter-clear">Clear</button>' : "") +
+        "</div>" +
+        '<div class="vis-filter-groups' + (appState.visFiltersOpen ? " open" : "") + '">' + groupsHTML + "</div>" +
+        "</div>"
+    );
+}
+
 // selKey gets the accent ring; altKey (compare mode: the cloth dressed
 // on the other side) gets a quiet one.
 function getVisSwatchesHTML(recommended, selKey, altKey) {
     var swatchesHTML = "";
-    for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
-        var f = FABRIC_LIBRARY[i];
+    var shown = getFilteredCloths();
+    if (!shown.length) {
+        return '<p class="vis-swatch-empty">No cloths match those filters.</p>';
+    }
+    for (var i = 0; i < shown.length; i++) {
+        var f = shown[i];
         var cls = "vis-swatch";
         if (recommended.indexOf(f.key) !== -1) cls += " reco";
         if (f.key === selKey) cls += " sel";
@@ -567,6 +388,7 @@ function renderFabricVisualiser() {
         getVisualiserShirtOverlaySVG() +
         getVisualiserJacketSVG() +
         "</div>" +
+        getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
         getVisRecoStripHTML(recommended) +
         '<div class="vis-mode-toggles">' +
@@ -616,6 +438,7 @@ function renderClothCompare(aKey, recommended) {
         '<div class="vis-info vis-info--cmp" id="vis-info-a">' + getFabricInfoHTML(getFabricByKey(aKey)) + "</div>" +
         '<div class="vis-info vis-info--cmp" id="vis-info-b">' + getFabricInfoHTML(getFabricByKey(bKey)) + "</div>" +
         "</div>" +
+        getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, selKey, altKey) + "</div>" +
         getVisRecoStripHTML(recommended) +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
@@ -631,21 +454,32 @@ function getFabricInfoHTML(fabric) {
         typeof getMillPinByName === "function" && getMillPinByName(fabric.mill)
             ? '<button class="vis-spec vis-spec-link" data-action="mill-map-focus" data-mill="' + fabric.mill + '">' + fabric.mill + "</button>"
             : '<span class="vis-spec">' + fabric.mill + "</span>";
+    // Specs are built from what the cloth actually has. House-style
+    // cloths carry no composition or weight by design (see cloth-data.js),
+    // and printing those straight would have rendered "undefined" on 83
+    // of 102 cloths.
+    var specs = [millSpec];
+    if (fabric.bunch && fabric.bunch !== fabric.name) specs.push('<span class="vis-spec">' + fabric.bunch + "</span>");
+    if (fabric.composition) specs.push('<span class="vis-spec">' + fabric.composition + "</span>");
+    if (fabric.weight) specs.push('<span class="vis-spec">' + fabric.weight + "</span>");
+
+    // Every cloth resolves somewhere: its weave topic if it has one,
+    // otherwise its mill's page in Cloth Origins.
+    var linkPath = fabric.guidePath || fabric.millPath;
+    var linkLabel = fabric.guidePath ? "Read about this cloth" : "Read about this mill";
+
     return (
         '<div class="vis-info-head">' +
         '<h2 class="vis-fabric-name">' + fabric.name + "</h2>" +
         '<div class="vis-fabric-specs">' +
-        millSpec +
-        '<span class="vis-spec-divider"></span>' +
-        '<span class="vis-spec">' + fabric.composition + "</span>" +
-        '<span class="vis-spec-divider"></span>' +
-        '<span class="vis-spec">' + fabric.weight + "</span>" +
+        specs.join('<span class="vis-spec-divider"></span>') +
         "</div>" +
         "</div>" +
         '<p class="vis-fabric-character">' + fabric.character + "</p>" +
-        '<button class="vis-guide-link" data-action="result-link" data-path=\'' +
-        JSON.stringify(fabric.guidePath) +
-        "'>Read about this cloth &rarr;</button>"
+        (linkPath
+            ? '<button class="vis-guide-link" data-action="result-link" data-path=\'' +
+              JSON.stringify(linkPath) + "'>" + linkLabel + " &rarr;</button>"
+            : "")
     );
 }
 
@@ -1060,8 +894,8 @@ function getVisEnsembleState() {
             activeGarment: "jacket",
             fabrics: {
                 jacket: recos.length ? recos[0] : FABRIC_LIBRARY[0].key,
-                vest: "wool_silk_linen",
-                trousers: "worsted_wool"
+                vest: "solbiati_wool_silk_linen",
+                trousers: "fox_flannel_mid_grey"
             },
             style: { closure: "sb", lapel: "notch", pockets: "flap" }
         };
@@ -1110,6 +944,7 @@ function renderClothEnsemble(recommended) {
     tabsHTML += "</div>";
 
     var swatchesHTML =
+        getVisFilterBarHTML() +
         '<div class="vis-swatch-tray ds-swatch-tray">' +
         getVisSwatchesHTML(recommended, ens.fabrics[ens.activeGarment], null) +
         "</div>";
@@ -1215,8 +1050,13 @@ function exportEnsembleSpec() {
             '<div style="padding:20px 0; border-bottom:1px solid #ddd5c8;">' +
             '<div style="' + eyebrow + ' margin-bottom:6px;">' + garment + "</div>" +
             '<div style="' + serif + ' font-size:24px; font-style:italic; margin-bottom:4px;">' + f.name + "</div>" +
-            '<div style="font-size:12px; color:#6b6155;">' + f.mill + " &nbsp;&middot;&nbsp; " + f.composition + " &nbsp;&middot;&nbsp; " + f.weight +
-            (styleNote ? " &nbsp;&middot;&nbsp; " + styleNote : "") +
+            // Same rule as the info card: only print specs the cloth
+            // actually carries, so the exported PDF never claims a
+            // composition or weight that was never researched.
+            '<div style="font-size:12px; color:#6b6155;">' +
+            [f.mill, f.composition, f.weight, styleNote]
+                .filter(function (part) { return !!part; })
+                .join(" &nbsp;&middot;&nbsp; ") +
             "</div>" +
             "</div>"
         );

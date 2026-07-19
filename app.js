@@ -6299,6 +6299,24 @@ document.body.addEventListener("click", function (e) {
             visApplyFabric(fabricKey);
         }
     }
+    else if (action === "vis-filter") {
+        // Re-render rather than patch: the tray, the result count and
+        // the chip's own pressed state all change together, and they
+        // are in three different places in the markup.
+        toggleVisFilter(target.dataset.facet, target.dataset.value);
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render();
+    }
+    else if (action === "vis-filter-clear") {
+        clearVisFilters();
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render();
+    }
+    else if (action === "vis-filter-toggle") {
+        appState.visFiltersOpen = !appState.visFiltersOpen;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render();
+    }
     else if (action === "vis-compare-toggle") {
         appState.visCompare = !appState.visCompare;
         if (appState.visCompare) {

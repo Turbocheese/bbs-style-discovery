@@ -51,6 +51,55 @@ for (var i = 0; i < topics.length; i++) {
     else if (!VALID_KINDS[t.topic_kind]) invalidKind.push(topics[i].path + " (" + t.topic_kind + ")");
 }
 
+// ---- Cloth library ----
+//
+// The library asserts real mill facts, so it needs the same discipline
+// as the guide. The load-bearing rule is the last one: an UNVERIFIED
+// cloth must carry no composition, weight or bunch name. Without it,
+// a plausible-looking invented figure eventually gets typed in beside
+// genuinely researched data and nobody can tell which is which.
+var CLOTH_LIBRARY = require("../cloth-data.js").CLOTH_LIBRARY;
+
+var VALID_WEAVES = { plain: 1, twill: 1, hopsack: 1, flannel: 1, birdseye: 1, herringbone: 1 };
+var VALID_PATTERNS = { none: 1, chalkstripe: 1, pinstripe: 1, windowpane: 1, glen: 1 };
+
+function resolvePath(path) {
+    var node = guideTree;
+    for (var i = 0; i < path.length; i++) {
+        if (!node.children || !node.children[path[i]]) return null;
+        node = node.children[path[i]];
+    }
+    return node;
+}
+
+var clothDupKeys = [];
+var clothBadMill = [];
+var clothBadGuide = [];
+var clothBadWeave = [];
+var clothUnverifiedSpec = [];
+var clothVerifiedNoSource = [];
+var seenClothKeys = {};
+
+for (var c = 0; c < CLOTH_LIBRARY.length; c++) {
+    var cl = CLOTH_LIBRARY[c];
+    if (seenClothKeys[cl.key]) clothDupKeys.push(cl.key);
+    seenClothKeys[cl.key] = 1;
+
+    if (!cl.millPath || !resolvePath(cl.millPath)) {
+        clothBadMill.push(cl.key + " -> " + (cl.millPath || []).join(" > "));
+    }
+    if (cl.guidePath && !resolvePath(cl.guidePath)) {
+        clothBadGuide.push(cl.key + " -> " + cl.guidePath.join(" > "));
+    }
+    if (!VALID_WEAVES[cl.weave] || !VALID_PATTERNS[cl.pattern]) {
+        clothBadWeave.push(cl.key + " (" + cl.weave + " / " + cl.pattern + ")");
+    }
+    if (!cl.verified && (cl.composition || cl.weight || cl.bunch)) {
+        clothUnverifiedSpec.push(cl.key);
+    }
+    if (cl.verified && !cl.source) clothVerifiedNoSource.push(cl.key);
+}
+
 function report(label, arr) {
     console.log((arr.length === 0 ? "  PASS  " : "  FAIL  ") + label + (arr.length ? " (" + arr.length + ")" : ""));
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
@@ -62,6 +111,18 @@ report("no missing core fields (formality + versatility)", missingCore);
 report("no missing topic_kind", missingKind);
 report("no invalid topic_kind values", invalidKind);
 
-var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1);
+var verifiedCount = CLOTH_LIBRARY.filter(function (x) { return x.verified; }).length;
+console.log("\nCloths scanned: " + CLOTH_LIBRARY.length +
+    "  (" + verifiedCount + " verified, " + (CLOTH_LIBRARY.length - verifiedCount) + " house-style)");
+report("no duplicate cloth keys", clothDupKeys);
+report("every cloth millPath resolves in Cloth Origins", clothBadMill);
+report("every cloth guidePath resolves", clothBadGuide);
+report("every weave and pattern is in the approved vocabulary", clothBadWeave);
+report("no unverified cloth carries a spec field", clothUnverifiedSpec);
+report("every verified cloth cites a source", clothVerifiedNoSource);
+
+var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1) +
+    clothDupKeys.length + clothBadMill.length + clothBadGuide.length + clothBadWeave.length +
+    clothUnverifiedSpec.length + clothVerifiedNoSource.length;
 console.log(failed === 0 ? "\nAUDIT: ALL GREEN" : "\nAUDIT: FAILURES PRESENT");
 process.exit(failed === 0 ? 0 : 1);
