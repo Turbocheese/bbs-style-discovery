@@ -3671,6 +3671,41 @@ function renderWelcome() {
 // RENDER HOME
 // ============================================
 
+// Three archetype figures for the hero card, drawn fresh each visit so
+// the home screen isn't identical every time a client sits down.
+function getHomeHeroFigures() {
+    if (typeof archetypeProfiles === "undefined") return "";
+    var keys = Object.keys(archetypeProfiles).filter(function (k) {
+        return archetypeProfiles[k].galleryImage;
+    });
+    if (keys.length < 3) return "";
+    var pick = [];
+    var pool = keys.slice();
+    for (var i = 0; i < 3 && pool.length; i++) {
+        pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+    var html = "";
+    for (var j = 0; j < pick.length; j++) {
+        html += '<span class="hhc-figure"><img src="' + getArchetypeCutout(pick[j]) +
+            '" alt="" loading="lazy" decoding="async"></span>';
+    }
+    return html;
+}
+
+// Real colours from a real profile rather than a palette glyph.
+function getHomeColourSwatches() {
+    if (typeof colourDirectionProfiles === "undefined") return "";
+    var keys = Object.keys(colourDirectionProfiles);
+    var profile = colourDirectionProfiles[keys[Math.floor(Math.random() * keys.length)]];
+    if (!profile || !profile.bestColours) return "";
+    var html = "";
+    for (var i = 0; i < Math.min(6, profile.bestColours.length); i++) {
+        html += '<span class="home-colour-chip" style="background:' +
+            profile.bestColours[i].hex + '"></span>';
+    }
+    return html;
+}
+
 function renderHome() {
     var greeting = appState.clientName ? appState.clientName : null;
 
@@ -3716,57 +3751,61 @@ function renderHome() {
             : "A bespoke discovery experience built around how you dress.") +
         "</p>" +
         "</div>" +
-        '<div class="home-card-grid-triad">' +
-        // TOP LEFT: Style
-        '<div class="home-card home-card--primary" data-action="discover">' +
-        '<div class="home-card-watermark home-card-watermark--primary">' +
-        compassSVG +
-        "</div>" +
-        '<div class="home-card-content">' +
+                // --- Begin: the two quizzes ---------------------------------
+        // Style Direction is the primary action, so it is a full-width
+        // hero carrying a real archetype figure rather than a fourth
+        // identical card with an outline icon.
+        '<div class="home-section-label">Begin</div>' +
+        '<div class="home-hero-card" data-action="discover">' +
+        '<div class="home-hero-card-copy">' +
         '<div class="home-card-tag">Wardrobe Blueprint</div>' +
-        '<h2 class="home-card-title">Style<br>Direction</h2>' +
-        '<p class="home-card-body">A personal profile mapping your ideal cloth, cut, and silhouette.</p>' +
+        '<h2 class="home-hero-card-title">Style Direction</h2>' +
+        '<p class="home-card-body">Seven questions map your ideal cloth, cut and silhouette — and land you on one of twenty-four style directions.</p>' +
         '<div class="home-card-cta">Take the style quiz &rarr;</div>' +
         "</div>" +
+        '<div class="home-hero-card-figures" aria-hidden="true">' +
+        getHomeHeroFigures() +
         "</div>" +
-        // TOP RIGHT: Colour
-        '<div class="home-card home-card--primary" data-action="colour-direction">' +
-        '<div class="home-card-watermark home-card-watermark--primary">' +
-        paletteSVG +
         "</div>" +
+        // Colour Direction: real swatches from a real profile, not a
+        // palette icon — it shows what the quiz actually produces.
+        '<div class="home-card home-card--colour" data-action="colour-direction">' +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Tonal Match</div>' +
-        '<h2 class="home-card-title">Colour<br>Direction</h2>' +
-        '<p class="home-card-body">Find the exact palettes and contrast architecture that harmonise with you.</p>' +
+        '<h2 class="home-card-title">Colour Direction</h2>' +
+        '<p class="home-card-body">Find the palettes and contrast that harmonise with you.</p>' +
         '<div class="home-card-cta">Take the colour quiz &rarr;</div>' +
         "</div>" +
+        '<div class="home-colour-swatches" aria-hidden="true">' + getHomeColourSwatches() + "</div>" +
         "</div>" +
-        // BOTTOM LEFT: Guide
-        '<div class="home-card home-card--secondary" data-action="guide">' +
-        '<div class="home-card-watermark home-card-watermark--secondary">' +
-        bookSVG +
-        "</div>" +
-        '<div class="home-card-content">' +
-        '<div class="home-card-tag">Library</div>' +
-        '<h2 class="home-card-title">The BBS<br>Guide</h2>' +
-        '<p class="home-card-body">Explore our digital library of tailoring, cloth origins, and wardrobe strategy.</p>' +
-        '<div class="home-card-cta">Open Guide &rarr;</div>' +
-        "</div>" +
-        "</div>" +
-        // BOTTOM RIGHT: Lookbook
-        '<div class="home-card home-card--secondary" data-action="lookbook">' +
-        '<div class="home-card-watermark home-card-watermark--secondary">' +
-        imageSVG +
-        "</div>" +
+        // --- Explore -------------------------------------------------
+        '<div class="home-section-label">Explore</div>' +
+        '<div class="home-explore-grid">' +
+        // Lookbook leads with a real photograph from the shoot
+        '<div class="home-card home-card--photo" data-action="lookbook">' +
+        '<div class="home-card-photo"><img src="images/lookbook/bbs-editorial-037.jpg" alt="" loading="lazy"></div>' +
         '<div class="home-card-content">' +
         '<div class="home-card-tag">Gallery</div>' +
-        '<h2 class="home-card-title">Editorial<br>Lookbook</h2>' +
-        '<p class="home-card-body">A curated visual archive of seasonal campaigns and tailoring examples.</p>' +
-        '<div class="home-card-cta">View Gallery &rarr;</div>' +
+        '<h2 class="home-card-title">Editorial Lookbook</h2>' +
+        '<p class="home-card-body">Campaign photography, with the styling notes behind each look.</p>' +
+        '<div class="home-card-cta">View gallery &rarr;</div>' +
+        "</div>" +
+        "</div>" +
+        // The guide leads with its own contents
+        '<div class="home-card home-card--guide" data-action="guide">' +
+        '<div class="home-card-content">' +
+        '<div class="home-card-tag">Library</div>' +
+        '<h2 class="home-card-title">The BBS Guide</h2>' +
+        '<p class="home-card-body">Tailoring, cloth and wardrobe strategy, in depth.</p>' +
+        '<div class="home-guide-contents">' +
+        '<span>Tailoring</span><span>Fabrics</span><span>Cloth Origins</span>' +
+        '<span>Colour &amp; Wardrobe</span><span>Accessories</span>' +
+        "</div>" +
+        '<div class="home-card-cta">Open the guide &rarr;</div>' +
         "</div>" +
         "</div>" +
         "</div>" +
-        // Full-width atelier strip: Fabric Visualiser entry
+// Full-width atelier strip: Fabric Visualiser entry
         '<div class="home-cloth-room" data-action="fabric-vis">' +
         '<div class="home-cloth-room-swatches" aria-hidden="true">' +
         '<span class="hcr-chip hcr-chip--navy"></span>' +
@@ -5683,6 +5722,7 @@ function render(options) {
 
     if (!animate) {
         app.innerHTML = content;
+        app.classList.toggle("is-home", appState.view === "home");
         syncFabVisibility();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
@@ -5698,6 +5738,7 @@ function render(options) {
     app.classList.add("is-transitioning");
     setTimeout(function () {
         app.innerHTML = content;
+        app.classList.toggle("is-home", appState.view === "home");
         syncFabVisibility();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");

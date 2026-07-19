@@ -9549,3 +9549,269 @@ textarea:focus-visible,
     object-position: 50% 50%;
     filter: drop-shadow(0 4px 6px rgba(17, 17, 16, 0.16));
 }
+
+/* ============================================================
+   HOME — rebuilt
+   The page was flat for three reasons: white cards on a white
+   page (so nothing read as a card), every tile carrying the same
+   visual weight (so nothing read as the starting point), and
+   outline glyphs standing in for imagery the app already owns.
+   All three are addressed below. Editorial language unchanged —
+   same type, same palette, same restraint.
+   ============================================================ */
+
+/* 1. Paper. Cards can only read as cards against a warmer ground. */
+/* The paper ground lives on #app itself rather than on the shell:
+   #app's padding differs between orientations, so any negative-margin
+   trick left a band of white down one side in landscape. */
+#app.is-home {
+    /* the maison layer pins #app to var(--surface) with !important */
+    background:
+        radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255, 255, 255, 0.85), transparent 68%),
+        #f6f3ec !important;
+}
+
+.home-shell-v2 {
+    max-width: 620px !important;
+    width: auto !important;
+    margin-inline: auto !important;
+    background: none;
+    padding: 0;
+}
+
+/* Section rhythm: two named movements instead of one long list */
+.home-section-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin: clamp(1.8rem, 4vh, 2.6rem) 0 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.home-section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line-strong);
+    opacity: 0.5;
+}
+
+.home-section-label:first-of-type { margin-top: clamp(1.4rem, 3vh, 2rem); }
+
+/* 2. The hero: the primary action, given primary weight ------------- */
+.home-hero-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    align-items: stretch;
+    gap: clamp(1rem, 3vw, 2.2rem);
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 3px !important;
+    padding: clamp(1.5rem, 3.4vw, 2.4rem);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.04),
+        0 20px 44px -30px rgba(17, 17, 16, 0.4) !important;
+    transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.28, 1),
+                box-shadow 0.35s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.home-hero-card:active {
+    transform: scale(0.994);
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.05),
+        0 10px 24px -20px rgba(17, 17, 16, 0.45) !important;
+}
+
+.home-hero-card-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.home-hero-card-title {
+    font-family: "EB Garamond", serif;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 500;
+    line-height: 1.05;
+    color: var(--text);
+    margin: 0.5rem 0 0.7rem;
+}
+
+/* Three figures, overlapped like prints laid on a table */
+.home-hero-card-figures {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    min-height: clamp(150px, 22vh, 230px);
+}
+
+.hhc-figure {
+    display: block;
+    width: 38%;
+    height: clamp(150px, 22vh, 230px);
+}
+
+.hhc-figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: 50% 100%;
+    filter: drop-shadow(0 8px 12px rgba(17, 17, 16, 0.16));
+}
+
+.hhc-figure:nth-child(1) { transform: translateX(14%) scale(0.86); opacity: 0.85; z-index: 1; }
+.hhc-figure:nth-child(2) { z-index: 3; }
+.hhc-figure:nth-child(3) { transform: translateX(-14%) scale(0.86); opacity: 0.85; z-index: 2; }
+
+/* 3. Colour card: the swatches are the illustration ------------------ */
+.home-card--colour {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2rem);
+    margin-top: 12px;
+}
+
+.home-colour-swatches {
+    display: flex;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.home-colour-chip {
+    width: clamp(26px, 4.4vw, 38px);
+    aspect-ratio: 1;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(17, 17, 16, 0.06);
+}
+
+/* 4. Explore row ----------------------------------------------------- */
+.home-explore-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+/* Lookbook leads with the photograph */
+.home-card--photo {
+    padding: 0 !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-card-photo {
+    aspect-ratio: 4 / 3;
+    max-height: 210px;
+    overflow: hidden;
+    background: var(--cream, #eae5dd);
+}
+
+.home-card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    display: block;
+}
+
+.home-card--photo .home-card-content {
+    padding: clamp(1.1rem, 2.6vw, 1.6rem);
+}
+
+/* The guide shows its own contents */
+.home-guide-contents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0.9rem 0 1.1rem;
+}
+
+.home-guide-contents span {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+    background: #fbfaf7;
+}
+
+/* 5. Depth for the existing cards and strips ------------------------- */
+.home-card,
+.home-cloth-room {
+    background: #ffffff !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 3px !important;
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.035),
+        0 14px 30px -26px rgba(17, 17, 16, 0.34) !important;
+    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.28, 1),
+                box-shadow 0.3s cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
+.home-card:active,
+.home-cloth-room:active {
+    transform: scale(0.99);
+}
+
+/* The watermark glyphs are gone from the rebuilt cards; the ones that
+   remain sit quieter now that the cards carry real imagery */
+.home-card-watermark { opacity: 0.09 !important; }
+
+.home-quick-queries {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-top: clamp(1.4rem, 3vh, 2rem);
+}
+
+@media (max-width: 720px) {
+    .home-hero-card { grid-template-columns: 1fr; }
+    .home-hero-card-figures { min-height: 180px; margin-top: 1rem; }
+    .home-card--colour { grid-template-columns: 1fr; }
+    .home-colour-swatches { width: 100%; grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-hero-card,
+    .home-card,
+    .home-cloth-room { transition: none; }
+    .home-hero-card:active,
+    .home-card:active,
+    .home-cloth-room:active { transform: none; }
+}
+
+/* Tighten the vertical rhythm: the rebuilt page ran 60% longer than
+   the old one, which is a lot of scrolling for a menu. */
+.home-shell-v2 .home-cloth-room {
+    padding-block: clamp(0.9rem, 2vh, 1.2rem) !important;
+}
+
+.home-section-label {
+    margin: clamp(1.3rem, 2.8vh, 1.8rem) 0 0.7rem;
+}
+
+.home-explore-grid .home-card--guide .home-card-body { margin-bottom: 0; }
+
+@media (max-width: 620px) {
+    .home-explore-grid { grid-template-columns: 1fr; }
+}
+
+/* Text sitting directly on the paper ground needs a touch more weight
+   than text on white: --soft measures 4.14:1 on #f6f3ec. */
+.home-section-label,
+.home-shell-v2 .home-change-name {
+    color: #6b6862 !important;
+}
