@@ -530,11 +530,87 @@ function getMapStageHTML() {
 var _globeHandle = null;
 var _globeRAF = null;
 
+// Measured, not fitted. tmp/probe.js renders an isolated globe carrying
+// a SINGLE marker at a known lat/lon and reads back where COBE actually
+// draws it — two known points pin the mapping down exactly.
+//
+// At phi 0, longitude -90 lands dead centre, so the offset is +90.
+//
+// The second constant is the one that matters and is easy to miss: the
+// sphere fills only ~0.848 of the canvas half-width, because COBE
+// leaves margin around it for the glow. An earlier attempt fitted the
+// offset against the real overlapping markers WITHOUT this term and
+// produced a confident, plausible, wrong answer (51 degrees).
+//
+// Re-run tmp/probe.js if the COBE version changes.
+var GLOBE_PHI_OFFSET = Math.PI / 2;
+var GLOBE_RADIUS_SCALE = 0.848;
+
+// Clickable groups, sized to what a globe can actually resolve.
+//
+// One pin per country was the obvious first move and it was wrong:
+// Britain, Ireland, France, Italy and Switzerland fall within about
+// 40px of each other on a 419px globe, so five 44px touch targets ended
+// up stacked on top of one another and a tap on Italy landed on a
+// neighbour. It is the same limit that stops the globe resolving the 21
+// houses around Biella — at world scale, Europe is one place.
+//
+// So the globe carries four well-separated groups. Fine filtering by
+// country stays where it works: the chips and the chart below.
+// Turkey and Egypt land 23px apart — still overlapping 44px targets, so
+// the same problem one level down. They merge into "Cotton", which is
+// not a fudge: Soktas weaves cotton shirtings and the Nile Delta is a
+// cotton origin, so at globe scale they are one place AND one story,
+// against the wool houses of Europe.
+var GLOBE_GROUPS = [
+    { key: "Europe", label: "Europe", regions: ["Britain", "Ireland", "France", "Italy", "Switzerland"] },
+    { key: "Cotton", label: "Cotton", regions: ["Turkey", "Egypt"] },
+    { key: "Singapore", label: "Singapore", regions: ["Singapore"] }
+];
+
+function getMillGlobeRegions() {
+    var out = [];
+    for (var g = 0; g < GLOBE_GROUPS.length; g++) {
+        var grp = GLOBE_GROUPS[g];
+        var lat = 0, lon = 0, n = 0;
+        for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+            var p = MILL_MAP_PINS[i];
+            if (typeof p.lat !== "number" || typeof p.lon !== "number") continue;
+            if (grp.regions.indexOf(p.region) === -1) continue;
+            lat += p.lat; lon += p.lon; n++;
+        }
+        if (!n) continue;
+        out.push({
+            region: grp.regions.length === 1 ? grp.regions[0] : "All",
+            label: grp.label,
+            lat: lat / n,
+            lon: lon / n,
+            count: n
+        });
+    }
+    return out;
+}
+
 function getMillGlobeHTML() {
+    var regions = getMillGlobeRegions();
+    var pins = "";
+    for (var i = 0; i < regions.length; i++) {
+        var r = regions[i];
+        pins +=
+            '<button class="map-globe-pin" data-action="map-globe-region" data-region="' + r.region + '"' +
+            ' data-lat="' + r.lat + '" data-lon="' + r.lon + '"' +
+            ' aria-label="' + r.label + ", " + r.count + (r.count === 1 ? " house" : " houses") + '">' +
+            '<span class="map-globe-pin-dot"></span>' +
+            '<span class="map-globe-pin-label">' + r.label + '<em>' + r.count + "</em></span>" +
+            "</button>";
+    }
     return (
         '<div class="map-globe-block">' +
+        '<div class="map-globe-stage" id="map-globe-stage">' +
         '<canvas class="map-globe" id="map-globe" aria-hidden="true"></canvas>' +
-        '<p class="map-globe-note">Drag to turn the globe. Every marker is a house below.</p>' +
+        '<div class="map-globe-pins" id="map-globe-pins">' + pins + "</div>" +
+        "</div>" +
+        '<p class="map-globe-note">Drag to turn the globe &middot; tap a region to filter the chart</p>' +
         "</div>"
     );
 }
@@ -556,15 +632,18 @@ function startMillGlobe() {
     for (var i = 0; i < MILL_MAP_PINS.length; i++) {
         var p = MILL_MAP_PINS[i];
         if (typeof p.lat !== "number" || typeof p.lon !== "number") continue;
-        markers.push({ location: [p.lat, p.lon], size: p.type === "origin" ? 0.03 : 0.045 });
+        markers.push({ location: [p.lat, p.lon], size: p.type === "origin" ? 0.045 : 0.06 });
     }
 
     var rect = cv.getBoundingClientRect();
-    var side = Math.max(240, Math.min(rect.width, 460));
+    var side = Math.max(280, Math.min(rect.width, 560));
     var dark = document.documentElement.getAttribute("data-theme") === "dark";
 
-    // Opens on Europe, where most of the houses are.
-    var phi = 3.1;
+    // Opens on Europe, where 38 of the 40 houses are. Derived from the
+    // calibrated offset rather than guessed: centring longitude L needs
+    // lon + phi + offset = 0, so phi = -L - offset. L is ~3.6 degrees,
+    // the mean of the British and Italian clusters.
+    var phi = -(3.6 * Math.PI / 180) - GLOBE_PHI_OFFSET;
     var theta = 0.28;
     var dragging = false;
     var lastX = 0;
@@ -603,10 +682,68 @@ function startMillGlobe() {
         return;
     }
 
+    // Region buttons are positioned by projecting their centroid onto
+    // the sphere each frame. COBE does emit per-marker CSS variables,
+    // but their shape is undocumented and version-dependent; projecting
+    // here is deterministic, testable, and lets the pins be real focusable
+    // buttons with real touch targets rather than decorated divs.
+    var pinEls = [];
+    var pinWrap = document.getElementById("map-globe-pins");
+    if (pinWrap) {
+        var nodes = pinWrap.querySelectorAll(".map-globe-pin");
+        for (var q = 0; q < nodes.length; q++) {
+            pinEls.push({
+                el: nodes[q],
+                lat: parseFloat(nodes[q].getAttribute("data-lat")) * Math.PI / 180,
+                lon: parseFloat(nodes[q].getAttribute("data-lon")) * Math.PI / 180
+            });
+        }
+    }
+
+    // The drawn sphere is smaller than the canvas, so pins project
+    // against the sphere radius rather than the half-canvas.
+    var RAD = side / 2;
+    var SPHERE = RAD * GLOBE_RADIUS_SCALE;
+
+    function placePins() {
+        for (var i = 0; i < pinEls.length; i++) {
+            var m = pinEls[i];
+            // Orthographic projection. PHI_OFFSET aligns our longitudes
+            // with COBE's texture rotation; verified by checking a pin
+            // lands on its own bronze marker.
+            var lam = m.lon + phi + GLOBE_PHI_OFFSET;
+            var x = Math.cos(m.lat) * Math.sin(lam);
+            var y = Math.cos(theta) * Math.sin(m.lat) - Math.sin(theta) * Math.cos(m.lat) * Math.cos(lam);
+            var z = Math.sin(theta) * Math.sin(m.lat) + Math.cos(theta) * Math.cos(m.lat) * Math.cos(lam);
+
+            if (z <= 0.04) {
+                // On the far side of the globe — not merely faded, but
+                // removed from the tab order and from hit-testing.
+                m.el.style.opacity = "0";
+                m.el.style.pointerEvents = "none";
+                m.el.setAttribute("tabindex", "-1");
+                m.el.setAttribute("aria-hidden", "true");
+                continue;
+            }
+            m.el.style.opacity = String(Math.min(1, (z - 0.04) * 4));
+            m.el.style.pointerEvents = "auto";
+            m.el.removeAttribute("tabindex");
+            m.el.removeAttribute("aria-hidden");
+            // The button is a zero-size anchor: its dot is centred on
+            // this point and the label hangs off to the right. Centring
+            // the whole button instead (translate -50%,-50%) put the dot
+            // well left of the real position, because the label is part
+            // of the box being centred.
+            m.el.style.transform =
+                "translate(" + (RAD + x * SPHERE) + "px," + (RAD - y * SPHERE) + "px)";
+        }
+    }
+
     function tick() {
         if (!cv.isConnected || !_globeHandle) { _globeRAF = null; return; }
         if (!dragging) phi += spin;
         _globeHandle.update({ phi: phi, theta: theta });
+        placePins();
         _globeRAF = requestAnimationFrame(tick);
     }
     tick();
@@ -616,6 +753,50 @@ function startMillGlobe() {
 
     // Drag to turn. pointer events cover touch and mouse alike; the
     // delegated click handler is untouched.
+    // The idle spin is an invitation, not a feature. Once someone
+    // touches the globe it stops for good: a pin that drifts a couple
+    // of centimetres a second is genuinely hard to hit on a touchscreen,
+    // and the whole point of the pins is that they are tappable.
+    var stage = document.getElementById("map-globe-stage");
+    if (stage) {
+        stage.addEventListener("pointerdown", function () { spin = 0; }, { passive: true });
+
+        // Taps are resolved by explicit hit-testing against the pin
+        // positions this loop already computes, rather than by relying
+        // on the browser to hit-test a moving, opacity-animated element
+        // sitting inside a pointer-events:none wrapper. That layering
+        // proved genuinely unreliable — a tap could land on the wrapper
+        // and do nothing — and it would be no more reliable under a
+        // finger than under a test. The DOM buttons remain for
+        // visibility and keyboard access; this makes touch dependable.
+        var downX = 0, downY = 0, downT = 0;
+        stage.addEventListener("pointerdown", function (e) {
+            downX = e.clientX; downY = e.clientY; downT = Date.now();
+        }, { passive: true });
+
+        stage.addEventListener("pointerup", function (e) {
+            // A drag turns the globe; only a tap selects.
+            if (Math.abs(e.clientX - downX) > 10 || Math.abs(e.clientY - downY) > 10) return;
+            if (Date.now() - downT > 700) return;
+
+            var stageRect = stage.getBoundingClientRect();
+            var px = e.clientX - stageRect.left;
+            var py = e.clientY - stageRect.top;
+
+            var best = null, bestD = 34; // within a finger's width of the dot
+            for (var i = 0; i < pinEls.length; i++) {
+                var el = pinEls[i].el;
+                if (el.getAttribute("aria-hidden") === "true") continue;
+                var r = el.getBoundingClientRect();
+                var cx = r.left + r.width / 2 - stageRect.left;
+                var cy = r.top + r.height / 2 - stageRect.top;
+                var d = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
+                if (d < bestD) { bestD = d; best = el; }
+            }
+            if (best) best.click();
+        }, { passive: true });
+    }
+
     cv.addEventListener("pointerdown", function (e) {
         dragging = true;
         lastX = e.clientX;

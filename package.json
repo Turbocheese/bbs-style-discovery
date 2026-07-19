@@ -1,3 +1,12 @@
 {
-
+  "name": "bbs-style-discovery",
+  "private": true,
+  "description": "In-store style discovery app for Benjamin Barker Studios. The app itself is dependency-free; this manifest exists only for the verification harness.",
+  "scripts": {
+    "smoke": "node verify/smoke.js",
+    "audit": "node verify/audit.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
 }

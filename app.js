@@ -5914,6 +5914,7 @@ function render(options) {
     if (!animate) {
         app.innerHTML = content;
         app.classList.toggle("is-home", appState.view === "home");
+        app.classList.toggle("is-welcome", appState.view === "welcome");
         syncFabVisibility();
         applyScrollReveals();
 
@@ -5939,6 +5940,7 @@ function render(options) {
     setTimeout(function () {
         app.innerHTML = content;
         app.classList.toggle("is-home", appState.view === "home");
+        app.classList.toggle("is-welcome", appState.view === "welcome");
         syncFabVisibility();
         applyScrollReveals();
 
@@ -6445,6 +6447,20 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "map-zoom-out") {
         mapCloseDistrict();
+    }
+    else if (action === "map-globe-region") {
+        // The globe is the overview; its job is to hand off to the
+        // chart. Every tap therefore scrolls down to the detail, and
+        // sets the region filter where the group maps to a real one
+        // ("Europe" covers nearly every house, so it stays on All).
+        mapSetRegion(target.dataset.region);
+        var chartEl = document.getElementById("map-stage");
+        if (chartEl && chartEl.scrollIntoView) {
+            chartEl.scrollIntoView({
+                behavior: (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) ? "auto" : "smooth",
+                block: "start"
+            });
+        }
     }
     else if (action === "map-region") {
         mapSetRegion(target.dataset.region);
