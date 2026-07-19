@@ -648,71 +648,74 @@ var _globeRAF = null;
 var GLOBE_PHI_OFFSET = Math.PI / 2;
 var GLOBE_RADIUS_SCALE = 0.848;
 
-// Clickable groups, sized to what a globe can actually resolve.
+// One marker per country, at its true centroid.
 //
-// One pin per country was the obvious first move and it was wrong:
-// Britain, Ireland, France, Italy and Switzerland fall within about
-// 40px of each other on a 419px globe, so five 44px touch targets ended
-// up stacked on top of one another and a tap on Italy landed on a
-// neighbour. It is the same limit that stops the globe resolving the 21
-// houses around Biella — at world scale, Europe is one place.
+// Labels cannot sit ON the markers. Italy and Switzerland are 7.8px
+// apart on a 560px globe and still only 9.8px apart at 700px, because
+// their centroids share a longitude (9.27 and 9.41). A label needs
+// ~100px, so a bigger globe does not fix it — and neither does grouping
+// into sub-regions, since any grouping that keeps them distinct still
+// stacks them.
 //
-// So the globe carries four well-separated groups. Fine filtering by
-// country stays where it works: the chips and the chart below.
-// Turkey and Egypt land 23px apart — still overlapping 44px targets, so
-// the same problem one level down. They merge into "Cotton", which is
-// not a fudge: Soktas weaves cotton shirtings and the Nile Delta is a
-// cotton origin, so at globe scale they are one place AND one story,
-// against the wool houses of Europe.
-var GLOBE_GROUPS = [
-    { key: "Europe", label: "Europe", regions: ["Britain", "Ireland", "France", "Italy", "Switzerland"] },
-    { key: "Cotton", label: "Cotton", regions: ["Turkey", "Egypt"] },
-    { key: "Singapore", label: "Singapore", regions: ["Singapore"] }
-];
-
+// So markers stay at their true positions and LABELS move out to the
+// rim on leader lines, de-overlapped vertically. That is the same
+// treatment the West Yorkshire and Northern Italy district charts
+// already use, so it reads as native rather than as a new idea.
+//
+// An earlier attempt collapsed everything into "Europe / Cotton /
+// Singapore", which dodged the collision but was incoherent: two
+// geographic labels and one material category.
 function getMillGlobeRegions() {
+    var by = {};
+    for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+        var p = MILL_MAP_PINS[i];
+        if (typeof p.lat !== "number" || typeof p.lon !== "number") continue;
+        if (!by[p.region]) by[p.region] = { region: p.region, lat: 0, lon: 0, n: 0 };
+        by[p.region].lat += p.lat;
+        by[p.region].lon += p.lon;
+        by[p.region].n++;
+    }
     var out = [];
-    for (var g = 0; g < GLOBE_GROUPS.length; g++) {
-        var grp = GLOBE_GROUPS[g];
-        var lat = 0, lon = 0, n = 0;
-        for (var i = 0; i < MILL_MAP_PINS.length; i++) {
-            var p = MILL_MAP_PINS[i];
-            if (typeof p.lat !== "number" || typeof p.lon !== "number") continue;
-            if (grp.regions.indexOf(p.region) === -1) continue;
-            lat += p.lat; lon += p.lon; n++;
-        }
-        if (!n) continue;
+    for (var k in by) {
+        if (!by.hasOwnProperty(k)) continue;
         out.push({
-            region: grp.regions.length === 1 ? grp.regions[0] : "All",
-            label: grp.label,
-            lat: lat / n,
-            lon: lon / n,
-            count: n
+            region: k, label: k,
+            lat: by[k].lat / by[k].n,
+            lon: by[k].lon / by[k].n,
+            count: by[k].n
         });
     }
+    // Densest countries first, so they claim their rim slot before the
+    // single-house ones get pushed around by de-overlap.
+    out.sort(function (a, b) { return b.count - a.count; });
     return out;
 }
 
 function getMillGlobeHTML() {
     var regions = getMillGlobeRegions();
-    var pins = "";
+    var dots = "", labels = "";
     for (var i = 0; i < regions.length; i++) {
         var r = regions[i];
-        pins +=
-            '<button class="map-globe-pin" data-action="map-globe-region" data-region="' + r.region + '"' +
-            ' data-lat="' + r.lat + '" data-lon="' + r.lon + '"' +
+        var attrs = ' data-region="' + r.region + '" data-lat="' + r.lat + '" data-lon="' + r.lon + '"';
+        // The dot marks the place; it is decoration and never a target.
+        dots += '<span class="map-globe-dot" data-dot="' + r.region + '"' + attrs + '></span>';
+        // The label is the touch target, out on the rim.
+        labels +=
+            '<button class="map-globe-pin" data-action="map-globe-region"' + attrs +
             ' aria-label="' + r.label + ", " + r.count + (r.count === 1 ? " house" : " houses") + '">' +
-            '<span class="map-globe-pin-dot"></span>' +
-            '<span class="map-globe-pin-label">' + r.label + '<em>' + r.count + "</em></span>" +
+            r.label + '<em>' + r.count + "</em>" +
             "</button>";
     }
     return (
         '<div class="map-globe-block">' +
         '<div class="map-globe-stage" id="map-globe-stage">' +
         '<canvas class="map-globe" id="map-globe" aria-hidden="true"></canvas>' +
-        '<div class="map-globe-pins" id="map-globe-pins">' + pins + "</div>" +
+        // Leader lines, redrawn each frame between dot and label.
+        '<svg class="map-globe-leaders" id="map-globe-leaders" aria-hidden="true"></svg>' +
+        '<div class="map-globe-dots" id="map-globe-dots" aria-hidden="true">' + dots + "</div>" +
+        '<div class="map-globe-pins" id="map-globe-pins">' + labels + "</div>" +
         "</div>" +
-        '<p class="map-globe-note">Drag to turn the globe &middot; tap a region to filter the chart</p>' +
+        '<p class="map-globe-note">Drag to turn the globe &middot; tap a country to filter the chart</p>' +
         "</div>"
     );
 }
@@ -737,8 +740,17 @@ function startMillGlobe() {
         markers.push({ location: [p.lat, p.lon], size: p.type === "origin" ? 0.045 : 0.06 });
     }
 
-    var rect = cv.getBoundingClientRect();
-    var side = Math.max(280, Math.min(rect.width, 560));
+    // The stage fills the column; the sphere sits inside it with a
+    // margin reserved for the rim labels. Sizing the canvas to the full
+    // column instead would push every label off the edge.
+    var stageEl = document.getElementById("map-globe-stage");
+    var stageRect = stageEl ? stageEl.getBoundingClientRect() : cv.getBoundingClientRect();
+    var stageW = Math.max(300, stageRect.width);
+    // "Switzerland 1" is the widest label at ~126px; the reserve has to
+    // clear it or the rim labels run off the stage.
+    var LABEL_ROOM = stageW > 700 ? 152 : 116;
+    var side = Math.max(240, Math.min(stageW - LABEL_ROOM * 2, 620));
+    var stageH = side + 40;
     var dark = document.documentElement.getAttribute("data-theme") === "dark";
 
     // Opens on Europe, where 38 of the 40 houses are. Derived from the
@@ -784,61 +796,134 @@ function startMillGlobe() {
         return;
     }
 
-    // Region buttons are positioned by projecting their centroid onto
-    // the sphere each frame. COBE does emit per-marker CSS variables,
-    // but their shape is undocumented and version-dependent; projecting
-    // here is deterministic, testable, and lets the pins be real focusable
-    // buttons with real touch targets rather than decorated divs.
-    var pinEls = [];
+    // Markers, labels and leader lines are all placed from the same
+    // projection this loop already computes. COBE does emit per-marker
+    // CSS variables, but their shape is undocumented and version-bound;
+    // projecting here is deterministic, testable, and lets the labels be
+    // real focusable buttons with real touch targets.
     var pinWrap = document.getElementById("map-globe-pins");
+    var dotWrap = document.getElementById("map-globe-dots");
+    var leaderSvg = document.getElementById("map-globe-leaders");
+    var pinEls = [];
+
     if (pinWrap) {
         var nodes = pinWrap.querySelectorAll(".map-globe-pin");
         for (var q = 0; q < nodes.length; q++) {
+            var region = nodes[q].getAttribute("data-region");
             pinEls.push({
                 el: nodes[q],
+                dot: dotWrap ? dotWrap.querySelector('[data-dot="' + region + '"]') : null,
+                line: null,
                 lat: parseFloat(nodes[q].getAttribute("data-lat")) * Math.PI / 180,
                 lon: parseFloat(nodes[q].getAttribute("data-lon")) * Math.PI / 180
             });
         }
     }
 
-    // The drawn sphere is smaller than the canvas, so pins project
-    // against the sphere radius rather than the half-canvas.
+    if (leaderSvg) {
+        var svgNS = "http://www.w3.org/2000/svg";
+        leaderSvg.setAttribute("viewBox", "0 0 " + stageW + " " + stageH);
+        for (var L = 0; L < pinEls.length; L++) {
+            var ln = document.createElementNS(svgNS, "path");
+            ln.setAttribute("class", "map-globe-leader");
+            leaderSvg.appendChild(ln);
+            pinEls[L].line = ln;
+        }
+    }
+
     var RAD = side / 2;
     var SPHERE = RAD * GLOBE_RADIUS_SCALE;
+    var CX = stageW / 2;
+    var CY = stageH / 2;
+    var LABEL_GAP = 26;      // clear of the sphere's edge
+    var LABEL_MIN_SPACING = 48;   // labels are 44px tall; less than that overlaps
 
     function placePins() {
+        var live = [];
+
         for (var i = 0; i < pinEls.length; i++) {
             var m = pinEls[i];
-            // Orthographic projection. PHI_OFFSET aligns our longitudes
-            // with COBE's texture rotation; verified by checking a pin
-            // lands on its own bronze marker.
             var lam = m.lon + phi + GLOBE_PHI_OFFSET;
             var x = Math.cos(m.lat) * Math.sin(lam);
             var y = Math.cos(theta) * Math.sin(m.lat) - Math.sin(theta) * Math.cos(m.lat) * Math.cos(lam);
             var z = Math.sin(theta) * Math.sin(m.lat) + Math.cos(theta) * Math.cos(m.lat) * Math.cos(lam);
 
             if (z <= 0.04) {
-                // On the far side of the globe — not merely faded, but
-                // removed from the tab order and from hit-testing.
+                // Round the back: hidden, untabbable, unhittable.
                 m.el.style.opacity = "0";
                 m.el.style.pointerEvents = "none";
                 m.el.setAttribute("tabindex", "-1");
                 m.el.setAttribute("aria-hidden", "true");
+                if (m.dot) m.dot.style.opacity = "0";
+                if (m.line) m.line.setAttribute("d", "");
+                m.visible = false;
                 continue;
             }
-            m.el.style.opacity = String(Math.min(1, (z - 0.04) * 4));
+
+            var fade = Math.min(1, (z - 0.04) * 4);
+            var dx = CX + x * SPHERE;
+            var dy = CY - y * SPHERE;
+
+            m.el.style.opacity = String(fade);
             m.el.style.pointerEvents = "auto";
             m.el.removeAttribute("tabindex");
             m.el.removeAttribute("aria-hidden");
-            // The button is a zero-size anchor: its dot is centred on
-            // this point and the label hangs off to the right. Centring
-            // the whole button instead (translate -50%,-50%) put the dot
-            // well left of the real position, because the label is part
-            // of the box being centred.
-            m.el.style.transform =
-                "translate(" + (RAD + x * SPHERE) + "px," + (RAD - y * SPHERE) + "px)";
+            if (m.dot) {
+                m.dot.style.opacity = String(fade);
+                m.dot.style.transform = "translate(" + dx + "px," + dy + "px)";
+            }
+            m.dx = dx; m.dy = dy;
+            live.push({ m: m, dx: dx, dy: dy, x: x, fade: fade });
         }
+
+        // Sides are split at the median x, not by sign. The view opens on
+        // Europe, so almost every country projects just right of centre
+        // and a sign test piled six labels onto one rim while the other
+        // sat empty. Splitting at the median keeps both rims in use.
+        var byX = live.slice().sort(function (a, b) { return a.x - b.x; });
+        var half = Math.ceil(byX.length / 2);
+        for (var bi = 0; bi < byX.length; bi++) byX[bi].side = bi < half ? -1 : 1;
+
+        // Labels are then pushed apart vertically. Without it Italy and
+        // Switzerland — under 10px apart on the sphere — would print on
+        // top of each other.
+        [-1, 1].forEach(function (sideDir) {
+            var group = live.filter(function (p) { return p.side === sideDir; });
+            group.sort(function (a, b) { return a.dy - b.dy; });
+
+            var labelX = CX + sideDir * (SPHERE + LABEL_GAP);
+            var lastY = -1e9;
+            for (var g = 0; g < group.length; g++) {
+                var ly = Math.max(group[g].dy, lastY + LABEL_MIN_SPACING);
+                // Keep them on the stage.
+                ly = Math.max(20, Math.min(stageH - 20, ly));
+                lastY = ly;
+
+                var el = group[g].m.el;
+                el.style.transform = "translate(" + labelX + "px," + ly + "px)" +
+                    (sideDir < 0 ? " translate(-100%,-50%)" : " translate(0,-50%)");
+                // Remembered in stage coordinates for hit-testing. Reading
+                // the label's DOM rect at tap time proved unreliable — a
+                // label could report the stage origin because its transform
+                // had not been applied yet for that frame — so taps are
+                // resolved against the numbers this loop just computed.
+                group[g].m.lx = labelX;
+                group[g].m.ly = ly;
+                group[g].m.lw = el.offsetWidth || 90;
+                group[g].m.lside = sideDir;
+                group[g].m.visible = true;
+
+                if (group[g].m.line) {
+                    // Elbow: out from the marker, then along to the label.
+                    var midX = labelX - sideDir * 12;
+                    group[g].m.line.setAttribute("d",
+                        "M" + group[g].dx + " " + group[g].dy +
+                        " L" + midX + " " + ly +
+                        " L" + labelX + " " + ly);
+                    group[g].m.line.style.opacity = String(group[g].fade * 0.5);
+                }
+            }
+        });
     }
 
     function tick() {
@@ -850,8 +935,13 @@ function startMillGlobe() {
     }
     tick();
 
+    // The canvas is centred inside the stage; the margin either side is
+    // where the rim labels live.
     cv.style.width = side + "px";
     cv.style.height = side + "px";
+    cv.style.left = ((stageW - side) / 2) + "px";
+    cv.style.top = ((stageH - side) / 2) + "px";
+    if (stageEl) stageEl.style.height = stageH + "px";
 
     // Drag to turn. pointer events cover touch and mouse alike; the
     // delegated click handler is untouched.
@@ -871,29 +961,46 @@ function startMillGlobe() {
         // and do nothing — and it would be no more reliable under a
         // finger than under a test. The DOM buttons remain for
         // visibility and keyboard access; this makes touch dependable.
-        var downX = 0, downY = 0, downT = 0;
+        // Tracked per pointer id, not as a single shared position. A
+        // pointerdown that lands just outside the stage never reaches
+        // this listener, and a shared variable then holds a STALE
+        // position — so the next pointerup compares against wherever the
+        // last press happened, reads as a huge drag, and silently
+        // refuses to select. A tap with no press we saw cannot have
+        // dragged the globe, so it counts as a tap.
+        var presses = {};
         stage.addEventListener("pointerdown", function (e) {
-            downX = e.clientX; downY = e.clientY; downT = Date.now();
+            presses[e.pointerId] = { x: e.clientX, y: e.clientY, t: Date.now() };
         }, { passive: true });
 
         stage.addEventListener("pointerup", function (e) {
-            // A drag turns the globe; only a tap selects.
-            if (Math.abs(e.clientX - downX) > 10 || Math.abs(e.clientY - downY) > 10) return;
-            if (Date.now() - downT > 700) return;
+            var press = presses[e.pointerId];
+            delete presses[e.pointerId];
+            if (press) {
+                // A drag turns the globe; only a tap selects.
+                if (Math.abs(e.clientX - press.x) > 10 || Math.abs(e.clientY - press.y) > 10) return;
+                if (Date.now() - press.t > 700) return;
+            }
 
             var stageRect = stage.getBoundingClientRect();
             var px = e.clientX - stageRect.left;
             var py = e.clientY - stageRect.top;
 
-            var best = null, bestD = 34; // within a finger's width of the dot
+            var best = null, bestD = 1e9;
             for (var i = 0; i < pinEls.length; i++) {
-                var el = pinEls[i].el;
-                if (el.getAttribute("aria-hidden") === "true") continue;
-                var r = el.getBoundingClientRect();
-                var cx = r.left + r.width / 2 - stageRect.left;
-                var cy = r.top + r.height / 2 - stageRect.top;
-                var d = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
-                if (d < bestD) { bestD = d; best = el; }
+                var m = pinEls[i];
+                if (!m.visible) continue;
+
+                // Inside the label's own box counts as a hit; otherwise
+                // fall back to distance from the marker dot, so tapping
+                // the country itself works too.
+                var lx0 = m.lside < 0 ? m.lx - m.lw : m.lx;
+                var lx1 = m.lside < 0 ? m.lx : m.lx + m.lw;
+                if (px >= lx0 - 6 && px <= lx1 + 6 && Math.abs(py - m.ly) <= 26) {
+                    best = m.el; bestD = 0; break;
+                }
+                var d = Math.sqrt((px - m.dx) * (px - m.dx) + (py - m.dy) * (py - m.dy));
+                if (d < 30 && d < bestD) { bestD = d; best = m.el; }
             }
             if (best) best.click();
         }, { passive: true });
@@ -902,7 +1009,12 @@ function startMillGlobe() {
     cv.addEventListener("pointerdown", function (e) {
         dragging = true;
         lastX = e.clientX;
-        cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
+        try {
+            if (cv.setPointerCapture) cv.setPointerCapture(e.pointerId);
+        } catch (err) {
+            // Pointer already released — capture is an optimisation for
+            // dragging beyond the canvas, not a requirement.
+        }
     });
     cv.addEventListener("pointermove", function (e) {
         if (!dragging) return;

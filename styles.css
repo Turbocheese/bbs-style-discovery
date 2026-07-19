@@ -10433,29 +10433,122 @@ textarea:focus-visible,
 
 /* ============================================
    THE GLOBE — CLOTH ORIGINS
-   Opens the Provenance Chart. Deliberately restrained: it is the
-   overview, and the flat chart below carries the district detail a
-   globe cannot show.
+   Three layers over one canvas: dots at true positions, labels out on
+   the rim, and leader lines joining them. Labels cannot sit on the
+   dots — Italy and Switzerland are under 10px apart at any globe size
+   this page can hold — so they move out and the line carries the
+   association, the same way the district charts handle Biella.
    ============================================ */
 
 .map-globe-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin: 0 0 1.6rem;
+    gap: 12px;
+    margin: 0 0 1.8rem;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Breaks out of the content column so the sphere can be genuinely
+   large while the rim labels still have somewhere to live. Clamped so
+   it never exceeds the viewport. */
+.map-globe-stage {
+    position: relative;
+    width: calc(100% + 120px);
+    max-width: calc(100vw - 24px);
+    margin: 0 -60px;
+}
+
+@media (max-width: 700px) {
+    .map-globe-stage { width: 100%; margin: 0; }
 }
 
 .map-globe {
-    width: 100%;
-    max-width: 560px;
-    aspect-ratio: 1;
+    position: absolute;
     display: block;
-    touch-action: none; /* drag turns the globe rather than scrolling */
+    touch-action: none;   /* drag turns the globe, it does not scroll */
     cursor: grab;
 }
 
 .map-globe:active { cursor: grabbing; }
+
+.map-globe-leaders,
+.map-globe-dots,
+.map-globe-pins {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.map-globe-leaders { width: 100%; height: 100%; overflow: visible; }
+
+.map-globe-leader {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+}
+
+.map-globe-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 11px;
+    height: 11px;
+    margin: -5.5px 0 0 -5.5px;
+    border-radius: 50%;
+    background: var(--bronze);
+    box-shadow: 0 0 0 2.5px rgba(246, 243, 236, 0.9);
+}
+
+/* The label is the target. Real button, real 44px height, positioned
+   on the rim by transform. */
+.map-globe-pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 7px;
+    padding: 0 10px !important;
+    min-height: 44px !important;
+    border: 0 !important;
+    background: transparent !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase;
+    color: var(--text) !important;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+
+.map-globe-pin em {
+    font-style: normal;
+    color: var(--bronze);
+    font-variant-numeric: tabular-nums;
+}
+
+/* A bare button:hover in this file sets a dark background and outranks
+   a single class even with !important — the black-box bug already hit
+   on the look cards and the provenance tape. */
+.map-globe-pin:hover,
+.map-globe-pin:focus,
+.map-globe-pin:active {
+    background: transparent !important;
+    color: var(--text) !important;
+}
+
+.map-globe-pin:hover em { color: var(--text); }
+
+.map-globe-pin:focus-visible {
+    outline: 2px solid var(--bronze);
+    outline-offset: 2px;
+}
 
 .map-globe-note {
     margin: 0;
@@ -10465,101 +10558,6 @@ textarea:focus-visible,
     text-transform: uppercase;
     color: var(--soft);
     text-align: center;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    /* The globe still renders and still turns by drag; it just does not
-       spin on its own. Handled in startMillGlobe via the spin rate. */
-    .map-globe { cursor: default; }
-}
-
-/* ============================================
-   GLOBE REGION PINS
-   Individual houses stay as ambient dots — 21 Italian mills within a
-   few degrees cannot be 21 touch targets. The clickable layer is one
-   button per region, sized by how many houses sit behind it, and
-   positioned each frame by projecting its centroid.
-   ============================================ */
-
-.map-globe-stage {
-    position: relative;
-    width: 100%;
-    max-width: 560px;
-    aspect-ratio: 1;
-    margin: 0 auto;
-}
-
-.map-globe-pins {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-/* A real 44x44 button centred on the projected point, pulled back by
-   half its size with margins so the TRANSFORM can carry the location
-   directly. It was briefly a zero-size anchor with a ::before hit area:
-   the dot landed correctly, but a 0x0 element cannot be reliably
-   clicked or focused, which broke both tooling and keyboard access. */
-.map-globe-pin {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    margin-left: -22px;
-    margin-top: -22px;
-    padding: 0 !important;
-    border: 0 !important;
-    background: transparent !important;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.2s ease;
-    will-change: transform, opacity;
-}
-
-/* Centred in the button, therefore centred on the location. */
-.map-globe-pin-dot {
-    position: absolute;
-    left: 15px;
-    top: 15px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--bronze);
-    box-shadow: 0 0 0 3px rgba(246, 243, 236, 0.92), 0 1px 4px rgba(17, 17, 16, 0.35);
-}
-
-.map-globe-pin-label {
-    position: absolute;
-    left: 34px;
-    top: 11px;
-    font-family: "Manrope", sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text);
-    white-space: nowrap;
-    background: rgba(246, 243, 236, 0.9);
-    padding: 3px 7px;
-    line-height: 1.3;
-    pointer-events: none; /* the button is the target, not the label */
-}
-
-.map-globe-pin-label em {
-    font-style: normal;
-    margin-left: 6px;
-    color: var(--bronze);
-}
-
-.map-globe-pin:hover .map-globe-pin-dot,
-.map-globe-pin.sel .map-globe-pin-dot {
-    background: var(--text);
-}
-
-.map-globe-pin:focus-visible {
-    outline: 2px solid var(--bronze);
-    outline-offset: 2px;
 }
 
 /* ============================================
