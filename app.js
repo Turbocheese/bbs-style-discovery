@@ -5291,17 +5291,52 @@ function renderGroup(node) {
 function renderTopic(node) {
     var breadcrumb = getBreadcrumb(appState.guidePath);
 
-    var sectionsHTML = '<div class="topic-spec-sheet">';
+    // Every topic carries the same six headings, which is why the page
+    // read as one flat list. They aren't equal in kind, so they're no
+    // longer given equal weight:
+    //   Intro                -> lead paragraph, sits under the title
+    //   What It Is / Why...  -> the body, in reading type
+    //   Best For / Trade-Off -> a paired verdict block
+    //   In the BBS World     -> the house voice, set as a pull quote
+    // Anything unrecognised falls through to the body, so a topic with a
+    // different shape still renders everything it has.
+    var LEAD = ["intro"];
+    var VERDICT = { "best for": "Best For", "trade-off": "Trade-Off", "trade off": "Trade-Off" };
+    var VOICE = ["in the bbs world"];
+
+    var leadHTML = "", bodyHTML = "", verdict = [], voiceHTML = "";
     for (var i = 0; i < node.sections.length; i++) {
         var section = node.sections[i];
-        sectionsHTML +=
-            '<div class="topic-spec-row"><div class="topic-spec-label">' +
-            section.heading +
-            '</div><div class="topic-spec-value">' +
-            section.body +
-            "</div></div>";
+        var h = String(section.heading || "").trim().toLowerCase();
+        if (LEAD.indexOf(h) !== -1) {
+            leadHTML += '<p class="topic-lead">' + section.body + "</p>";
+        } else if (VOICE.indexOf(h) !== -1) {
+            voiceHTML =
+                '<blockquote class="topic-voice">' +
+                '<p>' + section.body + "</p>" +
+                '<cite>' + section.heading + "</cite>" +
+                "</blockquote>";
+        } else if (VERDICT[h]) {
+            verdict.push(
+                '<div class="topic-verdict-cell">' +
+                '<div class="topic-verdict-label">' + VERDICT[h] + "</div>" +
+                '<p>' + section.body + "</p>" +
+                "</div>"
+            );
+        } else {
+            bodyHTML +=
+                '<section class="topic-body-block">' +
+                '<h2 class="topic-body-heading">' + section.heading + "</h2>" +
+                '<p>' + section.body + "</p>" +
+                "</section>";
+        }
     }
-    sectionsHTML += "</div>";
+
+    var sectionsHTML =
+        leadHTML +
+        (bodyHTML ? '<div class="topic-body">' + bodyHTML + "</div>" : "") +
+        (verdict.length ? '<div class="topic-verdict">' + verdict.join("") + "</div>" : "") +
+        voiceHTML;
 
     var relatedTopics =
         typeof getRelatedTopics === "function"
