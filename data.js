@@ -379,6 +379,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "two_piece",
                                     title: "Two-Piece",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -439,6 +440,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "three_piece",
                                     title: "Three-Piece",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -509,6 +511,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "work",
                                     title: "The Work Suit",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -567,6 +570,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "travel",
                                     title: "The Travel Suit",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -688,6 +692,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "evening",
                                     title: "The Evening Suit",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -757,6 +762,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "single_breasted",
                                     title: "Single-Breasted Suit",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -813,6 +819,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "double_breasted",
                                     title: "Double-Breasted Suit",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -867,6 +874,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "three_roll_two",
                                     title: "3-Roll-2 Suit",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -920,6 +928,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "dinner_jacket",
                                     title: "Dinner Jacket / Tuxedo",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "suits",
@@ -1750,6 +1759,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "single_breasted",
                                     title: "Single-Breasted Jacket",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -1804,6 +1814,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "double_breasted",
                                     title: "Double-Breasted Jacket",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -1885,6 +1896,7 @@ window.guideTree = {
                                         "bbs_core",
                                     ],
                                     title: "The Smart-Casual Jacket",
+                                    topic_kind: "wardrobe_strategy",
                                     intro: "The jacket as a flexible everyday refinement piece.",
                                     metadata: {
                                         climate: ["tropical", "warm_climate"],
@@ -1933,6 +1945,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "travel",
                                     title: "The Travel Jacket",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -1996,6 +2009,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "resort",
                                     title: "The Resort Jacket",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -2051,6 +2065,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "evening_casual",
                                     title: "Evening Casual",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -2122,6 +2137,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "single_breasted_jacket",
                                     title: "Single-Breasted Jacket",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -2466,6 +2482,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "natural_shoulder",
                                             title: "Natural Shoulder",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "jackets",
@@ -2525,6 +2542,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "roped_shoulder",
                                             title: "Roped Shoulder",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "jackets",
@@ -2581,6 +2599,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "shirt_shoulder",
                                             title: "Shirt Shoulder / Spalla Camicia",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "jackets",
@@ -2875,6 +2894,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "one_button",
                                                     title: "One Button",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -2929,6 +2949,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "two_button",
                                                     title: "Two Button",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -2983,6 +3004,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "three_roll_two",
                                                     title: "3-Roll-2 Button Stance",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3038,6 +3060,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "three_button",
                                                     title: "Three Button",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3119,6 +3142,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "six_by_one",
                                                     title: "6x1",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3173,6 +3197,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "six_by_two",
                                                     title: "6x2",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3228,6 +3253,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "four_by_one",
                                                     title: "4x1",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3282,6 +3308,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "four_by_two",
                                                     title: "4x2",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3816,6 +3843,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "polyester_lining",
                                                     title: "Polyester Lining",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -3871,6 +3899,7 @@ window.guideTree = {
                                                     type: "topic",
                                                     key: "self_fabric_or_minimal",
                                                     title: "Self Fabric / Minimal Internal Finish",
+                                                    topic_kind: "garment_detail",
                                                     tags: [
                                                         "tailoring",
                                                         "jackets",
@@ -4080,6 +4109,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "half_canvas",
                                             title: "Half Canvas",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "jackets",
@@ -4247,6 +4277,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "why_bbs_does_not_use_fusing",
                                             title: "Why BBS Does Not Use Fusing",
+                                            topic_kind: "brand_philosophy",
                                             tags: [
                                                 "tailoring",
                                                 "jackets",
@@ -4438,6 +4469,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "bbs_house_expression",
                                     title: "BBS House Expression",
+                                    topic_kind: "brand_philosophy",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -4566,6 +4598,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "jungle",
                                     title: "Jungle",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -4622,6 +4655,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "flight",
                                     title: "Flight",
+                                    topic_kind: "garment",
                                     tags: [
                                         "tailoring",
                                         "jackets",
@@ -5735,6 +5769,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "work",
                                     title: "The Work Shirt",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "shirts",
@@ -5850,6 +5885,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "smart_casual",
                                     title: "The Smart-Casual Shirt",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "shirts",
@@ -6590,6 +6626,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "single_breasted",
                                     title: "Single-Breasted Vest",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6643,6 +6680,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "double_breasted",
                                     title: "Double-Breasted Vest",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6712,6 +6750,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "suiting",
                                     title: "Suiting",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6764,6 +6803,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "wedding",
                                     title: "The Wedding Vest",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6816,6 +6856,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "black_tie",
                                     title: "Black Tie",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6868,6 +6909,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "layered_dressing",
                                     title: "Layered Dressing",
+                                    topic_kind: "wardrobe_strategy",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6937,6 +6979,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "matching_suiting_cloths",
                                     title: "Matching Suiting Cloths",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -6990,6 +7033,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "linen_blends",
                                     title: "Linen Blends",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7046,6 +7090,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "wool_blends",
                                     title: "Wool Blends",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7100,6 +7145,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "evening_fabrics",
                                     title: "Evening Fabrics",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7172,6 +7218,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "opening_depth",
                                     title: "Opening Depth",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7224,6 +7271,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "buttoning",
                                     title: "Buttoning",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7277,6 +7325,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "line_and_balance",
                                     title: "Line and Balance",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "vests",
@@ -7435,6 +7484,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "double_gurkha",
                                             title: "Double Gurkha",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -7546,6 +7596,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "belt_loops",
                                             title: "Belt Loops",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -7599,6 +7650,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "hollywood_waistband",
                                             title: "Hollywood Waistband",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -7713,6 +7765,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "d_ring",
                                             title: "D-Ring",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -7914,6 +7967,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "single_pleats",
                                             title: "Single Pleats",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -8635,6 +8689,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "full_break",
                                             title: "Full Break",
+                                            topic_kind: "garment_detail",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -8802,6 +8857,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "short_length_proportion",
                                     title: "Short Length and Proportion",
+                                    topic_kind: "garment_detail",
                                     tags: [
                                         "tailoring",
                                         "trousers",
@@ -8885,6 +8941,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "worsted_lightweight",
                                             title: "Worsted - Lightweight",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -8941,6 +8998,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "worsted_midweight",
                                             title: "Worsted - Midweight",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -8997,6 +9055,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "worsted_heavyweight",
                                             title: "Worsted - Heavyweight",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9055,6 +9114,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "open_weave",
                                             title: "Open-Weave",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9111,6 +9171,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "high_twist",
                                             title: "High-Twist",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9167,6 +9228,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "fresco",
                                             title: "Fresco",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9243,6 +9305,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "cotton",
                                             title: "Cotton",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9298,6 +9361,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "cotton_twill",
                                             title: "Cotton Twill",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9353,6 +9417,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "cotton_wool_blends",
                                             title: "Cotton-Wool Blends",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9426,6 +9491,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "linen",
                                             title: "Linen",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9483,6 +9549,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "linen_cotton",
                                             title: "Linen-Cotton",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9538,6 +9605,7 @@ window.guideTree = {
                                             type: "topic",
                                             key: "wool_linen",
                                             title: "Wool-Linen",
+                                            topic_kind: "fabric",
                                             tags: [
                                                 "tailoring",
                                                 "trousers",
@@ -9648,6 +9716,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "plain_weave",
                                     title: "Plain Weave / Solid Surface",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9703,6 +9772,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "birdseye",
                                     title: "Birdseye",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9758,6 +9828,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "herringbone",
                                     title: "Herringbone",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9814,6 +9885,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "pinstripe",
                                     title: "Pinstripe",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9869,6 +9941,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "chalkstripe",
                                     title: "Chalkstripe",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9923,6 +9996,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "glen_check",
                                     title: "Glen Check",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -9978,6 +10052,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "prince_of_wales",
                                     title: "Prince of Wales",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -10032,6 +10107,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "windowpane",
                                     title: "Windowpane",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -10086,6 +10162,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "houndstooth_puppytooth",
                                     title: "Houndstooth and Puppytooth",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -10141,6 +10218,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "gun_club_check",
                                     title: "Gun Club Check",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "suiting",
@@ -10198,6 +10276,7 @@ window.guideTree = {
                             type: "topic",
                             key: "fresco",
                             title: "Fresco",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10256,6 +10335,7 @@ window.guideTree = {
                             type: "topic",
                             key: "high_twist_wool",
                             title: "High-Twist Wool",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10377,6 +10457,7 @@ window.guideTree = {
                             type: "topic",
                             key: "linen_suiting",
                             title: "Linen Suiting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10435,6 +10516,7 @@ window.guideTree = {
                             type: "topic",
                             key: "wool_linen",
                             title: "Wool-Linen",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10492,6 +10574,7 @@ window.guideTree = {
                             type: "topic",
                             key: "wool_silk_linen",
                             title: "Wool-Silk-Linen",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10548,6 +10631,7 @@ window.guideTree = {
                             type: "topic",
                             key: "mohair_blends",
                             title: "Mohair Blends",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10606,6 +10690,7 @@ window.guideTree = {
                             type: "topic",
                             key: "seersucker_suiting",
                             title: "Seersucker Suiting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10663,6 +10748,7 @@ window.guideTree = {
                             type: "topic",
                             key: "summer_tweed",
                             title: "Summer Tweed",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10720,6 +10806,7 @@ window.guideTree = {
                             type: "topic",
                             key: "worsted_wool",
                             title: "Worsted Wool",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "suiting",
@@ -10985,6 +11072,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "plain_surface",
                                     title: "Plain Surface",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "shirtings",
@@ -11040,6 +11128,7 @@ window.guideTree = {
                                     type: "topic",
                                     key: "oxford_texture",
                                     title: "Oxford Texture",
+                                    topic_kind: "fabric",
                                     tags: [
                                         "fabrics",
                                         "shirtings",
@@ -11505,6 +11594,7 @@ window.guideTree = {
                             type: "topic",
                             key: "poplin",
                             title: "Poplin",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11560,6 +11650,7 @@ window.guideTree = {
                             type: "topic",
                             key: "oxford",
                             title: "Oxford",
+                            topic_kind: "fabric",
                             tags: [
                                 "tailoring",
                                 "shirts",
@@ -11620,6 +11711,7 @@ window.guideTree = {
                             type: "topic",
                             key: "twill_shirting",
                             title: "Twill Shirting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11676,6 +11768,7 @@ window.guideTree = {
                             type: "topic",
                             key: "linen_shirting",
                             title: "Linen Shirting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11734,6 +11827,7 @@ window.guideTree = {
                             type: "topic",
                             key: "linen_cotton_shirting",
                             title: "Linen-Cotton Shirting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11790,6 +11884,7 @@ window.guideTree = {
                             type: "topic",
                             key: "seersucker_shirting",
                             title: "Seersucker Shirting",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11848,6 +11943,7 @@ window.guideTree = {
                             type: "topic",
                             key: "chambray",
                             title: "Chambray",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11905,6 +12001,7 @@ window.guideTree = {
                             type: "topic",
                             key: "easy_iron",
                             title: "Easy-Iron",
+                            topic_kind: "fabric",
                             tags: [
                                 "fabrics",
                                 "shirtings",
@@ -11960,6 +12057,7 @@ window.guideTree = {
                             type: "topic",
                             key: "why_polyester_is_avoided",
                             title: "Why Polyester Is Avoided",
+                            topic_kind: "brand_philosophy",
                             tags: [
                                 "fabrics",
                                 "shirtings",

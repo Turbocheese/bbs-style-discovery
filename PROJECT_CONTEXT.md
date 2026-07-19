@@ -120,10 +120,9 @@ measure-moment loading interstitial, and kiosk behaviours.
 
 - 312 topics; 0 missing metadata objects; 0 missing core fields (audited
   18 July 2026 via `node verify/audit.js`).
-- **topic_kind: 214 of 312 topics have it explicitly; 98 (all tailoring
-  sub-trees) do not.** All cloth_origins topics are covered (backfilled July
-  2026). Rendering falls back gracefully, but backfill the rest per
-  METADATA_GOVERNANCE.md when touching those topics.
+- **topic_kind: 312 of 312.** The 98-topic gap was backfilled 19 July 2026 per
+  METADATA_GOVERNANCE.md's assignment rules, and `verify/audit.js` now exits
+  clean for the first time.
 - Cloth Origins now spans 40 houses across England, Scotland, Ireland, France,
   Italy, Switzerland, Turkey, Egypt and Singapore.
 - topic_kind values: garment, garment_detail, fabric, fabric_reference,

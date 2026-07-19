@@ -158,11 +158,15 @@ Other UI invariants:
 - Topic count is currently 312 (288 + 24 mill/merchant topics added July 2026 with
   the Mill Map). If you add/remove topics, update the count where it appears in
   docs (and the expected total in `verify/audit.js`), and re-run the audits (below).
-- **True topic_kind coverage (audited 18 July 2026): 214 of 312 topics have an
-  explicit topic_kind; 98 (all in tailoring sub-trees) have none.** All
-  cloth_origins topics are fully covered. Rendering falls back gracefully, so
-  this is a data-quality gap, not a bug — backfill per METADATA_GOVERNANCE.md's
-  assignment rules when touching those topics.
+- **topic_kind coverage is complete: 312 of 312 (audited 19 July 2026).** The
+  long-standing gap (98 topics, all in tailoring sub-trees) was backfilled per
+  METADATA_GOVERNANCE.md's assignment rules. `node verify/audit.js` now exits
+  clean — it had failed on this check on every previous run. Keep it at zero:
+  every new topic needs an explicit topic_kind.
+- **A node's `key` must equal its position in the tree.** Links are built from
+  paths, so a node sitting at `peak_lapel` whose key says `"peak"` produces a
+  path that resolves to nothing and renders a blank page. Fourteen nodes had
+  drifted this way; validator.js now enforces it.
 - Mill topics carry only facts that were verified when written (founding years,
   towns, ownership). If you add a house, verify it or leave the field out —
   clients read these pages.
@@ -206,9 +210,9 @@ Work is not finished until all of these pass:
    JPEG conversion in `fitCanvasToA4Page` regressed.
 6. **If you touched data.js:** run `node verify/audit.js` (committed data-health
    audit; the "console audit scripts" older docs mention were never committed).
-   Metadata must stay at zero missing; topic_kind has a known pre-existing gap
-   (107 topics) — do not add new gaps, and confirm Browse All Topics still
-   returns the full topic count.
+   Metadata and topic_kind must both stay at zero missing — the audit is fully
+   green as of 19 July 2026, so any failure is something you introduced.
+   Confirm Browse All Topics still returns the full topic count.
 7. **If you changed app.js or styles.css:** bump the `?v=` in index.html AND in
    `sw.js`'s precache list, and bump `CACHE_VERSION` in sw.js.
 8. Before a staff demo, run the full `SMOKE_TEST_CHECKLIST.md`.

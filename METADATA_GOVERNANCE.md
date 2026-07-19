@@ -19,12 +19,12 @@ As of the 18 July 2026 audit (`node verify/audit.js`):
 - 312 topics total (288 + 24 mill/merchant topics added with the Mill Map)
 - 0 topics with missing metadata objects
 - 0 topics missing core fields (formality + versatility)
-- **98 topics with missing topic_kind** (mostly tailoring sub-trees).
-  All cloth_origins topics were backfilled with `fabric_reference` in July
-  2026. Earlier versions of this document claimed 0 missing — that was never
-  true of the committed code. Rendering falls back gracefully, but backfill
-  per the assignment rules below when touching those topics, and never let
-  the count grow.
+- **0 topics with missing topic_kind** — coverage is complete as of
+  19 July 2026. The last 98 (tailoring sub-trees) were assigned by the rules
+  below: fabric 45, garment_detail 28, wardrobe_strategy 13, garment 9,
+  brand_philosophy 3. Earlier versions of this document claimed 0 missing
+  before it was true; it is true now, and `verify/audit.js` proves it on
+  every run. Never let the count grow.
 
 Run `node verify/audit.js` after any bulk edits.
 
