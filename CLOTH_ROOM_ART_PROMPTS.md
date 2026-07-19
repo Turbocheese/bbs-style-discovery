@@ -11,24 +11,51 @@ current shapes are the problem; the shading over them is broadly fine.
 
 These prompts produce reference art to draw *from*. Even the SVG model's output
 is a stylised multi-path illustration rather than the single clean outline the
-clip mask needs, so the workflow is: generate → I study proportions and
-landmarks → I hand-author the path.
+clip mask needs, so the workflow is: generate → measure proportions and
+landmarks → hand-author the path.
+
+## The house cut
+
+Everything here is **soft Neapolitan tailoring**, not English structure. That
+distinction is the whole point of the artwork — a stiff, padded, narrow-lapel
+silhouette would misrepresent what BBS actually cuts. The vocabulary that
+matters:
+
+- **Spalla camicia** — the "shirt shoulder". The sleeve is set into the armhole
+  the way a shirt sleeve is, with visible gathering (*grinze*) puckering along
+  the sleevehead. No padding, no rope. The shoulder line follows the body and
+  falls away naturally rather than sitting square.
+- **Wide lapels with belly** — roughly 9–10cm at the widest, with a *pronounced
+  convex curve* along the outer edge (the "belly") rather than a straight line.
+  High gorge.
+- **Three-roll-two** — three buttons, but the lapel rolls softly over the top
+  one so it lands at the middle button. The roll is soft and unpressed.
+- **Barchetta** — the breast pocket is boat-shaped, curving upward at both ends.
+  Not a straight welt.
+- **Patch pockets** — rounded, applied on top of the cloth, often slightly
+  angled. Sometimes with a flap.
+- **Open quarters** — the front edges curve away from each other below the
+  fastening button rather than running straight down.
+- **Shorter length** and a **high armhole** with a relatively slim sleeve.
+- **High-rise trousers**, forward-facing pleats, side adjusters rather than belt
+  loops, a fuller thigh and a gentle taper.
 
 ## Which model
 
 **Primary: [`recraft-ai/recraft-v3-svg`](https://replicate.com/recraft-ai/recraft-v3-svg)**
 — genuinely outputs SVG, not raster. Best chance of geometry worth measuring
-against. Use style `vector_illustration` or `line_art`.
+against. Style `vector_illustration`.
 
 **Secondary: `black-forest-labs/flux-1.1-pro`** — raster, but far better at
-believable tailoring proportion and drape. Run both: Recraft for the outline,
-Flux for judging where the waist suppression and shoulder line actually sit.
+believable drape and at the softness that makes Neapolitan tailoring read as
+Neapolitan. Run both: Recraft for the outline, Flux for judging where the
+shoulder falls and how much belly the lapel actually has.
 
 ## Target proportions (important)
 
-Generate at these aspect ratios so the reference maps onto the coordinate space
-the artwork is being rebuilt in. Two of the three are currently wrong, which is
-the root cause of the vest and trousers looking off.
+Generate at these ratios so the reference maps onto the coordinate space the
+artwork is being rebuilt in. Two of the three are currently wrong, which is the
+root cause of the vest and trousers looking off.
 
 | Garment | Ratio | Notes |
 |---|---|---|
@@ -42,63 +69,76 @@ Append to every prompt:
 
 > Technical fashion flat lay, garment photographed alone from directly above on
 > a pure white seamless background, perfectly symmetrical, front view, centred
-> in frame with even margin on all sides, garment laid completely flat with no
-> folds or rumples, sleeves and legs fully extended, no body, no mannequin, no
-> hanger, no hands, no props, no text, no logo, soft even lighting with no cast
-> shadow, sharp edges, entire garment fully within the frame.
+> in frame with even margin on all sides, garment laid completely flat, sleeves
+> and legs fully extended, no body, no mannequin, no hanger, no hands, no props,
+> no text, no logo, soft even lighting with no cast shadow, crisp edges, entire
+> garment fully within the frame.
 
 ---
 
-## 1. Jacket — single breasted, notch lapel
+## 1. Jacket — single breasted, three-roll-two, notch lapel
 
-> A single breasted two button tailored suit jacket in mid grey wool. Natural
-> soft shoulder with a slight roll, no padding. Clearly visible waist
-> suppression so the jacket nips in at the waist and flares gently over the
-> hip. Notch lapel of medium width rolling to the top button. Two flap hip
-> pockets and a welted breast pocket. Sleeves fully extended straight down and
-> ending level with the jacket hem, each with four cuff buttons. Hem slightly
-> curved. Front edges meeting cleanly at the button.
+> A soft unstructured Neapolitan single breasted sports jacket in mid grey wool,
+> three-roll-two button stance where the lapel rolls softly over the top button
+> and lands at the middle button. Very wide notch lapels roughly 10cm at the
+> widest with a pronounced convex belly curving outward along the lapel edge,
+> and a high gorge. Spalla camicia shirt shoulder: completely unpadded, natural
+> and sloping, following the body line, with visible soft gathering and
+> puckering where the sleevehead meets the high armhole. Barchetta breast
+> pocket, boat shaped and curving upward at both ends. Two rounded patch hip
+> pockets applied on the surface of the cloth. Open quarters with the front
+> edges curving away from each other below the fastening button. Gentle waist
+> shaping, no stiffness. Relatively short length. Sleeves fully extended
+> straight down, slim, ending level with the jacket hem, with four working cuff
+> buttons.
 
-## 2. Jacket — double breasted, peak lapel
+## 2. Jacket — double breasted, wide peak lapel
 
-> A six-on-two double breasted tailored suit jacket in mid grey wool. Peak
-> lapel with the points sweeping up and outward toward the shoulder line. Two
-> parallel columns of three buttons each, the wrap crossing generously to the
-> left. Strong waist suppression. Patch hip pockets and a welted breast pocket.
-> Sleeves fully extended straight down and ending level with the jacket hem.
-> Hem straight and square.
+> A soft unstructured Neapolitan double breasted six-on-two jacket in mid grey
+> wool. Very wide peak lapels roughly 10cm at the widest with strongly upswept
+> points reaching toward the shoulder line and a pronounced convex belly along
+> the lapel edge. Spalla camicia shirt shoulder: unpadded, natural and sloping,
+> with visible soft gathering at the sleevehead and a high armhole. Two parallel
+> columns of three buttons with a generous wrap crossing to the left. Barchetta
+> breast pocket, boat shaped and curving upward. Two rounded patch hip pockets.
+> Clean waist shaping with soft drape rather than sharp structure. Straight hem.
+> Sleeves fully extended straight down ending level with the hem.
 
 ## 3. Waistcoat — single breasted, five button
 
-> A single breasted five button tailored waistcoat in mid grey wool, no lapel.
-> Deep V neckline opening to the top button. Clearly defined armholes cut high
-> and close. Two welted lower pockets. Body tapering in at the waist. Hem
-> finishing in two distinct downward points below the bottom button. Notably
-> taller than it is wide.
+> A soft tailored Italian waistcoat in mid grey wool, single breasted with five
+> buttons and no lapel. Deep V neckline opening to the top button. High, close,
+> clearly defined armholes. Two welted lower pockets set at a slight angle. Body
+> shaped in at the waist with a soft unstiffened front. Hem finishing in two
+> distinct downward points below the bottom button. Distinctly taller than it is
+> wide.
 
-## 4. Waistcoat — double breasted with lapel
+## 4. Waistcoat — double breasted, shawl lapel
 
-> A double breasted six button tailored waistcoat in mid grey wool with a shawl
-> lapel framing the neckline. Two columns of three buttons with the wrap
-> crossing to the left. Clearly defined high armholes. Two welted lower
-> pockets. Straight hem with a single point. Notably taller than it is wide.
+> A soft tailored Italian double breasted waistcoat in mid grey wool with a
+> generous unbroken shawl lapel framing the neckline in one continuous curve,
+> no notch and no peak. Two columns of three buttons with the wrap crossing to
+> the left. High, close, clearly defined armholes. Two welted lower pockets.
+> Straight hem with a single point. Distinctly taller than it is wide.
 
-## 5. Trousers — flat front, plain hem
+## 5. Trousers — flat front, high rise, plain hem
 
-> A pair of flat front tailored wool trousers in mid grey, laid flat and fully
-> extended to full length. Clearly visible waistband at the top with belt
-> loops. Smooth flat front with no pleats. A sharp centre crease running the
-> full length of each leg. Gentle taper from the thigh down to a clean plain
-> hem. Full rise visible from waistband to crotch. Distinctly longer than wide.
+> A pair of high-rise soft tailored Italian trousers in mid grey wool, laid flat
+> and fully extended to full length. Notably high rise with a long distance from
+> the waistband down to the crotch. Wide waistband sitting at the natural waist
+> with an extended tab closure and no belt loops. Completely flat front with no
+> pleats. Sharp centre crease running the full length of each leg. Full through
+> the thigh, tapering gently to a clean plain hem. Distinctly longer than wide.
 
-## 6. Trousers — double pleat, turn-up
+## 6. Trousers — double pleat, high rise, turn-up
 
-> A pair of double pleated tailored wool trousers in mid grey, laid flat and
-> fully extended to full length. Wide waistband with side adjuster tabs and no
-> belt loops. Two clearly visible forward-facing pleats falling from the
-> waistband on each side. Fuller cut through the thigh, tapering to a turn-up
-> cuff at the hem with a visible horizontal fold line. Sharp centre crease.
-> Full rise visible. Distinctly longer than wide.
+> A pair of high-rise double pleated soft tailored Italian trousers in mid grey
+> wool, laid flat and fully extended to full length. Notably high rise. Wide
+> waistband at the natural waist with side adjuster tabs on both hips and no
+> belt loops. Two deep forward-facing pleats falling from the waistband on each
+> side and opening toward the centre. Generous fullness through the thigh
+> tapering gently to a turn-up cuff with a clearly visible horizontal fold line.
+> Sharp centre crease running the full length. Distinctly longer than wide.
 
 ---
 
@@ -108,10 +148,14 @@ What actually needs measuring off the reference, in priority order:
 
 1. **Shoulder-to-hem against total width** — the current jacket is too wide for
    its length, which is most of why it reads as a cardigan.
-2. **Where the waist sits** and how much it suppresses.
-3. **Sleeve length relative to hem** — currently far too short.
-4. **Armhole depth on the waistcoat** — currently absent entirely.
-5. **Rise and taper on the trousers** — currently a rectangle.
+2. **Shoulder slope and where the sleevehead sits.** This is the single detail
+   that separates a Neapolitan jacket from an English one, and the current
+   artwork has a flat square shoulder — the opposite of spalla camicia.
+3. **Lapel width and belly.** Currently far too narrow and drawn as a straight
+   edge with no convex curve.
+4. **Sleeve length relative to hem** — currently far too short.
+5. **Armhole depth on the waistcoat** — currently absent entirely.
+6. **Rise and taper on the trousers** — currently a rectangle with no rise.
 
-Colour, cloth and lighting in the reference are irrelevant; the app supplies
-all three. Only the outline and the landmark positions matter.
+Colour, cloth and lighting in the reference are irrelevant; the app supplies all
+three. Only the outline and the landmark positions matter.

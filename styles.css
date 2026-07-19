@@ -8553,8 +8553,12 @@ button,
     }
 
 .ds-garment--jacket { aspect-ratio: 440 / 540; }
-.ds-garment--vest { aspect-ratio: 440 / 360; }
-.ds-garment--trousers { aspect-ratio: 440 / 440; }
+/* These must match the SVG viewBoxes in fabric-visualiser.js — the clip
+   paths use objectBoundingBox units, so a mismatch stretches the
+   garment. The vest was 440/360 (landscape) and the trousers 440/440
+   (square), which is why they read as a tombstone and a rectangle. */
+.ds-garment--vest { aspect-ratio: 440 / 440; }
+.ds-garment--trousers { aspect-ratio: 440 / 680; }
 
 .ds-garment .ds-overlay {
     position: absolute;
