@@ -100,6 +100,27 @@ for (var c = 0; c < CLOTH_LIBRARY.length; c++) {
     if (cl.verified && !cl.source) clothVerifiedNoSource.push(cl.key);
 }
 
+// ---- Cloth Room link targets ----
+//
+// Every style option and Complete-the-Look slot links into the guide.
+// A target that resolves to a GROUP rather than a topic opens a section
+// listing instead of the article the client asked for, which is the
+// same failure class the validator's key/position rule catches.
+var visSrc = require("fs").readFileSync(__dirname + "/../fabric-visualiser.js", "utf8");
+var linkTargets = [];
+var linkRe = /topic:\s*(\[[^\]]*\])/g;
+var lm;
+while ((lm = linkRe.exec(visSrc))) {
+    try { linkTargets.push(JSON.parse(lm[1].replace(/'/g, '"'))); } catch (e) { /* not a literal */ }
+}
+
+var badLinkTarget = [];
+for (var lt = 0; lt < linkTargets.length; lt++) {
+    var node = resolvePath(linkTargets[lt]);
+    if (!node) badLinkTarget.push(linkTargets[lt].join(" > ") + " (does not resolve)");
+    else if (node.type !== "topic") badLinkTarget.push(linkTargets[lt].join(" > ") + " (resolves to a group, not a topic)");
+}
+
 function report(label, arr) {
     console.log((arr.length === 0 ? "  PASS  " : "  FAIL  ") + label + (arr.length ? " (" + arr.length + ")" : ""));
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
@@ -120,9 +141,11 @@ report("every cloth guidePath resolves", clothBadGuide);
 report("every weave and pattern is in the approved vocabulary", clothBadWeave);
 report("no unverified cloth carries a spec field", clothUnverifiedSpec);
 report("every verified cloth cites a source", clothVerifiedNoSource);
+console.log("\nCloth Room link targets checked: " + linkTargets.length);
+report("every link target resolves to a topic, not a group", badLinkTarget);
 
 var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1) +
     clothDupKeys.length + clothBadMill.length + clothBadGuide.length + clothBadWeave.length +
-    clothUnverifiedSpec.length + clothVerifiedNoSource.length;
+    clothUnverifiedSpec.length + clothVerifiedNoSource.length + badLinkTarget.length;
 console.log(failed === 0 ? "\nAUDIT: ALL GREEN" : "\nAUDIT: FAILURES PRESENT");
 process.exit(failed === 0 ? 0 : 1);

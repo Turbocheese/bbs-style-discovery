@@ -214,6 +214,32 @@ var VIS_FACETS = [
     { key: "weight_class", label: "Weight" }
 ];
 
+// A cloth's weave and pattern are themselves guide topics, sitting in
+// fabrics > suiting > pattern_and_texture. Linking them means the cloth
+// card can answer "what is a birdseye?" at the point the client is
+// looking at one — and it is what makes that whole sub-tree reachable
+// without browsing.
+var WEAVE_TOPICS = {
+    plain: ["fabrics", "suiting", "pattern_and_texture", "plain_weave"],
+    twill: ["fabrics", "suiting", "pattern_and_texture", "herringbone"],
+    hopsack: ["fabrics", "suiting", "hopsack"],
+    flannel: ["fabrics", "suiting", "worsted_wool"],
+    birdseye: ["fabrics", "suiting", "pattern_and_texture", "birdseye"],
+    herringbone: ["fabrics", "suiting", "pattern_and_texture", "herringbone"]
+};
+
+var PATTERN_TOPICS = {
+    chalkstripe: ["fabrics", "suiting", "pattern_and_texture", "chalkstripe"],
+    pinstripe: ["fabrics", "suiting", "pattern_and_texture", "pinstripe"],
+    windowpane: ["fabrics", "suiting", "pattern_and_texture", "windowpane"],
+    glen: ["fabrics", "suiting", "pattern_and_texture", "glen_check"]
+};
+
+var WEAVE_TOPIC_LABELS = {
+    plain: "Plain Weave", twill: "Twill", hopsack: "Hopsack",
+    flannel: "Flannel", birdseye: "Birdseye", herringbone: "Herringbone"
+};
+
 var VIS_REGION_LABELS = {
     english: "England",
     italian: "Italy",
@@ -463,6 +489,23 @@ function getFabricInfoHTML(fabric) {
     var linkPath = fabric.guidePath || fabric.millPath;
     var linkLabel = fabric.guidePath ? "Read about this cloth" : "Read about this mill";
 
+    // Weave and pattern each link to their own guide entry.
+    var weaveReads = [];
+    if (WEAVE_TOPICS[fabric.weave]) {
+        weaveReads.push(
+            '<button class="ds-read-link" data-action="result-link" data-path=\'' +
+            JSON.stringify(WEAVE_TOPICS[fabric.weave]) + "'>" +
+            (WEAVE_TOPIC_LABELS[fabric.weave] || fabric.weave) + "</button>"
+        );
+    }
+    if (fabric.pattern && PATTERN_TOPICS[fabric.pattern]) {
+        weaveReads.push(
+            '<button class="ds-read-link" data-action="result-link" data-path=\'' +
+            JSON.stringify(PATTERN_TOPICS[fabric.pattern]) + "'>" +
+            facetValueLabel("pattern", fabric.pattern) + "</button>"
+        );
+    }
+
     return (
         '<div class="vis-info-head">' +
         '<h2 class="vis-fabric-name">' + fabric.name + "</h2>" +
@@ -471,6 +514,9 @@ function getFabricInfoHTML(fabric) {
         "</div>" +
         "</div>" +
         '<p class="vis-fabric-character">' + fabric.character + "</p>" +
+        (weaveReads.length
+            ? '<div class="ds-read-row"><span class="ds-read-label">Read about</span>' + weaveReads.join("") + "</div>"
+            : "") +
         (linkPath
             ? '<button class="vis-guide-link" data-action="result-link" data-path=\'' +
               JSON.stringify(linkPath) + "'>" + linkLabel + " &rarr;</button>"
@@ -1042,54 +1088,60 @@ var VIS_ENS_GARMENTS = ["jacket", "vest", "trousers"];
 // vest and trousers were fixed artwork, which left the ensemble
 // lopsided — trouser detailing in particular is what a client actually
 // gets asked about in a fitting.
+// Every option carries `topic`: the path to the guide entry that
+// explains it. These are not decorative cross-links — each option in
+// this menu IS a topic in the guide, and before this they were among
+// the entries no client could ever reach without browsing the tree.
+// Linking them makes the guide answer the question the option raises
+// ("what is a jetted pocket?") at the moment it is raised.
 var VIS_ENS_STYLE_OPTIONS = {
     jacket: {
         closure: [
-            { key: "sb", label: "Single Breasted" },
-            { key: "db", label: "Double Breasted" }
+            { key: "sb", label: "Single Breasted", topic: ["tailoring", "jackets", "styles", "single_breasted_jacket"] },
+            { key: "db", label: "Double Breasted", topic: ["tailoring", "jackets", "styles", "double_breasted_jacket"] }
         ],
         lapel: [
-            { key: "notch", label: "Notch Lapel" },
-            { key: "peak", label: "Peak Lapel" }
+            { key: "notch", label: "Notch Lapel", topic: ["tailoring", "jackets", "details", "lapels", "notch_lapel"] },
+            { key: "peak", label: "Peak Lapel", topic: ["tailoring", "jackets", "details", "lapels", "peak_lapel"] }
         ],
         pockets: [
-            { key: "flap", label: "Flap Pockets" },
-            { key: "jetted", label: "Jetted Pockets" },
-            { key: "patch", label: "Patch Pockets" }
+            { key: "flap", label: "Flap Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "flap_pockets"] },
+            { key: "jetted", label: "Jetted Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "jetted_pockets"] },
+            { key: "patch", label: "Patch Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "patch_pockets"] }
         ]
     },
     vest: {
         closure: [
-            { key: "sb", label: "Single Breasted" },
-            { key: "db", label: "Double Breasted" }
+            { key: "sb", label: "Single Breasted", topic: ["tailoring", "vests", "configuration", "single_breasted"] },
+            { key: "db", label: "Double Breasted", topic: ["tailoring", "vests", "configuration", "double_breasted"] }
         ],
         lapel: [
-            { key: "none", label: "No Lapel" },
-            { key: "shawl", label: "Shawl Lapel" }
+            { key: "none", label: "No Lapel", topic: ["tailoring", "vests", "proportion_cut", "opening_depth"] },
+            { key: "shawl", label: "Shawl Lapel", topic: ["tailoring", "jackets", "details", "lapels", "shawl_lapel"] }
         ],
         hem: [
-            { key: "points", label: "Two Points" },
-            { key: "straight", label: "Straight Hem" }
+            { key: "points", label: "Two Points", topic: ["tailoring", "vests", "proportion_cut", "line_and_balance"] },
+            { key: "straight", label: "Straight Hem", topic: ["tailoring", "vests", "proportion_cut", "buttoning"] }
         ]
     },
     trousers: {
         front: [
-            { key: "flat", label: "Flat Front" },
-            { key: "single", label: "Single Pleat" },
-            { key: "double", label: "Double Pleat" }
+            { key: "flat", label: "Flat Front", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] },
+            { key: "single", label: "Single Pleat", topic: ["tailoring", "trousers", "configuration", "pleats", "single_pleats"] },
+            { key: "double", label: "Double Pleat", topic: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"] }
         ],
         waistband: [
-            { key: "loops", label: "Belt Loops" },
-            { key: "adjusters", label: "Side Adjusters" },
-            { key: "tab", label: "Extended Tab" }
+            { key: "loops", label: "Belt Loops", topic: ["tailoring", "trousers", "configuration", "waistbands", "belt_loops"] },
+            { key: "adjusters", label: "Side Adjusters", topic: ["tailoring", "trousers", "configuration", "waistbands", "side_adjusters"] },
+            { key: "tab", label: "Extended Tab", topic: ["tailoring", "trousers", "configuration", "fastening_styles"] }
         ],
         hem: [
-            { key: "plain", label: "Plain Hem" },
-            { key: "turnup", label: "Turn-Up" }
+            { key: "plain", label: "Plain Hem", topic: ["tailoring", "trousers", "configuration", "break", "slight_break"] },
+            { key: "turnup", label: "Turn-Up", topic: ["tailoring", "trousers", "configuration", "cuffs"] }
         ],
         taper: [
-            { key: "tapered", label: "Tapered" },
-            { key: "classic", label: "Classic Leg" }
+            { key: "tapered", label: "Tapered", topic: ["tailoring", "trousers", "configuration", "leg_shape"] },
+            { key: "classic", label: "Classic Leg", topic: ["tailoring", "trousers", "configuration", "rise"] }
         ]
     }
 };
@@ -1160,6 +1212,106 @@ function getVisEnsembleState() {
     return ens;
 }
 
+// ============================================
+// COMPLETE THE LOOK
+//
+// The third mode SuitSupply's Look Builder occupies — composing a whole
+// outfit rather than a garment. Theirs is built on stocked products;
+// this one is illustrated, because BBS product linking is still parked
+// on confirmed SKUs and photography.
+//
+// The register is derived from the jacket cloth actually chosen, not a
+// fixed list, so changing the cloth changes the recommendation. Every
+// slot links to its guide entry — which is also how the accessories
+// section of the guide stopped being unreachable.
+// ============================================
+
+function getLookRegister(cloth) {
+    if (!cloth) return "business";
+    var linenish = cloth.weave === "plain" && (cloth.colour_family === "cream" || cloth.colour_family === "tan");
+    if (cloth.weight_class === "light" && (linenish || cloth.weave === "hopsack")) return "warm";
+    if (cloth.weave === "herringbone" || cloth.weave === "flannel" ||
+        cloth.colour_family === "brown" || cloth.colour_family === "green" || cloth.colour_family === "tan") {
+        return "country";
+    }
+    if (cloth.pattern === "none" &&
+        (cloth.colour_family === "charcoal" || cloth.colour_family === "navy" || cloth.colour_family === "black")) {
+        return "business";
+    }
+    return "business";
+}
+
+var LOOK_SLOTS = {
+    business: [
+        { slot: "Tie", label: "Grenadine Silk", note: "Textured enough to sit against a plain worsted without going flat.", topic: ["accessories", "ties", "grenadine_tie"] },
+        { slot: "Pocket Square", label: "White Linen", note: "The one square that never argues with anything.", topic: ["accessories", "pocket_squares", "white_pocket_square"] },
+        { slot: "Belt", label: "Dress Belt", note: "Slim, smooth leather, matched to the shoe.", topic: ["accessories", "belts", "dress_belt"] },
+        { slot: "Shoes", label: "Oxford", note: "Closed lacing is the formal end of the range.", topic: ["accessories", "shoes", "dress_shoes", "oxford_shoe"] }
+    ],
+    country: [
+        { slot: "Tie", label: "Wool Tie", note: "Matte and substantial — it belongs with texture, not against it.", topic: ["accessories", "ties", "wool_tie"] },
+        { slot: "Pocket Square", label: "Linen Square", note: "A softer fold for a softer cloth.", topic: ["accessories", "pocket_squares", "linen_pocket_square"] },
+        { slot: "Belt", label: "Suede Belt", note: "Suede reads as considered rather than corporate.", topic: ["accessories", "belts", "suede_belt"] },
+        { slot: "Shoes", label: "Derby", note: "Open lacing, more room, more at ease.", topic: ["accessories", "shoes", "dress_shoes", "derby_shoe"] }
+    ],
+    warm: [
+        { slot: "Tie", label: "Linen Tie", note: "Or none at all — a warm-weather cloth carries an open collar well.", topic: ["accessories", "ties", "linen_tie"] },
+        { slot: "Pocket Square", label: "Cotton Square", note: "Light, dry, and unbothered by humidity.", topic: ["accessories", "pocket_squares", "cotton_pocket_square"] },
+        { slot: "Belt", label: "Woven Belt", note: "Or side adjusters and skip the belt entirely.", topic: ["accessories", "belts", "woven_belt"] },
+        { slot: "Shoes", label: "Penny Loafer", note: "The tropical default, and the easiest shoe to wear all day.", topic: ["accessories", "shoes", "loafers", "penny_loafer"] }
+    ]
+};
+
+// Small line-drawn marks rather than photographs, matching the garment
+// art's register.
+var LOOK_ICONS = {
+    Tie: '<svg viewBox="0 0 40 60" aria-hidden="true"><path d="M20 4 L14 12 L20 18 L26 12 Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M20 18 L13 40 L20 54 L27 40 Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    "Pocket Square": '<svg viewBox="0 0 40 60" aria-hidden="true"><path d="M8 40 L20 16 L32 40 Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 40 L32 40" stroke="currentColor" stroke-width="1.6"/></svg>',
+    Belt: '<svg viewBox="0 0 40 60" aria-hidden="true"><path d="M4 26 L36 26 L36 34 L4 34 Z" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="16" y="23" width="11" height="14" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    // Side profile with a visible heel, toe cap and laced vamp — the
+    // first attempt was a single soft curve and read as a hill.
+    Shoes: '<svg viewBox="0 0 40 60" aria-hidden="true">' +
+        '<path d="M4 40 L4 34 C4 31 6 29 10 28 L18 26 C21 25 23 26 26 29 L32 34 C35 36 36 38 36 40 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<path d="M4 40 L36 40 L36 43 L4 43 Z" fill="none" stroke="currentColor" stroke-width="1.4"/>' +
+        '<path d="M26 29 C24 32 22 34 18 35" fill="none" stroke="currentColor" stroke-width="1.3"/>' +
+        '<path d="M12 28 L14 32 M16 27 L18 31" stroke="currentColor" stroke-width="1.1"/>' +
+        "</svg>"
+};
+
+function getCompleteTheLookHTML(ens) {
+    var jacketCloth = getFabricByKey(ens.fabrics.jacket);
+    var register = getLookRegister(jacketCloth);
+    var slots = LOOK_SLOTS[register] || LOOK_SLOTS.business;
+
+    var registerNote = {
+        business: "Read from a plain dark worsted — the formal end of the range.",
+        country: "Read from a textured or earth-toned cloth — softer, less corporate.",
+        warm: "Read from a light, open cloth — built for heat."
+    }[register];
+
+    var cards = "";
+    for (var i = 0; i < slots.length; i++) {
+        var s = slots[i];
+        cards +=
+            '<button class="look-card" data-action="result-link" data-path=\'' + JSON.stringify(s.topic) + "'>" +
+            '<span class="look-card-icon">' + (LOOK_ICONS[s.slot] || "") + "</span>" +
+            '<span class="look-card-slot">' + s.slot + "</span>" +
+            '<span class="look-card-label">' + s.label + "</span>" +
+            '<span class="look-card-note">' + s.note + "</span>" +
+            "</button>";
+    }
+
+    return (
+        '<div class="look-block">' +
+        '<div class="look-head">' +
+        '<h2 class="look-title">Complete the Look</h2>' +
+        '<p class="look-lead">' + registerNote + "</p>" +
+        "</div>" +
+        '<div class="look-grid">' + cards + "</div>" +
+        "</div>"
+    );
+}
+
 function getVisEnsGarmentBlock(garment, ens) {
     var fabricKey = ens.fabrics[garment];
     var shading;
@@ -1228,6 +1380,32 @@ function renderClothEnsemble(recommended) {
             styleHTML += "</div>";
         }
         styleHTML += "</div>";
+
+        // A "read about" row for the current selections. This is where
+        // the guide meets the fitting: the client has just chosen a
+        // jetted pocket, so the entry explaining jetted pockets is one
+        // tap away rather than five levels down a tree.
+        var reads = [];
+        for (var rg in garmentOpts) {
+            if (!garmentOpts.hasOwnProperty(rg)) continue;
+            var rOpts = garmentOpts[rg];
+            for (var ro = 0; ro < rOpts.length; ro++) {
+                if (rOpts[ro].key === garmentStyle[rg] && rOpts[ro].topic) {
+                    reads.push(
+                        '<button class="ds-read-link" data-action="result-link" data-path=\'' +
+                        JSON.stringify(rOpts[ro].topic) + "'>" + rOpts[ro].label + "</button>"
+                    );
+                    break;
+                }
+            }
+        }
+        if (reads.length) {
+            styleHTML +=
+                '<div class="ds-read-row">' +
+                '<span class="ds-read-label">Read about</span>' +
+                reads.join("") +
+                "</div>";
+        }
     }
 
     return (
@@ -1247,6 +1425,7 @@ function renderClothEnsemble(recommended) {
         getVisRecoStripHTML(recommended) +
         styleHTML +
         '<div class="ds-selected-cloth" id="vis-ens-selected">' + getVisEnsSelectedHTML(activeFabric) + "</div>" +
+        getCompleteTheLookHTML(ens) +
         '<div class="ds-actions">' +
         '<button class="arch-btn-fill" data-action="vis-ens-export">Export Design Spec</button>' +
         '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +

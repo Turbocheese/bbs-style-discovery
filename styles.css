@@ -10072,3 +10072,200 @@ textarea:focus-visible,
     color: var(--soft);
     font-size: 0.85rem;
 }
+
+/* ============================================
+   CLOTH ROOM — "READ ABOUT" LINKS + COMPLETE THE LOOK
+   Every style option and every look slot is a guide topic. These
+   blocks are what connect the fitting to the guide: before them, the
+   accessories section and most jacket/trouser detail topics could only
+   be found by browsing the tree five levels down.
+   ============================================ */
+
+.ds-read-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0.9rem 0 0.2rem;
+}
+
+.ds-read-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bronze);
+}
+
+.ds-read-link {
+    border: 0 !important;
+    background: transparent !important;
+    padding: 0 8px !important;
+    min-height: 44px !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--line-strong);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ds-read-link:active {
+    color: var(--text) !important;
+}
+
+/* --- Complete the Look --- */
+
+.look-block {
+    margin: 2rem 0 1.4rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+}
+
+.look-head {
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+.look-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    color: var(--text);
+}
+
+.look-lead {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--soft);
+    margin: 0 auto;
+    max-width: 34ch;
+}
+
+/* Two by two rather than auto-fit: four across squeezed the notes into
+   very narrow columns, and auto-fit wrapped them 3 + 1. */
+.look-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 900px) {
+    .look-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.look-card {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 18px 14px !important;
+    min-height: 44px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+    background: var(--surface) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.look-card:active {
+    border-color: var(--line-strong) !important;
+}
+
+.look-card-icon {
+    display: block;
+    width: 34px;
+    height: 50px;
+    color: var(--bronze);
+    margin-bottom: 2px;
+}
+
+.look-card-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.look-card-slot {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bronze);
+}
+
+/* text-transform and letter-spacing are reset explicitly: these sit
+   inside a <button>, which inherits the app's uppercase button styling
+   and rendered the whole note in caps. */
+.look-card-label {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+    color: var(--text);
+}
+
+.look-card-note {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    line-height: 1.45;
+    text-transform: none !important;
+    letter-spacing: 0.01em !important;
+    color: var(--soft);
+}
+
+/* ============================================
+   HOVER STATES FOR THE NEW CLOTH ROOM CONTROLS
+   There is a bare `button:hover { background: var(--accent) }` in this
+   file. A pseudo-class selector (0,1,1) outranks a single class (0,1,0),
+   so it beat even `background: ... !important` on .look-card and
+   inverted the card to near-black — which also hid the label, since the
+   label colour is near-black too. `.class:hover` (0,2,0) wins.
+
+   This app is touch-first and its design language rules out hover-only
+   affordances; on iPad a tap can leave a sticky hover, so an inverted
+   unreadable card is a real failure, not a desktop-only cosmetic one.
+   ============================================ */
+
+.look-card:hover {
+    background: var(--surface) !important;
+    border-color: var(--line-strong) !important;
+}
+
+.look-card:hover .look-card-label {
+    color: var(--text) !important;
+}
+
+.ds-read-link:hover {
+    background: transparent !important;
+    color: var(--text) !important;
+}
+
+.vis-filter-chip:hover {
+    background: transparent !important;
+    color: var(--muted) !important;
+}
+
+.vis-filter-chip.on:hover {
+    background: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+.vis-filter-toggle:hover,
+.vis-filter-clear:hover {
+    background: transparent !important;
+    color: var(--muted) !important;
+}
+
+.vis-filter-toggle[aria-expanded="true"]:hover {
+    background: var(--text) !important;
+    color: #f7f4ed !important;
+}
