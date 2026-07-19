@@ -31,6 +31,22 @@ function validateGuideTree(node, path, issues) {
         });
     }
 
+    // A node's `key` must match its position in the tree. Links are built
+    // from paths, so a node sitting at `peak_lapel` while its key says
+    // "peak" produces a path that resolves to nothing — the client lands
+    // on a blank page. Fourteen nodes drifted this way before this check
+    // existed; it only ever verified that `key` was present.
+    if (node.key && path.length > 0 && node.key !== path[path.length - 1]) {
+        issues.push({
+            severity: "error",
+            path: pathStr,
+            message:
+                "Node key \"" + node.key + "\" does not match its position \"" +
+                path[path.length - 1] + "\"",
+            fix: 'Set key to "' + path[path.length - 1] + '" so links built from it resolve',
+        });
+    }
+
     if (!node.title) {
         issues.push({
             severity: "warning",

@@ -47,7 +47,7 @@ var archetypeProfiles = {
         exploreNext: [
             ["tailoring", "suits", "use_case", "wedding"],
             ["tailoring", "suits", "styles", "double_breasted"],
-            ["tailoring", "jackets", "details", "lapels", "peak"],
+            ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             ["fabrics", "suiting", "wool_silk_linen"],
         ],
     },
@@ -64,7 +64,9 @@ var archetypeProfiles = {
         ],
         tags: ["Structured", "Cloth-Led", "Long-Term", "Considered"],
         exploreNext: [
-            ["tailoring", "suits"],
+            // was ["tailoring","suits"] — a group, which opens a section
+            // index rather than something to read
+            ["tailoring", "suits", "configuration", "two_piece"],
             ["tailoring", "jackets", "details", "construction", "half_canvas"],
             ["fabrics", "suiting", "worsted_wool"],
             ["colour_wardrobe", "core_colours", "navy"],
@@ -103,7 +105,8 @@ var archetypeProfiles = {
         tags: ["Classic", "Balanced", "Event Ready", "Enduring"],
         exploreNext: [
             ["tailoring", "suits", "styles", "single_breasted"],
-            ["tailoring", "jackets"],
+            // was ["tailoring","jackets"] — a group, not a topic
+            ["tailoring", "jackets", "configuration", "single_breasted"],
             ["tailoring", "suits", "use_case", "wedding"],
             ["fabrics", "suiting", "fresco"],
         ],
@@ -141,7 +144,7 @@ var archetypeProfiles = {
         tags: ["Precise", "Modern", "Sharp", "Intentional"],
         exploreNext: [
             ["tailoring", "suits", "styles", "double_breasted"],
-            ["tailoring", "jackets", "details", "lapels", "peak"],
+            ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             ["colour_wardrobe", "texture_vs_colour"],
             ["fabrics", "suiting", "high_twist_wool"],
         ],
@@ -350,7 +353,7 @@ var archetypeProfiles = {
         tags: ["Occasion", "Bold", "Formal", "Expressive"],
         exploreNext: [
             ["tailoring", "suits", "styles", "double_breasted"],
-            ["tailoring", "jackets", "details", "lapels", "peak"],
+            ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             ["tailoring", "suits", "use_case", "wedding"],
             ["fabrics", "suiting", "wool_silk_linen"],
         ],

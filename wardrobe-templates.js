@@ -800,7 +800,7 @@ var wardrobeTemplates = {
                     all: { color: "#243B5A", note: "Sharp navy or charcoal" },
                 },
                 why: "Peak lapels and geometric button placement suit your love of structure.",
-                guide: ["tailoring", "jackets", "details", "lapels", "peak"],
+                guide: ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             },
             {
                 id: "a_r2",
@@ -1935,7 +1935,7 @@ var wardrobeTemplates = {
                     all: { color: "#243B5A", note: "Contrasting satin lapels" },
                 },
                 why: "The sweeping line of a peak lapel broadens the shoulders and commands attention.",
-                guide: ["tailoring", "jackets", "details", "lapels", "peak"],
+                guide: ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             },
             {
                 id: "k_r2",
@@ -2724,7 +2724,7 @@ var wardrobeTemplates = {
                     all: { color: "#4A4A4A", note: "Charcoal peak lapel" },
                 },
                 why: "A peak lapel points the eye toward the shoulders, creating an authoritative, celebratory stance.",
-                guide: ["tailoring", "jackets", "details", "lapels", "peak"],
+                guide: ["tailoring", "jackets", "details", "lapels", "peak_lapel"],
             },
             {
                 id: "o_r2",
