@@ -8631,7 +8631,11 @@ button,
 }
 
 .ds-style-opt {
-    padding: 9px 16px !important;
+    padding: 0 16px !important;
+    /* Was 42px from padding alone — under the 44px touch floor, and now
+       that every garment has these it is on the main path, not just the
+       jacket's. */
+    min-height: 44px !important;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
 }

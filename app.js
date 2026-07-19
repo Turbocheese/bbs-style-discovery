@@ -6362,8 +6362,12 @@ document.body.addEventListener("click", function (e) {
         var ensValue = target.dataset.value;
         if (!ensGroup || !ensValue) return;
         var ensState2 = getVisEnsembleState();
-        if (ensState2.style[ensGroup] !== ensValue) {
-            ensState2.style[ensGroup] = ensValue;
+        // Style is per-garment now, so the option applies to whichever
+        // garment the menu is currently showing.
+        var ensGarment = ensState2.activeGarment;
+        if (!ensState2.style[ensGarment]) ensState2.style[ensGarment] = {};
+        if (ensState2.style[ensGarment][ensGroup] !== ensValue) {
+            ensState2.style[ensGarment][ensGroup] = ensValue;
             localStorage.setItem("bbs_session", JSON.stringify(appState));
             render({ animate: false });
         }

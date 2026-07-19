@@ -736,18 +736,65 @@ function getDSJacketShirtSVG(style) {
     );
 }
 
-var DS_VEST_BODY =
+var DS_VEST_TOP =
     "M220 20 " +
     "C210 20 202 24 196 28 " +
     "C182 32 170 38 165 46 " +
-    "C158 60 154 88 152 120 C150 156 149 210 150 260 C150 292 152 310 155 318 " +
-    "L192 336 C198 338 202 336 204 330 L216 296 L220 292 L224 296 L236 330 " +
-    "C238 336 242 338 248 336 L285 318 " +
+    "C158 60 154 88 152 120 C150 156 149 210 150 260 C150 292 152 310 155 318 ";
+
+var DS_VEST_HEM = {
+    // The classic waistcoat hem: two points dropping below the bottom
+    // button with a V cut between them.
+    points: "L192 336 C198 338 202 336 204 330 L216 296 L220 292 L224 296 L236 330 " +
+            "C238 336 242 338 248 336 L285 318 ",
+    // Straight across, as worn with a double-breasted jacket where the
+    // points would show below the wrap.
+    straight: "L285 318 "
+};
+
+var DS_VEST_BOTTOM =
     "C288 310 290 292 290 260 C291 210 290 156 288 120 C286 88 282 60 275 46 " +
     "C270 38 258 32 244 28 " +
     "C238 24 230 20 220 20 Z";
 
-function getDSVestShadingSVG() {
+function dsVestBody(style) {
+    return DS_VEST_TOP + (DS_VEST_HEM[style.hem] || DS_VEST_HEM.points) + DS_VEST_BOTTOM;
+}
+
+function getDSVestShadingSVG(style) {
+    style = style || VIS_ENS_STYLE_DEFAULTS.vest;
+    var DS_VEST_BODY = dsVestBody(style);
+    var isDB = style.closure === "db";
+    var isShawl = style.lapel === "shawl";
+
+    // Buttons: one column centred on the front edge, or two columns
+    // flanking it for a double-breasted wrap.
+    var buttons = "";
+    var rows = isDB ? [186, 214, 242, 268] : [180, 206, 232, 258, 282];
+    for (var r = 0; r < rows.length; r++) {
+        if (isDB) {
+            buttons += '<circle cx="200" cy="' + rows[r] + '" r="4.6" fill="#4c4c4c"/>';
+            buttons += '<circle cx="240" cy="' + rows[r] + '" r="4.6" fill="#4c4c4c"/>';
+        } else {
+            buttons += '<circle cx="220" cy="' + rows[r] + '" r="4.6" fill="#4c4c4c"/>';
+        }
+    }
+
+    // A shawl lapel is an unbroken roll framing the neckline — no
+    // notch, no peak, which is what distinguishes it on a waistcoat.
+    var lapel = isShawl
+        ? '<path d="M196 28 C186 46 182 70 186 96 L196 150 L206 150 L200 96 C197 72 200 48 208 34 Z" fill="#c9c9c9" opacity="0.85"/>' +
+          '<path d="M244 28 C254 46 258 70 254 96 L244 150 L234 150 L240 96 C243 72 240 48 232 34 Z" fill="#bdbdbd" opacity="0.85"/>' +
+          '<path d="M196 28 C186 46 182 70 186 96 L196 150" stroke="#7e7e7e" stroke-width="1.4" fill="none" opacity="0.6"/>' +
+          '<path d="M244 28 C254 46 258 70 254 96 L244 150" stroke="#7e7e7e" stroke-width="1.4" fill="none" opacity="0.6"/>'
+        : "";
+
+    // The point shadows only exist when there are points to shade.
+    var hemShadow = style.hem === "straight"
+        ? ""
+        : '<path d="M155 318 L192 336 L194 322 L160 306 Z" fill="#8a8a8a" opacity="0.3"/>' +
+          '<path d="M285 318 L248 336 L246 322 L280 306 Z" fill="#8a8a8a" opacity="0.3"/>';
+
     return (
         '<svg class="ds-shading" viewBox="0 0 440 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' +
         "<defs>" +
@@ -772,15 +819,9 @@ function getDSVestShadingSVG() {
         // welt pockets
         '<path d="M168 252 L202 256 L201 264 L168 260 Z" fill="#8a8a8a" opacity="0.6"/>' +
         '<path d="M238 256 L272 252 L272 260 L239 264 Z" fill="#8a8a8a" opacity="0.6"/>' +
-        // buttons down the front edge
-        '<circle cx="220" cy="180" r="4.6" fill="#4c4c4c"/>' +
-        '<circle cx="220" cy="206" r="4.6" fill="#4c4c4c"/>' +
-        '<circle cx="220" cy="232" r="4.6" fill="#4c4c4c"/>' +
-        '<circle cx="220" cy="258" r="4.6" fill="#4c4c4c"/>' +
-        '<circle cx="220" cy="282" r="4.6" fill="#4c4c4c"/>' +
-        // point shadows at the hem
-        '<path d="M155 318 L192 336 L194 322 L160 306 Z" fill="#8a8a8a" opacity="0.3"/>' +
-        '<path d="M285 318 L248 336 L246 322 L280 306 Z" fill="#8a8a8a" opacity="0.3"/>' +
+        lapel +
+        buttons +
+        hemShadow +
         "</g>" +
         '<path d="' + DS_VEST_BODY + '" fill="none" stroke="#4a443a" stroke-width="1.6" opacity="0.55"/>' +
         "</svg>"
@@ -800,16 +841,77 @@ function getDSVestShirtSVG() {
     );
 }
 
-var DS_TROUSER_BODY =
-    "M152 16 L288 16 " +
-    "C292 16 294 18 294 22 L296 44 " +
-    "C294 90 290 150 286 210 C282 280 278 350 275 404 C274 412 269 416 260 416 L230 416 C223 416 220 412 220 405 " +
-    "L221 260 L220 170 L219 260 L220 405 " +
-    "C220 412 217 416 210 416 L180 416 C171 416 166 412 165 404 " +
-    "C162 350 158 280 154 210 C150 150 146 90 144 44 L146 22 " +
-    "C146 18 148 16 152 16 Z";
+// Taper moves only the hem endpoints, not the outer leg line above the
+// knee — which is how a taper actually works on a trouser.
+function dsTrouserBody(style) {
+    var t = style && style.taper === "classic" ? 9 : 0;
+    return "M152 16 L288 16 " +
+        "C292 16 294 18 294 22 L296 44 " +
+        "C294 90 290 150 286 210 C282 280 278 350 275 404 " +
+        "C" + (274 + t) + " 412 " + (269 + t) + " 416 " + (260 + t) + " 416 " +
+        "L230 416 C223 416 220 412 220 405 " +
+        "L221 260 L220 170 L219 260 L220 405 " +
+        "C220 412 217 416 210 416 " +
+        "L" + (180 - t) + " 416 C" + (171 - t) + " 416 " + (166 - t) + " 412 165 404 " +
+        "C162 350 158 280 154 210 C150 150 146 90 144 44 L146 22 " +
+        "C146 18 148 16 152 16 Z";
+}
 
-function getDSTrouserShadingSVG() {
+function getDSTrouserShadingSVG(style) {
+    style = style || VIS_ENS_STYLE_DEFAULTS.trousers;
+    var DS_TROUSER_BODY = dsTrouserBody(style);
+
+    // Pleats fall from the waistband and fade out around the thigh —
+    // they are folds, so they read as a soft shadow beside a highlight
+    // rather than as a drawn line.
+    function pleat(x) {
+        return '<path d="M' + x + ' 46 C' + (x - 1) + ' 110 ' + (x - 1) + ' 150 ' + (x - 2) + ' 190" ' +
+               'stroke="#7d7d7d" stroke-width="3" opacity="0.45" fill="none"/>' +
+               '<path d="M' + (x + 3) + ' 46 C' + (x + 2) + ' 110 ' + (x + 2) + ' 150 ' + (x + 1) + ' 190" ' +
+               'stroke="#ffffff" stroke-width="2" opacity="0.5" fill="none"/>';
+    }
+    var pleats = "";
+    if (style.front === "single") pleats = pleat(186) + pleat(254);
+    else if (style.front === "double") pleats = pleat(178) + pleat(196) + pleat(244) + pleat(262);
+
+    // Waistband treatment. Belt loops and side adjusters are mutually
+    // exclusive on a real trouser, which is why these are one option
+    // rather than three toggles.
+    var waistband;
+    if (style.waistband === "adjusters") {
+        waistband =
+            '<rect x="140" y="16" width="160" height="34" fill="#d6d6d6"/>' +
+            '<path d="M150 26 L172 26 L172 40 L150 40 Z" fill="#b4b4b4"/>' +
+            '<path d="M268 26 L290 26 L290 40 L268 40 Z" fill="#b4b4b4"/>' +
+            '<circle cx="168" cy="33" r="2.6" fill="#5e5e5e"/>' +
+            '<circle cx="272" cy="33" r="2.6" fill="#5e5e5e"/>' +
+            '<path d="M144 50 L296 50" stroke="#767676" stroke-width="2" opacity="0.55"/>';
+    } else if (style.waistband === "tab") {
+        waistband =
+            '<rect x="140" y="16" width="160" height="30" fill="#d6d6d6"/>' +
+            '<path d="M206 16 L248 16 L252 30 L248 44 L206 44 Z" fill="#cacaca"/>' +
+            '<path d="M206 16 L206 44" stroke="#8a8a8a" stroke-width="1.4" opacity="0.7"/>' +
+            '<circle cx="238" cy="30" r="4.2" fill="#4c4c4c"/>' +
+            '<path d="M144 46 L296 46" stroke="#767676" stroke-width="2" opacity="0.55"/>';
+    } else {
+        waistband =
+            '<rect x="140" y="16" width="160" height="30" fill="#d6d6d6"/>' +
+            '<rect x="160" y="24" width="18" height="7" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
+            '<rect x="262" y="24" width="18" height="7" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
+            '<rect x="211" y="20" width="18" height="7" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
+            '<circle cx="220" cy="30" r="4.2" fill="#4c4c4c"/>' +
+            '<path d="M144 46 L296 46" stroke="#767676" stroke-width="2" opacity="0.55"/>';
+    }
+
+    // A turn-up is a cuff folded back on itself: a shadow at the top of
+    // the fold and a lighter band below it.
+    var turnup = style.hem === "turnup"
+        ? '<rect x="150" y="386" width="80" height="30" fill="#c4c4c4" opacity="0.55"/>' +
+          '<rect x="212" y="386" width="86" height="30" fill="#c4c4c4" opacity="0.55"/>' +
+          '<path d="M150 388 L298 388" stroke="#6f6f6f" stroke-width="2.4" opacity="0.6"/>' +
+          '<path d="M150 392 L298 392" stroke="#ffffff" stroke-width="1.4" opacity="0.45"/>'
+        : "";
+
     return (
         '<svg class="ds-shading" viewBox="0 0 440 440" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' +
         "<defs>" +
@@ -827,12 +929,8 @@ function getDSTrouserShadingSVG() {
         // legs shaded independently
         '<path d="M144 44 L220 44 L220 416 L165 416 Z" fill="url(#ds-trs-leg-l)"/>' +
         '<path d="M220 44 L296 44 L275 416 L220 416 Z" fill="url(#ds-trs-leg-r)"/>' +
-        // waistband
-        '<rect x="140" y="16" width="160" height="30" fill="#d6d6d6"/>' +
-        '<path d="M144 46 L296 46" stroke="#767676" stroke-width="2" opacity="0.55"/>' +
-        '<rect x="160" y="24" width="18" height="7" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
-        '<rect x="262" y="24" width="18" height="7" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
-        '<circle cx="220" cy="30" r="4.2" fill="#4c4c4c"/>' +
+        waistband +
+        pleats +
         // fly
         '<path d="M220 46 C217 70 216 100 217 140" stroke="#828282" stroke-width="1.8" opacity="0.5" fill="none"/>' +
         // rise shadow between the legs
@@ -864,27 +962,98 @@ function getDSTrouserShadingSVG() {
 // Third mode alongside single-cloth and compare
 // (toggled by appState.visEnsemble). A full three-piece:
 // jacket, vest, and trousers, each cloth-swappable from
-// the bunch, plus jacket style options (closure / lapel /
-// pockets). Garment art above is parametric SVG — style
-// combinations need no artwork assets.
+// the bunch, and each with its own style options — jacket
+// (closure / lapel / pockets), vest (closure / lapel / hem),
+// trousers (front / waistband / hem / taper). Garment art
+// above is parametric SVG, so style combinations need no
+// artwork assets.
 // ============================================
 
 var VIS_ENS_GARMENTS = ["jacket", "vest", "trousers"];
 
+// Style options are per-garment. The jacket had these to itself; the
+// vest and trousers were fixed artwork, which left the ensemble
+// lopsided — trouser detailing in particular is what a client actually
+// gets asked about in a fitting.
 var VIS_ENS_STYLE_OPTIONS = {
-    closure: [
-        { key: "sb", label: "Single Breasted" },
-        { key: "db", label: "Double Breasted" }
-    ],
-    lapel: [
-        { key: "notch", label: "Notch Lapel" },
-        { key: "peak", label: "Peak Lapel" }
-    ],
-    pockets: [
-        { key: "flap", label: "Flap Pockets" },
-        { key: "jetted", label: "Jetted Pockets" },
-        { key: "patch", label: "Patch Pockets" }
-    ]
+    jacket: {
+        closure: [
+            { key: "sb", label: "Single Breasted" },
+            { key: "db", label: "Double Breasted" }
+        ],
+        lapel: [
+            { key: "notch", label: "Notch Lapel" },
+            { key: "peak", label: "Peak Lapel" }
+        ],
+        pockets: [
+            { key: "flap", label: "Flap Pockets" },
+            { key: "jetted", label: "Jetted Pockets" },
+            { key: "patch", label: "Patch Pockets" }
+        ]
+    },
+    vest: {
+        closure: [
+            { key: "sb", label: "Single Breasted" },
+            { key: "db", label: "Double Breasted" }
+        ],
+        lapel: [
+            { key: "none", label: "No Lapel" },
+            { key: "shawl", label: "Shawl Lapel" }
+        ],
+        hem: [
+            { key: "points", label: "Two Points" },
+            { key: "straight", label: "Straight Hem" }
+        ]
+    },
+    trousers: {
+        front: [
+            { key: "flat", label: "Flat Front" },
+            { key: "single", label: "Single Pleat" },
+            { key: "double", label: "Double Pleat" }
+        ],
+        waistband: [
+            { key: "loops", label: "Belt Loops" },
+            { key: "adjusters", label: "Side Adjusters" },
+            { key: "tab", label: "Extended Tab" }
+        ],
+        hem: [
+            { key: "plain", label: "Plain Hem" },
+            { key: "turnup", label: "Turn-Up" }
+        ],
+        taper: [
+            { key: "tapered", label: "Tapered" },
+            { key: "classic", label: "Classic Leg" }
+        ]
+    }
+};
+
+// Turns a garment's chosen options into a readable line ("Single
+// Breasted, Notch Lapel, Flap Pockets") by looking the labels back up,
+// so the Design Spec PDF and the on-screen summary stay in step with
+// the option list without anyone maintaining a second copy of it.
+function visEnsStyleNote(garment, style) {
+    var groups = VIS_ENS_STYLE_OPTIONS[garment];
+    if (!groups || !style) return "";
+    var parts = [];
+    for (var groupKey in groups) {
+        if (!groups.hasOwnProperty(groupKey)) continue;
+        var opts = groups[groupKey];
+        for (var i = 0; i < opts.length; i++) {
+            if (opts[i].key === style[groupKey]) {
+                // "No Lapel" and "Plain Hem" are the absence of a
+                // feature — listing them adds noise to the spec.
+                if (opts[i].key !== "none" && opts[i].key !== "plain") parts.push(opts[i].label);
+                break;
+            }
+        }
+    }
+    return parts.join(", ");
+}
+
+var VIS_ENS_STYLE_DEFAULTS = {
+    jacket: { closure: "sb", lapel: "notch", pockets: "flap" },
+    vest: { closure: "sb", lapel: "none", hem: "points" },
+    trousers: { front: "flat", waistband: "loops", hem: "plain", taper: "tapered" }
 };
 
 function getVisEnsembleState() {
@@ -897,10 +1066,31 @@ function getVisEnsembleState() {
                 vest: "solbiati_wool_silk_linen",
                 trousers: "fox_flannel_mid_grey"
             },
-            style: { closure: "sb", lapel: "notch", pockets: "flap" }
+            style: {}
         };
     }
-    return appState.visEnsembleState;
+
+    var ens = appState.visEnsembleState;
+
+    // Migration: style used to be a flat jacket-only object, and a
+    // returning iPad has one persisted in localStorage. A flat object
+    // is detected by its jacket keys sitting at the top level.
+    if (ens.style && (ens.style.pockets || ens.style.lapel === "notch" || ens.style.lapel === "peak") && !ens.style.jacket) {
+        ens.style = { jacket: { closure: ens.style.closure, lapel: ens.style.lapel, pockets: ens.style.pockets } };
+    }
+    if (!ens.style || typeof ens.style !== "object") ens.style = {};
+
+    // Fill any missing garment or option from defaults, so a state
+    // saved before an option existed still renders.
+    for (var garment in VIS_ENS_STYLE_DEFAULTS) {
+        if (!VIS_ENS_STYLE_DEFAULTS.hasOwnProperty(garment)) continue;
+        if (!ens.style[garment] || typeof ens.style[garment] !== "object") ens.style[garment] = {};
+        for (var opt in VIS_ENS_STYLE_DEFAULTS[garment]) {
+            if (!VIS_ENS_STYLE_DEFAULTS[garment].hasOwnProperty(opt)) continue;
+            if (!ens.style[garment][opt]) ens.style[garment][opt] = VIS_ENS_STYLE_DEFAULTS[garment][opt];
+        }
+    }
+    return ens;
 }
 
 function getVisEnsGarmentBlock(garment, ens) {
@@ -908,13 +1098,13 @@ function getVisEnsGarmentBlock(garment, ens) {
     var shading;
     var shirtOverlay = "";
     if (garment === "jacket") {
-        shading = getDSJacketShadingSVG(ens.style);
-        shirtOverlay = getDSJacketShirtSVG(ens.style);
+        shading = getDSJacketShadingSVG(ens.style.jacket);
+        shirtOverlay = getDSJacketShirtSVG(ens.style.jacket);
     } else if (garment === "vest") {
-        shading = getDSVestShadingSVG();
+        shading = getDSVestShadingSVG(ens.style.vest);
         shirtOverlay = getDSVestShirtSVG();
     } else {
-        shading = getDSTrouserShadingSVG();
+        shading = getDSTrouserShadingSVG(ens.style.trousers);
     }
 
     var activeClass = ens.activeGarment === garment ? " active" : "";
@@ -949,17 +1139,22 @@ function renderClothEnsemble(recommended) {
         getVisSwatchesHTML(recommended, ens.fabrics[ens.activeGarment], null) +
         "</div>";
 
+    // The menu follows whichever garment is active, so every garment
+    // now has detailing rather than the jacket alone.
     var styleHTML = "";
-    if (ens.activeGarment === "jacket") {
+    var garmentOpts = VIS_ENS_STYLE_OPTIONS[ens.activeGarment];
+    var garmentStyle = ens.style[ens.activeGarment] || {};
+    if (garmentOpts) {
         styleHTML = '<div class="ds-style-menu">';
-        for (var groupKey in VIS_ENS_STYLE_OPTIONS) {
-            if (!VIS_ENS_STYLE_OPTIONS.hasOwnProperty(groupKey)) continue;
-            var opts = VIS_ENS_STYLE_OPTIONS[groupKey];
+        for (var groupKey in garmentOpts) {
+            if (!garmentOpts.hasOwnProperty(groupKey)) continue;
+            var opts = garmentOpts[groupKey];
             styleHTML += '<div class="ds-style-group">';
             for (var o = 0; o < opts.length; o++) {
-                var isSel = ens.style[groupKey] === opts[o].key;
+                var isSel = garmentStyle[groupKey] === opts[o].key;
                 styleHTML +=
-                    '<button class="ds-style-opt' + (isSel ? " sel" : "") + '" data-action="vis-ens-style" data-group="' + groupKey + '" data-value="' + opts[o].key + '">' +
+                    '<button class="ds-style-opt' + (isSel ? " sel" : "") + '" data-action="vis-ens-style" data-group="' + groupKey + '" data-value="' + opts[o].key + '"' +
+                    ' aria-pressed="' + (isSel ? "true" : "false") + '">' +
                     opts[o].label +
                     "</button>";
             }
@@ -1040,12 +1235,10 @@ function exportEnsembleSpec() {
 
     function garmentRow(garment) {
         var f = getFabricByKey(ens.fabrics[garment]);
-        var styleNote = "";
-        if (garment === "jacket") {
-            var closure = ens.style.closure === "db" ? "Double breasted" : "Single breasted";
-            var lapel = ens.style.lapel === "peak" ? "peak lapel" : "notch lapel";
-            styleNote = closure + ", " + lapel + ", " + ens.style.pockets + " pockets";
-        }
+        // Built from the option labels themselves rather than a
+        // hand-written sentence per garment, so a new option appears in
+        // the spec automatically instead of being silently omitted.
+        var styleNote = visEnsStyleNote(garment, ens.style[garment]);
         return (
             '<div style="padding:20px 0; border-bottom:1px solid #ddd5c8;">' +
             '<div style="' + eyebrow + ' margin-bottom:6px;">' + garment + "</div>" +
