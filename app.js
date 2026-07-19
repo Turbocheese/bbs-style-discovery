@@ -5207,7 +5207,11 @@ function renderGuideHome(node) {
             '<div class="guide-list-item-v2-index">' +
             indexLabel +
             "</div>" +
-            '<div class="guide-list-item-v2-body"><div class="guide-list-item-v2-title">' +
+            '<div class="guide-list-item-v2-body">' +
+            '<div class="guide-list-item-v2-kind">Section' +
+            '<span class="guide-list-item-v2-count">' + countGuideLeaves(child) + " topics</span>" +
+            "</div>" +
+            '<div class="guide-list-item-v2-title">' +
             child.title +
             '</div><div class="guide-list-item-v2-intro">' +
             child.intro +
@@ -5231,6 +5235,19 @@ function renderGuideHome(node) {
 // RENDER GROUP
 // ============================================
 
+// How many readable topics sit below a section, at any depth. The guide
+// runs five levels deep in places, so a row that doesn't say how much is
+// inside makes you tap blind to find out.
+function countGuideLeaves(node) {
+    var n = 0;
+    (function walk(x) {
+        if (!x || typeof x !== "object") return;
+        if (x.type === "topic") n++;
+        if (x.children) for (var k in x.children) walk(x.children[k]);
+    })(node);
+    return n;
+}
+
 function renderGroup(node) {
     var breadcrumb = getBreadcrumb(appState.guidePath);
     var childrenHTML = "";
@@ -5253,6 +5270,9 @@ function renderGroup(node) {
             "</div>" +
             '<div class="guide-list-item-v2-body"><div class="guide-list-item-v2-kind">' +
             childTypeLabel +
+            (child.type === "group"
+                ? '<span class="guide-list-item-v2-count">' + countGuideLeaves(child) + " topics</span>"
+                : "") +
             '</div><div class="guide-list-item-v2-title">' +
             child.title +
             '</div><div class="guide-list-item-v2-intro">' +

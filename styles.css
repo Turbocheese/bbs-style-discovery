@@ -9920,3 +9920,15 @@ textarea:focus-visible,
     text-transform: uppercase;
     color: var(--soft);
 }
+
+/* Section rows state how many topics sit below them. The tree runs five
+   levels deep in places, so without this you tap in blind to find out
+   whether a section holds three topics or thirty. */
+.guide-list-item-v2-count {
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid var(--line-strong);
+    color: var(--soft);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+}
