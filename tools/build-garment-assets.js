@@ -44,6 +44,15 @@ function extractMask(px, w, h) {
 // Second pass over the pixels the fill could not enter. A cast shadow is
 // still much lighter than mid-grey cloth, so luminance separates them
 // once we already know they touch the background region.
+//
+// KNOWN LIMITATION: this sweep cannot tell a cast shadow from a genuinely
+// light part of the garment. Any silhouette-edge pixel at luma >=
+// SHADOW_MIN_LUMA that is reachable from the background gets erased along
+// with the shadow — light trims, cream linings, or pale hardware sitting
+// on the silhouette edge will be lost. The source photographs are shot
+// against mid-grey cloth specifically so real garment content stays well
+// below this threshold and this trade-off stays safe. Do not "fix" this
+// without changing the photography, or the shadow sweep breaks instead.
 var SHADOW_MIN_LUMA = 200;
 
 function sweepShadow(mask, px, w, h) {
