@@ -17,7 +17,7 @@
 - **Buttons stay horn-brown.** They are never tinted to the selected cloth.
 - **CRLF line endings.** Regex over source must use `\r?\n`.
 - **Verification reads pixels, not attributes.** Asserting an option is `aria-pressed` proves nothing about what rendered. This project has shipped five silently-dead features that passed intent-based checks.
-- **Asset budget: 2.5 MB total** for all garment assets. The app is precached by `sw.js` and used in-store on iPad.
+- **Asset weight: quality first, no hard cap** (founder decision, 20 July). Do NOT compromise garment fidelity to hit a size target. But every build MUST print the total and it MUST be reported — the app is precached by `sw.js` and used in-store on iPad, so the founder needs the real number even though they have accepted the cost. Flag explicitly if the total exceeds 8 MB, which is where a cold in-store load becomes genuinely painful.
 - **ES5 applies to shipped browser code only.** `tools/` runs under Node and is never shipped; modern syntax is fine there. `garment-photo.js` ships and is ES5.
 
 ## Real interfaces (verified against the codebase — do not invent these)
@@ -387,14 +387,23 @@ Add to `tools/build-garment-assets.js`:
 // Source photograph → output key. Filenames are the Replicate prediction
 // IDs as delivered; renaming them in place would break the git history
 // that records which prompt produced which image.
+// All paths are relative to images/styleBuilder/. Each was visually
+// identified against the prompt that produced it.
 var SOURCES = {
     "jacket-sb": "replicate-prediction-n6bvdyx5p9rmr0czfph8bqrm1w.jpeg",
     "jacket-db": "replicate-prediction-sc2p8y639xrmt0czfphsvsajsg.jpeg",
     "vest-sb-none": "replicate-prediction-vac0q9x4w1rmy0czfpj92gvmn4.jpeg",
+    "vest-sb-shawl": "replicate-prediction-013bpexxvxrmw0czfpts5d2n4m.jpeg",
+    "vest-db-none": "replicate-prediction-552s4wn6chrmy0czfpv8051rsr.jpeg",
+    "vest-db-shawl": "replicate-prediction-fw1webnjdnrmt0czfpvsnzrs2w.jpeg",
     "trousers-double-classic": "replicate-prediction-788cczn1bsrmr0czfpk9n2ecrc.jpeg",
-    "trousers-flat-tapered": "replicate-prediction-wjzaqxyajxrmw0czfpm8k2xkj0.jpeg"
-    // Remaining seven are added as they are generated. Build skips any
-    // key whose source file is absent, and reports it.
+    "trousers-flat-tapered": "replicate-prediction-wjzaqxyajxrmw0czfpm8k2xkj0.jpeg",
+    "trousers-flat-classic": "replicate-prediction-01dc0g3cv5rmt0czfpyvsn7ym4.jpeg",
+    "trousers-single-tapered": "replicate-prediction-86v2dh5mynrmr0czfpxba8g1gc.jpeg"
+    // Still to be generated: trousers-double-tapered,
+    // trousers-single-classic. The build MUST skip any key whose source
+    // file is absent and report it by name rather than failing — the
+    // remaining two arrive later and must not block the other ten.
 };
 
 var MAX_EDGE = 800; // Renders at most ~600px in app; 800 leaves headroom.
