@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v38";
+var CACHE_VERSION = "bbs-v39";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=52",
+    "./styles.css?v=53",
     "./data.js",
     "./validator.js",
     "./query.js",

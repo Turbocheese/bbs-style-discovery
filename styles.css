@@ -10869,23 +10869,33 @@ textarea:focus-visible,
 /* The flip card's cloth back. The card had never rendered before — no
    topic carried image_refs — so this face is new even though the card
    itself is old. */
+/* Absolutely positioned to fill the face, exactly as .topic-flip-back
+   img does. The first attempt used flex: 1 1 auto — but the back face
+   is display: block, so the flex property did nothing and an empty span
+   with no content collapsed to zero height. The card flipped to a blank
+   back, and a test that only checked the element EXISTED passed it. */
 .topic-flip-cloth {
+    position: absolute;
+    inset: 0;
     display: block;
-    width: 100%;
-    flex: 1 1 auto;
-    min-height: 0;
     background-size: 62px 62px;
     background-position: center;
 }
 
+/* Sits over the cloth, so it needs its own scrim against a weave of
+   unknown tone — same reasoning as .topic-flip-back .flip-hint. */
 .topic-flip-caption {
-    display: block;
-    padding: 10px 12px 2px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 34px;
+    padding: 10px 12px;
     font-family: "EB Garamond", Georgia, serif;
     font-size: 1.02rem;
     font-style: italic;
-    color: var(--text);
+    color: #fdfcf9;
     text-align: center;
+    background: linear-gradient(180deg, rgba(17, 17, 16, 0) 0%, rgba(17, 17, 16, 0.62) 42%, rgba(17, 17, 16, 0.72) 100%);
 }
 
 .topic-flip-caption em {
@@ -10895,7 +10905,7 @@ textarea:focus-visible,
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--bronze);
+    color: #d8c4a0;
     margin-top: 3px;
 }
 
