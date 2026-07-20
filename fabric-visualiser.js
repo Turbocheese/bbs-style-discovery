@@ -174,17 +174,41 @@ function getVisualiserShirtOverlaySVG() {
 
 // The cloth the compare view opens against: the next recommendation
 // for the client's archetype, else the next cloth in the bunch.
+// The second cloth in the split should CONTRAST with the first. Taking
+// the next entry in the library gave two near-identical darks, so the
+// divider appeared to do nothing on arrival — the feature looked broken
+// when it was working perfectly.
 function visDefaultCompareKey(aKey) {
+    var a = getFabricByKey(aKey);
+
+    // Measured on actual lightness, not on the colour_family label.
+    // "black" and "charcoal" are different families but nearly the same
+    // cloth to look at, so a name comparison still opened the split on
+    // two near-identical darks.
+    function lum(c) {
+        var h = String(c.ground || "#808080").replace("#", "");
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+        return 0.299 * r + 0.587 * g + 0.114 * b;
+    }
+    var aLum = lum(a);
+
+    // A recommended cloth wins if it is clearly different to look at.
     var recommended = getRecommendedFabricKeys();
     for (var i = 0; i < recommended.length; i++) {
-        if (recommended[i] !== aKey) return recommended[i];
+        var rc = getFabricByKey(recommended[i]);
+        if (rc && rc.key !== aKey && Math.abs(lum(rc) - aLum) > 55) return rc.key;
     }
+
+    // Otherwise the most visually distant cloth in the library.
+    var best = null, bestGap = -1;
     for (var j = 0; j < FABRIC_LIBRARY.length; j++) {
-        if (FABRIC_LIBRARY[j].key === aKey) {
-            return FABRIC_LIBRARY[(j + 1) % FABRIC_LIBRARY.length].key;
-        }
+        var c = FABRIC_LIBRARY[j];
+        if (c.key === aKey) continue;
+        var gap = Math.abs(lum(c) - aLum);
+        if (gap > bestGap) { bestGap = gap; best = c; }
     }
-    return FABRIC_LIBRARY[1].key;
+    return best ? best.key : (FABRIC_LIBRARY[0].key === aKey ? FABRIC_LIBRARY[1].key : FABRIC_LIBRARY[0].key);
 }
 
 function getVisRecoStripHTML(recommended) {
@@ -423,50 +447,125 @@ function renderFabricVisualiser() {
     );
 }
 
-// One side of the compare view. Both stages repeat the jacket SVG, so
-// its clip/gradient ids appear twice: url(#) resolves to the first
-// copy, the copies are identical, and the clipPath uses
-// objectBoundingBox units — each layer clips in its own box.
-function getVisCompareStageHTML(side, key) {
-    var active = appState.visCompareSide === side;
+function getVisSplitPct() {
+    var v = appState.visSplitPct;
+    if (typeof v !== "number" || isNaN(v)) v = 50;
+    return Math.max(4, Math.min(96, v));
+}
+
+function getVisSplitLayerHTML(side, key, pct) {
+    // Layer A is clipped from the right edge back to the divider.
+    var clip = side === "a" ? ' style="clip-path:inset(0 ' + (100 - pct) + '% 0 0)"' : "";
     return (
-        '<div class="vis-cmp-side' + (active ? " active" : "") + '" data-action="vis-side" data-side="' + side + '">' +
-        '<div class="vis-stage vis-stage--cmp">' +
-        '<div class="vis-fabric-layer" id="vis-cmp-base-' + side + '" style="background-image:url(' + getFabricTile(key) + ')"></div>' +
-        '<div class="vis-fabric-layer" id="vis-cmp-fade-' + side + '"></div>' +
+        '<div class="vis-split-layer vis-split-layer--' + side + '" id="vis-split-layer-' + side + '"' + clip + ">" +
+        '<div class="vis-fabric-layer" id="vis-split-base-' + side + '" style="background-image:url(' + getFabricTile(key) + ')"></div>' +
+        '<div class="vis-fabric-layer" id="vis-split-fade-' + side + '"></div>' +
         getVisualiserShirtOverlaySVG() +
         getVisualiserJacketSVG() +
-        "</div>" +
-        '<div class="vis-cmp-tag">' + (active ? "Now dressing" : "Tap to dress") + "</div>" +
         "</div>"
     );
 }
 
 function renderClothCompare(aKey, recommended) {
     var bKey = appState.visFabricKeyB || visDefaultCompareKey(aKey);
-    var side = appState.visCompareSide === "a" ? "a" : "b";
+    var side = appState.visCompareSide === "b" ? "b" : "a";
     var selKey = side === "a" ? aKey : bKey;
     var altKey = side === "a" ? bKey : aKey;
+    var pct = getVisSplitPct();
+
+    var a = getFabricByKey(aKey);
+    var b = getFabricByKey(bKey);
 
     return (
         '<div class="vis-shell">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">Two Cloths, One Decision</h1>" +
-        '<p class="vis-lead">Tap a garment to choose a side, then tap a cloth from the bunch to dress it.</p>' +
-        '<div class="vis-compare-grid">' +
-        getVisCompareStageHTML("a", aKey) +
-        getVisCompareStageHTML("b", bKey) +
-        '<div class="vis-info vis-info--cmp" id="vis-info-a">' + getFabricInfoHTML(getFabricByKey(aKey)) + "</div>" +
-        '<div class="vis-info vis-info--cmp" id="vis-info-b">' + getFabricInfoHTML(getFabricByKey(bKey)) + "</div>" +
+        '<p class="vis-lead">One jacket, two cloths. Drag the chalk line across to see where each one takes it.</p>' +
+
+        '<div class="vis-split-stage" id="vis-split-stage">' +
+        getVisSplitLayerHTML("b", bKey, pct) +
+        getVisSplitLayerHTML("a", aKey, pct) +
+        // The chalk line: a soft tailor's mark, not a UI slider.
+        '<div class="vis-split-line" id="vis-split-line" style="left:' + pct + '%">' +
+        '<span class="vis-split-chalk"></span>' +
+        '<span class="vis-split-grip" aria-hidden="true"></span>' +
         "</div>" +
+        // Keyboard route to the same control, since dragging is not one.
+        '<input class="vis-split-range" id="vis-split-range" type="range" min="4" max="96" value="' + pct + '"' +
+        ' aria-label="Reveal more of the left or right cloth">' +
+        "</div>" +
+
+        // Which side the next swatch tap dresses.
+        '<div class="vis-split-sides">' +
+        '<button class="vis-split-side' + (side === "a" ? " sel" : "") + '" data-action="vis-side" data-side="a">' +
+        '<span class="vis-split-side-tag">Left</span>' +
+        '<span class="vis-split-side-name">' + a.name + "</span>" +
+        "</button>" +
+        '<button class="vis-split-side' + (side === "b" ? " sel" : "") + '" data-action="vis-side" data-side="b">' +
+        '<span class="vis-split-side-tag">Right</span>' +
+        '<span class="vis-split-side-name">' + b.name + "</span>" +
+        "</button>" +
+        "</div>" +
+
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, selKey, altKey) + "</div>" +
         getVisRecoStripHTML(recommended) +
+        '<div class="vis-info vis-info--cmp" id="vis-info-' + side + '">' +
+        getFabricInfoHTML(side === "a" ? a : b) + "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
+}
+
+// Drag handling lives here rather than in the delegated click handler:
+// this is a continuous gesture, not a tap.
+function startVisSplitDrag() {
+    var stage = document.getElementById("vis-split-stage");
+    var line = document.getElementById("vis-split-line");
+    var layerA = document.getElementById("vis-split-layer-a");
+    var range = document.getElementById("vis-split-range");
+    if (!stage || !line || !layerA) return;
+
+    function setPct(pct, persist) {
+        pct = Math.max(4, Math.min(96, pct));
+        appState.visSplitPct = pct;
+        line.style.left = pct + "%";
+        layerA.style.clipPath = "inset(0 " + (100 - pct) + "% 0 0)";
+        if (range && range.value != pct) range.value = pct;
+        if (persist) localStorage.setItem("bbs_session", JSON.stringify(appState));
+    }
+
+    function pctFromEvent(e) {
+        var r = stage.getBoundingClientRect();
+        return ((e.clientX - r.left) / r.width) * 100;
+    }
+
+    var dragging = false;
+    stage.addEventListener("pointerdown", function (e) {
+        // Ignore presses that begin on the range input; it drives itself.
+        if (e.target === range) return;
+        dragging = true;
+        setPct(pctFromEvent(e), false);
+        try { stage.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone */ }
+    });
+    stage.addEventListener("pointermove", function (e) {
+        if (!dragging) return;
+        setPct(pctFromEvent(e), false);
+    });
+    ["pointerup", "pointercancel"].forEach(function (evt) {
+        stage.addEventListener(evt, function () {
+            if (!dragging) return;
+            dragging = false;
+            setPct(getVisSplitPct(), true);
+        });
+    });
+
+    if (range) {
+        range.addEventListener("input", function () { setPct(Number(range.value), false); });
+        range.addEventListener("change", function () { setPct(Number(range.value), true); });
+    }
 }
 
 function getFabricInfoHTML(fabric) {
@@ -569,21 +668,27 @@ function visApplyFabric(key) {
 
 // Compare mode: dress one side. Call after appState is updated.
 function visApplyCompareFabric(side, key) {
-    visCrossfade("vis-cmp-base-" + side, "vis-cmp-fade-" + side, key);
-    var info = document.getElementById("vis-info-" + side);
-    if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
+    visCrossfade("vis-split-base-" + side, "vis-split-fade-" + side, key);
+    // The info card follows the side being dressed, and the side button
+    // carries the cloth's name so both halves stay labelled.
+    var info = document.getElementById("vis-info-" + side) || document.querySelector(".vis-info--cmp");
+    if (info) {
+        info.id = "vis-info-" + side;
+        info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
+    }
+    var btn = document.querySelector('.vis-split-side[data-side="' + side + '"] .vis-split-side-name');
+    if (btn) btn.textContent = getFabricByKey(key).name;
     var otherKey = side === "a" ? appState.visFabricKeyB : appState.visFabricKey;
     visSyncSwatchMarks(key, otherKey);
 }
 
 // Compare mode: switch which side the next swatch tap dresses.
 function visSetCompareSide(side) {
-    var sides = document.querySelectorAll(".vis-cmp-side");
+    var sides = document.querySelectorAll(".vis-split-side");
     for (var i = 0; i < sides.length; i++) {
         var isActive = sides[i].getAttribute("data-side") === side;
-        sides[i].className = "vis-cmp-side" + (isActive ? " active" : "");
-        var tag = sides[i].querySelector(".vis-cmp-tag");
-        if (tag) tag.textContent = isActive ? "Now dressing" : "Tap to dress";
+        sides[i].className = "vis-split-side" + (isActive ? " sel" : "");
+        sides[i].setAttribute("aria-pressed", isActive ? "true" : "false");
     }
     var selKey = side === "a" ? appState.visFabricKey : appState.visFabricKeyB;
     var altKey = side === "a" ? appState.visFabricKeyB : appState.visFabricKey;

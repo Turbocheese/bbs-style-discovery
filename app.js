@@ -5924,9 +5924,11 @@ function render(options) {
 
 
         if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
-
-
         else if (typeof stopMillGlobe === "function") stopMillGlobe();
+        // Separate statement, deliberately: inserting this BETWEEN the
+        // if and its else re-bound the else to this condition, so the
+        // Mill Map destroyed its own globe one frame after creating it.
+        if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -5950,9 +5952,11 @@ function render(options) {
 
 
         if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
-
-
         else if (typeof stopMillGlobe === "function") stopMillGlobe();
+        // Separate statement, deliberately: inserting this BETWEEN the
+        // if and its else re-bound the else to this condition, so the
+        // Mill Map destroyed its own globe one frame after creating it.
+        if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
