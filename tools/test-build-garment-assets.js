@@ -161,3 +161,21 @@ assert(count2pass < count1pass,
 );
 
 console.log("PASS: erodeMask (multi-pass, passes=2)");
+
+// A garment spanning luma 100..180 should stretch to fill the band.
+var w2 = 4, h2 = 1;
+var px2 = new Uint8Array(w2 * h2 * 4);
+var vals = [100, 140, 180, 250];
+for (var k = 0; k < 4; k++) {
+    px2[k * 4] = vals[k]; px2[k * 4 + 1] = vals[k]; px2[k * 4 + 2] = vals[k]; px2[k * 4 + 3] = 255;
+}
+var m2 = new Uint8Array([255, 255, 255, 0]); // last pixel is background
+
+var norm = b.normaliseLuminance(px2, m2, w2, h2);
+
+assert.strictEqual(norm[0], b.LUMA_FLOOR, "darkest garment pixel maps to the floor");
+assert.strictEqual(norm[2], b.LUMA_CEIL, "lightest garment pixel maps to the ceiling");
+assert.ok(norm[1] > b.LUMA_FLOOR && norm[1] < b.LUMA_CEIL, "mid pixel lands between");
+assert.strictEqual(norm[3], 0, "background is zeroed and ignored by the range");
+
+console.log("PASS: normaliseLuminance");

@@ -84,6 +84,32 @@ function luma(px, i) {
     return 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
 }
 
+// The multiply band. The floor is above zero deliberately: a fold that
+// multiplies to pure black destroys the cloth underneath it instead of
+// shading it.
+var LUMA_FLOOR = 90;
+var LUMA_CEIL = 255;
+
+function normaliseLuminance(px, mask, w, h) {
+    var out = new Uint8Array(w * h);
+    var min = 255, max = 0, i, v;
+
+    for (i = 0; i < w * h; i++) {
+        if (!mask[i]) continue;
+        v = luma(px, i);
+        if (v < min) min = v;
+        if (v > max) max = v;
+    }
+    if (max <= min) max = min + 1;
+
+    for (i = 0; i < w * h; i++) {
+        if (!mask[i]) { out[i] = 0; continue; }
+        v = (luma(px, i) - min) / (max - min);
+        out[i] = Math.round(LUMA_FLOOR + v * (LUMA_CEIL - LUMA_FLOOR));
+    }
+    return out;
+}
+
 // Garment edges are soft against the white ground. Without erosion a
 // pale fringe of near-background pixels stays inside the silhouette and
 // reads as a halo once cloth is multiplied through it.
@@ -104,4 +130,11 @@ function erodeMask(mask, w, h, passes) {
     return cur;
 }
 
-module.exports = { extractMask: extractMask, luma: luma, erodeMask: erodeMask };
+module.exports = {
+    extractMask: extractMask,
+    luma: luma,
+    erodeMask: erodeMask,
+    normaliseLuminance: normaliseLuminance,
+    LUMA_FLOOR: LUMA_FLOOR,
+    LUMA_CEIL: LUMA_CEIL
+};
