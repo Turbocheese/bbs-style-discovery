@@ -665,60 +665,120 @@ git commit -m "Bend cloth pattern at lapel and sleeve curvature"
 
 ---
 
-## Task 7: Hole overlays — buttons, buttonholes, hardware, lining
+## Task 7: Draw horn-brown buttons
 
 **Files:**
-- Modify: `tools/build-garment-assets.js`
 - Modify: `garment-photo.js`
-- Create: `images/garments/*-parts.webp`
+- Modify: `verify/photo-mockup.js`
 
-Without this, cloth pours over horn buttons and turns metal adjuster buckles into flannel. Buttons stay horn-brown — they are never tinted to the cloth.
+**Decision (founder, 20 July):** buttons are **horn-brown**, the same brown on every cloth, never tinted. These are grey generated mockups whose own buttons are dark grey and get completely swallowed by the multiply — confirmed by magnifying the jacket-sb fastening button, which vanishes under the chalkstripe. So buttons are **drawn**, not restored from the photo. Restoring the photo's pixels would give grey buttons, which is not what was asked for.
 
-- [ ] **Step 1: Add region authoring to the build tool**
+**Scope:** draw buttons on the garments where they read prominently — both jackets and all four waistcoats. Trouser buttons (a single waistband closure, mostly hidden) are deferred and noted for the final review. This mirrors Task 6, where only `jacket-sb` carries displacement and the rest are a follow-up.
 
-Regions are hand-authored per garment as normalised ellipses and rects in a `HOLES` map — buttons, buttonholes, waistband lining strip, waistcoat V lining, SB jacket front lining, trouser buckles. The build writes a `<key>-parts.webp` containing the ORIGINAL photograph pixels inside those regions and full transparency everywhere else.
+**Interfaces:**
+- Produces: `GARMENT_BUTTONS[garmentKey]` → array of `{ x, y, r }` in normalised 0–1 coordinates (x,y = centre, r = radius as a fraction of canvas width).
+- Produces: `drawGarmentButtons(ctx, canvas, garmentKey)` → draws the buttons for that garment, no-op if the garment has none.
+- Consumes: `renderGarmentPhoto` from Task 5, which calls this last, after the alpha clip.
 
-- [ ] **Step 2: Write the failing verification**
+- [ ] **Step 1: Write the failing verification**
 
-Add to `verify/photo-mockup.js`:
+Add to `verify/photo-mockup.js`. The swallowed button in the source photo is still faintly visible as a dark spot, which is the ground truth for where a drawn button belongs. Sample the jacket-sb fastening button centre against a saturated navy cloth: a drawn horn button is warm (red channel clearly above blue); cloth or a swallowed grey button is not.
 
 ```js
-// Buttons must keep their horn colour, not take the cloth. Sample the
-// fastening button on the SB jacket against a saturated blue cloth: if
-// the button has gone blue, the overlay is not compositing.
 var button = await page.evaluate(function () {
     var c = document.createElement("canvas");
     c.width = 400; c.height = 500;
-    window.renderGarmentPhoto(c, "jacket-sb", "fox_worsted_flannel_navy");
-    var d = c.getContext("2d").getImageData(198, 300, 4, 4).data;
-    return { r: d[0], g: d[1], b: d[2] };
+    // poll until the async asset has loaded
+    return (async function () {
+        for (var i = 0; i < 100; i++) {
+            if (window.renderGarmentPhoto(c, "jacket-sb", "fox_worsted_flannel_navy")) break;
+            await new Promise(function (r) { setTimeout(r, 50); });
+        }
+        // Fastening-button centre. Confirm the exact pixel against the
+        // authored GARMENT_BUTTONS position rather than trusting this
+        // literal; the button must be sampled at its real centre.
+        var b = window.GARMENT_BUTTONS["jacket-sb"];
+        var fastening = b[b.length - 1]; // lowest button on the front
+        var px = Math.round(fastening.x * 400), py = Math.round(fastening.y * 500);
+        var d = c.getContext("2d").getImageData(px, py, 2, 2).data;
+        return { r: d[0], g: d[1], b: d[2] };
+    })();
 });
-if (button.b > button.r) {
-    console.error("FAIL: button took the cloth colour (rgb " + button.r + "," + button.g + "," + button.b + ")");
+if (!(button.r > button.b + 25)) {
+    console.error("FAIL: no horn button at the fastening point (rgb " + button.r + "," + button.g + "," + button.b + ")");
     process.exit(1);
 }
-console.log("PASS: buttons stayed horn (rgb " + button.r + "," + button.g + "," + button.b + ")");
+console.log("PASS: horn button drawn (rgb " + button.r + "," + button.g + "," + button.b + ")");
 ```
 
-- [ ] **Step 3: Run it to verify it fails**
+- [ ] **Step 2: Run it to verify it fails**
 
 Run: `node verify/photo-mockup.js`
-Expected: `FAIL: button took the cloth colour`
+Expected: FAIL — `GARMENT_BUTTONS` undefined or no button at the point.
 
-- [ ] **Step 4: Composite the overlay**
+- [ ] **Step 3: Implement the button drawing**
 
-In `renderGarmentPhoto`, after the `destination-in` clip, reset to `source-over` and `drawImage` the parts overlay.
+Add to `garment-photo.js`. A horn button at render size is ~8–14px, so a filled disc in a mid horn-brown with a slightly darker rim and a couple of small stitch holes reads correctly. ES5 only.
+
+```js
+// Horn-brown, one colour on every cloth (founder decision). These are
+// DRAWN, not restored from the photo — the grey mockups' own buttons are
+// swallowed by the multiply, and restoring grey pixels is not "brown".
+var BUTTON_HORN = "#6b4f34";
+var BUTTON_HORN_RIM = "#4a3521";
+var BUTTON_HOLE = "#2e2013";
+
+// Normalised {x, y, r}. Authored by inspecting each garment render — the
+// faint swallowed button in the photo marks where each one belongs.
+var GARMENT_BUTTONS = {
+    "jacket-sb": [ /* authored in Step 4 */ ]
+};
+
+function drawGarmentButtons(ctx, canvas, garmentKey) {
+    var buttons = GARMENT_BUTTONS[garmentKey];
+    if (!buttons) return;
+    var W = canvas.width;
+    for (var i = 0; i < buttons.length; i++) {
+        var b = buttons[i];
+        var cx = b.x * W, cy = b.y * canvas.height, r = b.r * W;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = BUTTON_HORN;
+        ctx.fill();
+        ctx.lineWidth = Math.max(1, r * 0.18);
+        ctx.strokeStyle = BUTTON_HORN_RIM;
+        ctx.stroke();
+        // two stitch holes
+        ctx.fillStyle = BUTTON_HOLE;
+        var h = r * 0.22;
+        ctx.beginPath(); ctx.arc(cx - r * 0.3, cy, h, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + r * 0.3, cy, h, 0, Math.PI * 2); ctx.fill();
+    }
+}
+
+window.GARMENT_BUTTONS = GARMENT_BUTTONS;
+```
+
+Call `drawGarmentButtons(ctx, canvas, garmentKey)` at the end of `renderGarmentPhoto`, after the `destination-in` clip and the `source-over` reset.
+
+- [ ] **Step 4: Author button positions and verify visually**
+
+For each of `jacket-sb`, `jacket-db`, `vest-sb-none`, `vest-sb-shawl`, `vest-db-none`, `vest-db-shawl`: render the garment, find each button's position from the faint swallowed spot in the render, add `{x, y, r}` entries, re-render, and confirm with the Read tool that every drawn brown button lands on a real button position — not floating on cloth, not missing one. A waistcoat has five buttons (SB) or two columns (DB); a jacket shows the fastening button(s) and four cuff buttons per sleeve. Cuff buttons are optional if too small to place reliably; the front buttons are the ones that matter.
+
+Save a labelled render of `jacket-sb` with `fox_worsted_flannel_navy` to `.superpowers/sdd/task7-buttons.png` and inspect it.
 
 - [ ] **Step 5: Run verification**
 
-Run: `node verify/photo-mockup.js`
-Expected: three PASS lines
+Start a server (`npx serve -l 3000 .`), then run `node verify/photo-mockup.js`.
+Expected: all PASS lines including the horn-button check.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Cache bump and commit**
+
+Bump `garment-photo.js` `?v=`, the `sw.js` precache entry, and `CACHE_VERSION`.
 
 ```bash
-git add tools/build-garment-assets.js garment-photo.js images/garments/
-git commit -m "Keep buttons, buckles and lining out of the cloth fill"
+git add garment-photo.js verify/photo-mockup.js index.html sw.js
+git commit -m "Draw horn-brown buttons on jackets and waistcoats"
 ```
 
 ---
