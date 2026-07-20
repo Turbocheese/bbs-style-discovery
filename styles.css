@@ -10332,8 +10332,8 @@ textarea:focus-visible,
 
 #app.js-reveal .reveal {
     opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.68, 0.3, 1);
+    transform: translateY(26px);
+    transition: opacity 0.62s ease, transform 0.62s cubic-bezier(0.22, 0.72, 0.28, 1);
     will-change: opacity, transform;
 }
 
@@ -10386,16 +10386,45 @@ textarea:focus-visible,
 }
 
 .vis-swatch.lit .vis-swatch-cloth::before {
-    width: 240%;
-    height: 240%;
+    width: 300%;
+    height: 300%;
     opacity: 1;
-    transition: width 0.6s cubic-bezier(0.16, 0.8, 0.3, 1),
-                height 0.6s cubic-bezier(0.16, 0.8, 0.3, 1),
-                opacity 0.6s ease;
+    transition: width 0.85s cubic-bezier(0.16, 0.8, 0.3, 1),
+                height 0.85s cubic-bezier(0.16, 0.8, 0.3, 1),
+                opacity 0.85s ease;
+}
+
+/* The afterglow: a ring expanding from the touch point, on the cloth
+   layer so it is clipped to the swatch like the bloom. */
+.vis-swatch-cloth::after {
+    content: "";
+    position: absolute;
+    left: var(--press-x, 50%);
+    top: var(--press-y, 50%);
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Driven by an animation rather than a transition: the ring starts from
+   zero every press, and a transition cannot re-run from its own end
+   state without a forced reflow dance. */
+.vis-swatch.ringing .vis-swatch-cloth::after {
+    animation: swatchRing 0.78s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes swatchRing {
+    0%   { width: 0; height: 0; opacity: 0.9; }
+    100% { width: 210%; height: 210%; opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .vis-swatch-cloth::before { display: none; }
+    .vis-swatch-cloth::before,
+    .vis-swatch-cloth::after { display: none; }
 }
 
 /* ============================================

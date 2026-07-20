@@ -5779,9 +5779,11 @@ function startWelcomeTape() {
     if (!size()) return;
 
     var t = 0;
-    var HAIR = "rgba(17,17,16,0.055)";
-    var TICK = "rgba(17,17,16,0.075)";
-    var MAJOR = "rgba(138,109,67,0.16)";
+    // Roughly doubled from the first pass: present enough to read as a
+    // backdrop rather than a smudge, still well clear of the type.
+    var HAIR = "rgba(17,17,16,0.105)";
+    var TICK = "rgba(17,17,16,0.14)";
+    var MAJOR = "rgba(138,109,67,0.30)";
 
     function frame() {
         // The canvas is detached once the view changes; stop rather
@@ -5842,7 +5844,7 @@ function applyScrollReveals() {
             // A short stagger by position within the batch, capped so a
             // long list never leaves the last rows waiting seconds.
             var idx = Number(el.getAttribute("data-reveal-i")) || 0;
-            el.style.transitionDelay = Math.min(idx % 8, 7) * 45 + "ms";
+            el.style.transitionDelay = Math.min(idx % 8, 7) * 70 + "ms";
             el.classList.add("in");
             io.unobserve(el);
         }
@@ -6006,7 +6008,9 @@ _armIdleReset();
 // the highlight is under the finger while it is still down.
 // ============================================
 
-var PRESS_LIT_MS = 620;
+// Long enough that the bloom is a moment rather than a flicker; the
+// ring that follows it fades on its own timing.
+var PRESS_LIT_MS = 980;
 
 document.body.addEventListener("pointerdown", function (e) {
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -6022,9 +6026,16 @@ document.body.addEventListener("pointerdown", function (e) {
     void el.offsetWidth;
     el.classList.add("lit");
 
+    // A ring blooms outward behind the light and fades — the afterglow
+    // that makes the press feel like it landed on something.
+    el.classList.remove("ringing");
+    void el.offsetWidth;
+    el.classList.add("ringing");
+
     if (el._pressTimer) clearTimeout(el._pressTimer);
     el._pressTimer = setTimeout(function () {
         el.classList.remove("lit");
+        el.classList.remove("ringing");
         el._pressTimer = null;
     }, PRESS_LIT_MS);
 }, { passive: true });
