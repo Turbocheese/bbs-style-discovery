@@ -18,6 +18,18 @@
 - **CRLF line endings.** Regex over source must use `\r?\n`.
 - **Verification reads pixels, not attributes.** Asserting an option is `aria-pressed` proves nothing about what rendered. This project has shipped five silently-dead features that passed intent-based checks.
 - **Asset budget: 2.5 MB total** for all garment assets. The app is precached by `sw.js` and used in-store on iPad.
+- **ES5 applies to shipped browser code only.** `tools/` runs under Node and is never shipped; modern syntax is fine there. `garment-photo.js` ships and is ES5.
+
+## Real interfaces (verified against the codebase — do not invent these)
+
+The plan's earlier drafts guessed at these and were wrong. Use exactly:
+
+- **Cloth tiles:** `drawClothTile(ctx, cloth)` in `weave-engine.js:379`. Takes a canvas 2D **context** and a cloth **object** — not a key, and it returns nothing. To go from key to object, look it up in the `CLOTH_LIBRARY` array in `cloth-data.js` (102 entries, each with a `key` field).
+- **Cloth keys are snake_case.** Real keys for use in tests:
+  - plain charcoal flannel → `fox_classic_flannel_charcoal`
+  - chalkstripe → `fox_flannel_chalkstripe`
+  - navy → `fox_worsted_flannel_navy`
+- **Never invent a cloth key.** A test that fails because the cloth does not exist looks identical to a test that fails because the feature is broken, and invites "fixing" the test.
 
 ---
 
@@ -446,7 +458,7 @@ var playwright = require("playwright");
         var c = document.createElement("canvas");
         c.width = 400; c.height = 500;
         if (!window.renderGarmentPhoto) return { error: "renderGarmentPhoto missing" };
-        var ok = window.renderGarmentPhoto(c, "jacket-sb", "plain-charcoal");
+        var ok = window.renderGarmentPhoto(c, "jacket-sb", "fox_classic_flannel_charcoal");
         if (!ok) return { error: "render returned false" };
         var d = c.getContext("2d").getImageData(0, 0, 400, 500).data;
         var opaque = 0, transparent = 0;
@@ -482,6 +494,14 @@ Create `garment-photo.js`:
 // from tools/build-garment-assets.js.
 var garmentImages = {};
 
+// cloth-data.js exposes CLOTH_LIBRARY as a flat array keyed by `key`.
+function findCloth(key) {
+    for (var i = 0; i < CLOTH_LIBRARY.length; i++) {
+        if (CLOTH_LIBRARY[i].key === key) return CLOTH_LIBRARY[i];
+    }
+    return null;
+}
+
 function loadGarmentImage(key, onReady) {
     if (garmentImages[key]) { onReady(garmentImages[key]); return; }
     var img = new Image();
@@ -498,8 +518,14 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Cloth, tiled across the whole frame.
-    var tile = getWeaveTile(clothKey);
+    // 1. Cloth, tiled across the whole frame. drawClothTile paints a
+    //    96x96 tile into a context; we build that tile once per cloth
+    //    and repeat it as a pattern.
+    var cloth = findCloth(clothKey);
+    if (!cloth) return false;
+    var tile = document.createElement("canvas");
+    tile.width = 96; tile.height = 96;
+    drawClothTile(tile.getContext("2d"), cloth);
     var pattern = ctx.createPattern(tile, "repeat");
     ctx.fillStyle = pattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -567,7 +593,7 @@ Add to `verify/photo-mockup.js`, before `browser.close()`:
 var stripes = await page.evaluate(function () {
     var c = document.createElement("canvas");
     c.width = 400; c.height = 500;
-    window.renderGarmentPhoto(c, "jacket-sb", "chalkstripe-charcoal");
+    window.renderGarmentPhoto(c, "jacket-sb", "fox_flannel_chalkstripe");
     var ctx = c.getContext("2d");
     function edgesAcross(y) {
         var d = ctx.getImageData(0, y, 400, 1).data;
@@ -654,7 +680,7 @@ Add to `verify/photo-mockup.js`:
 var button = await page.evaluate(function () {
     var c = document.createElement("canvas");
     c.width = 400; c.height = 500;
-    window.renderGarmentPhoto(c, "jacket-sb", "navy-hopsack");
+    window.renderGarmentPhoto(c, "jacket-sb", "fox_worsted_flannel_navy");
     var d = c.getContext("2d").getImageData(198, 300, 4, 4).data;
     return { r: d[0], g: d[1], b: d[2] };
 });

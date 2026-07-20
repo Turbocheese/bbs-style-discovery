@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # vendored for offline); this is only the Playwright verification
 # harness. It must never be committed.
 node_modules/
+
+.superpowers/
