@@ -4511,7 +4511,7 @@ function renderResult() {
         '<div class="arch-result-label">Your Match</div>' +
         '<div class="arch-result-name">' +
         (name ? '<span class="arch-result-client">' + name + "</span>" : "") +
-        '<span class="arch-result-persona">' + archetype.name + "</span>" +
+        getRevealNameHTML(archetype.name, "arch-result-persona") +
         "</div>" +
         '<div class="arch-result-divider"></div>' +
         '<p class="arch-result-desc">' + resultDesc + "</p>" +
@@ -4609,7 +4609,7 @@ function renderResult() {
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
             '<p class="arch-explore-intro-text">These areas of the guide are most aligned with your style direction.</p>' +
-            '<div class="arch-explore-grid">' + linksHTML + "</div>" +
+            '<div class="arch-explore-grid arch-explore-stack">' + linksHTML + "</div>" +
             "</div>"
             : "") +
         '<div class="arch-result-footer">' +
@@ -5487,33 +5487,7 @@ function renderTopic(node) {
                 '<div class="topic-meta-grid">' + metaItems.join("") + "</div>";
     }
 
-    var imageHTML = "";
-    if (
-        node.metadata &&
-        node.metadata.image_refs &&
-        node.metadata.image_refs.length > 0
-    ) {
-        // Flip card: the description is the front, the garment itself is
-        // the back. (Index [0] deliberately — concatenating the array
-        // stringified every entry into one broken src.)
-        imageHTML =
-            '<div class="flip-card topic-flip" data-action="flip-card" role="button" tabindex="0" aria-label="' +
-            node.title + ' — tap to see it">' +
-            '<div class="flip-card-inner">' +
-            '<div class="flip-card-face flip-card-front topic-flip-front">' +
-            '<div class="topic-flip-eyebrow">See it</div>' +
-            '<div class="topic-flip-title">' + node.title + "</div>" +
-            '<p class="topic-flip-intro">' + (node.intro || "") + "</p>" +
-            '<div class="flip-hint">Tap to turn</div>' +
-            "</div>" +
-            '<div class="flip-card-face flip-card-back topic-flip-back">' +
-            '<img src="' + node.metadata.image_refs[0] + '" alt="' + node.title +
-            '" loading="lazy" onerror="this.closest(\'.flip-card\').style.display=\'none\'">' +
-            '<div class="flip-hint">Tap to turn back</div>' +
-            "</div>" +
-            "</div>" +
-            "</div>";
-    }
+    var imageHTML = getTopicFlipHTML(node, appState.guidePath);
 
     var topicKindLabel = "";
     if (node.topic_kind) {
@@ -5627,7 +5601,16 @@ function renderArchetypeGallery() {
     html += '<p class="gallery-lead">Every style direction the quiz can land on. Find yours, or browse the rest.</p>';
     html += "</div>";
 
-    html += '<div class="gallery-grid">';
+    // Grid stays the default: staff jumping to one archetype need to
+    // scan, and stacking is slower for that. The stacked view is the
+    // considered read, offered rather than imposed.
+    var stacked = appState.galleryStacked === true;
+    html += '<div class="gallery-view-toggle" role="group" aria-label="Gallery layout">';
+    html += '<button class="gallery-view-btn' + (stacked ? "" : " sel") + '" data-action="gallery-view" data-view="grid" aria-pressed="' + (!stacked) + '">Grid</button>';
+    html += '<button class="gallery-view-btn' + (stacked ? " sel" : "") + '" data-action="gallery-view" data-view="stack" aria-pressed="' + stacked + '">Stacked</button>';
+    html += "</div>";
+
+    html += '<div class="' + (stacked ? "gallery-stack" : "gallery-grid") + '">';
     for (var i = 0; i < keys.length; i++) {
         var a = archetypeProfiles[keys[i]];
         html += '<button class="gallery-card' + (a.galleryImage ? " gallery-card--photo" : "") +
@@ -5824,6 +5807,91 @@ function startWelcomeTape() {
 
     window.addEventListener("resize", function () { if (cv.isConnected) size(); }, { passive: true });
     frame();
+}
+
+// ============================================
+// TOPIC FLIP CARD
+//
+// The card was built long ago and had never once appeared: it rendered
+// only when a topic carried metadata.image_refs, and 0 of 312 topics
+// carry any, because photography is still pending. Finished code,
+// invisible since the day it shipped, and silent about it — a missing
+// image_refs array just skips the block without erroring.
+//
+// It now falls back to imagery that ALREADY EXISTS. A cloth whose
+// guidePath or millPath is this topic turns the card over to that
+// cloth's woven tile, which covers 47 topics across the fabric and
+// cloth-origin trees. A real photograph still wins whenever one lands.
+// ============================================
+
+// ============================================
+// THE NAME REVEAL
+//
+// Seven questions build to the archetype name, and it simply appeared.
+// The letters now spring in one at a time — the app's emotional peak
+// gets the one flourish it earns.
+//
+// Split text is hostile to screen readers, so the spans are hidden from
+// the accessibility tree and the whole name is carried on the parent's
+// aria-label instead. Under reduced motion the CSS shows every letter
+// outright, so the name never depends on animation to be legible.
+// ============================================
+
+function getRevealNameHTML(text, cls) {
+    var safe = String(text || "");
+    if (!safe) return "";
+    var out = '<span class="' + cls + ' name-reveal" aria-label="' + safe + '">';
+    for (var i = 0; i < safe.length; i++) {
+        var ch = safe.charAt(i);
+        out += '<span aria-hidden="true" style="animation-delay:' + (i * 34) + 'ms">' +
+               (ch === " " ? "&nbsp;" : ch) + "</span>";
+    }
+    return out + "</span>";
+}
+
+function getTopicFlipCloth(path) {
+    if (typeof CLOTH_LIBRARY === "undefined" || !path || !path.length) return null;
+    var key = path.join(">");
+    var byGuide = null, byMill = null;
+    for (var i = 0; i < CLOTH_LIBRARY.length; i++) {
+        var c = CLOTH_LIBRARY[i];
+        if (!byGuide && c.guidePath && c.guidePath.join(">") === key) byGuide = c;
+        if (!byMill && c.millPath && c.millPath.join(">") === key) byMill = c;
+    }
+    // A cloth named for this weave beats a cloth merely woven by this mill.
+    return byGuide || byMill;
+}
+
+function getTopicFlipHTML(node, path) {
+    var photo = node.metadata && node.metadata.image_refs && node.metadata.image_refs.length
+        ? node.metadata.image_refs[0]
+        : null;
+    var cloth = photo ? null : getTopicFlipCloth(path);
+    if (!photo && !cloth) return "";
+
+    var back = photo
+        ? '<img src="' + photo + '" alt="' + node.title +
+          '" loading="lazy" onerror="this.closest(\'.flip-card\').style.display=\'none\'">'
+        : '<span class="topic-flip-cloth" style="background-image:url(' + getFabricTile(cloth.key) + ')"></span>' +
+          '<span class="topic-flip-caption">' + cloth.name + "<em>" + cloth.mill + "</em></span>";
+
+    return (
+        '<div class="flip-card topic-flip" data-action="flip-card" role="button" tabindex="0" aria-label="' +
+        node.title + ' — tap to see it">' +
+        '<div class="flip-card-inner">' +
+        '<div class="flip-card-face flip-card-front topic-flip-front">' +
+        '<div class="topic-flip-eyebrow">See it</div>' +
+        '<div class="topic-flip-title">' + node.title + "</div>" +
+        '<p class="topic-flip-intro">' + (node.intro || "") + "</p>" +
+        '<div class="flip-hint">Tap to turn</div>' +
+        "</div>" +
+        '<div class="flip-card-face flip-card-back topic-flip-back">' +
+        back +
+        '<div class="flip-hint">Tap to turn back</div>' +
+        "</div>" +
+        "</div>" +
+        "</div>"
+    );
 }
 
 function applyScrollReveals() {
@@ -6519,6 +6587,11 @@ document.body.addEventListener("click", function (e) {
             visApplyFabric(fabricKey);
         }
     }
+    else if (action === "gallery-view") {
+        appState.galleryStacked = target.dataset.view === "stack";
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render({ animate: false });
+    }
     else if (action === "vis-filter") {
         // Re-render rather than patch: the tray, the result count and
         // the chip's own pressed state all change together, and they
@@ -6763,9 +6836,7 @@ function renderColourDirectionResult() {
         (appState.clientName
             ? '<span class="arch-result-client">' + appState.clientName + "</span>"
             : "") +
-        '<span class="arch-result-persona">' +
-        profile.name +
-        "</span>" +
+        getRevealNameHTML(profile.name, "arch-result-persona") +
         "</div>" +
         '<div class="arch-result-divider"></div>' +
         '<p class="arch-result-desc">' +

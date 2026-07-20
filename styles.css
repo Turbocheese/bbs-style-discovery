@@ -10865,3 +10865,148 @@ textarea:focus-visible,
     outline: 2px solid var(--bronze);
     outline-offset: 2px;
 }
+
+/* The flip card's cloth back. The card had never rendered before — no
+   topic carried image_refs — so this face is new even though the card
+   itself is old. */
+.topic-flip-cloth {
+    display: block;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    background-size: 62px 62px;
+    background-position: center;
+}
+
+.topic-flip-caption {
+    display: block;
+    padding: 10px 12px 2px;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.02rem;
+    font-style: italic;
+    color: var(--text);
+    text-align: center;
+}
+
+.topic-flip-caption em {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-style: normal;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    margin-top: 3px;
+}
+
+/* ============================================
+   THE NAME REVEAL
+   Letters spring in individually on the archetype and colour results —
+   the moment seven questions build to.
+
+   The spans are aria-hidden and the full name sits on the parent's
+   aria-label, because split text otherwise reads letter by letter to a
+   screen reader.
+   ============================================ */
+
+.name-reveal > span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px) rotate(4deg);
+    animation: nameReveal 0.62s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+    will-change: opacity, transform;
+}
+
+@keyframes nameReveal {
+    to { opacity: 1; transform: none; }
+}
+
+/* Never let the name depend on animation to be readable. */
+@media (prefers-reduced-motion: reduce) {
+    .name-reveal > span {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+}
+
+/* ============================================
+   STICKY CARD STACK
+   Cards pin as you scroll and stack behind one another. Costs nothing
+   beyond position: sticky — but it deliberately slows browsing, so the
+   gallery keeps the grid as its default and offers this as a choice.
+   ============================================ */
+
+.gallery-view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 0 1.4rem;
+}
+
+.gallery-view-btn {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 0 18px !important;
+    min-height: 44px !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.gallery-view-btn.sel {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+/* Same specificity trap as every other control added this session:
+   a bare button:hover sets a dark background and outranks a class. */
+.gallery-view-btn:hover { background: transparent !important; color: var(--muted) !important; }
+.gallery-view-btn.sel:hover { background: var(--text) !important; color: #f7f4ed !important; }
+.gallery-view-btn:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+.gallery-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-bottom: 60vh;   /* room for the last card to reach the top */
+}
+
+.gallery-stack .gallery-card {
+    position: sticky;
+    top: 24px;
+    width: 100%;
+    background: var(--surface) !important;
+    border: 1px solid var(--line-strong) !important;
+    box-shadow: 0 -2px 24px rgba(17, 17, 16, 0.06);
+}
+
+/* The result page's next steps: genuinely sequential, and nobody is
+   scanning them, so stacking is the low-risk use of this pattern. */
+.arch-explore-stack {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 30vh;
+}
+
+.arch-explore-stack .arch-explore-card {
+    position: sticky;
+    top: 20px;
+    background: var(--surface) !important;
+    border: 1px solid var(--line-strong) !important;
+    box-shadow: 0 -2px 20px rgba(17, 17, 16, 0.05);
+}
+
+/* Sticky positioning still works with reduced motion — nothing here
+   animates — but the shadow implies depth, so soften it. */
+@media (prefers-reduced-motion: reduce) {
+    .gallery-stack .gallery-card,
+    .arch-explore-stack .arch-explore-card { box-shadow: none; }
+}
