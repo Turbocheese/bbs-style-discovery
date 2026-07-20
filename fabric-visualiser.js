@@ -924,34 +924,34 @@ function getDSJacketShirtSVG(style) {
 // roughly 1:2.6 and made it read as a dress instead. A waistcoat is
 // nearer 1:1.6, so the garment is now WIDER relative to its box rather
 // than taller: chest spans 110-330 against a 356-tall body.
+// Measured off a photograph of a real single-breasted waistcoat.
+// The shoulders were the big error: mine spanned 91% of the garment's
+// own width near the top where the real one spans 60%. A waistcoat is
+// narrow across the shoulders, scoops at the armhole, then carries its
+// full width through the body. Overall 1:1.38, against the photo's 1.37.
 var DS_VEST_TOP =
-    "M200 36 " +
-    // shoulder strap out to the shoulder point
-    "C178 38 136 42 112 54 " +
-    // armhole: concave, and shallower than before. The old curve cut in
-    // to x=140, pinching the silhouette to 73% of its own width at the
-    // third — the reference flat holds nearer 76% and reads as a
-    // garment rather than an hourglass.
-    "C122 86 132 120 134 152 " +
-    // chest out to the side seam, then a gently shaped waist
-    "C118 176 104 190 102 202 " +
-    // waist nips IN, then the hip eases back out. The previous shape
-    // was widest at the waist, which reads as a tube rather than a
-    // waistcoat.
-    "C106 250 110 286 108 330 ";
+    "M200 38 " +
+    // narrow across the shoulder, then sloping out to the shoulder point
+    "C186 40 176 43 168 48 " +
+    "C150 56 134 64 125 74 " +
+    // armhole: a shallow scoop, not a deep pinch
+    "C128 100 130 126 130 150 " +
+    // below the armpit the body opens to its full width and holds it
+    "C120 176 100 196 92 216 " +
+    "C89 260 89 300 90 330 ";
 
 var DS_VEST_HEM = {
     // The classic waistcoat hem: two points flanking the CENTRE front,
     // with a shallow V between them, and the side seams finishing
     // higher. The points sat out at the side seams before, which is not
     // where a waistcoat points — that read as a bell.
-    points: "C130 358 152 374 172 396 " +
-            "C190 376 206 362 220 354 " +
-            "C234 362 250 376 268 396 " +
-            "C288 374 310 358 332 330 ",
+    points: "C130 358 154 374 174 396 " +
+            "C192 376 208 362 220 354 " +
+            "C232 362 248 376 266 396 " +
+            "C286 374 310 358 350 330 ",
     // Straight across, as worn under a double-breasted jacket where
     // points would show below the wrap.
-    straight: "L108 352 L332 352 L332 330 "
+    straight: "L90 352 L350 352 L350 330 "
 };
 
 var DS_VEST_BOTTOM =
@@ -977,7 +977,7 @@ function getDSVestShadingSVG(style) {
     // flanking it for a double-breasted wrap.
     // Buttons run from just under the V down toward the hem points.
     var buttons = "";
-    var rows = isDB ? [196, 232, 268, 302] : [186, 218, 250, 282, 314];
+    var rows = isDB ? [206, 240, 274, 308] : [196, 226, 256, 286, 316];
     for (var r = 0; r < rows.length; r++) {
         if (isDB) {
             buttons += '<circle cx="196" cy="' + rows[r] + '" r="5" fill="#4c4c4c"/>';
@@ -999,8 +999,8 @@ function getDSVestShadingSVG(style) {
     // The point shadows only exist when there are points to shade.
     var hemShadow = style.hem === "straight"
         ? ""
-        : '<path d="M106 345 L114 392 L128 372 L118 340 Z" fill="#8a8a8a" opacity="0.3"/>' +
-          '<path d="M334 345 L326 392 L312 372 L322 340 Z" fill="#8a8a8a" opacity="0.3"/>';
+        : '<path d="M92 336 L174 396 L186 380 L104 330 Z" fill="#8a8a8a" opacity="0.22"/>' +
+          '<path d="M348 336 L266 396 L254 380 L336 330 Z" fill="#8a8a8a" opacity="0.22"/>';
 
     return (
         '<svg class="ds-shading" viewBox="0 0 440 440" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">' +
@@ -1015,17 +1015,17 @@ function getDSVestShadingSVG(style) {
         '<g clip-path="url(#ds-clip-vest)">' +
         '<rect width="440" height="440" fill="url(#ds-vest-body)"/>' +
         // armhole shadows, following the concave armhole
-        '<path d="M112 54 C122 86 132 120 134 152 C140 118 136 82 128 58 Z" fill="#8f8f8f" opacity="0.4"/>' +
-        '<path d="M328 54 C318 86 308 120 306 152 C300 118 304 82 312 58 Z" fill="#868686" opacity="0.4"/>' +
+        '<path d="M125 74 C128 100 130 126 130 150 C138 124 138 96 136 76 Z" fill="#8f8f8f" opacity="0.4"/>' +
+        '<path d="M315 74 C312 100 310 126 310 150 C302 124 302 96 304 76 Z" fill="#868686" opacity="0.4"/>' +
         // side drape
-        '<path d="M122 202 C116 260 118 300 124 340" stroke="#ababab" stroke-width="7" fill="none" opacity="0.3"/>' +
-        '<path d="M318 202 C324 260 322 300 316 340" stroke="#ababab" stroke-width="7" fill="none" opacity="0.3"/>' +
+        '<path d="M104 226 C99 268 99 302 104 336" stroke="#ababab" stroke-width="7" fill="none" opacity="0.3"/>' +
+        '<path d="M336 226 C341 268 341 302 336 336" stroke="#ababab" stroke-width="7" fill="none" opacity="0.3"/>' +
         // front edges running down toward the hem
         '<path d="M212 140 L214 350" stroke="#828282" stroke-width="1.8" fill="none" opacity="0.5"/>' +
         '<path d="M228 140 L226 350" stroke="#909090" stroke-width="1.4" fill="none" opacity="0.4"/>' +
         // welt pockets, set at a slight angle
-        '<path d="M126 272 L180 278 L179 289 L126 283 Z" fill="#8a8a8a" opacity="0.6"/>' +
-        '<path d="M260 278 L314 272 L314 283 L261 289 Z" fill="#8a8a8a" opacity="0.6"/>' +
+        '<path d="M112 276 L182 283 L181 295 L112 288 Z" fill="#8a8a8a" opacity="0.6"/>' +
+        '<path d="M258 283 L328 276 L328 288 L259 295 Z" fill="#8a8a8a" opacity="0.6"/>' +
         lapel +
         buttons +
         hemShadow +
@@ -1060,34 +1060,31 @@ function getDSVestShirtSVG() {
 // hem at y=654), which is the Neapolitan cut and also what makes the
 // pleats and waistband detailing legible.
 function dsTrouserBody(style) {
-    // Measured against a generated technical flat rather than guessed.
-    // The previous shape ran 1:3.82 width to height where the reference
-    // runs 1:2.12, and its width profile was a plain wedge — narrowing
-    // monotonically from waistband to hem with NO hip fullness. Real
-    // trousers are narrowest at the waistband, widest through the hip
-    // and thigh, then taper to the hem.
+    // Proportions measured off a photograph of a real men's high-rise
+    // trouser, flat, generated by a model that actually obeys a prompt.
     //
-    // Now ~1:2.9. The reference sits at 2.12 only because its legs are
-    // drawn splayed apart; with the legs together, which is what this
-    // flat-lay shows, just under 3 is the honest figure.
-    var t = style && style.taper === "classic" ? 14 : 0;
-    return "M122 24 L318 24 " +
-        "C324 24 328 28 328 34 L329 66 " +
-        // hip and thigh: the fullest part of the garment
-        "C330 118 329 160 328 196 " +
-        "C324 262 318 330 " + (312 + t) + " 392 " +
-        "C" + (308 + t) + " 470 " + (304 + t) + " 566 " + (302 + t) + " 640 " +
-        "C" + (301 + t) + " 650 " + (297 + t) + " 656 " + (289 + t) + " 656 " +
-        "L242 656 C236 656 232 650 232 642 " +
-        // right inseam up to a high crotch
-        "L233 420 L222 250 " +
-        "L218 250 L207 420 L208 642 " +
-        "C208 650 204 656 198 656 " +
-        "L" + (151 - t) + " 656 C" + (143 - t) + " 656 " + (139 - t) + " 650 " + (138 - t) + " 640 " +
-        "C" + (136 - t) + " 566 " + (132 - t) + " 470 " + (128 - t) + " 392 " +
-        "C122 330 116 262 112 196 " +
-        "C111 160 110 118 111 66 " +
-        "L112 34 C112 28 116 24 122 24 Z";
+    // Two corrections from that measurement. The garment runs 1:2.39
+    // width to height, not the 2.91 I had. And a real trouser barely
+    // tapers: from the widest point at the hip to the ankle it loses
+    // only about 9% of its width, where mine shed 24% and read as a
+    // carrot. Widest at 25-30% down, then almost straight.
+    var t = style && style.taper === "classic" ? 12 : 0;
+    return "M100 24 L340 24 " +
+        "C346 24 350 28 350 34 L352 70 " +
+        // hip, the widest point
+        "C353 120 353 155 352 180 " +
+        "C350 250 348 330 " + (346 - t) + " 400 " +
+        "C" + (344 - t) + " 480 " + (340 - t) + " 570 " + (338 - t) + " 640 " +
+        "C" + (337 - t) + " 650 " + (333 - t) + " 656 " + (325 - t) + " 656 " +
+        "L232 656 C226 656 222 650 222 642 " +
+        // inseam up to a high crotch, then down the other side
+        "L223 420 L221 232 L219 232 L217 420 L218 642 " +
+        "C218 650 214 656 208 656 " +
+        "L" + (115 + t) + " 656 C" + (107 + t) + " 656 " + (103 + t) + " 650 " + (102 + t) + " 640 " +
+        "C" + (100 + t) + " 570 " + (96 + t) + " 480 " + (94 + t) + " 400 " +
+        "C92 330 90 250 88 180 " +
+        "C87 155 87 120 88 70 " +
+        "L90 34 C90 28 94 24 100 24 Z";
 }
 
 function getDSTrouserShadingSVG(style) {
@@ -1107,8 +1104,8 @@ function getDSTrouserShadingSVG(style) {
                'stroke="#ffffff" stroke-width="2.2" opacity="0.5" fill="none"/>';
     }
     var pleats = "";
-    if (style.front === "single") pleats = pleat(184) + pleat(256);
-    else if (style.front === "double") pleats = pleat(172) + pleat(196) + pleat(244) + pleat(268);
+    if (style.front === "single") pleats = pleat(172) + pleat(268);
+    else if (style.front === "double") pleats = pleat(156) + pleat(188) + pleat(252) + pleat(284);
 
     // Waistband treatment. Belt loops and side adjusters are mutually
     // exclusive on a real trouser, which is why these are one option
@@ -1116,33 +1113,33 @@ function getDSTrouserShadingSVG(style) {
     var waistband;
     if (style.waistband === "adjusters") {
         waistband =
-            '<rect x="112" y="24" width="216" height="44" fill="#d6d6d6"/>' +
-            '<path d="M144 36 L172 36 L172 56 L144 56 Z" fill="#b4b4b4"/>' +
-            '<path d="M268 36 L296 36 L296 56 L268 56 Z" fill="#b4b4b4"/>' +
-            '<circle cx="167" cy="46" r="3" fill="#5e5e5e"/>' +
-            '<circle cx="273" cy="46" r="3" fill="#5e5e5e"/>' +
-            '<path d="M112 68 L328 68" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
+            '<rect x="90" y="24" width="260" height="44" fill="#d6d6d6"/>' +
+            '<path d="M104 36 L142 36 L142 58 L104 58 Z" fill="#b4b4b4"/>' +
+            '<path d="M298 36 L336 36 L336 58 L298 58 Z" fill="#b4b4b4"/>' +
+            '<circle cx="136" cy="47" r="3.4" fill="#5e5e5e"/>' +
+            '<circle cx="304" cy="47" r="3.4" fill="#5e5e5e"/>' +
+            '<path d="M90 70 L350 70" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
     } else if (style.waistband === "tab") {
         waistband =
-            '<rect x="112" y="24" width="216" height="40" fill="#d6d6d6"/>' +
+            '<rect x="90" y="24" width="260" height="40" fill="#d6d6d6"/>' +
             '<path d="M202 24 L250 24 L256 44 L250 64 L202 64 Z" fill="#cacaca"/>' +
             '<path d="M202 24 L202 64" stroke="#8a8a8a" stroke-width="1.6" opacity="0.7"/>' +
             '<circle cx="240" cy="44" r="4.6" fill="#4c4c4c"/>' +
-            '<path d="M112 64 L328 64" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
+            '<path d="M90 66 L350 66" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
     } else {
         waistband =
-            '<rect x="112" y="24" width="216" height="40" fill="#d6d6d6"/>' +
-            '<rect x="156" y="32" width="20" height="8" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
-            '<rect x="264" y="32" width="20" height="8" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
+            '<rect x="90" y="24" width="260" height="40" fill="#d6d6d6"/>' +
+            '<rect x="128" y="32" width="22" height="8" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
+            '<rect x="290" y="32" width="22" height="8" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
             '<rect x="210" y="28" width="20" height="8" rx="2" fill="#9c9c9c" opacity="0.7"/>' +
             '<circle cx="220" cy="46" r="4.6" fill="#4c4c4c"/>' +
-            '<path d="M112 64 L328 64" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
+            '<path d="M90 66 L350 66" stroke="#767676" stroke-width="2.2" opacity="0.55"/>';
     }
 
     // A turn-up is a cuff folded back on itself: a shadow at the top of
     // the fold and a lighter band below it. Sits just above the hem.
     var turnup = style.hem === "turnup"
-        ? '<rect x="140" y="596" width="160" height="60" fill="#c4c4c4" opacity="0.5"/>' +
+        ? '<rect x="108" y="596" width="224" height="60" fill="#c4c4c4" opacity="0.5"/>' +
           '<path d="M150 598 L300 598" stroke="#6f6f6f" stroke-width="2.6" opacity="0.6"/>' +
           '<path d="M150 603 L300 603" stroke="#ffffff" stroke-width="1.6" opacity="0.45"/>'
         : "";
@@ -1162,8 +1159,8 @@ function getDSTrouserShadingSVG(style) {
         "</defs>" +
         '<g clip-path="url(#ds-clip-trousers)">' +
         // legs shaded independently
-        '<path d="M111 66 L220 66 L208 656 L151 656 Z" fill="url(#ds-trs-leg-l)"/>' +
-        '<path d="M220 66 L329 66 L289 656 L232 656 Z" fill="url(#ds-trs-leg-r)"/>' +
+        '<path d="M88 70 L220 70 L208 656 L115 656 Z" fill="url(#ds-trs-leg-l)"/>' +
+        '<path d="M220 70 L352 70 L325 656 L232 656 Z" fill="url(#ds-trs-leg-r)"/>' +
         waistband +
         pleats +
         // fly, running down the long rise
@@ -1173,21 +1170,21 @@ function getDSTrouserShadingSVG(style) {
         '<path d="M212 270 C210 400 211 530 214 640" stroke="#9a9a9a" stroke-width="6" opacity="0.35" fill="none"/>' +
         '<path d="M228 270 C230 400 229 530 226 640" stroke="#9a9a9a" stroke-width="6" opacity="0.35" fill="none"/>' +
         // centre creases: highlight beside soft shadow, full length
-        '<path d="M170 92 C167 260 172 470 178 650" stroke="#ffffff" stroke-width="3" opacity="0.7" fill="none"/>' +
-        '<path d="M174 92 C171 260 176 470 182 650" stroke="#8f8f8f" stroke-width="2.2" opacity="0.35" fill="none"/>' +
-        '<path d="M270 92 C273 260 268 470 262 650" stroke="#ffffff" stroke-width="3" opacity="0.7" fill="none"/>' +
-        '<path d="M266 92 C269 260 264 470 258 650" stroke="#8f8f8f" stroke-width="2.2" opacity="0.35" fill="none"/>' +
+        '<path d="M156 96 C152 260 156 470 160 650" stroke="#ffffff" stroke-width="3" opacity="0.7" fill="none"/>' +
+        '<path d="M160 96 C156 260 160 470 164 650" stroke="#8f8f8f" stroke-width="2.2" opacity="0.35" fill="none"/>' +
+        '<path d="M284 96 C288 260 284 470 280 650" stroke="#ffffff" stroke-width="3" opacity="0.7" fill="none"/>' +
+        '<path d="M280 96 C284 260 280 470 276 650" stroke="#8f8f8f" stroke-width="2.2" opacity="0.35" fill="none"/>' +
         // slanted side pockets
-        '<path d="M122 78 C134 106 148 132 160 156" stroke="#7a7a7a" stroke-width="2.4" opacity="0.55" fill="none"/>' +
-        '<path d="M318 78 C306 106 292 132 280 156" stroke="#7a7a7a" stroke-width="2.4" opacity="0.55" fill="none"/>' +
+        '<path d="M100 82 C114 112 132 140 148 166" stroke="#7a7a7a" stroke-width="2.4" opacity="0.55" fill="none"/>' +
+        '<path d="M340 82 C326 112 308 140 292 166" stroke="#7a7a7a" stroke-width="2.4" opacity="0.55" fill="none"/>' +
         // knee light
-        '<ellipse cx="172" cy="430" rx="30" ry="110" fill="#ffffff" opacity="0.22"/>' +
-        '<ellipse cx="268" cy="430" rx="30" ry="110" fill="#ffffff" opacity="0.22"/>' +
+        '<ellipse cx="156" cy="430" rx="34" ry="110" fill="#ffffff" opacity="0.22"/>' +
+        '<ellipse cx="284" cy="430" rx="34" ry="110" fill="#ffffff" opacity="0.22"/>' +
         // turn-up. This was computed but never rendered until now.
         turnup +
         // hem shadows
-        '<path d="M151 640 L208 642 L208 656 L151 656 Z" fill="#8a8a8a" opacity="0.35"/>' +
-        '<path d="M232 642 L289 640 L289 656 L232 656 Z" fill="#828282" opacity="0.35"/>' +
+        '<path d="M115 640 L208 642 L208 656 L115 656 Z" fill="#8a8a8a" opacity="0.35"/>' +
+        '<path d="M232 642 L325 640 L325 656 L232 656 Z" fill="#828282" opacity="0.35"/>' +
         "</g>" +
         '<path d="' + DS_TROUSER_BODY + '" fill="none" stroke="#4a443a" stroke-width="1.6" opacity="0.55"/>' +
         "</svg>"

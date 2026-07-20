@@ -42,14 +42,37 @@ matters:
 
 ## Which model
 
-**Primary: [`recraft-ai/recraft-v3-svg`](https://replicate.com/recraft-ai/recraft-v3-svg)**
-— genuinely outputs SVG, not raster. Best chance of geometry worth measuring
-against. Style `vector_illustration`.
+**Use a raster model, not an SVG one.** The SVG output was never the
+requirement — the path is hand-authored either way, so all the generator
+has to do is produce an accurate picture to MEASURE. Insisting on
+`recraft-ai/recraft-v3-svg` cost three rounds: it is an illustration
+model with weak prompt adherence, and it kept returning double-breasted
+lapelled waistcoats, garments on figures, front-and-back pairs, and
+hallucinated callout labels ("High Faft Fow") because it pattern-matches
+to "annotated fashion spec sheet".
 
-**Secondary: `black-forest-labs/flux-1.1-pro`** — raster, but far better at
-believable drape and at the softness that makes Neapolitan tailoring read as
-Neapolitan. Run both: Recraft for the outline, Flux for judging where the
-shoulder falls and how much belly the lapel actually has.
+Ranked for this job:
+
+| Model | Why |
+|---|---|
+| `google/nano-banana-pro` | Strongest prompt adherence. Produced both usable references first try. |
+| `qwen/qwen-image` | Does exactly what is asked regardless of prompt complexity. |
+| `black-forest-labs/flux-1.1-pro` | Safe fallback, leads Flux on adherence. |
+
+Two phrasings matter more than the model:
+
+- **Do not say "technical flat sketch" or "CAD drawing".** That is what
+  pulls these models toward annotated spec-sheet illustrations with
+  invented labels. Say **"photographed flat on a plain white background,
+  shot straight down from above"** — it describes the same view without
+  the trigger.
+- **State absences as plain facts inside sentences**, not as a list of
+  prohibitions. "A wide waistband with a small buckled adjuster tab on
+  each hip, and no belt, no belt loops and no buckle at the front" works;
+  "no belt" as a bare negative gets ignored.
+
+A photograph beats a line drawing here. It is likelier to show a real
+menswear cut, and proportion measures off it just as well.
 
 ## Target proportions (important)
 
