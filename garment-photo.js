@@ -37,6 +37,63 @@ function loadGarmentImage(key, onReady) {
     img.src = src;
 }
 
+// Flat-laid garments curve in four places only. Each region redraws the
+// cloth rotated and horizontally compressed, which is what makes a
+// stripe read as bending around form rather than lying on top of it.
+var DISPLACEMENT_REGIONS = {
+    "jacket-sb": [
+        { x: 0.30, y: 0.08, w: 0.20, h: 0.34, angle: -0.14, strength: 0.82 },
+        { x: 0.50, y: 0.08, w: 0.20, h: 0.34, angle: 0.14, strength: 0.82 },
+        { x: 0.05, y: 0.12, w: 0.22, h: 0.55, angle: -0.05, strength: 0.74 },
+        { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
+    ]
+    // Remaining garments follow once their photographs exist.
+};
+window.DISPLACEMENT_REGIONS = DISPLACEMENT_REGIONS;
+
+// Redraws the cloth pattern inside each of the garment's curvature
+// regions with a rotation and a horizontal-only scale applied to the
+// pattern's transform, so straight stripes/checks bend the way they
+// would wrapping a lapel roll or a sleeve cylinder. Everywhere else is
+// left as the flat tiled fill from step 1 — these garments are
+// photographed laid flat, so curvature is the exception, not the rule.
+function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
+    var regions = DISPLACEMENT_REGIONS[garmentKey];
+    if (!regions) return;
+
+    for (var i = 0; i < regions.length; i++) {
+        var r = regions[i];
+        var rx = r.x * canvas.width;
+        var ry = r.y * canvas.height;
+        var rw = r.w * canvas.width;
+        var rh = r.h * canvas.height;
+        var cx = rx + rw / 2;
+        var cy = ry + rh / 2;
+
+        ctx.save();
+        // Clip to the region's own bounding box so the transformed
+        // redraw only replaces cloth inside that region — everywhere
+        // else keeps the untouched flat fill from step 1.
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+
+        ctx.translate(cx, cy);
+        ctx.rotate(r.angle);
+        ctx.scale(r.strength, 1);
+        ctx.translate(-cx, -cy);
+
+        // Rotating/scaling around the region's center means the clip
+        // rect maps to a larger area in pattern space; overdraw
+        // generously so no corner of the clip is left unfilled.
+        var pad = (rw + rh);
+        ctx.fillStyle = pattern;
+        ctx.fillRect(rx - pad, ry - pad, rw + pad * 2, rh + pad * 2);
+
+        ctx.restore();
+    }
+}
+
 function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
@@ -57,6 +114,10 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var pattern = ctx.createPattern(tile, "repeat");
     ctx.fillStyle = pattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1b. Bend the pattern at the lapel roll and sleeve cylinders — see
+    // applyClothDisplacement above for why only these regions move.
+    applyClothDisplacement(ctx, canvas, pattern, garmentKey);
 
     // 2. Multiply the drape over it.
     ctx.globalCompositeOperation = "multiply";

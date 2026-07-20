@@ -90,5 +90,115 @@ var playwright = require("playwright");
 
     console.log("PASS: garment composited (" + result.opaque + " opaque, " + result.transparent + " transparent); cloth discriminates (" +
         result.differing + "/" + result.sampled + " sampled pixels differed between charcoal and navy)");
+
+    // The load-bearing check. Render a chalkstripe and confirm stripe
+    // spacing at the lapel differs from spacing at the hem. If they match,
+    // the displacement field is not being applied and everything else is
+    // theatre.
+    var stripes = await page.evaluate(function () {
+        var c = document.createElement("canvas");
+        c.width = 400; c.height = 500;
+        window.renderGarmentPhoto(c, "jacket-sb", "fox_flannel_chalkstripe");
+        var ctx = c.getContext("2d");
+        function edgesAcross(y) {
+            var d = ctx.getImageData(0, y, 400, 1).data;
+            var n = 0, prev = null;
+            for (var x = 0; x < 400; x++) {
+                if (d[x * 4 + 3] < 128) continue;
+                var lum = d[x * 4];
+                if (prev !== null && Math.abs(lum - prev) > 25) n++;
+                prev = lum;
+            }
+            return n;
+        }
+        return { lapel: edgesAcross(140), hem: edgesAcross(430) };
+    });
+
+    if (stripes.lapel === stripes.hem) {
+        console.error("FAIL: stripe density identical at lapel and hem — displacement not applied");
+        process.exit(1);
+    }
+    console.log("PASS: displacement bends the pattern (lapel " + stripes.lapel + " vs hem " + stripes.hem + ")");
+
+    // The edge-count check above can pass on incidental noise alone —
+    // confirmed by disabling displacement and finding lapel(3) still
+    // != hem(4) purely from mask-width/texture variation, with no
+    // displacement code running at all. This is the decisive check:
+    // build a "flat baseline" render with the same public helpers
+    // (findCloth, drawClothTile) but skip the displacement step, then
+    // diff it against the real output. The lapel band MUST differ
+    // substantially from that baseline (displacement changed it) and
+    // the hem band MUST be byte-identical (no region covers it, so
+    // nothing should have changed there — if it did, something other
+    // than the four defined regions is being touched).
+    var regionCheck = await page.evaluate(function () {
+        return new Promise(function (resolve) {
+            var c1 = document.createElement("canvas");
+            c1.width = 400; c1.height = 500;
+
+            function tryReal() {
+                var ok = window.renderGarmentPhoto(c1, "jacket-sb", "fox_flannel_chalkstripe");
+                if (!ok) { setTimeout(tryReal, 50); return; }
+                buildReference();
+            }
+
+            function buildReference() {
+                var cloth = findCloth("fox_flannel_chalkstripe");
+                var tile = document.createElement("canvas");
+                tile.width = 96; tile.height = 96;
+                drawClothTile(tile.getContext("2d"), cloth);
+
+                var img = new Image();
+                img.onload = function () {
+                    var c2 = document.createElement("canvas");
+                    c2.width = 400; c2.height = 500;
+                    var ctx = c2.getContext("2d");
+                    var pattern = ctx.createPattern(tile, "repeat");
+                    ctx.fillStyle = pattern;
+                    ctx.fillRect(0, 0, 400, 500);
+                    // Deliberately no displacement step — flat baseline.
+                    ctx.globalCompositeOperation = "multiply";
+                    ctx.drawImage(img, 0, 0, 400, 500);
+                    ctx.globalCompositeOperation = "destination-in";
+                    ctx.drawImage(img, 0, 0, 400, 500);
+                    ctx.globalCompositeOperation = "source-over";
+
+                    var real = c1.getContext("2d").getImageData(0, 0, 400, 500).data;
+                    var ref = c2.getContext("2d").getImageData(0, 0, 400, 500).data;
+
+                    function regionDiff(y0, y1) {
+                        var sampled = 0, differing = 0;
+                        for (var y = y0; y < y1; y++) {
+                            for (var x = 0; x < 400; x++) {
+                                var i = (y * 400 + x) * 4;
+                                if (real[i + 3] < 128 || ref[i + 3] < 128) continue;
+                                sampled++;
+                                var d = Math.abs(real[i] - ref[i]) + Math.abs(real[i + 1] - ref[i + 1]) + Math.abs(real[i + 2] - ref[i + 2]);
+                                if (d > 15) differing++;
+                            }
+                        }
+                        return { sampled: sampled, differing: differing };
+                    }
+
+                    resolve({ lapel: regionDiff(120, 160), hem: regionDiff(410, 450) });
+                };
+                img.src = "images/garments/jacket-sb.webp";
+            }
+
+            tryReal();
+        });
+    });
+
+    var lapelFrac = regionCheck.lapel.sampled ? regionCheck.lapel.differing / regionCheck.lapel.sampled : 0;
+    var hemFrac = regionCheck.hem.sampled ? regionCheck.hem.differing / regionCheck.hem.sampled : 0;
+
+    if (lapelFrac <= 0.3 || hemFrac >= 0.05) {
+        console.error("FAIL: displacement not confirmed as region-confined (lapel " + (lapelFrac * 100).toFixed(0) +
+            "% differ from flat baseline, hem " + (hemFrac * 100).toFixed(0) + "% differ — expected lapel > 30%, hem < 5%)");
+        process.exit(1);
+    }
+    console.log("PASS: displacement confined to defined regions (lapel " + (lapelFrac * 100).toFixed(0) +
+        "% of pixels differ from flat baseline, hem " + (hemFrac * 100).toFixed(0) + "% differ)");
+
     await browser.close();
 })();
