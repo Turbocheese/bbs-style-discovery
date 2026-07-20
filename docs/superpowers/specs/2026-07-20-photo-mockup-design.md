@@ -36,8 +36,23 @@ compositing model is not new work; the inputs to it are.
 
 ## Scope
 
-**House cut only.** Five photographs, already generated and in
-`images/styleBuilder/`:
+`VIS_ENS_STYLE_OPTIONS` carries **56 combinations** (jacket 2×2×3, waistcoat
+2×2×2, trousers 3×3×2×2). The founder confirms all 56 are genuinely offered, so
+cutting the matrix to fit the available photography was rejected — it would have
+deleted roughly 90% of the Cloth Room's configurability to save asset work.
+
+The resolution is that **most options are not silhouette changes**:
+
+| Kind | Options | Treatment |
+|---|---|---|
+| Local surface detail | jacket pockets, jacket lapel notch/peak, waistcoat hem, trouser waistband, trouser turn-up | hand-authored overlay composited onto the photo |
+| Genuine silhouette | jacket closure, waistcoat closure, waistcoat shawl, trouser pleats, trouser taper | own photograph |
+
+That is **12 photographs**, not 5 and not 56.
+
+### The twelve
+
+Five exist in `images/styleBuilder/` (generated 20 July):
 
 | Garment | File (to be renamed) | Confirmed details |
 |---|---|---|
@@ -47,14 +62,40 @@ compositing model is not new work; the inputs to it are.
 | Pleated trousers | `…788cczn1bs…jpeg` | double forward pleat, side adjusters, turn-up, no belt loops |
 | Flat-front trousers | `…wjzaqxyajx…jpeg` | flat front, plain hem, no belt loops |
 
-Style options that change a silhouette (SB↔DB, pleat↔flat, turn-up↔plain) resolve to
-one of these five photographs. Options with no photograph are removed from
-`VIS_ENS_STYLE_OPTIONS`, not silently ignored.
+Seven remain to be generated:
+
+| # | Garment | Configuration |
+|---|---|---|
+| 6 | Waistcoat | SB, shawl lapel |
+| 7 | Waistcoat | DB, no lapel |
+| 8 | Waistcoat | DB, shawl lapel |
+| 9 | Trousers | double pleat, tapered |
+| 10 | Trousers | single pleat, classic leg |
+| 11 | Trousers | single pleat, tapered |
+| 12 | Trousers | flat front, classic leg |
+
+The two existing trouser photographs are read as **double pleat / classic leg**
+(the full wide pair) and **flat front / tapered** (the narrower pair).
+
+**No option is removed from the UI.** Every one of the 56 combinations resolves to
+a photograph plus zero or more overlays. An option that renders nothing is the
+failure mode this project has hit repeatedly — the turn-up option shipped selected
+but drawing nothing, and the test asserted `aria-pressed` rather than output.
 
 ## Non-goals
 
-- Per-option photography (rejected: 40–60 assets, and any mismatch in pose or light
-  makes the garment jump when an option is toggled).
+- Per-combination photography (rejected: 56 assets, and any mismatch in pose or
+  light makes the garment jump when an option is toggled).
+- **Forward vs reverse pleats.** The founder offers both; `VIS_ENS_STYLE_OPTIONS`
+  has no direction dimension at all. A genuine gap, but adding it here widens the
+  work mid-flight. Next spec — and it is overlay work, not photography.
+- **Safari, chore and teba jackets.** Offered by the studio, absent from the tool.
+  New garment types rather than options on existing ones; each needs its own
+  silhouette, mask and overlay set. Separate spec.
+- **Belt loops.** The founder states all trousers carry an extended tab. The
+  `waistband` group offers loops / adjusters / tab, so `loops` may be untrue rather
+  than merely unphotographed. Confirm before building its overlay; if untrue,
+  delete it for being wrong, not for being hard.
 - Replacing the drawn silhouettes elsewhere in the app. The guide's flip cards and
   the Split keep using cloth tiles.
 - Tinting buttons to the selected cloth. **Buttons stay horn-brown** — decided
