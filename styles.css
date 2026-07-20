@@ -6873,12 +6873,34 @@ button {
     transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease !important;
 }
 
-    button:hover {
+    /* The app's default chrome button: hover inverts to the accent.
+       
+       This is a BARE element+pseudo-class selector (0,1,1), so it
+       outranks any single class (0,1,0) — even one using !important.
+       Every button-shaped thing that is not chrome inherits it: the
+       look cards, the provenance tape markers, the globe labels, the
+       split's side selectors and the gallery toggle each turned into a
+       black box under the pointer before being patched individually.
+       
+       New non-chrome buttons should carry .btn-bare rather than
+       rediscovering this. Existing components keep their own explicit
+       overrides, which still work. */
+    button:hover:not(.btn-bare) {
         background: var(--accent) !important;
         color: #f4f0e8 !important;
         border-color: var(--accent) !important;
         box-shadow: none !important;
         transform: none !important;
+    }
+
+    /* Opt out of the chrome look entirely: no invert, no restyle on
+       hover. For buttons that are cards, pins, labels or swatches. */
+    .btn-bare:hover {
+        background: inherit;
+        color: inherit;
+        border-color: inherit;
+        box-shadow: none;
+        transform: none;
     }
 
     button:active:not(.fab):not(.toggle-discovery) {
@@ -10997,26 +11019,15 @@ textarea:focus-visible,
     box-shadow: 0 -2px 24px rgba(17, 17, 16, 0.06);
 }
 
-/* The result page's next steps: genuinely sequential, and nobody is
-   scanning them, so stacking is the low-risk use of this pattern. */
-.arch-explore-stack {
-    display: flex !important;
-    flex-direction: column;
-    gap: 14px;
-    padding-bottom: 30vh;
-}
-
-.arch-explore-stack .arch-explore-card {
-    position: sticky;
-    top: 20px;
-    background: var(--surface) !important;
-    border: 1px solid var(--line-strong) !important;
-    box-shadow: 0 -2px 20px rgba(17, 17, 16, 0.05);
-}
+/* The result page's next steps were stacked too, and it was removed:
+   four cards of 96-116px total 772px inside a 1080px viewport, so the
+   page never scrolls past one and nothing ever pins. Sticky stacking
+   needs content taller than the screen; this content is not, and no
+   amount of styling changes that. The Gallery keeps it because 24 full
+   archetype cards genuinely overflow. */
 
 /* Sticky positioning still works with reduced motion — nothing here
    animates — but the shadow implies depth, so soften it. */
 @media (prefers-reduced-motion: reduce) {
-    .gallery-stack .gallery-card,
-    .arch-explore-stack .arch-explore-card { box-shadow: none; }
+    .gallery-stack .gallery-card { box-shadow: none; }
 }

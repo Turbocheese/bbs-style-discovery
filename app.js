@@ -4609,7 +4609,7 @@ function renderResult() {
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
             '<p class="arch-explore-intro-text">These areas of the guide are most aligned with your style direction.</p>' +
-            '<div class="arch-explore-grid arch-explore-stack">' + linksHTML + "</div>" +
+            '<div class="arch-explore-grid">' + linksHTML + "</div>" +
             "</div>"
             : "") +
         '<div class="arch-result-footer">' +

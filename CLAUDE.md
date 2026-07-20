@@ -43,6 +43,8 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 
 Do not reorder. Do not move the validation runner.
 
+**The `button:hover` trap.** `styles.css` restyles every `button` as a chrome pill and inverts it on hover with `background: var(--accent) !important`. That selector is `button:hover` — element + pseudo-class (0,1,1) — so it **outranks any single class (0,1,0), including one with `!important`**. Five components have hit this: the Complete-the-Look cards, the provenance tape markers, the globe country labels, the split's side selectors and the gallery view toggle, each turning into an unreadable black box under the pointer. On a touch-first app a tap can leave a sticky hover, so this is a real fault and not desktop cosmetics. **A button that is a card, pin, label or swatch should carry `.btn-bare`**, which opts out. Otherwise you will find it the hard way.
+
 **Cache busting:** `app.js` is loaded as `app.js?v=N` and `styles.css` as
 `styles.css?v=N`. When you change either file, bump its `N` in index.html AND
 update the matching `?v=` entries + `CACHE_VERSION` in `sw.js` — the service
