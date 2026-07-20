@@ -138,3 +138,116 @@ module.exports = {
     LUMA_FLOOR: LUMA_FLOOR,
     LUMA_CEIL: LUMA_CEIL
 };
+
+// --- CLI: build images/garments/<key>.webp from source photographs -------
+//
+// Not exercised by tools/test-build-garment-assets.js (that file only
+// touches the pure functions above). Guarded behind require.main so
+// requiring this module for its pure functions never pulls in sharp or
+// touches the filesystem.
+if (require.main === module) {
+    var sharp = require("sharp");
+    var fs = require("fs");
+    var path = require("path");
+
+    // Source photograph → output key. Filenames are the Replicate prediction
+    // IDs as delivered; renaming them in place would break the git history
+    // that records which prompt produced which image.
+    // All paths are relative to images/styleBuilder/. Each was visually
+    // identified against the prompt that produced it.
+    var SOURCES = {
+        "jacket-sb": "replicate-prediction-n6bvdyx5p9rmr0czfph8bqrm1w.jpeg",
+        "jacket-db": "replicate-prediction-sc2p8y639xrmt0czfphsvsajsg.jpeg",
+        "vest-sb-none": "replicate-prediction-vac0q9x4w1rmy0czfpj92gvmn4.jpeg",
+        "vest-sb-shawl": "replicate-prediction-013bpexxvxrmw0czfpts5d2n4m.jpeg",
+        "vest-db-none": "replicate-prediction-552s4wn6chrmy0czfpv8051rsr.jpeg",
+        "vest-db-shawl": "replicate-prediction-fw1webnjdnrmt0czfpvsnzrs2w.jpeg",
+        "trousers-double-classic": "replicate-prediction-788cczn1bsrmr0czfpk9n2ecrc.jpeg",
+        "trousers-flat-tapered": "replicate-prediction-wjzaqxyajxrmw0czfpm8k2xkj0.jpeg",
+        "trousers-flat-classic": "replicate-prediction-01dc0g3cv5rmt0czfpyvsn7ym4.jpeg",
+        "trousers-single-tapered": "replicate-prediction-86v2dh5mynrmr0czfpxba8g1gc.jpeg"
+        // Still to be generated: trousers-double-tapered,
+        // trousers-single-classic. The build MUST skip any key whose source
+        // file is absent and report it by name rather than failing — the
+        // remaining two arrive later and must not block the other ten.
+    };
+
+    var MAX_EDGE = 800; // Renders at most ~600px in app; 800 leaves headroom.
+
+    var SRC_DIR = path.join(__dirname, "..", "images", "styleBuilder");
+    var OUT_DIR = path.join(__dirname, "..", "images", "garments");
+    var QUALITY = 82;
+
+    function buildOne(key, filename) {
+        var srcPath = path.join(SRC_DIR, filename);
+        if (!fs.existsSync(srcPath)) {
+            console.log("SKIP (no source): " + key + " -- " + filename);
+            return Promise.resolve(null);
+        }
+
+        return sharp(srcPath)
+            .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true })
+            .ensureAlpha()
+            .raw()
+            .toBuffer({ resolveWithObject: true })
+            .then(function (result) {
+                var data = result.data, info = result.info;
+                var w = info.width, h = info.height;
+                var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
+
+                var mask = extractMask(px, w, h);
+                mask = erodeMask(mask, w, h, 2);
+                var lum = normaliseLuminance(px, mask, w, h);
+
+                var out = Buffer.alloc(w * h * 4);
+                for (var i = 0; i < w * h; i++) {
+                    out[i * 4] = lum[i];
+                    out[i * 4 + 1] = lum[i];
+                    out[i * 4 + 2] = lum[i];
+                    out[i * 4 + 3] = mask[i];
+                }
+
+                var outPath = path.join(OUT_DIR, key + ".webp");
+                return sharp(out, { raw: { width: w, height: h, channels: 4 } })
+                    .webp({ quality: QUALITY })
+                    .toFile(outPath)
+                    .then(function () {
+                        var size = fs.statSync(outPath).size;
+                        console.log(
+                            "WROTE " + key + ".webp  " + w + "x" + h + "  " +
+                            (size / 1024).toFixed(1) + " KB"
+                        );
+                        return size;
+                    });
+            });
+    }
+
+    (function main() {
+        if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+
+        var keys = Object.keys(SOURCES);
+        var written = 0, skipped = 0, total = 0;
+
+        keys.reduce(function (chain, key) {
+            return chain.then(function () {
+                return buildOne(key, SOURCES[key]).then(function (size) {
+                    if (size === null) { skipped++; }
+                    else { written++; total += size; }
+                });
+            });
+        }, Promise.resolve()).then(function () {
+            console.log("---");
+            console.log(written + " written, " + skipped + " skipped");
+            console.log("TOTAL ASSET SIZE: " + (total / 1048576).toFixed(2) + " MB");
+            if (total > 8 * 1048576) {
+                console.log(
+                    "WARNING: total asset size exceeds 8 MB " +
+                    "(founder-accepted quality-first budget, but flagged as required)."
+                );
+            }
+        }).catch(function (err) {
+            console.error(err);
+            process.exit(1);
+        });
+    })();
+}
