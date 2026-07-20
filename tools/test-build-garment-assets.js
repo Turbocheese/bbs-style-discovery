@@ -102,6 +102,48 @@ assert.strictEqual(
 
 console.log("PASS: sweepShadow documented limitation (light silhouette edge erased)");
 
+// --- keepLargestComponent: detached shadow islands must not survive -----
+//
+// sweepShadow floods outward from cleared background through neighbours
+// with luma >= SHADOW_MIN_LUMA. A soft cast shadow's luma dips toward the
+// object, so if it drops below the threshold anywhere along the path from
+// background to the true garment edge, the flood halts there — pixels
+// beyond that point (further shadow, disconnected from both the cleared
+// background AND the garment) are never reached and stay masked IN as if
+// they were garment. This is a topology problem, not a threshold problem:
+// a real garment is one connected object, so a same-mask blob that isn't
+// connected to the main silhouette can only be shadow debris.
+//
+// 9x7 mask (no pixel data needed — this operates directly on a mask that
+// already has two disconnected 255 regions): a 3x3 main "garment" block
+// and a separate 1x2 "shadow" blob elsewhere, with zeroed pixels forming
+// a gap between them so they share no 4-connected edge.
+function twoIslandMask() {
+    var w = 9, h = 7;
+    var mask = new Uint8Array(w * h);
+    function set(x, y) { mask[y * w + x] = 255; }
+
+    // Main region: 3x3 block, 9 pixels.
+    for (var y = 2; y <= 4; y++) for (var x = 1; x <= 3; x++) set(x, y);
+
+    // Detached blob: 2 pixels, far from the main block on all sides
+    // (4-connectivity) — not just diagonally adjacent.
+    set(7, 0);
+    set(8, 0);
+
+    return { mask: mask, w: w, h: h };
+}
+
+var ti = twoIslandMask();
+var kept = b.keepLargestComponent(ti.mask, ti.w, ti.h);
+
+assert.strictEqual(kept[2 * ti.w + 2], 255, "main garment region survives");
+assert.strictEqual(kept[3 * ti.w + 1], 255, "main garment region survives (edge pixel)");
+assert.strictEqual(kept[0 * ti.w + 7], 0, "detached shadow blob is discarded");
+assert.strictEqual(kept[0 * ti.w + 8], 0, "detached shadow blob is discarded (second pixel)");
+
+console.log("PASS: keepLargestComponent (detached island discarded, main region kept)");
+
 // 5x5, all garment. One pass of erosion should clear the border ring
 // and leave only the 3x3 core.
 var solid = new Uint8Array(25);

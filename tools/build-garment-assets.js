@@ -38,7 +38,15 @@ function extractMask(px, w, h) {
     // garment and connected to the outside is ground, not cloth.
     var mask = new Uint8Array(w * h);
     for (i = 0; i < w * h; i++) mask[i] = outside[i] ? 0 : 255;
-    return sweepShadow(mask, px, w, h);
+    mask = sweepShadow(mask, px, w, h);
+
+    // sweepShadow's flood halts wherever the shadow dips below
+    // SHADOW_MIN_LUMA on its way in from the background, so a soft cast
+    // shadow can leave a patch beyond that point stranded, masked in as
+    // if it were garment even though it never touches the true silhouette.
+    // A garment is one connected object; keep only the largest connected
+    // region and drop every other island as shadow debris.
+    return keepLargestComponent(mask, w, h);
 }
 
 // Second pass over the pixels the fill could not enter. A cast shadow is
@@ -78,6 +86,55 @@ function sweepShadow(mask, px, w, h) {
         if (y < h - 1) stack.push(i + w);
     }
     return mask;
+}
+
+// A garment is a single connected object. sweepShadow can leave a detached
+// blob of shadow stranded (masked in) beyond a point where the shadow's
+// luma dipped below SHADOW_MIN_LUMA and blocked the flood from reaching
+// it. That blob shares no 4-connected path to the true silhouette, so
+// label every connected region of the mask and keep only the largest —
+// everything else is debris, not cloth. Same 4-connectivity as the flood
+// fills above.
+function keepLargestComponent(mask, w, h) {
+    var n = w * h;
+    var labels = new Int32Array(n);
+    var i, x, y, j;
+    for (i = 0; i < n; i++) labels[i] = -1;
+
+    var sizes = [];
+    var stack = [];
+    var label = 0;
+
+    for (i = 0; i < n; i++) {
+        if (mask[i] === 0 || labels[i] !== -1) continue;
+        stack.push(i);
+        labels[i] = label;
+        var count = 0;
+        while (stack.length) {
+            j = stack.pop();
+            count++;
+            x = j % w; y = (j / w) | 0;
+            if (x > 0 && mask[j - 1] !== 0 && labels[j - 1] === -1) { labels[j - 1] = label; stack.push(j - 1); }
+            if (x < w - 1 && mask[j + 1] !== 0 && labels[j + 1] === -1) { labels[j + 1] = label; stack.push(j + 1); }
+            if (y > 0 && mask[j - w] !== 0 && labels[j - w] === -1) { labels[j - w] = label; stack.push(j - w); }
+            if (y < h - 1 && mask[j + w] !== 0 && labels[j + w] === -1) { labels[j + w] = label; stack.push(j + w); }
+        }
+        sizes.push(count);
+        label++;
+    }
+
+    var out = new Uint8Array(n);
+    if (label === 0) return out; // nothing masked in at all
+
+    var bestLabel = 0, bestSize = sizes[0];
+    for (i = 1; i < sizes.length; i++) {
+        if (sizes[i] > bestSize) { bestSize = sizes[i]; bestLabel = i; }
+    }
+
+    for (i = 0; i < n; i++) {
+        out[i] = (labels[i] === bestLabel) ? mask[i] : 0;
+    }
+    return out;
 }
 
 function luma(px, i) {
@@ -133,6 +190,7 @@ function erodeMask(mask, w, h, passes) {
 module.exports = {
     extractMask: extractMask,
     luma: luma,
+    keepLargestComponent: keepLargestComponent,
     erodeMask: erodeMask,
     normaliseLuminance: normaliseLuminance,
     LUMA_FLOOR: LUMA_FLOOR,
