@@ -99,6 +99,35 @@ function buildFeatherMask(width, height, feather) {
     return mask;
 }
 
+// buildFeatherMask's output depends only on the offscreen region's
+// dimensions and the feather width, not on the selected cloth. The Cloth
+// Room re-renders on every one of 102 possible cloth swaps, and without
+// this cache each render rebuilt all four jacket-sb masks from scratch
+// (two gradient fills + a destination-in composite apiece) for a result
+// that is byte-identical to the previous render. Cache by the same
+// dimensions that determine the output; unbounded is fine here since the
+// key space is bounded by the small, fixed set of displacement regions.
+var featherMaskCache = {};
+
+// Exposed purely so verification tooling can confirm the cache is doing
+// its job (build count should stop growing after the first render of a
+// given garment/canvas size). Not read anywhere in the render path.
+var featherMaskCacheStats = { built: 0, hits: 0 };
+window.featherMaskCacheStats = featherMaskCacheStats;
+
+function getFeatherMask(width, height, feather) {
+    var key = width + "x" + height + "x" + feather;
+    var cached = featherMaskCache[key];
+    if (cached) {
+        featherMaskCacheStats.hits++;
+        return cached;
+    }
+    featherMaskCacheStats.built++;
+    var mask = buildFeatherMask(width, height, feather);
+    featherMaskCache[key] = mask;
+    return mask;
+}
+
 // Redraws the cloth pattern inside each of the garment's curvature
 // regions with a rotation and a horizontal-only scale applied to the
 // pattern's transform, so straight stripes/checks bend the way they
@@ -163,7 +192,7 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
         // the flat cloth already on the main canvas. Partial alpha in
         // the feather band blends displaced and flat pixels; full alpha
         // in the interior reproduces the original hard-edged bend.
-        var mask = buildFeatherMask(offW, offH, feather);
+        var mask = getFeatherMask(offW, offH, feather);
         octx.globalCompositeOperation = "destination-in";
         octx.drawImage(mask, 0, 0);
 
