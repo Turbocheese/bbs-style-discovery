@@ -101,3 +101,16 @@ assert.strictEqual(
 );
 
 console.log("PASS: sweepShadow documented limitation (light silhouette edge erased)");
+
+// 5x5, all garment. One pass of erosion should clear the border ring
+// and leave only the 3x3 core.
+var solid = new Uint8Array(25);
+for (var i = 0; i < 25; i++) solid[i] = 255;
+var eroded = b.erodeMask(solid, 5, 5, 1);
+
+assert.strictEqual(eroded[2 * 5 + 2], 255, "centre survives erosion");
+assert.strictEqual(eroded[0 * 5 + 2], 0, "top edge is eroded away");
+assert.strictEqual(eroded[2 * 5 + 0], 0, "left edge is eroded away");
+assert.strictEqual(eroded[1 * 5 + 1], 255, "inset ring survives one pass");
+
+console.log("PASS: erodeMask");

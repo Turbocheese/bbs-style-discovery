@@ -84,4 +84,24 @@ function luma(px, i) {
     return 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
 }
 
-module.exports = { extractMask: extractMask, luma: luma };
+// Garment edges are soft against the white ground. Without erosion a
+// pale fringe of near-background pixels stays inside the silhouette and
+// reads as a halo once cloth is multiplied through it.
+function erodeMask(mask, w, h, passes) {
+    var cur = mask;
+    for (var p = 0; p < passes; p++) {
+        var next = new Uint8Array(w * h);
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+                var i = y * w + x;
+                if (!cur[i]) continue;
+                if (x === 0 || y === 0 || x === w - 1 || y === h - 1) continue;
+                if (cur[i - 1] && cur[i + 1] && cur[i - w] && cur[i + w]) next[i] = 255;
+            }
+        }
+        cur = next;
+    }
+    return cur;
+}
+
+module.exports = { extractMask: extractMask, luma: luma, erodeMask: erodeMask };
