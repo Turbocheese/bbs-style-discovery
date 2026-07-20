@@ -4,35 +4,7 @@
 // luminance threshold, because every source photograph has a soft cast
 // shadow on the white ground. A threshold reads that shadow as garment
 // and drags a grey halo into the silhouette.
-//
-// BACKGROUND_TOLERANCE was measured against the SB jacket source photo
-// (tools/measure-halo*.js, not shipped) by profiling raw luma on straight
-// lines perpendicular to the silhouette edge and in the garment interior:
-//   - Genuine cloth interior (mid-grey wool, far from any edge): mean luma
-//     90.5; 99% of interior pixels are <=~158; 99.9% are <=~180; the
-//     brightest single pixels found (rare specular highlights, e.g. a
-//     button) reach ~204.
-//   - The cast-shadow halo hugging the silhouette: commonly luma 150-200
-//     for 3-6px inward from the edge, and much wider (20-30px) under the
-//     jacket hem where the shadow pools on the ground.
-// The previous tolerance (18 -> background threshold 237) left this whole
-// band untouched by the *first* flood pass; sweepShadow's separate, fixed
-// SHADOW_MIN_LUMA=200 cutoff was doing all the real work below that, which
-// is why the halo persisted -- 200 sits inside the halo's own luma range,
-// not above it. Raising tolerance only starts helping once the resulting
-// background threshold (255 - tolerance) drops below 200, since sweepShadow
-// already dominates above that.
-// Tolerance=110 (threshold=145) was the smallest value found where the
-// halo's run-length off the edge collapses to ~0px pre-erosion (measured
-// across every row of the SB jacket, left edge and hem) while total mask
-// retention stayed high (95.2% of the pixel count at the old tolerance).
-// Margin: 145 sits below the rare specular-highlight tail (up to 204) and
-// below the 99.9th-percentile bulk ceiling (~180), but clearly above the
-// median/typical cloth tone (mean 90) -- the same kind of "above the bulk,
-// not above every literal outlier pixel" trade-off the code already made
-// with SHADOW_MIN_LUMA=200, just carried far enough to actually clear the
-// halo, which that fixed 200 cutoff never did on its own.
-var BACKGROUND_TOLERANCE = 110;
+var BACKGROUND_TOLERANCE = 18;
 
 function isBackgroundish(px, i) {
     return px[i * 4] >= 255 - BACKGROUND_TOLERANCE &&
@@ -282,14 +254,6 @@ if (require.main === module) {
                 var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
 
                 var mask = extractMask(px, w, h);
-                // 2 passes: BACKGROUND_TOLERANCE now does the heavy lifting
-                // on the cast-shadow halo (see its comment above); these
-                // passes clean up the small residual plus normal anti-
-                // aliased edge fringe. Measured on the SB jacket: at
-                // tolerance=110, the halo's run-length off the edge is
-                // already ~0px pre-erosion, so this is residual cleanup,
-                // not the primary fix -- kept low because erosion shrinks
-                // the true silhouette too (fine hardware, thin cuffs).
                 mask = erodeMask(mask, w, h, 2);
                 var lum = normaliseLuminance(px, mask, w, h);
 
