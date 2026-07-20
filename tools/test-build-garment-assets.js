@@ -114,3 +114,50 @@ assert.strictEqual(eroded[2 * 5 + 0], 0, "left edge is eroded away");
 assert.strictEqual(eroded[1 * 5 + 1], 255, "inset ring survives one pass");
 
 console.log("PASS: erodeMask");
+
+// --- Multi-pass erosion verification (production uses passes=2) -----------
+//
+// 7x7 all-garment fixture to verify that multi-pass erosion behaves correctly.
+// Production code calls erodeMask with 2 passes, but the original test only
+// covered 1 pass. This test proves that 2 passes erode strictly more than 1.
+//
+// After 1 pass on 7x7 all-255: outer ring (the frame) clears, leaving a 5x5
+// core of 255s at positions (1,1) through (5,5).
+//
+// After 2 passes: the second pass erodes the 5x5 core by one more pixel on
+// each side, leaving only a 3x3 core at positions (2,2) through (4,4).
+var solid7x7 = new Uint8Array(49);
+for (var i = 0; i < 49; i++) solid7x7[i] = 255;
+
+var eroded1pass = b.erodeMask(solid7x7, 7, 7, 1);
+var eroded2pass = b.erodeMask(solid7x7, 7, 7, 2);
+
+assert.strictEqual(
+    eroded1pass[1 * 7 + 1],
+    255,
+    "pixel (1,1) survives 1 pass (inset from border)"
+);
+assert.strictEqual(
+    eroded2pass[1 * 7 + 1],
+    0,
+    "pixel (1,1) does NOT survive 2 passes (eroded away in second pass)"
+);
+assert.strictEqual(
+    eroded2pass[3 * 7 + 3],
+    255,
+    "centre pixel (3,3) survives 2 passes (deep enough)"
+);
+
+// Count surviving (non-zero) pixels to prove 2 passes erodes more than 1.
+var count1pass = 0, count2pass = 0;
+for (var j = 0; j < 49; j++) {
+    if (eroded1pass[j]) count1pass++;
+    if (eroded2pass[j]) count2pass++;
+}
+assert(count2pass < count1pass,
+    "2 passes erodes more pixels than 1 pass: " +
+    count1pass + " pixels after 1 pass, " +
+    count2pass + " pixels after 2 passes"
+);
+
+console.log("PASS: erodeMask (multi-pass, passes=2)");
