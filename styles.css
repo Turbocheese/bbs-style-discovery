@@ -10456,14 +10456,64 @@ textarea:focus-visible,
     position: relative;
 }
 
-.welcome-tape {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    display: block;
+/* ============================================
+   HERITAGE TICKERS — derived count-ups (heritage.js)
+   Tabular numerals keep the width fixed so the count-up doesn't jitter.
+   ============================================ */
+.heritage-strip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(18px, 5vw, 48px);
+    margin: 22px auto 6px;
+    padding: 4px 0;
+    max-width: 640px;
+    flex-wrap: nowrap;
+}
+.heritage-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+.heritage-num {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: clamp(2rem, 7vw, 3.1rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: #1c1a15;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+}
+.heritage-label {
+    margin-top: 7px;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #1c1a15;
+    opacity: 0.72;
+}
+.heritage-caption {
+    margin-top: 3px;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: #8a6d43;
+    opacity: 0.9;
+}
+.heritage-div {
+    align-self: center;
+    width: 1px;
+    height: 34px;
+    background: #1c1a15;
+    opacity: 0.14;
+    flex: 0 0 auto;
+}
+@media (max-width: 380px) {
+    .heritage-caption { display: none; }
+    .heritage-strip { gap: clamp(12px, 4vw, 22px); }
 }
 
 /* ============================================

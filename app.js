@@ -3644,12 +3644,6 @@ function swapWelcomePortrait(el) {
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
-        // Tape blades drifting behind everything. 21st.dev's Background
-        // Paths idea, but carrying the house motif rather than generic
-        // lines — the tape measure already runs through quiz progress
-        // and the loading interstitial. Held at very low contrast: the
-        // portrait and the type are the content, this is only air.
-        '<canvas class="welcome-tape" id="welcome-tape" aria-hidden="true"></canvas>' +
         BBS_LOGO +
         getWelcomePortrait() +
         '<div class="welcome-content-block">' +
@@ -3760,6 +3754,8 @@ function renderHome() {
             : "A bespoke discovery experience built around how you dress.") +
         "</p>" +
         "</div>" +
+        // Heritage tickers — the house scale, counted up on reveal.
+        (typeof renderHeritageStrip === "function" ? renderHeritageStrip("home") : "") +
                 // --- Begin: the two quizzes ---------------------------------
         // Style Direction is the primary action, so it is a full-width
         // hero carrying a real archetype figure rather than a fourth
@@ -5738,77 +5734,6 @@ function renderArchetypeDetail(archetype, index) {
 // floor. Frozen entirely under prefers-reduced-motion.
 // ============================================
 
-var _tapeRAF = null;
-
-function startWelcomeTape() {
-    if (_tapeRAF) { cancelAnimationFrame(_tapeRAF); _tapeRAF = null; }
-    var cv = document.getElementById("welcome-tape");
-    if (!cv || !cv.getContext) return;
-
-    var ctx = cv.getContext("2d");
-    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var w = 0, h = 0;
-
-    function size() {
-        var r = cv.getBoundingClientRect();
-        if (!r.width || !r.height) return false;
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
-        cv.width = Math.round(r.width * dpr);
-        cv.height = Math.round(r.height * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        w = r.width; h = r.height;
-        return true;
-    }
-    if (!size()) return;
-
-    var t = 0;
-    // Roughly doubled from the first pass: present enough to read as a
-    // backdrop rather than a smudge, still well clear of the type.
-    var HAIR = "rgba(17,17,16,0.105)";
-    var TICK = "rgba(17,17,16,0.14)";
-    var MAJOR = "rgba(138,109,67,0.30)";
-
-    function frame() {
-        // The canvas is detached once the view changes; stop rather
-        // than keep drawing into nothing.
-        if (!cv.isConnected) { _tapeRAF = null; return; }
-        ctx.clearRect(0, 0, w, h);
-
-        for (var b = 0; b < 3; b++) {
-            var y = h * (0.2 + b * 0.3);
-            var amp = 14 + b * 6;
-            var drift = (t * (0.25 + b * 0.12)) % 44;
-
-            ctx.strokeStyle = HAIR;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            for (var x = 0; x <= w; x += 6) {
-                var yy = y + Math.sin(x / 210 + t / 260 + b * 1.7) * amp;
-                if (x === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
-            }
-            ctx.stroke();
-
-            for (var x2 = -44 + drift; x2 <= w + 44; x2 += 11) {
-                var yy2 = y + Math.sin(x2 / 210 + t / 260 + b * 1.7) * amp;
-                var major = Math.round((x2 - drift) / 11) % 5 === 0;
-                ctx.strokeStyle = major ? MAJOR : TICK;
-                ctx.lineWidth = major ? 1.2 : 0.9;
-                ctx.beginPath();
-                ctx.moveTo(x2, yy2);
-                ctx.lineTo(x2, yy2 + (major ? 11 : 6));
-                ctx.stroke();
-            }
-        }
-
-        if (reduced) { _tapeRAF = null; return; }
-        t += 1;
-        _tapeRAF = requestAnimationFrame(frame);
-    }
-
-    window.addEventListener("resize", function () { if (cv.isConnected) size(); }, { passive: true });
-    frame();
-}
-
 // ============================================
 // TOPIC FLIP CARD
 //
@@ -5988,7 +5913,6 @@ function render(options) {
         syncFabVisibility();
         applyScrollReveals();
 
-        if (appState.view === "welcome") startWelcomeTape();
 
 
         if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
@@ -5998,6 +5922,7 @@ function render(options) {
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -6017,7 +5942,6 @@ function render(options) {
         syncFabVisibility();
         applyScrollReveals();
 
-        if (appState.view === "welcome") startWelcomeTape();
 
 
         if (appState.view === "mill-map" && typeof startMillGlobe === "function") startMillGlobe();
@@ -6027,6 +5951,7 @@ function render(options) {
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
