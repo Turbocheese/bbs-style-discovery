@@ -1197,10 +1197,9 @@ function getDSTrouserShadingSVG(style) {
 // (toggled by appState.visEnsemble). A full three-piece:
 // jacket, vest, and trousers, each cloth-swappable from
 // the bunch, and each with its own style options — jacket
-// (closure / lapel / pockets), vest (closure / lapel / hem),
-// trousers (front / waistband / hem / taper). Garment art
-// above is parametric SVG, so style combinations need no
-// artwork assets.
+// (closure), vest (closure / lapel), trousers (front /
+// taper). Garment art above is parametric SVG, so style
+// combinations need no artwork assets.
 // ============================================
 
 var VIS_ENS_GARMENTS = ["jacket", "vest", "trousers"];
@@ -1214,21 +1213,22 @@ var VIS_ENS_GARMENTS = ["jacket", "vest", "trousers"];
 // this menu IS a topic in the guide, and before this they were among
 // the entries no client could ever reach without browsing the tree.
 // Linking them makes the guide answer the question the option raises
-// ("what is a jetted pocket?") at the moment it is raised.
+// at the moment it is raised.
+//
+// Task 8 (founder, 21 July): reduced to only the options a garment
+// photograph can distinguish — jacket lapel/pockets and vest/trouser
+// hem and trouser waistband are removed here because no photograph
+// varies with them (or, for the jacket, they are correlated with
+// closure in the photographs and cannot vary independently). Those
+// detail topics remain reachable as their own nodes in the guide, so
+// removing them from this picker orphans nothing. See
+// resolveGarmentKey() in garment-photo.js, which maps what remains
+// straight onto a photograph.
 var VIS_ENS_STYLE_OPTIONS = {
     jacket: {
         closure: [
             { key: "sb", label: "Single Breasted", topic: ["tailoring", "jackets", "styles", "single_breasted_jacket"] },
             { key: "db", label: "Double Breasted", topic: ["tailoring", "jackets", "styles", "double_breasted_jacket"] }
-        ],
-        lapel: [
-            { key: "notch", label: "Notch Lapel", topic: ["tailoring", "jackets", "details", "lapels", "notch_lapel"] },
-            { key: "peak", label: "Peak Lapel", topic: ["tailoring", "jackets", "details", "lapels", "peak_lapel"] }
-        ],
-        pockets: [
-            { key: "flap", label: "Flap Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "flap_pockets"] },
-            { key: "jetted", label: "Jetted Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "jetted_pockets"] },
-            { key: "patch", label: "Patch Pockets", topic: ["tailoring", "jackets", "details", "pocket_styles", "patch_pockets"] }
         ]
     },
     vest: {
@@ -1239,10 +1239,6 @@ var VIS_ENS_STYLE_OPTIONS = {
         lapel: [
             { key: "none", label: "No Lapel", topic: ["tailoring", "vests", "proportion_cut", "opening_depth"] },
             { key: "shawl", label: "Shawl Lapel", topic: ["tailoring", "jackets", "details", "lapels", "shawl_lapel"] }
-        ],
-        hem: [
-            { key: "points", label: "Two Points", topic: ["tailoring", "vests", "proportion_cut", "line_and_balance"] },
-            { key: "straight", label: "Straight Hem", topic: ["tailoring", "vests", "proportion_cut", "buttoning"] }
         ]
     },
     trousers: {
@@ -1250,15 +1246,6 @@ var VIS_ENS_STYLE_OPTIONS = {
             { key: "flat", label: "Flat Front", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] },
             { key: "single", label: "Single Pleat", topic: ["tailoring", "trousers", "configuration", "pleats", "single_pleats"] },
             { key: "double", label: "Double Pleat", topic: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"] }
-        ],
-        waistband: [
-            { key: "loops", label: "Belt Loops", topic: ["tailoring", "trousers", "configuration", "waistbands", "belt_loops"] },
-            { key: "adjusters", label: "Side Adjusters", topic: ["tailoring", "trousers", "configuration", "waistbands", "side_adjusters"] },
-            { key: "tab", label: "Extended Tab", topic: ["tailoring", "trousers", "configuration", "fastening_styles"] }
-        ],
-        hem: [
-            { key: "plain", label: "Plain Hem", topic: ["tailoring", "trousers", "configuration", "break", "slight_break"] },
-            { key: "turnup", label: "Turn-Up", topic: ["tailoring", "trousers", "configuration", "cuffs"] }
         ],
         taper: [
             { key: "tapered", label: "Tapered", topic: ["tailoring", "trousers", "configuration", "leg_shape"] },

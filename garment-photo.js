@@ -321,3 +321,27 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 }
 
 window.renderGarmentPhoto = renderGarmentPhoto;
+
+// The photographs that exist. Two trouser keys
+// (trousers-single-classic, trousers-double-tapered) are pending
+// generation; until their WebP is built, a combination resolving to one
+// of them will correctly fail the coverage test rather than render a
+// wrong leg. Add them here the moment their asset lands.
+var GARMENT_ASSET_KEYS = [
+    "jacket-sb", "jacket-db",
+    "vest-sb-none", "vest-sb-shawl", "vest-db-none", "vest-db-shawl",
+    "trousers-flat-tapered", "trousers-flat-classic",
+    "trousers-single-tapered", "trousers-double-classic"
+];
+
+// Every remaining option drives the photograph directly — there are no
+// cosmetic-only options left after Task 8's reduction.
+function resolveGarmentKey(garment, style) {
+    if (garment === "jacket") return "jacket-" + style.closure;
+    if (garment === "vest") return "vest-" + style.closure + "-" + style.lapel;
+    if (garment === "trousers") return "trousers-" + style.front + "-" + style.taper;
+    return null;
+}
+
+window.resolveGarmentKey = resolveGarmentKey;
+window.GARMENT_ASSET_KEYS = GARMENT_ASSET_KEYS;

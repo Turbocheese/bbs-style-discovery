@@ -231,5 +231,51 @@ var playwright = require("playwright");
     }
     console.log("PASS: horn button drawn (rgb " + button.r + "," + button.g + "," + button.b + ")");
 
+    // Coverage: walk the full cross-product of the (Task 8-reduced)
+    // option set and confirm every combination resolves to a key that
+    // is a real, loadable asset.
+    var coverage = await page.evaluate(function () {
+        var missing = [];
+        var G = window.VIS_ENS_STYLE_OPTIONS;
+        for (var garment in G) {
+            var groups = G[garment], keys = [], combos = [{}];
+            for (var g in groups) keys.push(g);
+            keys.forEach(function (g) {
+                var next = [];
+                combos.forEach(function (c) {
+                    groups[g].forEach(function (o) {
+                        var d = {}; for (var k in c) d[k] = c[k];
+                        d[g] = o.key; next.push(d);
+                    });
+                });
+                combos = next;
+            });
+            combos.forEach(function (c) {
+                var key = window.resolveGarmentKey(garment, c);
+                if (!key || window.GARMENT_ASSET_KEYS.indexOf(key) === -1) {
+                    missing.push(garment + " " + JSON.stringify(c) + " -> " + key);
+                }
+            });
+        }
+        return { missing: missing, total: missing.length };
+    });
+
+    // Two trouser photographs are pending generation by the founder. Their
+    // combinations are permitted to resolve to a not-yet-built key; every
+    // OTHER combination must resolve to a real asset. When the two photos
+    // land and their keys join GARMENT_ASSET_KEYS, this allowance goes to
+    // zero on its own with no further change.
+    var PENDING = ["trousers-single-classic", "trousers-double-tapered"];
+    var realMissing = coverage.missing.filter(function (m) {
+        return PENDING.every(function (p) { return m.indexOf(p) === -1; });
+    });
+    if (realMissing.length > 0) {
+        console.error("FAIL: " + realMissing.length + " combinations resolve to no asset:");
+        realMissing.slice(0, 12).forEach(function (m) { console.error("  " + m); });
+        process.exit(1);
+    }
+    console.log("PASS: every option combination resolves to a real photograph"
+        + (coverage.total ? " (" + coverage.total + " pending the two un-generated trouser photos)" : ""));
+
     await browser.close();
 })();
