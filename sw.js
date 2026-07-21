@@ -6,7 +6,7 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v51";
+var CACHE_VERSION = "bbs-v52";
 
 var PRECACHE = [
     "./",
@@ -113,12 +113,9 @@ var PRECACHE = [
     "./images/garments/jacket-db.webp",
     "./images/garments/vest-sb-none.webp",
     "./images/garments/vest-sb-shawl.webp",
-    "./images/garments/vest-db-none.webp",
-    "./images/garments/vest-db-shawl.webp",
-    "./images/garments/trousers-double-classic.webp",
-    "./images/garments/trousers-flat-tapered.webp",
-    "./images/garments/trousers-flat-classic.webp",
-    "./images/garments/trousers-single-tapered.webp",
+    "./images/garments/trousers-flat.webp",
+    "./images/garments/trousers-double.webp",
+    "./images/garments/trousers-belt.webp",
     "./icon.png",
     "./manifest.json",
 ];

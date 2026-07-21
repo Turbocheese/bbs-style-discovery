@@ -1,9 +1,12 @@
 // Offline preprocessor. Not shipped to the browser.
 //
 // The mask is a flood fill inward from the frame edge rather than a
-// luminance threshold, because every source photograph has a soft cast
-// shadow on the white ground. A threshold reads that shadow as garment
-// and drags a grey halo into the silhouette.
+// luminance threshold: the flood keys on the near-white background and
+// stops at the garment, then connectivity (keepLargestComponent) keeps
+// only the silhouette and drops stray specks. Source photographs are shot
+// on a pure-white ground with no cast shadow — the two trousers that
+// arrived on a tinted ground are white-normalised in preprocessing (see
+// SOURCES) — so there is no cast shadow to sweep.
 var BACKGROUND_TOLERANCE = 18;
 
 function isBackgroundish(px, i) {
@@ -33,68 +36,21 @@ function extractMask(px, w, h) {
         if (y < h - 1) stack.push(i + w);
     }
 
-    // The cast shadow is darker than the tolerance, so the fill stops at
-    // it. Sweep it up: anything not reached that is still lighter than a
-    // garment and connected to the outside is ground, not cloth.
     var mask = new Uint8Array(w * h);
     for (i = 0; i < w * h; i++) mask[i] = outside[i] ? 0 : 255;
-    mask = sweepShadow(mask, px, w, h);
 
-    // sweepShadow's flood halts wherever the shadow dips below
-    // SHADOW_MIN_LUMA on its way in from the background, so a soft cast
-    // shadow can leave a patch beyond that point stranded, masked in as
-    // if it were garment even though it never touches the true silhouette.
     // A garment is one connected object; keep only the largest connected
-    // region and drop every other island as shadow debris.
+    // region and drop every stray island (JPEG speckle, a detached
+    // hardware glint) as debris.
     return keepLargestComponent(mask, w, h);
 }
 
-// Second pass over the pixels the fill could not enter. A cast shadow is
-// still much lighter than mid-grey cloth, so luminance separates them
-// once we already know they touch the background region.
-//
-// KNOWN LIMITATION: this sweep cannot tell a cast shadow from a genuinely
-// light part of the garment. Any silhouette-edge pixel at luma >=
-// SHADOW_MIN_LUMA that is reachable from the background gets erased along
-// with the shadow — light trims, cream linings, or pale hardware sitting
-// on the silhouette edge will be lost. The source photographs are shot
-// against mid-grey cloth specifically so real garment content stays well
-// below this threshold and this trade-off stays safe. Do not "fix" this
-// without changing the photography, or the shadow sweep breaks instead.
-var SHADOW_MIN_LUMA = 200;
-
-function sweepShadow(mask, px, w, h) {
-    var stack = [];
-    var i, x, y;
-    for (i = 0; i < w * h; i++) {
-        if (mask[i] !== 0) continue;
-        x = i % w; y = (i / w) | 0;
-        if (x > 0) stack.push(i - 1);
-        if (x < w - 1) stack.push(i + 1);
-        if (y > 0) stack.push(i - w);
-        if (y < h - 1) stack.push(i + w);
-    }
-    while (stack.length) {
-        i = stack.pop();
-        if (mask[i] === 0) continue;
-        if (luma(px, i) < SHADOW_MIN_LUMA) continue;
-        mask[i] = 0;
-        x = i % w; y = (i / w) | 0;
-        if (x > 0) stack.push(i - 1);
-        if (x < w - 1) stack.push(i + 1);
-        if (y > 0) stack.push(i - w);
-        if (y < h - 1) stack.push(i + w);
-    }
-    return mask;
-}
-
-// A garment is a single connected object. sweepShadow can leave a detached
-// blob of shadow stranded (masked in) beyond a point where the shadow's
-// luma dipped below SHADOW_MIN_LUMA and blocked the flood from reaching
-// it. That blob shares no 4-connected path to the true silhouette, so
-// label every connected region of the mask and keep only the largest —
-// everything else is debris, not cloth. Same 4-connectivity as the flood
-// fills above.
+// A garment is a single connected object. The edge flood can leave a
+// detached blob stranded (masked in) — a speck of JPEG noise or a glint
+// that never got keyed as background. That blob shares no 4-connected
+// path to the true silhouette, so label every connected region of the
+// mask and keep only the largest — everything else is debris, not cloth.
+// Same 4-connectivity as the flood fill above.
 function keepLargestComponent(mask, w, h) {
     var n = w * h;
     var labels = new Int32Array(n);
@@ -213,21 +169,23 @@ if (require.main === module) {
     // that records which prompt produced which image.
     // All paths are relative to images/styleBuilder/. Each was visually
     // identified against the prompt that produced it.
+    // Second-generation photographs (2026-07-21): pure-white ground, black
+    // Bemberg lining baked in, house-cut trousers. trousers-flat and
+    // trousers-belt arrived on a tinted/shadowed ground and are white-
+    // normalised copies (…-white.jpeg); every other source is the raw
+    // generation. Double-breasted vests and the Gurkha trouser are real
+    // products but have no photograph yet, so they are intentionally absent
+    // here and hidden from the configurator until their image lands.
     var SOURCES = {
-        "jacket-sb": "replicate-prediction-n6bvdyx5p9rmr0czfph8bqrm1w.jpeg",
-        "jacket-db": "replicate-prediction-sc2p8y639xrmt0czfphsvsajsg.jpeg",
-        "vest-sb-none": "replicate-prediction-vac0q9x4w1rmy0czfpj92gvmn4.jpeg",
-        "vest-sb-shawl": "replicate-prediction-013bpexxvxrmw0czfpts5d2n4m.jpeg",
-        "vest-db-none": "replicate-prediction-552s4wn6chrmy0czfpv8051rsr.jpeg",
-        "vest-db-shawl": "replicate-prediction-fw1webnjdnrmt0czfpvsnzrs2w.jpeg",
-        "trousers-double-classic": "replicate-prediction-788cczn1bsrmr0czfpk9n2ecrc.jpeg",
-        "trousers-flat-tapered": "replicate-prediction-wjzaqxyajxrmw0czfpm8k2xkj0.jpeg",
-        "trousers-flat-classic": "replicate-prediction-01dc0g3cv5rmt0czfpyvsn7ym4.jpeg",
-        "trousers-single-tapered": "replicate-prediction-86v2dh5mynrmr0czfpxba8g1gc.jpeg"
-        // Still to be generated: trousers-double-tapered,
-        // trousers-single-classic. The build MUST skip any key whose source
-        // file is absent and report it by name rather than failing — the
-        // remaining two arrive later and must not block the other ten.
+        "jacket-sb": "replicate-prediction-z3qrb03brdrmw0czgja8mnrmp4.jpeg",
+        "jacket-db": "replicate-prediction-fwrcgcn33xrmy0czgjavmrrfxg.jpeg",
+        "vest-sb-none": "replicate-prediction-teg047kh8nrmr0czgjbtqq820w.jpeg",
+        "vest-sb-shawl": "replicate-prediction-dxnwnqk7enrmt0czgjca61ysrw.jpeg",
+        "trousers-flat": "replicate-prediction-4f5k730hsdrmy0czgjxs50wad0-white.jpeg",
+        "trousers-double": "replicate-prediction-y3t5wmjtdsrmr0czgk09dhpbq4.jpeg",
+        "trousers-belt": "replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg"
+        // The build MUST skip any key whose source file is absent and report
+        // it by name rather than failing.
     };
 
     var MAX_EDGE = 800; // Renders at most ~600px in app; 800 leaves headroom.
@@ -254,7 +212,7 @@ if (require.main === module) {
                 var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
 
                 var mask = extractMask(px, w, h);
-                mask = erodeMask(mask, w, h, 5);
+                mask = erodeMask(mask, w, h, 1);
                 var lum = normaliseLuminance(px, mask, w, h);
 
                 var out = Buffer.alloc(w * h * 4);

@@ -68,14 +68,14 @@ assert.strictEqual(
 
 console.log("PASS: extractMask (enclosed background-coloured region)");
 
-// --- Documented limitation: light garment on the silhouette edge -----
+// --- Light garment pixel on the silhouette edge is preserved ---------
 //
-// sweepShadow cannot distinguish a cast shadow from a genuinely light
-// part of the garment. A silhouette-edge pixel at luma >= SHADOW_MIN_LUMA
-// (200) that is reachable from the background gets erased along with the
-// shadow. This test does not assert desired behaviour — it pins down the
-// actual, currently-accepted trade-off so a future change to the sweep is
-// visible in a failing test rather than silently shipping.
+// With the shadow sweep removed (sources are shot on a pure-white ground
+// with no cast shadow), a light garment pixel on the silhouette edge is
+// no longer confused with a shadow. As long as it is not itself
+// background-coloured (>= the flood threshold) it is not reachable by the
+// edge flood, so it stays masked IN as garment. This replaces the old
+// "documented limitation" test that pinned down sweepShadow erasing it.
 function lightEdgeFixture() {
     var w = 5, h = 5, px = new Uint8Array(w * h * 4);
     for (var i = 0; i < w * h; i++) {
@@ -86,7 +86,7 @@ function lightEdgeFixture() {
         px[o] = v; px[o + 1] = v; px[o + 2] = v;
     }
     for (var y = 1; y <= 3; y++) for (var x = 1; x <= 3; x++) set(x, y, 120);
-    set(2, 1, 210); // light trim on the top edge of the garment, luma 210 >= 200
+    set(2, 1, 210); // light highlight on the top edge of the garment, luma 210
     return { px: px, w: w, h: h };
 }
 
@@ -95,12 +95,12 @@ var lightMask = b.extractMask(lf.px, lf.w, lf.h);
 
 assert.strictEqual(
     lightMask[1 * 5 + 2],
-    0,
-    "documents current behaviour: a light (luma 210) silhouette-edge pixel " +
-    "IS erased by sweepShadow, not preserved as garment"
+    255,
+    "a light (luma 210) silhouette-edge pixel connected to the garment is " +
+    "preserved, not erased"
 );
 
-console.log("PASS: sweepShadow documented limitation (light silhouette edge erased)");
+console.log("PASS: light silhouette edge preserved (no shadow sweep)");
 
 // --- keepLargestComponent: detached shadow islands must not survive -----
 //

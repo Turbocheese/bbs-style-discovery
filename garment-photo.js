@@ -277,41 +277,10 @@ function drawGarmentButtons(ctx, canvas, garmentKey) {
 
 window.GARMENT_BUTTONS = GARMENT_BUTTONS;
 
-// The jacket's inner bemberg lining, visible in the neck opening below the
-// collar. It is a fixed black regardless of cloth (founder decision) — the
-// collar itself is body cloth and is left alone. Only garments whose open
-// neck reveals the inside carry an entry; the double-breasted jacket wraps
-// closed and shows none. Points are normalised {x, y}, a tapering panel
-// framed by the lapel roll.
-var LINING_TOP = "#191a1d";
-var LINING_BOTTOM = "#070708";
-var GARMENT_LINING = {
-    "jacket-sb": [
-        { x: 0.476, y: 0.108 },
-        { x: 0.539, y: 0.108 },
-        { x: 0.521, y: 0.205 },
-        { x: 0.506, y: 0.262 },
-        { x: 0.494, y: 0.205 }
-    ]
-};
-
-function drawGarmentLining(ctx, canvas, garmentKey) {
-    var poly = GARMENT_LINING[garmentKey];
-    if (!poly || !poly.length) return;
-    var W = canvas.width, H = canvas.height;
-    var top = poly[0].y * H, bot = poly[2].y * H;
-    var grad = ctx.createLinearGradient(0, top, 0, bot);
-    grad.addColorStop(0, LINING_TOP);
-    grad.addColorStop(1, LINING_BOTTOM);
-    ctx.beginPath();
-    ctx.moveTo(poly[0].x * W, poly[0].y * H);
-    for (var i = 1; i < poly.length; i++) ctx.lineTo(poly[i].x * W, poly[i].y * H);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-}
-
-window.GARMENT_LINING = GARMENT_LINING;
+// Linings are baked into the photographs (black Bemberg — the jacket neck
+// opening, the vest back and inner front). Because the cloth is composited
+// with a "multiply", a near-black lining stays near-black on every cloth,
+// so it needs no separate runtime pass.
 
 function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var img = garmentImages[garmentKey];
@@ -349,11 +318,10 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
     ctx.globalCompositeOperation = "source-over";
 
-    // 4. Black bemberg lining in the neck opening, fixed regardless of cloth.
-    drawGarmentLining(ctx, canvas, garmentKey);
-
-    // 5. Horn buttons, drawn on top — see GARMENT_BUTTONS above for why
-    //    these can't be recovered from the photograph itself.
+    // 4. Horn buttons, drawn on top — see GARMENT_BUTTONS above for why
+    //    these can't be recovered from the photograph itself. (Linings are
+    //    baked into the photograph and survive the multiply, so there is no
+    //    separate lining pass.)
     drawGarmentButtons(ctx, canvas, garmentKey);
 
     return true;
@@ -361,16 +329,14 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
 window.renderGarmentPhoto = renderGarmentPhoto;
 
-// The photographs that exist. Two trouser keys
-// (trousers-single-classic, trousers-double-tapered) are pending
-// generation; until their WebP is built, a combination resolving to one
-// of them will correctly fail the coverage test rather than render a
-// wrong leg. Add them here the moment their asset lands.
+// The photographs that exist and are selectable. Double-breasted vests
+// (vest-db-none, vest-db-shawl) and the Gurkha trouser are real makes but
+// have no photograph yet, so they are absent here and hidden from the
+// configurator until their image lands — add the key the moment it does.
 var GARMENT_ASSET_KEYS = [
     "jacket-sb", "jacket-db",
-    "vest-sb-none", "vest-sb-shawl", "vest-db-none", "vest-db-shawl",
-    "trousers-flat-tapered", "trousers-flat-classic",
-    "trousers-single-tapered", "trousers-double-classic"
+    "vest-sb-none", "vest-sb-shawl",
+    "trousers-flat", "trousers-double", "trousers-belt"
 ];
 
 // Every remaining option drives the photograph directly — there are no
@@ -378,7 +344,7 @@ var GARMENT_ASSET_KEYS = [
 function resolveGarmentKey(garment, style) {
     if (garment === "jacket") return "jacket-" + style.closure;
     if (garment === "vest") return "vest-" + style.closure + "-" + style.lapel;
-    if (garment === "trousers") return "trousers-" + style.front + "-" + style.taper;
+    if (garment === "trousers") return "trousers-" + style.style;
     return null;
 }
 
