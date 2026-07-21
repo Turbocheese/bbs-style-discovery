@@ -200,5 +200,36 @@ var playwright = require("playwright");
     console.log("PASS: displacement confined to defined regions (lapel " + (lapelFrac * 100).toFixed(0) +
         "% of pixels differ from flat baseline, hem " + (hemFrac * 100).toFixed(0) + "% differ)");
 
+    // Horn buttons. The grey mockups' own buttons are swallowed by the
+    // multiply, so buttons must be DRAWN (see garment-photo.js). Sample the
+    // jacket-sb fastening button centre against a saturated navy cloth: a
+    // drawn horn button is warm (red channel clearly above blue); cloth or
+    // a swallowed grey button is not.
+    var button = await page.evaluate(function () {
+        var c = document.createElement("canvas");
+        c.width = 400; c.height = 500;
+        // poll until the async asset has loaded
+        return (async function () {
+            for (var i = 0; i < 100; i++) {
+                if (window.renderGarmentPhoto(c, "jacket-sb", "fox_worsted_flannel_navy")) break;
+                await new Promise(function (r) { setTimeout(r, 50); });
+            }
+            // Fastening-button centre. Confirm the exact pixel against the
+            // authored GARMENT_BUTTONS position rather than trusting this
+            // literal; the button must be sampled at its real centre.
+            var b = window.GARMENT_BUTTONS && window.GARMENT_BUTTONS["jacket-sb"];
+            if (!b || !b.length) return { r: 0, g: 0, b: 0 };
+            var fastening = b[b.length - 1]; // lowest button on the front
+            var px = Math.round(fastening.x * 400), py = Math.round(fastening.y * 500);
+            var d = c.getContext("2d").getImageData(px, py, 2, 2).data;
+            return { r: d[0], g: d[1], b: d[2] };
+        })();
+    });
+    if (!(button.r > button.b + 25)) {
+        console.error("FAIL: no horn button at the fastening point (rgb " + button.r + "," + button.g + "," + button.b + ")");
+        process.exit(1);
+    }
+    console.log("PASS: horn button drawn (rgb " + button.r + "," + button.g + "," + button.b + ")");
+
     await browser.close();
 })();
