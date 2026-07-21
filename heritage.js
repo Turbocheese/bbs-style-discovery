@@ -4,22 +4,32 @@
 (function () {
     var SINCE = 1767; // Founding of the oldest mill in the collection.
 
-    // The single source of truth. Cloths and mills are derived from the live
-    // cloth library so the figures can never drift from what's on the shelf;
-    // years counts up from the founding date every calendar year on its own.
+    // The single source of truth. Cloths come from the live library; the
+    // house count is read from the Mill Map's own pins (MILL_MAP_PINS) so the
+    // strip can never disagree with the map's "N houses" lead. Years counts up
+    // from the founding date every calendar year on its own.
     function heritageStats() {
-        var cloths = 0, mills = 0;
+        var cloths = 0, houses = 0;
         if (typeof CLOTH_LIBRARY !== "undefined" && CLOTH_LIBRARY.length) {
             cloths = CLOTH_LIBRARY.length;
+        }
+        if (typeof MILL_MAP_PINS !== "undefined" && MILL_MAP_PINS.length) {
+            // Every charted house (mill or merchant), excluding raw cotton
+            // origins — the exact count renderMillMap() prints as "N houses".
+            for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+                if (MILL_MAP_PINS[i].type !== "origin") houses++;
+            }
+        } else if (typeof CLOTH_LIBRARY !== "undefined") {
+            // Fallback (map not loaded): distinct mills in the collection.
             var seen = {};
-            for (var i = 0; i < CLOTH_LIBRARY.length; i++) {
-                var m = CLOTH_LIBRARY[i].mill;
-                if (m && !seen[m]) { seen[m] = 1; mills++; }
+            for (var j = 0; j < CLOTH_LIBRARY.length; j++) {
+                var m = CLOTH_LIBRARY[j].mill;
+                if (m && !seen[m]) { seen[m] = 1; houses++; }
             }
         }
         return {
             cloths: cloths,
-            mills: mills,
+            houses: houses,
             since: SINCE,
             years: new Date().getFullYear() - SINCE
         };
@@ -63,9 +73,9 @@
         var div = '<span class="heritage-div" aria-hidden="true"></span>';
         return '<div class="heritage-strip heritage-strip--' + variant + '" data-heritage-strip ' +
             'role="img" aria-label="' + s.years + ' years of heritage, ' +
-            s.mills + ' mills, ' + s.cloths + ' cloths">' +
+            s.houses + ' houses, ' + s.cloths + ' cloths">' +
             stat(s.years, "Years", "since " + s.since) + div +
-            stat(s.mills, "Mills", "Britain &amp; Europe") + div +
+            stat(s.houses, "Houses", "Britain &amp; Europe") + div +
             stat(s.cloths, "Cloths", "in the collection") +
             '</div>';
     }
