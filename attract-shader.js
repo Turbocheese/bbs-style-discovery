@@ -21,11 +21,11 @@
         " vec2 q=vec2(fbm(p+vec2(0.0,t)),fbm(p+vec2(5.2,-t)));",
         " vec2 r=vec2(fbm(p+3.0*q+vec2(1.7,t*0.7)),fbm(p+3.0*q+vec2(8.3,-t*0.6)));",
         " float f=fbm(p+2.5*r);",
-        // Warm cream drifting into a soft greige — kept very close in value so
-        // it whispers behind the dark type rather than competing with it.
-        " vec3 base=vec3(0.960,0.941,0.902);",
-        " vec3 shade=vec3(0.874,0.836,0.767);",
-        " vec3 col=mix(base, shade, smoothstep(0.30,0.98,f)*0.55);",
+        // Warm cream drifting into a soft greige — a gentle, legible presence
+        // behind the dark type, still low-key enough to read as ground.
+        " vec3 base=vec3(0.957,0.937,0.897);",
+        " vec3 shade=vec3(0.836,0.793,0.716);",
+        " vec3 col=mix(base, shade, smoothstep(0.28,0.98,f)*0.72);",
         " gl_FragColor=vec4(col,1.0);}"
     ].join("\n");
 
@@ -87,4 +87,13 @@
         }
         _raf = requestAnimationFrame(frame);
     };
+
+    // The backdrop is one persistent canvas behind the whole app (#app-backdrop
+    // in index.html), so it runs across every page. Start it once the DOM is
+    // ready; it never leaves the DOM, so it simply keeps drifting.
+    function boot() {
+        if (document.getElementById("app-backdrop")) window.startAttractShader("app-backdrop");
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
 })();

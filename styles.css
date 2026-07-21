@@ -10523,9 +10523,10 @@ textarea:focus-visible,
     .heritage-strip { gap: clamp(12px, 4vw, 22px); }
 }
 
-/* Light "cashmere mist" attract backdrop (attract-shader.js). Full-viewport,
-   behind the welcome content; opaque cream so it becomes the ground. */
-.welcome-shader {
+/* Light "cashmere mist" backdrop (attract-shader.js) — one persistent canvas
+   behind the whole app, drifting under every page. #app is made transparent so
+   it shows through; content cards keep their own opaque backgrounds. */
+#app-backdrop {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -10534,6 +10535,7 @@ textarea:focus-visible,
     pointer-events: none;
     display: block;
 }
+#app { background: transparent !important; }
 
 /* ============================================
    THE GLOBE — CLOTH ORIGINS
