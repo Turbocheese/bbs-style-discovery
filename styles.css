@@ -10523,6 +10523,18 @@ textarea:focus-visible,
     .heritage-strip { gap: clamp(12px, 4vw, 22px); }
 }
 
+/* Light "cashmere mist" attract backdrop (attract-shader.js). Full-viewport,
+   behind the welcome content; opaque cream so it becomes the ground. */
+.welcome-shader {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    display: block;
+}
+
 /* ============================================
    THE GLOBE — CLOTH ORIGINS
    Three layers over one canvas: dots at true positions, labels out on

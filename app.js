@@ -3644,6 +3644,10 @@ function swapWelcomePortrait(el) {
 function renderWelcome() {
     return (
         '<div class="welcome-shell">' +
+        // Low-key light "cashmere mist" backdrop (attract-shader.js). Full-
+        // viewport behind everything; the page's cream ground shows if WebGL
+        // is unavailable.
+        '<canvas class="welcome-shader" id="welcome-shader" aria-hidden="true"></canvas>' +
         BBS_LOGO +
         getWelcomePortrait() +
         '<div class="welcome-content-block">' +
@@ -5930,6 +5934,7 @@ function render(options) {
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (appState.view === "welcome" && typeof startAttractShader === "function") startAttractShader("welcome-shader");
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -5959,6 +5964,7 @@ function render(options) {
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (appState.view === "welcome" && typeof startAttractShader === "function") startAttractShader("welcome-shader");
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
