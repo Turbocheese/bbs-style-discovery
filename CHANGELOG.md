@@ -14,6 +14,10 @@ customer or staff member would actually notice, with the date they landed.
 
 A warmer, more considered feel across the whole app, plus a mobile fix.
 
+- **A new way to browse cloth.** The Cloth Room now presents the bunch as a
+  tactile 3D coverflow: filter to narrow, then drag or swipe through the
+  cloths, with the centre one dressing the garment live. A strip of tiny
+  swatches jumps straight to any cloth.
 - **A living backdrop.** A soft, flowing "cashmere mist" now drifts quietly
   behind every screen — light and low-key, with the content sitting on a gently
   textured cream sheet. The old drifting-tape background is retired.
