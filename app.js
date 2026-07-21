@@ -3746,7 +3746,9 @@ function renderHome() {
         "</div>" +
         '<div class="home-hero-v2">' +
         '<h1 class="home-hero-title-v2">' +
-        (greeting ? "Welcome, " + greeting + "." : "Find Your Style Direction") +
+        (greeting
+            ? "Welcome, " + getRevealNameHTML(greeting, "home-greeting-name") + "."
+            : "Find Your Style Direction") +
         "</h1>" +
         '<p class="home-hero-sub-v2">' +
         (greeting
@@ -5764,11 +5766,18 @@ function getRevealNameHTML(text, cls) {
     var safe = String(text || "");
     if (!safe) return "";
     var out = '<span class="' + cls + ' name-reveal" aria-label="' + safe + '">';
+    var shine = "";
     for (var i = 0; i < safe.length; i++) {
         var ch = safe.charAt(i);
+        var glyph = (ch === " " ? "&nbsp;" : ch);
         out += '<span aria-hidden="true" style="animation-delay:' + (i * 34) + 'ms">' +
-               (ch === " " ? "&nbsp;" : ch) + "</span>";
+               glyph + "</span>";
+        shine += glyph;
     }
+    // A brass foil sheen that sweeps across the settled word once. It is a
+    // full-word overlay clipped to the text (see .name-shine): the base
+    // letters keep their normal colour, only the travelling highlight is brass.
+    out += '<span class="name-shine" aria-hidden="true">' + shine + "</span>";
     return out + "</span>";
 }
 
