@@ -11045,24 +11045,25 @@ textarea:focus-visible,
     transform: none;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(105deg,
-        transparent 34%,
-        rgba(198, 148, 74, 0.55) 44%,
-        #caa25f 49%,
-        #f4e3b3 50.5%,
-        #caa25f 52%,
-        rgba(198, 148, 74, 0.55) 56%,
-        transparent 66%);
-    background-size: 260% 100%;
-    background-position: 125% 0;
+    background-image: linear-gradient(100deg,
+        transparent 0%,
+        rgba(198, 148, 74, 0.5) 28%,
+        #caa25f 44%,
+        #f6e6bb 50%,
+        #caa25f 56%,
+        rgba(198, 148, 74, 0.5) 72%,
+        transparent 100%);
+    background-repeat: no-repeat;
+    background-size: 60% 100%;
+    background-position: 200% 0;
     -webkit-background-clip: text;
     background-clip: text;
-    animation: nameShine 1.15s cubic-bezier(0.35, 0.65, 0.3, 1) 0.5s forwards;
+    animation: nameShine 1.9s ease-in-out 0.6s forwards;
     will-change: background-position;
 }
 
 @keyframes nameShine {
-    to { background-position: -90% 0; }
+    to { background-position: -180% 0; }
 }
 
 /* Never let the name depend on animation to be readable. */
