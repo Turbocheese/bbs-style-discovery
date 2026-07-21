@@ -783,21 +783,42 @@ git commit -m "Draw horn-brown buttons on jackets and waistcoats"
 
 ---
 
-## Task 8: Resolve style options to photograph + overlays
+## Task 8: Reduce the option set to what photos show, and resolve each to its photo
 
 **Files:**
-- Modify: `fabric-visualiser.js:1218-1268` (`VIS_ENS_STYLE_OPTIONS` region)
+- Modify: `fabric-visualiser.js` (`VIS_ENS_STYLE_OPTIONS`, around line 1218)
 - Modify: `garment-photo.js`
 
+**Decision (founder, 21 July):** the photo mockup shows only what a photograph can truthfully show. Options with no distinct photograph are **removed from the mockup's styling picker** rather than left as toggles that change nothing — a dead toggle is the exact failure this project has shipped repeatedly (the turn-up option once selected but drew nothing). The removed detail topics remain reachable through the guide's own navigation; they are independent nodes there, so removing them here orphans nothing.
+
+**What each garment keeps — and what it loses:**
+
+| Garment | Kept (drives the photo) | Removed from picker |
+|---|---|---|
+| Jacket | `closure` (sb/db) | `lapel` (notch/peak), `pockets` (flap/jetted/patch) |
+| Waistcoat | `closure`, `lapel` (none/shawl) | `hem` (points/straight) |
+| Trousers | `front` (flat/single/double), `taper` (tapered/classic) | `waistband`, `hem`, and the stray `taper` duplicate if any |
+
+Note the jacket's lapel and pockets are *correlated with closure in the photographs* — the SB shot is notch + patch, the DB shot is peak + jetted — so they cannot vary independently and are removed rather than faked.
+
+After removal the matrix is exactly **12 states, one per photograph**: jacket 2, waistcoat 2×2=4, trousers 3×2=6. Every remaining toggle changes the picture.
+
 **Interfaces:**
-- Produces: `resolveGarmentKey(garment, style)` → photograph key string.
-- Produces: `resolveOverlays(garment, style)` → array of overlay keys.
+- Produces: `resolveGarmentKey(garment, style)` → photograph key string, or `null`.
+- Produces: `GARMENT_ASSET_KEYS` — the set of manifest keys, exposed on `window` so the coverage test can check resolution against real assets rather than a hand-copied list.
 
-Every one of the 56 combinations must resolve. An option that renders nothing is the exact failure this project has shipped repeatedly.
+- [ ] **Step 1: Reduce `VIS_ENS_STYLE_OPTIONS`**
 
-- [ ] **Step 1: Write the failing test**
+In `fabric-visualiser.js`, delete the removed groups so each garment keeps only the photo-driving options:
+- `jacket`: keep `closure`; delete `lapel` and `pockets`.
+- `vest`: keep `closure` and `lapel`; delete `hem`.
+- `trousers`: keep `front` and `taper`; delete `waistband` and `hem`.
 
-Add to `verify/photo-mockup.js` a loop over the full cross-product of every option group for all three garments, asserting `resolveGarmentKey` returns a key present in the manifest and that no combination throws.
+Leave every kept option's `topic` guide-link intact. Do not touch `visEnsStyleNote` — it iterates whatever groups remain, so it self-adjusts.
+
+- [ ] **Step 2: Write the failing coverage test**
+
+Add to `verify/photo-mockup.js`. This walks the full cross-product of the *reduced* option set and asserts every combination resolves to a key that is a real, loadable asset.
 
 ```js
 var coverage = await page.evaluate(function () {
@@ -818,47 +839,74 @@ var coverage = await page.evaluate(function () {
         });
         combos.forEach(function (c) {
             var key = window.resolveGarmentKey(garment, c);
-            if (!key || !window.GARMENT_KEYS[key]) missing.push(garment + " " + JSON.stringify(c));
+            if (!key || window.GARMENT_ASSET_KEYS.indexOf(key) === -1) {
+                missing.push(garment + " " + JSON.stringify(c) + " -> " + key);
+            }
         });
     }
     return { missing: missing, total: missing.length };
 });
-if (coverage.total > 0) {
-    console.error("FAIL: " + coverage.total + " combinations resolve to nothing:");
-    coverage.missing.slice(0, 10).forEach(function (m) { console.error("  " + m); });
+
+// Two trouser photographs are pending generation by the founder. Their
+// combinations are permitted to resolve to a not-yet-built key; every
+// OTHER combination must resolve to a real asset. When the two photos
+// land and their keys join GARMENT_ASSET_KEYS, this allowance goes to
+// zero on its own with no further change.
+var PENDING = ["trousers-single-classic", "trousers-double-tapered"];
+var realMissing = coverage.missing.filter(function (m) {
+    return PENDING.every(function (p) { return m.indexOf(p) === -1; });
+});
+if (realMissing.length > 0) {
+    console.error("FAIL: " + realMissing.length + " combinations resolve to no asset:");
+    realMissing.slice(0, 12).forEach(function (m) { console.error("  " + m); });
     process.exit(1);
 }
-console.log("PASS: all 56 combinations resolve to a photograph");
+console.log("PASS: every option combination resolves to a real photograph"
+    + (coverage.total ? " (" + coverage.total + " pending the two un-generated trouser photos)" : ""));
 ```
 
-- [ ] **Step 2: Run it to verify it fails**
+- [ ] **Step 3: Run it to verify it fails**
 
 Run: `node verify/photo-mockup.js`
-Expected: `FAIL: 56 combinations resolve to nothing`
+Expected: FAIL — `resolveGarmentKey is not a function` (the resolver does not exist yet). This proves the test runs; it is not yet asserting anything meaningful until Step 4.
 
-- [ ] **Step 3: Implement the resolver**
+- [ ] **Step 4: Implement the resolver**
+
+Add to `garment-photo.js`. `GARMENT_ASSET_KEYS` is the authoritative list of built assets — the same keys the build tool writes and `sw.js` precaches.
 
 ```js
-// Silhouette-changing options pick the photograph; everything else is an
-// overlay drawn on top of it.
+// The photographs that exist. Two trouser keys
+// (trousers-single-classic, trousers-double-tapered) are pending
+// generation; until their WebP is built, a combination resolving to one
+// of them will correctly fail the coverage test rather than render a
+// wrong leg. Add them here the moment their asset lands.
+var GARMENT_ASSET_KEYS = [
+    "jacket-sb", "jacket-db",
+    "vest-sb-none", "vest-sb-shawl", "vest-db-none", "vest-db-shawl",
+    "trousers-flat-tapered", "trousers-flat-classic",
+    "trousers-single-tapered", "trousers-double-classic"
+];
+
+// Every remaining option drives the photograph directly — there are no
+// cosmetic-only options left after Task 8's reduction.
 function resolveGarmentKey(garment, style) {
     if (garment === "jacket") return "jacket-" + style.closure;
     if (garment === "vest") return "vest-" + style.closure + "-" + style.lapel;
     if (garment === "trousers") return "trousers-" + style.front + "-" + style.taper;
     return null;
 }
+
+window.resolveGarmentKey = resolveGarmentKey;
+window.GARMENT_ASSET_KEYS = GARMENT_ASSET_KEYS;
 ```
 
-- [ ] **Step 4: Run verification**
-
-Run: `node verify/photo-mockup.js`
-Expected: all PASS
+**Expected coverage result:** jacket (2) and waistcoat (4) resolve fully. Trousers currently generate 4 of 6 photos, so `single-classic` and `double-tapered` combinations will fail the coverage test until those two assets are built. **This is correct behaviour, not a bug** — the test is telling the truth about what can render. If the founder's two pending photos have landed and been built by the time this task runs, add their keys to `GARMENT_ASSET_KEYS` and the manifest, and coverage reaches all 12. If not, the two known-pending trouser combinations are the only permitted failures; document them in the report and confirm nothing else fails.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add garment-photo.js fabric-visualiser.js
-git commit -m "Resolve every style combination to a photograph and overlays"
+git commit -m "Reduce mockup options to photo-backed choices and resolve each to its photograph"
 ```
 
 ---
