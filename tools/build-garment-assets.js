@@ -254,7 +254,7 @@ if (require.main === module) {
                 var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
 
                 var mask = extractMask(px, w, h);
-                mask = erodeMask(mask, w, h, 2);
+                mask = erodeMask(mask, w, h, 5);
                 var lum = normaliseLuminance(px, mask, w, h);
 
                 var out = Buffer.alloc(w * h * 4);
