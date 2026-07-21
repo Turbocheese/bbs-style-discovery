@@ -10535,7 +10535,18 @@ textarea:focus-visible,
     pointer-events: none;
     display: block;
 }
-#app { background: transparent !important; }
+/* The content sits on a near-opaque, faintly textured cream "sheet" so text
+   stays crisp, while the mist drifts in the side gutters and whispers through.
+   Sides flowy, middle readable — the homepage feel, applied app-wide. */
+#app {
+    position: relative;
+    max-width: 900px;
+    margin-inline: auto;
+    min-height: 100dvh;
+    background-color: rgba(246, 241, 232, 0.84) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E") !important;
+    box-shadow: 0 0 55px rgba(58, 46, 28, 0.10);
+}
 
 /* ============================================
    THE GLOBE — CLOTH ORIGINS
