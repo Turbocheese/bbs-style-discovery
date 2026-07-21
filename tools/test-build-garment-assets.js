@@ -221,3 +221,27 @@ assert.ok(norm[1] > b.LUMA_FLOOR && norm[1] < b.LUMA_CEIL, "mid pixel lands betw
 assert.strictEqual(norm[3], 0, "background is zeroed and ignored by the range");
 
 console.log("PASS: normaliseLuminance");
+
+// --- normaliseLuminance: a baked-in black lining maps to near-black -------
+//
+// A near-black lining pixel (luma 20, below LINING_LUMA) must map far below
+// the cloth floor so it multiplies to black on any cloth, while the cloth
+// pixels above the threshold still normalise into [FLOOR, CEIL]. Before the
+// lining floor existed, luma 20 was the range minimum and got lifted to
+// LUMA_FLOOR (90) — so cloth showed THROUGH the lining (a translucent lining).
+var w3 = 4, h3 = 1;
+var px3 = new Uint8Array(w3 * h3 * 4);
+var vals3 = [20, 100, 180, 250]; // 20 = lining, 100/180 = cloth, 250 = ground
+for (var q = 0; q < 4; q++) {
+    px3[q * 4] = vals3[q]; px3[q * 4 + 1] = vals3[q]; px3[q * 4 + 2] = vals3[q]; px3[q * 4 + 3] = 255;
+}
+var m3 = new Uint8Array([255, 255, 255, 0]); // last pixel is background
+
+var norm3 = b.normaliseLuminance(px3, m3, w3, h3);
+
+assert.ok(norm3[0] < 20, "near-black lining (luma 20) maps well below the cloth floor (got " + norm3[0] + ")");
+assert.strictEqual(norm3[1], b.LUMA_FLOOR, "darkest CLOTH pixel maps to the floor, not dragged down by the lining");
+assert.strictEqual(norm3[2], b.LUMA_CEIL, "lightest cloth pixel maps to the ceiling");
+assert.strictEqual(norm3[3], 0, "background is zeroed");
+
+console.log("PASS: normaliseLuminance (black lining maps near-black)");

@@ -82,7 +82,12 @@ var playwright = require("playwright");
     if (result.opaque < 20000) { console.error("FAIL: garment barely rendered (" + result.opaque + " opaque px)"); process.exit(1); }
     if (result.transparent < 20000) { console.error("FAIL: no background left — mask not applied"); process.exit(1); }
     if (result.sampled < 50) { console.error("FAIL: too few interior samples to judge cloth (" + result.sampled + ")"); process.exit(1); }
-    if (result.differing / result.sampled < 0.9) {
+    // ~10% of interior samples legitimately do NOT differ between two cloths:
+    // the baked-in black Bemberg lining (jacket neck, vest back) multiplies to
+    // black on ANY cloth by design, and deep near-black folds barely move. So
+    // the bar is 0.8, not ~1.0 — still far above the ~0% a genuinely undrawn
+    // cloth would produce, which is what this check exists to catch.
+    if (result.differing / result.sampled < 0.8) {
         console.error("FAIL: charcoal vs. navy renders look the same — cloth may not be drawn (" +
             result.differing + "/" + result.sampled + " sampled pixels differed)");
         process.exit(1);

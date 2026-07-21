@@ -103,13 +103,29 @@ function luma(px, i) {
 var LUMA_FLOOR = 90;
 var LUMA_CEIL = 255;
 
+// Baked-in black Bemberg linings (the jacket neck opening, the vest back)
+// sit in a distinct dark cluster far below the cloth — measured luma < ~50,
+// with a clear valley around 55-65 before the cloth mass begins near 70.
+// Normalising them together with the cloth would stretch that near-black up
+// to LUMA_FLOOR, so the cloth would show THROUGH the lining under multiply
+// (a translucent lining). Instead, treat anything darker than LINING_LUMA as
+// lining and map it down into [0, LINING_CEIL] so it multiplies to black on
+// every cloth; the cloth above the threshold keeps the [FLOOR, CEIL] band so
+// its folds still shade rather than punch through. Trousers carry no lining
+// and never dip below the threshold, so they are unaffected.
+var LINING_LUMA = 60;
+var LINING_CEIL = 12;
+
 function normaliseLuminance(px, mask, w, h) {
     var out = new Uint8Array(w * h);
     var min = 255, max = 0, i, v;
 
+    // Cloth range excludes the lining-dark pixels, so the lining can't drag
+    // the floor down and darken the whole garment.
     for (i = 0; i < w * h; i++) {
         if (!mask[i]) continue;
         v = luma(px, i);
+        if (v < LINING_LUMA) continue;
         if (v < min) min = v;
         if (v > max) max = v;
     }
@@ -117,8 +133,16 @@ function normaliseLuminance(px, mask, w, h) {
 
     for (i = 0; i < w * h; i++) {
         if (!mask[i]) { out[i] = 0; continue; }
-        v = (luma(px, i) - min) / (max - min);
-        out[i] = Math.round(LUMA_FLOOR + v * (LUMA_CEIL - LUMA_FLOOR));
+        v = luma(px, i);
+        if (v < LINING_LUMA) {
+            // Near-black lining, kept proportional so its own faint shading
+            // survives but it still multiplies to black on any cloth.
+            out[i] = Math.round((v / LINING_LUMA) * LINING_CEIL);
+        } else {
+            var t = (v - min) / (max - min);
+            if (t < 0) t = 0; else if (t > 1) t = 1;
+            out[i] = Math.round(LUMA_FLOOR + t * (LUMA_CEIL - LUMA_FLOOR));
+        }
     }
     return out;
 }
@@ -188,7 +212,16 @@ if (require.main === module) {
         // it by name rather than failing.
     };
 
-    var MAX_EDGE = 800; // Renders at most ~600px in app; 800 leaves headroom.
+    var MAX_EDGE = 800; // Final asset. Renders at most ~600px in app; 800 leaves headroom.
+
+    // Mask, erode and normalise at 2x the final size, then let sharp downscale
+    // the assembled RGBA to MAX_EDGE. Sharp anti-aliases the (binary) alpha as
+    // it shrinks — with premultiplied edges, so no dark or light fringe — which
+    // turns the hard 1-bit silhouette into smooth edges. EDGE_ERODE is applied
+    // at supersample scale to cut just past the source's own soft edge fringe
+    // before that downscale, so the smoothing comes from clean coverage.
+    var SUPERSAMPLE = MAX_EDGE * 2;
+    var EDGE_ERODE = 2;
 
     var SRC_DIR = path.join(__dirname, "..", "images", "styleBuilder");
     var OUT_DIR = path.join(__dirname, "..", "images", "garments");
@@ -202,7 +235,7 @@ if (require.main === module) {
         }
 
         return sharp(srcPath)
-            .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true })
+            .resize({ width: SUPERSAMPLE, height: SUPERSAMPLE, fit: "inside", withoutEnlargement: true })
             .ensureAlpha()
             .raw()
             .toBuffer({ resolveWithObject: true })
@@ -212,7 +245,7 @@ if (require.main === module) {
                 var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
 
                 var mask = extractMask(px, w, h);
-                mask = erodeMask(mask, w, h, 1);
+                mask = erodeMask(mask, w, h, EDGE_ERODE);
                 var lum = normaliseLuminance(px, mask, w, h);
 
                 var out = Buffer.alloc(w * h * 4);
@@ -225,15 +258,15 @@ if (require.main === module) {
 
                 var outPath = path.join(OUT_DIR, key + ".webp");
                 return sharp(out, { raw: { width: w, height: h, channels: 4 } })
+                    .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true })
                     .webp({ quality: QUALITY })
                     .toFile(outPath)
-                    .then(function () {
-                        var size = fs.statSync(outPath).size;
+                    .then(function (fileInfo) {
                         console.log(
-                            "WROTE " + key + ".webp  " + w + "x" + h + "  " +
-                            (size / 1024).toFixed(1) + " KB"
+                            "WROTE " + key + ".webp  " + fileInfo.width + "x" + fileInfo.height + "  " +
+                            (fileInfo.size / 1024).toFixed(1) + " KB"
                         );
-                        return size;
+                        return fileInfo.size;
                     });
             });
     }
