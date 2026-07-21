@@ -5929,6 +5929,7 @@ function render(options) {
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
@@ -5958,6 +5959,7 @@ function render(options) {
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");

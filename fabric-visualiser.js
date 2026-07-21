@@ -415,6 +415,115 @@ function getVisSwatchesHTML(recommended, selKey, altKey) {
     return swatchesHTML;
 }
 
+// The cloth selector, as a 3D coverflow of the *filtered* cloths. Filter to
+// narrow the bunch, then drag/swipe through the subset; the centre cloth is
+// the selection and the garment re-renders in it live (visApplyFabric). A
+// scrubber of tiny swatches jumps straight to any cloth in the set.
+function getVisCoverflowHTML(shown, selKey, recommended) {
+    if (!shown.length) return '<p class="vis-swatch-empty">No cloths match those filters.</p>';
+    var cards = "", dots = "";
+    for (var i = 0; i < shown.length; i++) {
+        var f = shown[i];
+        var reco = recommended.indexOf(f.key) !== -1;
+        cards +=
+            '<div class="vis-cf-card' + (f.key === selKey ? " is-active" : "") + '" data-fabric="' + f.key + '" role="button" tabindex="-1" aria-label="' + f.name + '">' +
+            '<span class="vis-cf-cloth" style="background-image:url(' + getFabricTile(f.key) + ')"></span>' +
+            '<span class="vis-cf-sheen" aria-hidden="true"></span>' +
+            (reco ? '<span class="vis-cf-reco">For you</span>' : "") +
+            '<span class="vis-cf-plate"><span class="vis-cf-n">' + f.name + '</span>' +
+            '<span class="vis-cf-m">' + (f.mill || "") + '</span></span>' +
+            "</div>";
+        dots += '<button class="vis-cf-dot' + (f.key === selKey ? " on" : "") + '" data-cf-jump="' + i +
+            '" style="background-image:url(' + getFabricTile(f.key) + ')" title="' + f.name + '" aria-label="' + f.name + '"></button>';
+    }
+    return (
+        '<div class="vis-cf" data-vis-coverflow>' +
+        '<div class="vis-cf-count">' + shown.length + " cloth" + (shown.length === 1 ? "" : "s") + " in the bunch</div>" +
+        '<div class="vis-cf-stage" id="vis-cf-stage" tabindex="0" aria-label="Cloth coverflow — drag to browse">' +
+        '<div class="vis-cf-deck" id="vis-cf-deck">' + cards + "</div></div>" +
+        '<div class="vis-cf-scrub" id="vis-cf-scrub" aria-label="Jump to a cloth">' + dots + "</div>" +
+        '<p class="vis-cf-hint">Drag or swipe &middot; tap a swatch to jump</p>' +
+        "</div>"
+    );
+}
+
+function startVisCoverflow() {
+    var stage = document.getElementById("vis-cf-stage");
+    var deck = document.getElementById("vis-cf-deck");
+    if (!stage || !deck || deck._cfInit) return;
+    deck._cfInit = true;
+    var cards = Array.prototype.slice.call(deck.querySelectorAll(".vis-cf-card"));
+    if (!cards.length) return;
+    var scrub = document.getElementById("vis-cf-scrub");
+    var dots = scrub ? Array.prototype.slice.call(scrub.querySelectorAll(".vis-cf-dot")) : [];
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var keys = cards.map(function (c) { return c.getAttribute("data-fabric"); });
+    var GAP = Math.min(172, Math.max(118, stage.clientWidth * 0.24));
+
+    var pos = keys.indexOf(appState.visFabricKey);
+    if (pos < 0) pos = 0;
+
+    function layout(anim) {
+        var ci = Math.max(0, Math.min(keys.length - 1, Math.round(pos)));
+        for (var i = 0; i < cards.length; i++) {
+            var d = i - pos, ad = Math.abs(d), c = cards[i];
+            if (reduce) {
+                c.style.transform = "translateX(" + (d * GAP) + "px) scale(" + (1 - Math.min(ad, 1) * 0.2) + ")";
+            } else {
+                var cl = Math.max(-1, Math.min(1, d));
+                c.style.transform = "translateX(" + (d * GAP) + "px) translateZ(" + (-Math.min(ad, 3) * 150) +
+                    "px) rotateY(" + (-cl * 50) + "deg) scale(" + (1 - Math.min(ad, 1) * 0.16) + ")";
+            }
+            c.style.transition = (anim && !reduce) ? "transform .5s cubic-bezier(.22,.7,.26,1),opacity .5s" : "";
+            c.style.opacity = String(Math.max(0, 1 - Math.min(ad, 3.2) / 3.2 * 0.72));
+            c.style.zIndex = String(300 - Math.round(ad * 10));
+            c.classList.toggle("is-active", i === ci);
+        }
+        for (var j = 0; j < dots.length; j++) dots[j].classList.toggle("on", j === ci);
+        if (anim && dots[ci] && dots[ci].scrollIntoView) dots[ci].scrollIntoView({ inline: "center", block: "nearest" });
+    }
+    function select(i) {
+        pos = Math.max(0, Math.min(keys.length - 1, i));
+        layout(true);
+        var key = keys[Math.round(pos)];
+        if (key && key !== appState.visFabricKey) {
+            appState.visFabricKey = key;
+            try { localStorage.setItem("bbs_session", JSON.stringify(appState)); } catch (e) {}
+            if (typeof visApplyFabric === "function") visApplyFabric(key);
+        }
+    }
+
+    var drag = false, sx = 0, sp = 0, moved = false;
+    function onMove(e) {
+        if (!drag) return;
+        var dx = e.clientX - sx;
+        if (Math.abs(dx) > 4) moved = true;
+        pos = Math.max(-0.45, Math.min(keys.length - 0.55, sp - dx / GAP));
+        layout(false);
+    }
+    function onUp() {
+        if (!drag) return;
+        drag = false;
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        select(Math.round(pos));
+    }
+    stage.addEventListener("pointerdown", function (e) {
+        drag = true; moved = false; sx = e.clientX; sp = pos;
+        for (var i = 0; i < cards.length; i++) cards[i].style.transition = "";
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+    });
+    cards.forEach(function (c, i) { c.addEventListener("click", function () { if (!moved) select(i); }); });
+    dots.forEach(function (d, i) { d.addEventListener("click", function () { select(i); }); });
+    stage.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowLeft") { e.preventDefault(); select(Math.round(pos) - 1); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); select(Math.round(pos) + 1); }
+    });
+    layout(false);
+}
+window.startVisCoverflow = startVisCoverflow;
+
 function renderFabricVisualiser() {
     var recommended = getRecommendedFabricKeys();
     var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
@@ -432,8 +541,7 @@ function renderFabricVisualiser() {
         ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>' +
         "</div>" +
         getVisFilterBarHTML() +
-        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
-        getVisRecoStripHTML(recommended) +
+        getVisCoverflowHTML(getFilteredCloths(), activeKey, recommended) +
         '<div class="vis-mode-toggles">' +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +

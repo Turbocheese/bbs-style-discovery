@@ -10550,6 +10550,92 @@ textarea:focus-visible,
 }
 
 /* ============================================
+   CLOTH ROOM — COVERFLOW SELECTOR (fabric-visualiser.js)
+   Filter narrows the bunch; drag/swipe the 3D coverflow of the subset; the
+   centre cloth is the live selection. Scrubber jumps straight to any cloth.
+   ============================================ */
+.vis-cf { margin: 0.4rem 0 0.25rem; }
+.vis-cf-count {
+    text-align: center;
+    font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--soft); margin-bottom: 0.4rem;
+}
+.vis-cf-stage {
+    position: relative;
+    height: clamp(238px, 52vw, 328px);
+    perspective: 1500px;
+    touch-action: pan-y;
+    cursor: grab;
+}
+.vis-cf-stage:active { cursor: grabbing; }
+.vis-cf-stage:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 12px; }
+.vis-cf-deck { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; }
+.vis-cf-card {
+    --w: clamp(146px, 32vw, 194px);
+    --h: clamp(196px, 43vw, 262px);
+    position: absolute; top: 0; left: 0;
+    width: var(--w); height: var(--h);
+    margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 16px 34px rgba(40, 30, 15, 0.20), 0 2px 5px rgba(40, 30, 15, 0.12);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    background: #d8d0c2;
+    cursor: pointer;
+}
+.vis-cf-cloth {
+    position: absolute; inset: 0;
+    background-size: 44px 44px; background-repeat: repeat;
+}
+.vis-cf-sheen {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%);
+    transition: opacity 0.4s;
+}
+.vis-cf-reco {
+    position: absolute; top: 10px; left: 10px;
+    font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #fff; background: var(--brass);
+    padding: 3px 7px; border-radius: 3px;
+}
+.vis-cf-plate {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 22px 12px 11px; text-align: left;
+    background: linear-gradient(to top, rgba(20, 18, 14, 0.82), rgba(20, 18, 14, 0));
+    color: #f4efe4;
+}
+.vis-cf-n { display: block; font-family: "EB Garamond", Georgia, serif; font-size: 0.98rem; line-height: 1.12; }
+.vis-cf-m { display: block; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.82; margin-top: 2px; }
+.vis-cf-card.is-active { box-shadow: 0 24px 54px rgba(40, 30, 15, 0.30), 0 0 0 1px rgba(156, 122, 62, 0.4); }
+.vis-cf-card.is-active .vis-cf-sheen { opacity: 1; }
+.vis-cf-scrub {
+    display: flex; gap: 6px;
+    justify-content: safe center;
+    overflow-x: auto; overflow-y: hidden;
+    padding: 12px 14px 6px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+.vis-cf-dot {
+    flex: 0 0 auto;
+    width: 26px; height: 26px; border-radius: 5px;
+    border: 1px solid var(--line); padding: 0;
+    background-size: cover; background-position: center;
+    cursor: pointer; opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.vis-cf-dot:hover { opacity: 1; }
+.vis-cf-dot.on { opacity: 1; transform: translateY(-2px); box-shadow: 0 0 0 2px var(--brass); }
+.vis-cf-hint {
+    text-align: center; font-size: 0.62rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--soft); opacity: 0.75; margin: 4px 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+    .vis-cf-card { transition: none !important; }
+    .vis-cf-sheen { display: none; }
+}
+
+/* ============================================
    THE GLOBE — CLOTH ORIGINS
    Three layers over one canvas: dots at true positions, labels out on
    the rim, and leader lines joining them. Labels cannot sit on the
