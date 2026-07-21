@@ -5997,6 +5997,7 @@ function render(options) {
         // if and its else re-bound the else to this condition, so the
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
+        if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -6025,6 +6026,7 @@ function render(options) {
         // if and its else re-bound the else to this condition, so the
         // Mill Map destroyed its own globe one frame after creating it.
         if (appState.visCompare && typeof startVisSplitDrag === "function") startVisSplitDrag();
+        if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {

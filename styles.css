@@ -8557,6 +8557,17 @@ button,
     background-size: 48px 48px;
 }
 
+/* Photo garments: the canvas defines its own height from the asset's
+   aspect, so the container must not impose the old SVG aspect-ratio. */
+.ds-garment.has-photo { aspect-ratio: auto; }
+
+.ds-garment-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+}
+
 .ds-garment .ds-shading {
     position: absolute;
     inset: 0;

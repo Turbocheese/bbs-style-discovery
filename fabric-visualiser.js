@@ -1422,20 +1422,45 @@ function getCompleteTheLookHTML(ens) {
 
 function getVisEnsGarmentBlock(garment, ens) {
     var fabricKey = ens.fabrics[garment];
+    var style = ens.style[garment] || {};
+    var activeClass = ens.activeGarment === garment ? " active" : "";
+    var label = garment.charAt(0).toUpperCase() + garment.slice(1);
+
+    // Photo path: the garment is drawn by compositing the selected cloth
+    // into a photographed grey mockup (garment-photo.js). The actual pixels
+    // are painted after the DOM lands, by startVisEnsPhotos().
+    var photoKey = typeof resolveGarmentKey === "function" ? resolveGarmentKey(garment, style) : null;
+    var hasPhoto = photoKey && typeof GARMENT_ASSET_KEYS !== "undefined" &&
+        GARMENT_ASSET_KEYS.indexOf(photoKey) !== -1;
+
+    if (hasPhoto) {
+        // Buffer matches the asset's native size so renderGarmentPhoto
+        // draws it 1:1. Trousers are 537x800, everything else 644x800.
+        var w = garment === "trousers" ? 537 : 644;
+        return (
+            '<div class="ds-garment ds-garment--' + garment + " has-photo" + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
+            '<canvas class="ds-garment-canvas" id="vis-ens-canvas-' + garment + '" width="' + w + '" height="800"' +
+            ' data-garment-key="' + photoKey + '" data-cloth="' + fabricKey + '"></canvas>' +
+            '<div class="ds-garment-label">' + label + "</div>" +
+            "</div>"
+        );
+    }
+
+    // Fallback: the hand-drawn silhouette, for shapes whose photograph is
+    // not yet generated (currently two trouser combinations). Self-heals —
+    // the moment the asset lands and joins GARMENT_ASSET_KEYS, the photo
+    // path above takes over.
     var shading;
     var shirtOverlay = "";
     if (garment === "jacket") {
-        shading = getDSJacketShadingSVG(ens.style.jacket);
-        shirtOverlay = getDSJacketShirtSVG(ens.style.jacket);
+        shading = getDSJacketShadingSVG(style);
+        shirtOverlay = getDSJacketShirtSVG(style);
     } else if (garment === "vest") {
-        shading = getDSVestShadingSVG(ens.style.vest);
+        shading = getDSVestShadingSVG(style);
         shirtOverlay = getDSVestShirtSVG();
     } else {
-        shading = getDSTrouserShadingSVG(ens.style.trousers);
+        shading = getDSTrouserShadingSVG(style);
     }
-
-    var activeClass = ens.activeGarment === garment ? " active" : "";
-    var label = garment.charAt(0).toUpperCase() + garment.slice(1);
     return (
         '<div class="ds-garment ds-garment--' + garment + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
         '<div class="ds-fabric-layer" id="vis-ens-fabric-' + garment + '" style="background-image:url(' + getFabricTile(fabricKey) + ');clip-path:url(#ds-clip-' + garment + ')"></div>' +
@@ -1445,6 +1470,22 @@ function getVisEnsGarmentBlock(garment, ens) {
         "</div>"
     );
 }
+
+// Paints every photographed garment canvas currently in the DOM. Called
+// from the app render hook after innerHTML is set, alongside the other
+// post-render initialisers. renderGarmentPhoto self-retries while its
+// asset loads, so a cold first paint fills in a frame or two later.
+function startVisEnsPhotos() {
+    if (typeof renderGarmentPhoto !== "function") return;
+    var canvases = document.querySelectorAll(".ds-garment-canvas");
+    for (var i = 0; i < canvases.length; i++) {
+        var c = canvases[i];
+        var key = c.getAttribute("data-garment-key");
+        var cloth = c.getAttribute("data-cloth");
+        if (key && cloth) renderGarmentPhoto(c, key, cloth);
+    }
+}
+window.startVisEnsPhotos = startVisEnsPhotos;
 
 function renderClothEnsemble(recommended) {
     var ens = getVisEnsembleState();
@@ -1562,8 +1603,16 @@ function visEnsApplyFabric(fabricKey) {
     var ens = getVisEnsembleState();
     ens.activeGarment = ens.activeGarment || "jacket";
     ens.fabrics[ens.activeGarment] = fabricKey;
-    var layer = document.getElementById("vis-ens-fabric-" + ens.activeGarment);
-    if (layer) layer.style.backgroundImage = "url(" + getFabricTile(fabricKey) + ")";
+    // Photo garments repaint their canvas with the new cloth; a drawn
+    // fallback garment (no photo yet) just swaps its tiled background.
+    var canvas = document.getElementById("vis-ens-canvas-" + ens.activeGarment);
+    if (canvas && typeof renderGarmentPhoto === "function") {
+        canvas.setAttribute("data-cloth", fabricKey);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), fabricKey);
+    } else {
+        var layer = document.getElementById("vis-ens-fabric-" + ens.activeGarment);
+        if (layer) layer.style.backgroundImage = "url(" + getFabricTile(fabricKey) + ")";
+    }
     visSyncSwatchMarks(fabricKey, null);
     var sel = document.getElementById("vis-ens-selected");
     if (sel) sel.innerHTML = getVisEnsSelectedHTML(getFabricByKey(fabricKey));
