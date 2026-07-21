@@ -56,8 +56,8 @@
     --surface: #ffffff;
     --surface-2: #f3f3f3;
     --text: #111110;
-    --muted: #6b675f;
-    --soft: #78756f;              /* was #a4a19c (2.57:1 on white — failed AA) */
+    --muted: #5f5a51;             /* darkened for AA on the translucent cream sheet */
+    --soft: #665f57;              /* darkened for AA on the ~0.84 cream/mist sheet (was #78756f: ok on white, ~3.9:1 on the sheet) */
     --line: rgba(17, 17, 16, 0.08);
     --line-strong: rgba(17, 17, 16, 0.18);
     --accent: #111110;
@@ -2729,12 +2729,13 @@ textarea {
 }
 
 .arch-q-title {
-    font-family: "Manrope", sans-serif;
-    font-size: clamp(1rem, 2.2vw, 1.3rem);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 1.3;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: clamp(1.5rem, 3.6vw, 2.05rem);
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+    line-height: 1.18;
+    text-wrap: balance;
     color: var(--text);
     margin-bottom: 1.8rem;
     max-width: 36rem;
@@ -2786,11 +2787,11 @@ textarea {
 
 .arch-opt-main {
     font-family: "Manrope", sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: #050505;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    color: #1c1a15;
     line-height: 1.3;
 }
 
@@ -2800,7 +2801,7 @@ textarea {
     font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #706c66;
+    color: var(--soft);
     line-height: 1.2;
 }
 
