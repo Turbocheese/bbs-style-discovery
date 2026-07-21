@@ -109,12 +109,19 @@ var LUMA_CEIL = 255;
 // Normalising them together with the cloth would stretch that near-black up
 // to LUMA_FLOOR, so the cloth would show THROUGH the lining under multiply
 // (a translucent lining). Instead, treat anything darker than LINING_LUMA as
-// lining and map it down into [0, LINING_CEIL] so it multiplies to black on
-// every cloth; the cloth above the threshold keeps the [FLOOR, CEIL] band so
-// its folds still shade rather than punch through. Trousers carry no lining
-// and never dip below the threshold, so they are unaffected.
+// lining and map it into [0, LINING_CEIL]; the cloth above the threshold keeps
+// the [FLOOR, CEIL] band so its folds still shade rather than punch through.
+// Trousers carry no lining and never dip below the threshold, so they are
+// unaffected.
+//
+// Because the cloth is applied by multiply, the lining renders as
+// cloth-luminance x (lining / 255). LINING_CEIL therefore sets its character:
+// a very low ceil crushes it to pure black on every cloth (too harsh on pale
+// cloths), while a higher ceil makes it TONAL — near-black on dark cloths, a
+// soft dark grey on pale ones (the bespoke look). Tuned for that balance;
+// lower it toward black, raise it toward soft.
 var LINING_LUMA = 60;
-var LINING_CEIL = 12;
+var LINING_CEIL = 70;
 
 function normaliseLuminance(px, mask, w, h) {
     var out = new Uint8Array(w * h);

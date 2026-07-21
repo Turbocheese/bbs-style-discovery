@@ -200,82 +200,10 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
     }
 }
 
-// Horn-brown, one colour on every cloth (founder decision). These are
-// DRAWN, not restored from the photo — the grey mockups' own buttons are
-// swallowed by the multiply, and restoring grey pixels is not "brown".
-var BUTTON_HORN = "#6b4f34";
-var BUTTON_HORN_RIM = "#4a3521";
-var BUTTON_HOLE = "#2e2013";
-
-// Normalised {x, y, r}. Authored by inspecting each garment render — the
-// faint swallowed button in the photo marks where each one belongs.
-var GARMENT_BUTTONS = {
-    "jacket-sb": [
-        { x: 0.508, y: 0.559, r: 0.013 }
-    ],
-    "jacket-db": [
-        { x: 0.400, y: 0.442, r: 0.013 },
-        { x: 0.603, y: 0.442, r: 0.013 },
-        { x: 0.417, y: 0.658, r: 0.013 },
-        { x: 0.569, y: 0.658, r: 0.013 }
-    ],
-    "vest-sb-none": [
-        { x: 0.502, y: 0.495, r: 0.013 },
-        { x: 0.502, y: 0.561, r: 0.013 },
-        { x: 0.502, y: 0.629, r: 0.013 },
-        { x: 0.502, y: 0.697, r: 0.013 }
-    ],
-    "vest-sb-shawl": [
-        { x: 0.507, y: 0.512, r: 0.012 },
-        { x: 0.507, y: 0.580, r: 0.012 },
-        { x: 0.507, y: 0.651, r: 0.012 },
-        { x: 0.507, y: 0.720, r: 0.012 }
-    ],
-    "vest-db-none": [
-        { x: 0.447, y: 0.546, r: 0.013 },
-        { x: 0.562, y: 0.546, r: 0.013 },
-        { x: 0.447, y: 0.617, r: 0.013 },
-        { x: 0.562, y: 0.617, r: 0.013 },
-        { x: 0.447, y: 0.690, r: 0.013 },
-        { x: 0.562, y: 0.690, r: 0.013 },
-        { x: 0.447, y: 0.762, r: 0.013 },
-        { x: 0.562, y: 0.762, r: 0.013 }
-    ],
-    "vest-db-shawl": [
-        { x: 0.449, y: 0.571, r: 0.013 },
-        { x: 0.561, y: 0.571, r: 0.013 },
-        { x: 0.449, y: 0.644, r: 0.013 },
-        { x: 0.561, y: 0.644, r: 0.013 },
-        { x: 0.449, y: 0.716, r: 0.013 },
-        { x: 0.561, y: 0.716, r: 0.013 },
-        { x: 0.449, y: 0.787, r: 0.013 },
-        { x: 0.561, y: 0.787, r: 0.013 }
-    ]
-};
-
-function drawGarmentButtons(ctx, canvas, garmentKey) {
-    var buttons = GARMENT_BUTTONS[garmentKey];
-    if (!buttons) return;
-    var W = canvas.width;
-    for (var i = 0; i < buttons.length; i++) {
-        var b = buttons[i];
-        var cx = b.x * W, cy = b.y * canvas.height, r = b.r * W;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fillStyle = BUTTON_HORN;
-        ctx.fill();
-        ctx.lineWidth = Math.max(1, r * 0.18);
-        ctx.strokeStyle = BUTTON_HORN_RIM;
-        ctx.stroke();
-        // two stitch holes
-        ctx.fillStyle = BUTTON_HOLE;
-        var h = r * 0.22;
-        ctx.beginPath(); ctx.arc(cx - r * 0.3, cy, h, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + r * 0.3, cy, h, 0, Math.PI * 2); ctx.fill();
-    }
-}
-
-window.GARMENT_BUTTONS = GARMENT_BUTTONS;
+// Buttons are part of the photograph now (the second-generation shots have
+// real horn buttons), so they composite with the cloth like the rest of the
+// garment — no separate drawn-button pass. The old overlay was authored for
+// the first-gen grey mockups and no longer lines up with these photos.
 
 // Linings are baked into the photographs (black Bemberg — the jacket neck
 // opening, the vest back and inner front). Because the cloth is composited
@@ -318,11 +246,8 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
     ctx.globalCompositeOperation = "source-over";
 
-    // 4. Horn buttons, drawn on top — see GARMENT_BUTTONS above for why
-    //    these can't be recovered from the photograph itself. (Linings are
-    //    baked into the photograph and survive the multiply, so there is no
-    //    separate lining pass.)
-    drawGarmentButtons(ctx, canvas, garmentKey);
+    // Buttons and linings are both part of the photograph now and composite
+    // with the cloth — no separate drawn passes.
 
     return true;
 }

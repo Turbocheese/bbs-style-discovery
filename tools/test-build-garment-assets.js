@@ -239,7 +239,7 @@ var m3 = new Uint8Array([255, 255, 255, 0]); // last pixel is background
 
 var norm3 = b.normaliseLuminance(px3, m3, w3, h3);
 
-assert.ok(norm3[0] < 20, "near-black lining (luma 20) maps well below the cloth floor (got " + norm3[0] + ")");
+assert.ok(norm3[0] < b.LUMA_FLOOR, "lining (luma 20) maps below the cloth floor, so under multiply it always reads darker than any cloth pixel (got " + norm3[0] + ")");
 assert.strictEqual(norm3[1], b.LUMA_FLOOR, "darkest CLOTH pixel maps to the floor, not dragged down by the lining");
 assert.strictEqual(norm3[2], b.LUMA_CEIL, "lightest cloth pixel maps to the ceiling");
 assert.strictEqual(norm3[3], 0, "background is zeroed");
