@@ -1043,6 +1043,8 @@ function renderMillMap() {
         '<div class="vis-eyebrow">The Provenance Chart</div>' +
         "<h1 class=\"vis-title\">Where the Cloth Comes From</h1>" +
         '<p class="vis-lead">' + houses + " houses and " + (origins === 1 ? "one cotton origin" : origins + " cotton origins") + ", charted. Tap a marker to meet the house behind the cloth &mdash; the numbered discs open the two great mill districts.</p>" +
+        // Heritage tickers — the scale behind the provenance, counted up on reveal.
+        (typeof renderHeritageStrip === "function" ? renderHeritageStrip("millmap") : "") +
         getMillGlobeHTML() +
         '<div class="map-chips">' + getMapChipsHTML() + "</div>" +
         '<div class="map-stage" id="map-stage">' + getMapStageHTML() + "</div>" +

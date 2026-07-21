@@ -3754,8 +3754,6 @@ function renderHome() {
             : "A bespoke discovery experience built around how you dress.") +
         "</p>" +
         "</div>" +
-        // Heritage tickers — the house scale, counted up on reveal.
-        (typeof renderHeritageStrip === "function" ? renderHeritageStrip("home") : "") +
                 // --- Begin: the two quizzes ---------------------------------
         // Style Direction is the primary action, so it is a full-width
         // hero carrying a real archetype figure rather than a fourth

@@ -52,8 +52,12 @@ provenance tape (oldest mill in the collection is 1767).
 
 ## Placements
 
-Home strip · Mill Map / Cloth Origins · Provenance Chart · Quiz result page —
-the same component and data, differing only by `variant` styling.
+**Mill Map / Cloth Origins only** (revised after review, 2026-07-21). The figures
+are cloth-provenance, not brand-level, so they belong where cloth is the subject.
+A home-screen strip was tried and removed; the quiz-result and separate
+"provenance chart" placements were dropped (the provenance chart is part of the
+Mill Map). The component still takes a `variant` so more cloth-context
+placements (e.g. the Cloth Room) can reuse it later.
 
 ## Login-page cleanup
 
