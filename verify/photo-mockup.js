@@ -265,17 +265,32 @@ var playwright = require("playwright");
     // OTHER combination must resolve to a real asset. When the two photos
     // land and their keys join GARMENT_ASSET_KEYS, this allowance goes to
     // zero on its own with no further change.
-    var PENDING = ["trousers-single-classic", "trousers-double-tapered"];
+    // Exactly two combinations may legitimately resolve to a not-yet-built
+    // photograph — and only these two, produced by their own inputs. Match
+    // the whole message, not a substring: a substring allowance would also
+    // absorb a *different* combo that wrongly resolved to a pending key,
+    // masking a resolver bug (the failure mode this project keeps hitting).
+    // The combo JSON is deterministic — groups iterate front then taper.
+    var EXPECTED_PENDING = [
+        'trousers {"front":"single","taper":"classic"} -> trousers-single-classic',
+        'trousers {"front":"double","taper":"tapered"} -> trousers-double-tapered'
+    ];
     var realMissing = coverage.missing.filter(function (m) {
-        return PENDING.every(function (p) { return m.indexOf(p) === -1; });
+        return EXPECTED_PENDING.indexOf(m) === -1;
     });
     if (realMissing.length > 0) {
         console.error("FAIL: " + realMissing.length + " combinations resolve to no asset:");
         realMissing.slice(0, 12).forEach(function (m) { console.error("  " + m); });
         process.exit(1);
     }
+    // Every expected-pending combo must actually be pending. If one stopped
+    // appearing, either its asset landed (add the key) or the resolver
+    // changed — either way, someone must look rather than have it pass silently.
+    var stillPending = EXPECTED_PENDING.filter(function (m) {
+        return coverage.missing.indexOf(m) !== -1;
+    });
     console.log("PASS: every option combination resolves to a real photograph"
-        + (coverage.total ? " (" + coverage.total + " pending the two un-generated trouser photos)" : ""));
+        + " (" + stillPending.length + " of 2 trouser photos still pending)");
 
     await browser.close();
 })();
