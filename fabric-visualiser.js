@@ -427,11 +427,9 @@ function renderFabricVisualiser() {
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">See It In Cloth</h1>" +
         '<p class="vis-lead">Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop.</p>' +
-        '<div class="vis-stage">' +
-        '<div class="vis-fabric-layer" id="vis-fabric-a" style="background-image:url(' + getFabricTile(activeKey) + ')"></div>' +
-        '<div class="vis-fabric-layer" id="vis-fabric-b"></div>' +
-        getVisualiserShirtOverlaySVG() +
-        getVisualiserJacketSVG() +
+        '<div class="vis-stage vis-stage--photo">' +
+        '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +
+        ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>' +
         "</div>" +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
@@ -441,7 +439,7 @@ function renderFabricVisualiser() {
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
         "</div>" +
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
-        '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
+        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
@@ -454,14 +452,14 @@ function getVisSplitPct() {
 }
 
 function getVisSplitLayerHTML(side, key, pct) {
-    // Layer A is clipped from the right edge back to the divider.
+    // Layer A is clipped from the right edge back to the divider. The clip
+    // lives on this wrapper, so a photographed jacket canvas inside it is
+    // revealed by the drag exactly as the old fabric layer was.
     var clip = side === "a" ? ' style="clip-path:inset(0 ' + (100 - pct) + '% 0 0)"' : "";
     return (
         '<div class="vis-split-layer vis-split-layer--' + side + '" id="vis-split-layer-' + side + '"' + clip + ">" +
-        '<div class="vis-fabric-layer" id="vis-split-base-' + side + '" style="background-image:url(' + getFabricTile(key) + ')"></div>' +
-        '<div class="vis-fabric-layer" id="vis-split-fade-' + side + '"></div>' +
-        getVisualiserShirtOverlaySVG() +
-        getVisualiserJacketSVG() +
+        '<canvas class="vis-jacket-canvas vis-split-canvas" id="vis-split-canvas-' + side + '" width="644" height="800"' +
+        ' data-garment-key="jacket-sb" data-cloth="' + key + '"></canvas>' +
         "</div>"
     );
 }
@@ -513,7 +511,7 @@ function renderClothCompare(aKey, recommended) {
         '<div class="vis-info vis-info--cmp" id="vis-info-' + side + '">' +
         getFabricInfoHTML(side === "a" ? a : b) + "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
-        '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
+        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
@@ -657,10 +655,14 @@ function visSyncSwatchMarks(selKey, altKey) {
     }
 }
 
-// Partial DOM update on swatch tap — crossfades the fabric
-// layers instead of re-rendering the whole view.
+// Partial DOM update on swatch tap — repaint the jacket canvas with the
+// new cloth instead of re-rendering the whole view.
 function visApplyFabric(key) {
-    visCrossfade("vis-fabric-a", "vis-fabric-b", key);
+    var canvas = document.getElementById("vis-jacket-canvas");
+    if (canvas && typeof renderGarmentPhoto === "function") {
+        canvas.setAttribute("data-cloth", key);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
+    }
     var info = document.getElementById("vis-info");
     if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
     visSyncSwatchMarks(key, null);
@@ -668,7 +670,11 @@ function visApplyFabric(key) {
 
 // Compare mode: dress one side. Call after appState is updated.
 function visApplyCompareFabric(side, key) {
-    visCrossfade("vis-split-base-" + side, "vis-split-fade-" + side, key);
+    var canvas = document.getElementById("vis-split-canvas-" + side);
+    if (canvas && typeof renderGarmentPhoto === "function") {
+        canvas.setAttribute("data-cloth", key);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
+    }
     // The info card follows the side being dressed, and the side button
     // carries the cloth's name so both halves stay labelled.
     var info = document.getElementById("vis-info-" + side) || document.querySelector(".vis-info--cmp");
@@ -1471,13 +1477,14 @@ function getVisEnsGarmentBlock(garment, ens) {
     );
 }
 
-// Paints every photographed garment canvas currently in the DOM. Called
-// from the app render hook after innerHTML is set, alongside the other
-// post-render initialisers. renderGarmentPhoto self-retries while its
-// asset loads, so a cold first paint fills in a frame or two later.
+// Paints every photographed garment canvas currently in the DOM — the
+// ensemble stage, the single-cloth view, and both sides of the Split all
+// use the same [data-garment-key] canvas contract. Called from the app
+// render hook after innerHTML is set. renderGarmentPhoto self-retries
+// while its asset loads, so a cold first paint fills in a frame or two later.
 function startVisEnsPhotos() {
     if (typeof renderGarmentPhoto !== "function") return;
-    var canvases = document.querySelectorAll(".ds-garment-canvas");
+    var canvases = document.querySelectorAll("canvas[data-garment-key]");
     for (var i = 0; i < canvases.length; i++) {
         var c = canvases[i];
         var key = c.getAttribute("data-garment-key");
@@ -1580,7 +1587,7 @@ function renderClothEnsemble(recommended) {
         '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +
         "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
-        '<div class="vis-footnote">Preview woven from placeholder textures. Final renders will use photographed cloth.</div>' +
+        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
