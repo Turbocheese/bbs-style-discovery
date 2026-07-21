@@ -277,6 +277,42 @@ function drawGarmentButtons(ctx, canvas, garmentKey) {
 
 window.GARMENT_BUTTONS = GARMENT_BUTTONS;
 
+// The jacket's inner bemberg lining, visible in the neck opening below the
+// collar. It is a fixed black regardless of cloth (founder decision) — the
+// collar itself is body cloth and is left alone. Only garments whose open
+// neck reveals the inside carry an entry; the double-breasted jacket wraps
+// closed and shows none. Points are normalised {x, y}, a tapering panel
+// framed by the lapel roll.
+var LINING_TOP = "#191a1d";
+var LINING_BOTTOM = "#070708";
+var GARMENT_LINING = {
+    "jacket-sb": [
+        { x: 0.476, y: 0.108 },
+        { x: 0.539, y: 0.108 },
+        { x: 0.521, y: 0.205 },
+        { x: 0.506, y: 0.262 },
+        { x: 0.494, y: 0.205 }
+    ]
+};
+
+function drawGarmentLining(ctx, canvas, garmentKey) {
+    var poly = GARMENT_LINING[garmentKey];
+    if (!poly || !poly.length) return;
+    var W = canvas.width, H = canvas.height;
+    var top = poly[0].y * H, bot = poly[2].y * H;
+    var grad = ctx.createLinearGradient(0, top, 0, bot);
+    grad.addColorStop(0, LINING_TOP);
+    grad.addColorStop(1, LINING_BOTTOM);
+    ctx.beginPath();
+    ctx.moveTo(poly[0].x * W, poly[0].y * H);
+    for (var i = 1; i < poly.length; i++) ctx.lineTo(poly[i].x * W, poly[i].y * H);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+}
+
+window.GARMENT_LINING = GARMENT_LINING;
+
 function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
@@ -313,7 +349,10 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
     ctx.globalCompositeOperation = "source-over";
 
-    // 4. Horn buttons, drawn on top — see GARMENT_BUTTONS above for why
+    // 4. Black bemberg lining in the neck opening, fixed regardless of cloth.
+    drawGarmentLining(ctx, canvas, garmentKey);
+
+    // 5. Horn buttons, drawn on top — see GARMENT_BUTTONS above for why
     //    these can't be recovered from the photograph itself.
     drawGarmentButtons(ctx, canvas, garmentKey);
 
