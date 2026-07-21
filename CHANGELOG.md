@@ -10,6 +10,23 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-22 — In-store experience polish
+
+A warmer, more considered feel across the whole app, plus a mobile fix.
+
+- **A living backdrop.** A soft, flowing "cashmere mist" now drifts quietly
+  behind every screen — light and low-key, with the content sitting on a gently
+  textured cream sheet. The old drifting-tape background is retired.
+- **The house, in numbers.** The Mill Map counts up the scale of the collection
+  as you arrive: 259 years, 40 houses, 102 cloths.
+- **A foil-stamp reveal.** Your name, and your style-result headline, settle in
+  and then catch a brass foil sheen sweeping across — like a real foil stamp.
+- **A more refined discovery flow.** The style and colour quizzes and the final
+  details step now read in elegant sentence case instead of shouting in full
+  capitals, and every muted label was checked for legibility.
+- **Flip cards fixed on iPhone and iPad.** The turn-over cards in the guide and
+  lookbook were being cut to a sliver in Safari; they now show at full height.
+
 ## 2026-07-21 — Photographic garments
 
 The centrepiece of the Cloth Room — the jacket, waistcoat and trousers — is now
