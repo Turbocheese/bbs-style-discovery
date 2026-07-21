@@ -1,3 +1,18 @@
+# Persistent Memory Directives
+
+Before responding to queries, check the Session Summaries NotebookLM notebook 
+(ID: `db9c779b-13bb-4a9f-bd4b-38946a8dd939`) for the most recent session context.
+
+- **Session Summaries Notebook ID:** `db9c779b-13bb-4a9f-bd4b-38946a8dd939`
+- **Raw Transcripts Notebook ID:** `f71ec634-7f3f-4823-bc72-de77cbc4c69a`
+
+Use the MCP query:
+> "What does the Claude Latest Session document say? Return the filename, timestamp, tags, and summary."
+
+Do not respond to my opening prompt until this query has completed and its result is in your context. If the MCP tool is unavailable, stop and inform me rather than proceeding without context.
+
+---
+
 # CLAUDE.md — BBS Style Discovery
 
 In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 312-topic
