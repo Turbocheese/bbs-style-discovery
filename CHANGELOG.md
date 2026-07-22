@@ -10,6 +10,21 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-22 — Three more house touches
+
+Another small batch in the "21st" run of interface polish.
+
+- **The Provenance Ribbon.** The mill houses now drift past the Provenance
+  Chart as a quiet brass-ruled ribbon, oldest to newest across three and a half
+  centuries — touch it to hold it still, tap a house to open it. It replaces the
+  draggable tape blade.
+- **Spotlight cards.** A soft brass light follows your finger across the home
+  and gallery cards and lights the edge it passes — a tactile cue that a card is
+  live, tuned warm and quiet.
+- **Headlines that arrive.** The main screen titles now assemble word by word
+  and catch a single brass foil sweep as you land — the same moment as the
+  name reveal on your results, extended to the Cloth Room and Provenance Chart.
+
 ## 2026-07-22 — Archetype figures no longer missing their trousers
 
 - **The cut-out figures are whole again.** Several archetype illustrations

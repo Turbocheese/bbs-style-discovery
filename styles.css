@@ -11315,3 +11315,143 @@ textarea:focus-visible,
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(58, 46, 28, 0.14);
 }
+
+/* ============================================================
+   THE PROVENANCE RIBBON
+   Houses drift past oldest-to-newest as an ambient brass-ruled
+   marquee (replaced the draggable tape blade). The track is
+   doubled in markup and translates -50% for a seamless loop;
+   hover/touch holds it so a name can be read. The map index below
+   stays the reliable way to open a specific house.
+   ============================================================ */
+.pmarq {
+    position: relative;
+    margin-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.pmarq-track {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2.2rem;
+    white-space: nowrap;
+    animation: pmarqSlide 64s linear infinite;
+    will-change: transform;
+}
+.pmarq:hover .pmarq-track,
+.pmarq:active .pmarq-track { animation-play-state: paused; }
+@keyframes pmarqSlide {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+.pmarq-house {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.7rem 0.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.pmarq-year {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 1.08rem;
+    color: var(--bronze);
+    line-height: 1;
+}
+.pmarq-name {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+.pmarq-house:hover .pmarq-name { color: var(--text); }
+@media (prefers-reduced-motion: reduce) {
+    .pmarq-track { animation: none; }
+}
+
+/* ============================================================
+   KINETIC TITLES
+   A section headline assembles word-by-word, then catches one
+   brass foil sweep — the results-screen name reveal, sized for a
+   headline (getKineticTitleHTML / initKineticTitles).
+   ============================================================ */
+.kin-title { position: relative; display: inline-block; }
+.kin-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.42em);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.kin-title.kin-play .kin-word { opacity: 1; transform: none; }
+.kin-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(105deg, transparent 42%, rgba(199, 163, 102, 0.9) 50%, transparent 58%);
+    background-size: 220% 100%;
+    background-position: 200% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+.kin-title.kin-play .kin-shine { opacity: 1; animation: kinFoil 1.05s ease 0.5s 1; }
+@keyframes kinFoil {
+    from { background-position: 200% 0; }
+    to { background-position: -120% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kin-word { opacity: 1; transform: none; transition: none; }
+    .kin-title.kin-play .kin-shine { animation: none; opacity: 0; }
+}
+
+/* ============================================================
+   SPOTLIGHT CARDS
+   A warm brass edge-glow tracks the pointer across the menu and
+   gallery cards. A single delegated pointermove listener sets
+   --mx/--my and toggles .spotlight-lit; the glow is a border-only
+   ::after (mask-composite) so it never covers the card content.
+   ============================================================ */
+.gallery-card,
+.home-card,
+.home-hero-card,
+.home-cloth-room { position: relative; }
+
+.gallery-card::after,
+.home-card::after,
+.home-hero-card::after,
+.home-cloth-room::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(138, 109, 67, 0.75), transparent 55%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.gallery-card.spotlight-lit::after,
+.home-card.spotlight-lit::after,
+.home-hero-card.spotlight-lit::after,
+.home-cloth-room.spotlight-lit::after { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+    .gallery-card::after,
+    .home-card::after,
+    .home-hero-card::after,
+    .home-cloth-room::after { transition: none; }
+}

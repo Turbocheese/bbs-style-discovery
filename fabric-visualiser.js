@@ -560,7 +560,7 @@ function renderFabricVisualiser() {
     return (
         '<div class="vis-shell">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
-        "<h1 class=\"vis-title\">See It In Cloth</h1>" +
+        '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
         '<p class="vis-lead">Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop.</p>' +
         '<div class="vis-stage vis-stage--photo">' +
         '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +

@@ -5781,6 +5781,68 @@ function getRevealNameHTML(text, cls) {
     return out + "</span>";
 }
 
+// A section title that assembles word-by-word and then catches one brass foil
+// sweep — the same moment as getRevealNameHTML, sized for a headline. The
+// words carry the reveal; a full-text overlay (.kin-shine) clipped to the
+// glyphs carries the sheen. initKineticTitles() (called from the render hook)
+// flips .kin-play on so the staggered transitions run after the DOM lands.
+function getKineticTitleHTML(text) {
+    var safe = String(text || "");
+    if (!safe) return safe;
+    var words = safe.split(" ");
+    var out = '<span class="kin-title" aria-label="' + safe + '">';
+    for (var i = 0; i < words.length; i++) {
+        out += '<span class="kin-word" aria-hidden="true" style="transition-delay:' + (i * 85) + 'ms">' +
+               words[i] + "</span>" + (i < words.length - 1 ? " " : "");
+    }
+    out += '<span class="kin-shine" aria-hidden="true">' + safe + "</span>";
+    return out + "</span>";
+}
+
+function initKineticTitles() {
+    var titles = document.querySelectorAll(".kin-title:not(.kin-play)");
+    for (var i = 0; i < titles.length; i++) {
+        // Double rAF so the opacity:0 start state paints before .kin-play adds,
+        // otherwise the transition has nothing to animate from.
+        (function (el) {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { el.classList.add("kin-play"); });
+            });
+        })(titles[i]);
+    }
+}
+window.getKineticTitleHTML = getKineticTitleHTML;
+window.initKineticTitles = initKineticTitles;
+
+// Spotlight cards: one delegated pointermove (not a click, so it does not
+// touch the single delegated click handler) drives a brass edge-glow that
+// follows the finger across the menu and gallery cards. The read/write is
+// rAF-throttled; the glow itself is pure CSS on .spotlight-lit.
+(function () {
+    var SPOT_SEL = ".gallery-card, .home-card, .home-hero-card, .home-cloth-room";
+    var current = null, pending = false, px = 0, py = 0;
+    function clear() { if (current) { current.classList.remove("spotlight-lit"); current = null; } }
+    document.addEventListener("pointermove", function (e) {
+        var el = e.target && e.target.closest ? e.target.closest(SPOT_SEL) : null;
+        if (el !== current) { if (current) current.classList.remove("spotlight-lit"); current = el; if (el) el.classList.add("spotlight-lit"); }
+        if (!el) return;
+        px = e.clientX; py = e.clientY;
+        if (!pending) {
+            pending = true;
+            requestAnimationFrame(function () {
+                pending = false;
+                if (!current) return;
+                var r = current.getBoundingClientRect();
+                current.style.setProperty("--mx", ((px - r.left) / r.width * 100) + "%");
+                current.style.setProperty("--my", ((py - r.top) / r.height * 100) + "%");
+            });
+        }
+    }, { passive: true });
+    document.addEventListener("pointerup", clear, { passive: true });
+    document.addEventListener("pointercancel", clear, { passive: true });
+    window.addEventListener("blur", clear);
+}());
+
 function getTopicFlipCloth(path) {
     if (typeof CLOTH_LIBRARY === "undefined" || !path || !path.length) return null;
     var key = path.join(">");
@@ -5931,6 +5993,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initKineticTitles === "function") initKineticTitles();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -5961,6 +6024,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initKineticTitles === "function") initKineticTitles();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {

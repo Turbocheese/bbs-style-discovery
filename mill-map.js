@@ -501,55 +501,20 @@ function getProvenanceTapeHTML() {
     dated.sort(function (a, b) { return a.est - b.est; });
 
     var first = dated[0].est, last = dated[dated.length - 1].est;
-    var startY = Math.floor(first / 50) * 50;
-    var endY = Math.ceil(last / 50) * 50;
-    var width = (endY - startY) * TAPE_PX_PER_YEAR;
 
-    // Century and half-century ticks, like the graduations on a blade.
-    var ticks = "";
-    for (var y = startY; y <= endY; y += 10) {
-        var major = y % 100 === 0;
-        var half = y % 50 === 0;
-        if (!half && !major) continue;
-        var left = (y - startY) * TAPE_PX_PER_YEAR;
-        ticks +=
-            '<span class="ptape-tick' + (major ? " major" : "") + '" style="left:' + left + 'px"></span>' +
-            (major ? '<span class="ptape-year" style="left:' + left + 'px">' + y + "</span>" : "");
-    }
-
-    // Labels are packed into lanes rather than simply alternated. The
-    // 1860s-80s stretch has houses one and two years apart, so two rows
-    // still collided into unreadable slivers. Each house takes the first
-    // lane whose previous label has cleared it — the standard fix for
-    // dense timeline labelling, and it means no label ever overlaps
-    // another regardless of how tight the founding years get.
-    var LANES = [-2, -1, 1, 2];          // two above the blade, two below
-    var LANE_CLEAR = 104;                 // widest label plus breathing room
-    var laneEnd = [-1e9, -1e9, -1e9, -1e9];
-
-    var marks = "";
+    // The houses drift past as a continuous brass-ruled ribbon, oldest to
+    // newest, doubled so the loop seams invisibly. This replaced a draggable
+    // tape blade that lane-stacked labels across ~2900px; the ribbon reads the
+    // same three and a half centuries as ambient motion, and the map index
+    // below stays the reliable way to open a specific house.
+    var items = "";
     for (var m = 0; m < dated.length; m++) {
         var h = dated[m];
-        var x = (h.est - startY) * TAPE_PX_PER_YEAR;
-
-        var lane = 0;
-        for (var L = 0; L < LANES.length; L++) {
-            if (x - laneEnd[L] >= LANE_CLEAR) { lane = L; break; }
-            // If none is clear, fall back to the emptiest lane.
-            if (L === LANES.length - 1) {
-                lane = laneEnd.indexOf(Math.min.apply(null, laneEnd));
-            }
-        }
-        laneEnd[lane] = x;
-
-        var depth = LANES[lane];
-        marks +=
-            '<button class="ptape-house lane' + lane + (depth < 0 ? " up" : " down") + '"' +
-            ' style="left:' + x + 'px"' +
-            ' data-action="result-link" data-path=\'' + JSON.stringify(h.guidePath) + "'" +
+        items +=
+            '<button class="pmarq-house btn-bare" data-action="result-link" data-path=\'' + JSON.stringify(h.guidePath) + "'" +
             ' aria-label="' + h.name + ", founded " + h.est + '">' +
-            '<span class="ptape-stem"></span>' +
-            '<span class="ptape-label"><em>' + h.est + "</em>" + (h.short || h.name) + "</span>" +
+            '<span class="pmarq-year">' + h.est + "</span>" +
+            '<span class="pmarq-name">' + (h.short || h.name) + "</span>" +
             "</button>";
     }
 
@@ -560,13 +525,10 @@ function getProvenanceTapeHTML() {
         '<p class="ptape-lead">The houses in this room were founded across three and a half centuries &mdash; ' +
         (dated[0].short || dated[0].name) + " in " + first + ", " +
         (dated[dated.length - 1].short || dated[dated.length - 1].name) + " in " + last +
-        ". Drag the blade.</p>" +
+        ". They drift past below; tap one to meet it.</p>" +
         "</div>" +
-        '<div class="ptape-scroll" id="ptape-scroll">' +
-        '<div class="ptape-rail" style="width:' + (width + 120) + 'px">' +
-        '<span class="ptape-blade"></span>' +
-        ticks + marks +
-        "</div>" +
+        '<div class="pmarq" aria-label="The houses, oldest to newest">' +
+        '<div class="pmarq-track">' + items + items + "</div>" +
         "</div>" +
         "</div>"
     );
@@ -1041,7 +1003,7 @@ function renderMillMap() {
     return (
         '<div class="vis-shell map-shell">' +
         '<div class="vis-eyebrow">The Provenance Chart</div>' +
-        "<h1 class=\"vis-title\">Where the Cloth Comes From</h1>" +
+        '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("Where the Cloth Comes From") : "Where the Cloth Comes From") + "</h1>" +
         '<p class="vis-lead">' + houses + " houses and " + (origins === 1 ? "one cotton origin" : origins + " cotton origins") + ", charted. Tap a marker to meet the house behind the cloth &mdash; the numbered discs open the two great mill districts.</p>" +
         // Heritage tickers — the scale behind the provenance, counted up on reveal.
         (typeof renderHeritageStrip === "function" ? renderHeritageStrip("millmap") : "") +
