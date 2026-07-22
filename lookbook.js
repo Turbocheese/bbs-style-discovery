@@ -171,7 +171,36 @@ function navigateLookbook() {
     render({ animate: true });
 }
 
+// The seasons actually present in the data, in a sensible reading order —
+// derived rather than hard-coded so a new look cannot fall outside the filter.
+function getLookbookSeasons() {
+    var order = ["Warm Weather", "Resort", "Coastal", "Autumn"];
+    var present = [];
+    for (var i = 0; i < order.length; i++) {
+        for (var j = 0; j < lookbookData.length; j++) {
+            if (lookbookData[j].season === order[i]) { present.push(order[i]); break; }
+        }
+    }
+    // anything new that is not in the order above still gets a chip
+    for (var k = 0; k < lookbookData.length; k++) {
+        if (present.indexOf(lookbookData[k].season) === -1) present.push(lookbookData[k].season);
+    }
+    return present;
+}
+
+function getLookbookFilter() {
+    var f = appState.lookbookFilter;
+    return f && f !== "all" ? f : "all";
+}
+
 function renderLookbook() {
+    var filter = getLookbookFilter();
+    var seasons = getLookbookSeasons();
+    var shown = [];
+    for (var s = 0; s < lookbookData.length; s++) {
+        if (filter === "all" || lookbookData[s].season === filter) shown.push(lookbookData[s]);
+    }
+
     var html = '<div class="lookbook-shell">';
 
     html += '<div class="lookbook-hero">';
@@ -181,10 +210,21 @@ function renderLookbook() {
         "<p>A curated gallery of our tailoring, seasonal campaigns, and styling architecture. Tap any look to turn it over.</p>";
     html += "</div>";
 
+    html += '<div class="lookbook-filter" role="group" aria-label="Filter looks by season">';
+    html += '<button class="lookbook-filter-btn btn-bare" data-action="lookbook-filter" data-season="all" aria-pressed="' +
+        (filter === "all") + '">All looks</button>';
+    for (var f = 0; f < seasons.length; f++) {
+        html += '<button class="lookbook-filter-btn btn-bare" data-action="lookbook-filter" data-season="' +
+            seasons[f] + '" aria-pressed="' + (filter === seasons[f]) + '">' + seasons[f] + "</button>";
+    }
+    html += "</div>";
+    html += '<div class="lookbook-filter-count">' + shown.length +
+        (shown.length === 1 ? " look" : " looks") + (filter === "all" ? "" : " &middot; " + filter) + "</div>";
+
     html += '<div class="lookbook-grid">';
 
-    for (var i = 0; i < lookbookData.length; i++) {
-        var item = lookbookData[i];
+    for (var i = 0; i < shown.length; i++) {
+        var item = shown[i];
 
         var tagsHTML = "";
         for (var t = 0; t < item.tags.length; t++) {
@@ -197,8 +237,10 @@ function renderLookbook() {
             '<div class="flip-card-inner">' +
             // Front: the photograph
             '<div class="flip-card-face flip-card-front">' +
+            // Eager, not lazy: these are precached and few, and lazy loading
+            // inside the gallery left blank-but-flippable cards on iPad Safari.
             '<img src="' + item.img + '" alt="' + item.title +
-            '" loading="lazy" onerror="this.closest(\'.flip-card\').style.display=\'none\'">' +
+            '" decoding="async" onerror="this.closest(\'.flip-card\').style.display=\'none\'">' +
             '<div class="lookbook-item-overlay">' +
             '<div class="lookbook-item-season">' + item.season + "</div>" +
             '<div class="lookbook-item-title">' + item.title + "</div>" +

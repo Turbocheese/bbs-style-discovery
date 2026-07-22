@@ -6163,6 +6163,10 @@ document.body.addEventListener("click", function (e) {
     else if (action === "guide") { runMeasureMoment("Opening the guide…", function () { navigateGuide([]); }, 650); }
     else if (action === "colour-direction") { runMeasureMoment("Preparing the colour room…", navigateColourDirection, 650); }
     else if (action === "lookbook") { runMeasureMoment("Opening the lookbook…", navigateLookbook, 650); }
+    else if (action === "lookbook-filter") {
+        appState.lookbookFilter = target.dataset.season || "all";
+        render();
+    }
     else if (action === "quick-query") {
         var queryType = target.dataset.query;
         var panel = document.getElementById("discovery-panel");
@@ -6673,9 +6677,16 @@ document.body.addEventListener("click", function (e) {
     else if (action === "flip-card") {
         var card = target.closest(".flip-card");
         if (!card) return;
+        // Build this card's 3D context first (see .is-3d in styles.css — cards
+        // stay flat until turned so iOS Safari is not asked to composite a
+        // whole gallery of 3D layers), then rotate on the next frame so the
+        // back face exists before the transition starts.
         var nowFlipped = !card.classList.contains("flipped");
-        card.classList.toggle("flipped", nowFlipped);
-        card.setAttribute("aria-pressed", nowFlipped ? "true" : "false");
+        card.classList.add("is-3d");
+        requestAnimationFrame(function () {
+            card.classList.toggle("flipped", nowFlipped);
+            card.setAttribute("aria-pressed", nowFlipped ? "true" : "false");
+        });
     }
     else if (action === "vis-ens-export") {
         exportEnsembleSpec();

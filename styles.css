@@ -5304,16 +5304,20 @@ textarea {
     max-width: none;
 }
 
-/* CSS Masonry Grid */
+/* Portfolio grid.
+   This was a CSS multi-column masonry (column-count: 2). iOS Safari mis-computes
+   `aspect-ratio` inside a multi-column container, which gave tiles the wrong
+   height — photographs cropped to the top of a head — and sometimes a zero-height
+   box that still flipped, so the room showed empty cards you could turn over.
+   A plain grid resolves the ratio correctly and keeps the curated order. */
 .lookbook-grid {
-    column-count: 2;
-    column-gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
     width: 100%;
 }
 
 .lookbook-item {
-    break-inside: avoid; /* Prevents images from splitting across columns */
-    margin-bottom: 16px;
     position: relative;
     border-radius: 12px;
     overflow: hidden;
@@ -5374,11 +5378,14 @@ textarea {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
+    /* No backdrop-filter here. Every look carries ~3 tags, so a full gallery
+       asked iOS Safari to composite 40-odd blurred chips and tiles stopped
+       painting — blank cards, or only the top of a frame. The overlay's dark
+       gradient already separates the text; a slightly stronger fill reads the
+       same at a fraction of the cost. */
+    background: rgba(255, 255, 255, 0.2);
     padding: 3px 8px;
     border-radius: 4px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
 }
 
 /* Touch vs Mouse Logic */
@@ -5410,12 +5417,54 @@ textarea {
 /* Mobile responsive */
 @media (max-width: 640px) {
     .lookbook-grid {
-        column-count: 1;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
     }
 
     .lookbook-item-overlay {
         padding: 30px 16px 16px 16px;
     }
+}
+
+/* ---- Lookbook filter: touch-first chips (a dropdown is a poor target on a
+   counter-top iPad, and every option is worth seeing at a glance) ---- */
+.lookbook-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 1.8rem;
+    max-width: 40rem;
+}
+
+.lookbook-filter-btn {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.66rem !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    padding: 9px 16px !important;
+    min-height: 40px !important;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.lookbook-filter-btn[aria-pressed="true"] {
+    color: #f4f0e8 !important;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+.lookbook-filter-count {
+    text-align: center;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--taupe, #a4a19c);
+    margin: -0.9rem 0 1.6rem;
 }
 /* ============================================
    HOME CARDS — PREMIUM EDITORIAL REDESIGN
@@ -8779,9 +8828,23 @@ button,
        its own (Chromium keeps using height: 100%; WebKit falls back to this),
        and staying position: relative preserves the 3D flip / backface culling. */
     aspect-ratio: inherit;
-    transform-style: preserve-3d;
     transition: transform 0.72s cubic-bezier(0.22, 0.61, 0.28, 1);
 }
+
+/* The 3D context is built only once a card is actually turned. Holding
+   preserve-3d + backface-visibility on every card at rest gave iOS Safari more
+   composited layers than it would keep: cards past the first handful painted
+   only partially (just the top of a head) or not at all — blank tiles that
+   still flipped and read out their title. Flat images at rest, 3D only where
+   it is being used. */
+.flip-card.is-3d .flip-card-inner { transform-style: preserve-3d; }
+
+.flip-card.is-3d .flip-card-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.flip-card:not(.is-3d) .flip-card-back { display: none; }
 
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
 
@@ -8792,8 +8855,6 @@ button,
 .flip-card-face {
     position: absolute;
     inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     overflow: hidden;
     border-radius: inherit;
 }
