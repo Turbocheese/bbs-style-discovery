@@ -11378,6 +11378,144 @@ textarea:focus-visible,
 }
 
 /* ============================================================
+   THE JOURNEY STRIP — three steps, so no result is a dead end
+   ============================================================ */
+.journey-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 2.2rem auto 1.4rem;
+    max-width: 30rem;
+}
+
+.journey-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none !important;
+    border: none !important;
+    padding: 8px 10px !important;
+    min-height: 44px !important;
+    cursor: pointer;
+}
+
+.journey-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--muted);
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18));
+    background: transparent;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.journey-label {
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.25s ease;
+}
+
+.journey-step.is-done .journey-dot {
+    background: var(--bronze);
+    border-color: var(--bronze);
+    color: #fff;
+}
+.journey-step.is-done .journey-label { color: var(--text); }
+
+.journey-step.is-current .journey-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #f4f0e8;
+}
+.journey-step.is-current .journey-label {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.journey-line {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--line-strong, rgba(17, 17, 16, 0.16));
+    min-width: 14px;
+}
+
+/* Secondary journey actions — real destinations, but not THE next step */
+.arch-secondary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 1.4rem auto 0;
+}
+
+/* Save / share / export are staff jobs, not the client's next step. Grouped
+   and quiet so they stop competing with the journey. */
+.arch-staff-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 1.8rem auto 0;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    max-width: 34rem;
+}
+
+.arch-staff-label {
+    width: 100%;
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--taupe, #a4a19c);
+    margin-bottom: 2px;
+}
+
+.arch-btn-quiet {
+    font-family: "Manrope", sans-serif !important;
+    font-size: 0.66rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    padding: 9px 15px !important;
+    min-height: 44px !important;
+    cursor: pointer;
+}
+
+.arch-btn-quiet:hover {
+    color: var(--text) !important;
+    border-color: var(--line-strong, rgba(17, 17, 16, 0.2)) !important;
+}
+
+/* ============================================================
+   HOME EDITORIAL PHOTO — fill the card on iOS
+   `.home-card-photo` was sized with `aspect-ratio: 4/3` plus
+   `max-height: 210px`. Chromium stretches it to the card width and
+   caps the height; WebKit instead honours the ratio and shrinks the
+   WIDTH to match the capped height, so on iPad the photo sat 22px
+   narrower than its card — a gap down the right-hand side. A definite
+   height fills the card in every engine.
+   ============================================================ */
+.home-card-photo {
+    aspect-ratio: auto;
+    width: 100%;
+    height: 210px;
+}
+
+/* ============================================================
    CLOTH STUDY — the interactive tools for the selected cloth
    (drape, tilt-to-light sheen with a loupe toggle, pairing web).
    ============================================================ */

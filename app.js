@@ -4585,21 +4585,31 @@ function renderResult() {
         "</div>" +
         "</div>" +
         "</div>" +
-        '<div class="arch-card-actions">' +
-        '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
-        '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
-        '<button class="arch-btn-stroke" data-action="fabric-vis">See Your Cloths</button>' +
-        '<button class="arch-btn-stroke" data-action="share-native">Share to Phone</button>' +
-        '<button class="arch-btn-stroke" data-action="export-dossier">Export Client Dossier</button>' +
-        '</div>' +
+        // Where the client is, then the ONE thing to do next, then everything
+        // else. This used to be five equal buttons with the actual next step
+        // (the colour quiz) buried underneath them, so nobody found it.
+        getJourneyStripHTML("style") +
 
-        '<div class="arch-journey-bridge" onclick="navigateColourDirection()">' +
+        '<div class="arch-journey-bridge" data-action="colour-direction" role="button" tabindex="0"' +
+        ' aria-label="Next step: find your colours">' +
         '<div class="arch-journey-bridge-content">' +
-        '<div class="arch-journey-bridge-label">Next Step</div>' +
-        '<h3 class="arch-journey-bridge-title">Discover Your Colour Architecture</h3>' +
-        '<p class="arch-journey-bridge-desc">Your silhouette is defined. Now discover the exact cloth finish and contrast levels that harmonise with your complexion.</p>' +
+        '<div class="arch-journey-bridge-label">Next &middot; Step 2 of 3</div>' +
+        '<h3 class="arch-journey-bridge-title">Find Your Colours</h3>' +
+        '<p class="arch-journey-bridge-desc">Your silhouette is set. Two minutes more finds the palette and contrast that suit your complexion.</p>' +
         "</div>" +
         '<div class="arch-journey-bridge-icon">&rarr;</div>' +
+        "</div>" +
+
+        '<div class="arch-secondary-actions">' +
+        '<button class="arch-btn-stroke" data-action="fabric-vis">See Your Cloths</button>' +
+        '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
+        "</div>" +
+
+        '<div class="arch-staff-actions">' +
+        '<div class="arch-staff-label">Save &amp; share</div>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="export-dossier">Export Client Dossier</button>' +
         "</div>" +
         (links.length > 0
             ? '<div class="arch-explore-section">' +
@@ -5814,6 +5824,35 @@ function initKineticTitles() {
 window.getKineticTitleHTML = getKineticTitleHTML;
 window.initKineticTitles = initKineticTitles;
 
+// The client's route through the app, drawn as three steps so a result screen
+// is never a dead end: a client finishing the style quiz could not tell that
+// the colour quiz was the next thing to do. Steps read done / current / ahead,
+// and each is tappable, so the strip doubles as navigation.
+function getJourneyStripHTML(active) {
+    var steps = [
+        { key: "style", label: "Style", action: "discover", done: !!appState.archetypeKey },
+        { key: "colour", label: "Colour", action: "colour-direction", done: !!appState.colourResultKey },
+        { key: "cloth", label: "Cloth", action: "fabric-vis", done: false }
+    ];
+    var html = '<div class="journey-strip" role="group" aria-label="Your discovery, in three steps">';
+    for (var i = 0; i < steps.length; i++) {
+        var s = steps[i];
+        var cls = "journey-step btn-bare";
+        if (s.key === active) cls += " is-current";
+        else if (s.done) cls += " is-done";
+        html +=
+            '<button class="' + cls + '" data-action="' + s.action + '"' +
+            (s.key === active ? ' aria-current="step"' : "") + ">" +
+            '<span class="journey-dot" aria-hidden="true">' +
+            (s.done && s.key !== active ? "&#10003;" : String(i + 1)) + "</span>" +
+            '<span class="journey-label">' + s.label + "</span>" +
+            "</button>";
+        if (i < steps.length - 1) html += '<span class="journey-line" aria-hidden="true"></span>';
+    }
+    return html + "</div>";
+}
+window.getJourneyStripHTML = getJourneyStripHTML;
+
 // Spotlight cards: one delegated pointermove (not a click, so it does not
 // touch the single delegated click handler) drives a brass edge-glow that
 // follows the finger across the menu and gallery cards. The read/write is
@@ -6949,10 +6988,30 @@ function renderColourDirectionResult() {
         "</div>" +
         "</div>" +
         "</div>" +
-        '<div class="arch-card-actions">' +
-        '<button class="arch-btn-fill" data-action="save-card">Save Card</button>' +
-        '<button class="arch-btn-stroke" data-action="share-native">Share to Phone</button>' +
-        '<button class="arch-btn-stroke" data-action="colour-restart">Start Again</button>' +
+        // Same shape as the style result: where you are, the one next thing,
+        // then the quiet staff jobs. This screen used to end at Save/Share and
+        // gave no hint that the Cloth Room was the next step.
+        getJourneyStripHTML("colour") +
+
+        '<div class="arch-journey-bridge" data-action="fabric-vis" role="button" tabindex="0"' +
+        ' aria-label="Next step: see your cloths">' +
+        '<div class="arch-journey-bridge-content">' +
+        '<div class="arch-journey-bridge-label">Next &middot; Step 3 of 3</div>' +
+        '<h3 class="arch-journey-bridge-title">See Your Cloths</h3>' +
+        '<p class="arch-journey-bridge-desc">Your palette is set. Now see it in real cloth &mdash; the bunch on a tailored cut, with the cloths marked that suit your direction.</p>' +
+        "</div>" +
+        '<div class="arch-journey-bridge-icon">&rarr;</div>' +
+        "</div>" +
+
+        '<div class="arch-secondary-actions">' +
+        '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
+        "</div>" +
+
+        '<div class="arch-staff-actions">' +
+        '<div class="arch-staff-label">Save &amp; share</div>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="colour-restart">Start Again</button>' +
         "</div>" +
 
 
