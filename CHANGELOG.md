@@ -10,6 +10,15 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-22 — Archetype figures read properly
+
+- **The archetype illustrations stand in a soft niche now.** Several figures
+  wear cream or linen trousers that were the exact colour of the page, so on
+  the welcome screen and in the Archetype Gallery those trousers disappeared
+  into the background (and flashed dark when a card was pressed). Each figure
+  now stands on a soft, gently shaded panel, so the light garments read
+  clearly, and cards lift instead of inverting on touch.
+
 ## 2026-07-22 — Cloth Room refinements
 
 - **Named cloth cards.** The bunch now reads as tidy cloth cards — four to a

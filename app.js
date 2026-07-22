@@ -5609,7 +5609,7 @@ function renderArchetypeGallery() {
     html += '<div class="' + (stacked ? "gallery-stack" : "gallery-grid") + '">';
     for (var i = 0; i < keys.length; i++) {
         var a = archetypeProfiles[keys[i]];
-        html += '<button class="gallery-card' + (a.galleryImage ? " gallery-card--photo" : "") +
+        html += '<button class="gallery-card btn-bare' + (a.galleryImage ? " gallery-card--photo" : "") +
             '" type="button" data-action="gallery-open" data-key="' + a.key + '">';
         html += getGalleryMarkHTML(a, i, false);
         html += '<span class="gallery-card-name">' + a.name + "</span>";
