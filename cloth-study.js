@@ -46,6 +46,22 @@
         return { ctx: ctx, w: w, h: h };
     }
 
+    // The cloth's REAL weave tile — the exact 96px texture the Cloth Room
+    // dresses its garment in (drawClothTile reads cloth.weave + cloth.overlay).
+    // Used as a repeating pattern so the drape, sheen and loupe show the actual
+    // cloth, not a stand-in twill.
+    function tileCanvasFor(cloth, size) {
+        size = size || 96;
+        var c = document.createElement("canvas"); c.width = size; c.height = size;
+        var g = c.getContext("2d");
+        // Rendering the weave at a larger size (scaled context) keeps it crisp
+        // when the loupe magnifies it, rather than blowing up the 96px tile.
+        if (size !== 96) g.scale(size / 96, size / 96);
+        try { if (typeof drawClothTile !== "function") throw 0; drawClothTile(g, cloth); }
+        catch (e) { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = cloth.ground || "#555"; g.fillRect(0, 0, size, size); }
+        return c;
+    }
+
     // ---- Markup ----
     function getClothStudyHTML(cloth) {
         if (!cloth) return "";
@@ -74,10 +90,10 @@
 
     // ---- 1. The Drape ----
     function startDrape(cv, cloth) {
-        var handle = handleOf(cloth), base = hexRGB(cloth.ground || "#4a4d55");
+        var handle = handleOf(cloth), base = hexRGB(cloth.ground || "#4a4d55"), tile = tileCanvasFor(cloth), pattern = null;
         var d, ctx, W, H, COLS = 20, ROWS = 12, pts, cons, spacing, ox, oy, t = 0, drag = null, dragx = 0, dragy = 0;
         function build() {
-            d = fit(cv, 220); ctx = d.ctx; W = d.w; H = d.h;
+            d = fit(cv, 220); ctx = d.ctx; W = d.w; H = d.h; pattern = ctx.createPattern(tile, "repeat");
             spacing = Math.min((W * 0.74) / (COLS - 1), (H * 0.72) / (ROWS - 1));
             ox = (W - spacing * (COLS - 1)) / 2; oy = H * 0.13; pts = []; cons = [];
             for (var j = 0; j < ROWS; j++) for (var i = 0; i < COLS; i++) {
@@ -123,13 +139,19 @@
             for (i = COLS - 2; i >= 0; i--) { var pb = pts[(ROWS - 1) * COLS + i]; ctx.lineTo(pb.x, pb.y); }
             for (j = ROWS - 2; j >= 1; j--) { var pl = pts[j * COLS]; ctx.lineTo(pl.x, pl.y); }
             ctx.closePath();
+            // 1. the real cloth weave
+            ctx.fillStyle = pattern || ("rgb(" + base[0] + "," + base[1] + "," + base[2] + ")");
+            ctx.fill();
+            // 2. fold shading, multiplied over the weave so folds read as
+            //    shadow without hiding the texture (grey <=1 only darkens)
             var minx = colX(0), maxx = colX(COLS - 1); if (maxx <= minx) maxx = minx + 1;
             var g = ctx.createLinearGradient(minx, 0, maxx, 0), last = -1;
-            for (i = 0; i < COLS; i++) { var tt = Math.max(0, Math.min(1, (colX(i) - minx) / (maxx - minx))); if (tt <= last) tt = last + 0.0001; last = tt; g.addColorStop(Math.min(1, tt), col(colLum(i))); }
-            ctx.fillStyle = g; ctx.fill();
+            for (i = 0; i < COLS; i++) { var tt = Math.max(0, Math.min(1, (colX(i) - minx) / (maxx - minx))); if (tt <= last) tt = last + 0.0001; last = tt; var vv = clampByte(Math.min(1, colLum(i)) * 255); g.addColorStop(Math.min(1, tt), "rgb(" + vv + "," + vv + "," + vv + ")"); }
+            ctx.globalCompositeOperation = "multiply"; ctx.fillStyle = g; ctx.fill();
+            // 3. gentle top-light / bottom-shadow form, only over the cloth
             ctx.globalCompositeOperation = "source-atop";
             var vg = ctx.createLinearGradient(0, topY, 0, botY);
-            vg.addColorStop(0, "rgba(255,252,244,0.06)"); vg.addColorStop(1, "rgba(18,14,9,0.13)");
+            vg.addColorStop(0, "rgba(255,252,244,0.05)"); vg.addColorStop(1, "rgba(18,14,9,0.17)");
             ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
             ctx.globalCompositeOperation = "source-over";
             var bx = pts[0].x, bw = pts[COLS - 1].x - pts[0].x, by = pts[0].y;
@@ -153,18 +175,13 @@
 
     // ---- 2. The Sheen swatch, with a loupe toggle ----
     function startSheen(cv, cloth, btn, cap) {
-        var base = hexRGB(cloth.ground || "#4a4d55"), lus = lustreOf(cloth), warp = shift(base, 34), weft = shift(base, -30);
-        var d, ctx, W, H, lightx = 0.5, loupe = false, mx = 0, my = 0, LR = 52, Z = 4.2;
-        function size() { d = fit(cv, 220); ctx = d.ctx; W = d.w; H = d.h; mx = W / 2; my = H / 2; }
+        var lus = lustreOf(cloth), tile = tileCanvasFor(cloth), Z = 3.4;
+        var d, ctx, W, H, pattern, lightx = 0.5, loupe = false, mx = 0, my = 0, LR = 52;
+        function size() { d = fit(cv, 220); ctx = d.ctx; W = d.w; H = d.h; mx = W / 2; my = H / 2; pattern = ctx.createPattern(tile, "repeat"); }
         size();
-        function weaveTile(g, pitch) {
-            var cols = Math.ceil(W / pitch) + 2, rows = Math.ceil(H / pitch) + 2, i, j;
-            g.fillStyle = shift(base, -22); g.fillRect(0, 0, W, H);
-            for (i = 0; i < cols; i++) { var x = i * pitch, gr = g.createLinearGradient(x, 0, x + pitch, 0); gr.addColorStop(0, shift(base, -14)); gr.addColorStop(0.42, warp); gr.addColorStop(0.5, shift(base, 58)); gr.addColorStop(0.58, warp); gr.addColorStop(1, shift(base, -14)); g.fillStyle = gr; g.fillRect(x + 0.35, 0, pitch - 0.7, H); }
-            for (j = 0; j < rows; j++) { var y = j * pitch; for (i = 0; i < cols; i++) { if (((i + j) % 4) >= 2) continue; var x2 = i * pitch, wg = g.createLinearGradient(0, y, 0, y + pitch); wg.addColorStop(0, shift(weft, -16)); wg.addColorStop(0.42, weft); wg.addColorStop(0.5, shift(weft, 40)); wg.addColorStop(0.58, weft); wg.addColorStop(1, shift(weft, -16)); g.fillStyle = wg; g.fillRect(x2 + 0.35, y + 0.35, pitch - 0.7, pitch - 0.7); } }
-        }
+        function fillWeave() { ctx.fillStyle = pattern || (cloth.ground || "#555"); ctx.fillRect(0, 0, W, H); }
         function drawSheen() {
-            weaveTile(ctx, 5);
+            fillWeave();
             ctx.globalCompositeOperation = "screen";
             if (lus > 0.2) { var v = ctx.createLinearGradient(0, 0, 0, H); v.addColorStop(0, "rgba(255,248,230,0.1)"); v.addColorStop(0.6, "rgba(255,248,230,0.01)"); v.addColorStop(1, "rgba(255,248,230,0.06)"); ctx.fillStyle = v; ctx.fillRect(0, 0, W, H); }
             var lx = lightx * W, g = ctx.createLinearGradient(lx - W * 0.55, 0, lx + W * 0.55, 0);
@@ -172,9 +189,12 @@
             ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over";
         }
         function drawLoupe() {
-            weaveTile(ctx, 6);
+            fillWeave();
             ctx.save(); ctx.beginPath(); ctx.arc(mx, my, LR, 0, 7); ctx.clip();
-            ctx.translate(mx, my); ctx.scale(Z, Z); ctx.translate(-mx, -my); weaveTile(ctx, 6); ctx.restore();
+            // a smooth optical magnification of the real weave — moving the
+            // loupe reveals different parts of the actual cloth
+            ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+            ctx.translate(mx, my); ctx.scale(Z, Z); ctx.translate(-mx, -my); fillWeave(); ctx.restore();
             ctx.beginPath(); ctx.arc(mx, my, LR, 0, 7); ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(154,122,62,0.95)"; ctx.stroke();
             ctx.beginPath(); ctx.arc(mx, my, LR - 2, 0, 7); ctx.lineWidth = 1; ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.stroke();
             var hl = ctx.createRadialGradient(mx - LR * 0.4, my - LR * 0.4, 2, mx, my, LR); hl.addColorStop(0, "rgba(255,255,255,0.13)"); hl.addColorStop(0.55, "rgba(255,255,255,0)"); ctx.fillStyle = hl; ctx.beginPath(); ctx.arc(mx, my, LR, 0, 7); ctx.fill();
