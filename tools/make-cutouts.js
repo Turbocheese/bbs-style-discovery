@@ -112,6 +112,33 @@ const EXTRACT = async ({ key, width }) => {
             for (const p of region) d[p * 4 + 3] = 0;
         }
     }
+
+    // Restore garment pixels the cut punched out. Cream and linen garments are
+    // the exact colour of the ground (measured 5-28 units apart), so the flood
+    // and its transition band eat transparent holes into them — the reported
+    // "missing pixels" in the trousers and light shirts. Any not-fully-opaque
+    // pixel that CANNOT be reached from the image border through other
+    // not-fully-opaque pixels is an interior hole enclosed by the figure, not
+    // real background, so restore it to opaque. The true ground and the gaps
+    // between the legs survive because they connect out to the border.
+    const SOLID = 210;
+    const breached = new Uint8Array(W * H);
+    const bst = [];
+    function seed(p) { if (!breached[p] && d[p * 4 + 3] < SOLID) { breached[p] = 1; bst.push(p); } }
+    for (let x = 0; x < W; x++) { seed(x); seed((H - 1) * W + x); }
+    for (let y = 0; y < H; y++) { seed(y * W); seed(y * W + W - 1); }
+    while (bst.length) {
+        const p = bst.pop();
+        const x = p % W, y = (p / W) | 0;
+        if (x > 0) seed(p - 1);
+        if (x < W - 1) seed(p + 1);
+        if (y > 0) seed(p - W);
+        if (y < H - 1) seed(p + W);
+    }
+    for (let p = 0; p < W * H; p++) {
+        if (d[p * 4 + 3] < 255 && !breached[p]) d[p * 4 + 3] = 255;
+    }
+
     g.putImageData(id, 0, 0);
 
     // Trim to the figure's bounding box so the art isn't swimming in

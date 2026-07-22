@@ -11307,53 +11307,10 @@ textarea:focus-visible,
     .gallery-stack .gallery-card { box-shadow: none; }
 }
 
-/* ============================================================
-   ARCHETYPE CUTOUT FIGURES — soft niche panel
-   The figures are cut out on transparency. Several of them wear
-   cream/linen trousers that are the exact colour of the page and the
-   white card, so on those grounds the trousers vanish (and, where the
-   cut ate into them, show the black button:hover through). Standing
-   each figure in a soft warm-greige niche — deeper toward the base,
-   where the trousers sit — gives those light garments a ground to read
-   against, and the opaque panel means a hover state can never show
-   through the figure. Light-theme throughout (warm, pale). Kept last so
-   it wins over the earlier `background: none !important` mark rules.
-   ============================================================ */
-.gallery-mark--photo,
-.welcome-portrait,
-.hhc-figure,
-.hgm-tile--photo {
-    background:
-        linear-gradient(to bottom,
-            #f4efe6 0%,
-            #ece4d6 52%,
-            #dbd1be 100%) !important;
-    border-radius: 14px !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.55),
-        inset 0 0 0 1px rgba(58, 46, 28, 0.07) !important;
-    overflow: hidden;
-}
-
-/* The gallery card is white; round the niche inside it to match. */
-.gallery-card--photo .gallery-mark--photo {
-    border-radius: 12px !important;
-}
-
-/* Give the figure a little breathing room inside the niche so it does
-   not touch the panel edges, and keep it standing on the base. */
-.gallery-mark--photo img,
-.hgm-tile--photo img,
-.hhc-figure img {
-    padding: 6px 8px 0 !important;
-}
-
-.welcome-portrait img {
-    padding: 8px 10px 0 !important;
-}
-
-/* btn-bare already stops the gallery card inverting to black; give it a
-   quiet lift instead so it still feels responsive to touch. */
+/* Cutout figures float directly on the page (no card behind them). The
+   gallery card is a <button>, so .btn-bare keeps it from inverting to
+   near-black on hover (which showed through the figures); give it a quiet
+   lift instead of the chrome invert. */
 .gallery-card.btn-bare:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(58, 46, 28, 0.14);

@@ -10,14 +10,16 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
-## 2026-07-22 — Archetype figures read properly
+## 2026-07-22 — Archetype figures no longer missing their trousers
 
-- **The archetype illustrations stand in a soft niche now.** Several figures
-  wear cream or linen trousers that were the exact colour of the page, so on
-  the welcome screen and in the Archetype Gallery those trousers disappeared
-  into the background (and flashed dark when a card was pressed). Each figure
-  now stands on a soft, gently shaded panel, so the light garments read
-  clearly, and cards lift instead of inverting on touch.
+- **The cut-out figures are whole again.** Several archetype illustrations
+  wear cream or linen trousers (and light shirts) that are the exact colour of
+  the background they were cut from, so the cut-out had punched transparent
+  holes through them — the trousers looked like they were missing on the
+  welcome screen and in the Archetype Gallery. The cut-out now fills those
+  interior holes back in, so every garment renders whole while the figure still
+  floats cleanly on the page. Gallery cards also lift on touch instead of
+  flashing dark.
 
 ## 2026-07-22 — Cloth Room refinements
 
