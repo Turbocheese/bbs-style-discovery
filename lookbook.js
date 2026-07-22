@@ -11,6 +11,17 @@
 
 var lookbookData = [
     {
+        id: "look-camel-db",
+        img: "images/lookbook/bbs-editorial-jc2081.jpg",
+        title: "The Double-Breasted, Camel",
+        season: "Autumn",
+        tags: ["Double Breasted", "Roll Neck", "Warm Neutral"],
+        note:
+            "A camel double-breasted suit over a fine roll neck, shot against timber and turning leaves. Soft tailoring in a warm neutral — a suit that carries like a coat.",
+        guidePath: ["tailoring", "suits", "styles", "double_breasted"],
+        guideLabel: "Read: the Double-Breasted Suit",
+    },
+    {
         id: "look-navy-field",
         img: "images/lookbook/bbs-editorial-037.jpg",
         title: "The Field Jacket, Navy",
@@ -18,6 +29,17 @@ var lookbookData = [
         tags: ["Four Pockets", "Soft Shoulder", "Stone Trouser"],
         note:
             "A four-pocket field jacket worn open over a fine knit, with stone trousers. Structure without stiffness — the jacket does the work, the palette stays quiet.",
+        guidePath: ["tailoring", "jackets", "other_styles", "safari"],
+        guideLabel: "Read: the Safari Jacket",
+    },
+    {
+        id: "look-khaki-safari",
+        img: "images/lookbook/bbs-editorial-jc4619.jpg",
+        title: "The Safari, Khaki",
+        season: "Warm Weather",
+        tags: ["Safari Jacket", "Belted Waist", "White Trouser"],
+        note:
+            "A khaki safari jacket — four pockets, belted at the waist — over white trousers against warm brick. The field jacket at its most tailored, structure that still breathes.",
         guidePath: ["tailoring", "jackets", "other_styles", "safari"],
         guideLabel: "Read: the Safari Jacket",
     },
@@ -33,6 +55,17 @@ var lookbookData = [
         guideLabel: "Read: the Safari Jacket",
     },
     {
+        id: "look-navy-safari",
+        img: "images/lookbook/bbs-editorial-jc9454.jpg",
+        title: "The Safari, Navy",
+        season: "Warm Weather",
+        tags: ["Safari Jacket", "Cream Trouser", "Sun-washed"],
+        note:
+            "The safari jacket in navy over cream trousers, against a sun-baked wall. A darker cloth pulls the four-pocket cut toward town without losing the ease.",
+        guidePath: ["tailoring", "jackets", "other_styles", "safari"],
+        guideLabel: "Read: the Safari Jacket",
+    },
+    {
         id: "look-blue-camp",
         img: "images/lookbook/bbs-editorial-1001.jpg",
         title: "The Camp Collar, Blue",
@@ -44,6 +77,17 @@ var lookbookData = [
         guideLabel: "Read: Chambray",
     },
     {
+        id: "look-oat-chore",
+        img: "images/lookbook/bbs-editorial-jc4476.jpg",
+        title: "The Chore Jacket, Oat",
+        season: "Resort",
+        tags: ["Chore Jacket", "Fine Knit", "White Trouser"],
+        note:
+            "An oat chore jacket over a fine knit with white trousers, worn easy in warm light. Workwear cut in a dress-weight cloth — the jacket you reach for when nothing needs saying.",
+        guidePath: ["tailoring", "jackets", "other_styles", "chore"],
+        guideLabel: "Read: the Chore Jacket",
+    },
+    {
         id: "look-grey-camp",
         img: "images/lookbook/bbs-editorial-367.jpg",
         title: "The Camp Collar, Grey",
@@ -53,6 +97,72 @@ var lookbookData = [
             "A grey micro-check camp collar over pleated dark trousers. Pattern at a distance reads as solid — texture doing the work that colour usually does.",
         guidePath: ["fabrics", "shirtings", "pattern_and_texture", "pencil_stripe"],
         guideLabel: "Read: shirting pattern",
+    },
+    {
+        id: "look-cream-tonal",
+        img: "images/lookbook/bbs-editorial-jc4509.jpg",
+        title: "Cream, End to End",
+        season: "Resort",
+        tags: ["Tonal", "Soft Jacket", "Full Cut"],
+        note:
+            "A head-to-toe cream look — soft jacket over an open shirt and full-cut trousers — carried through a lantern-lit villa. Tonal dressing that lives or dies on cloth and cut, not colour.",
+        guidePath: ["fabrics", "suiting", "linen_suiting"],
+        guideLabel: "Read: Linen Suiting",
+    },
+    {
+        id: "look-pale-linen-suit",
+        img: "images/lookbook/bbs-editorial-jc9770.jpg",
+        title: "The Linen Suit, Pale",
+        season: "Coastal",
+        tags: ["Linen Suit", "Open Collar", "Full Trouser"],
+        note:
+            "A pale linen suit worn open at the collar on the rocks — jacket unbuttoned, trousers full. Linen earns its creases; that is rather the point of it.",
+        guidePath: ["fabrics", "suiting", "linen_suiting"],
+        guideLabel: "Read: Linen Suiting",
+    },
+    {
+        id: "look-tobacco-blouson",
+        img: "images/lookbook/bbs-editorial-jc9393.jpg",
+        title: "Tobacco, on Terracotta",
+        season: "Warm Weather",
+        tags: ["Blouson", "Pleated Trouser", "Tonal Brown"],
+        note:
+            "A tobacco blouson over pleated trousers of the same warmth, against a sun-baked wall. Tonal brown carried through — a palette that only works when the textures differ.",
+        guidePath: ["tailoring", "jackets", "other_styles", "soft_odd_jacket"],
+        guideLabel: "Read: the Soft Odd Jacket",
+    },
+    {
+        id: "look-knit-coastal",
+        img: "images/lookbook/bbs-editorial-jc9797.jpg",
+        title: "Knit and White, Coastal",
+        season: "Coastal",
+        tags: ["Knit Polo", "Pleated Trouser", "Ecru"],
+        note:
+            "An ecru knit polo tucked into white pleated trousers, caught mid-stride on the sand. The whole warm-weather argument in two pieces — texture up top, ease below.",
+        guidePath: ["colour_wardrobe", "warm_weather_palette"],
+        guideLabel: "Read: the Warm-Weather Palette",
+    },
+    {
+        id: "look-chocolate-overshirt",
+        img: "images/lookbook/bbs-editorial-jc4570.jpg",
+        title: "The Overshirt, Chocolate",
+        season: "Resort",
+        tags: ["Overshirt", "Open Collar", "White Trouser"],
+        note:
+            "A chocolate overshirt worn open over a tee with white trousers. Shirt-weight cloth doing a jacket's job — the least effortful way to look put together in the heat.",
+        guidePath: ["tailoring", "jackets", "other_styles", "chore"],
+        guideLabel: "Read: the Chore Jacket",
+    },
+    {
+        id: "look-glen-check",
+        img: "images/lookbook/bbs-editorial-r21757.jpg",
+        title: "Glen Check, in the Trees",
+        season: "Autumn",
+        tags: ["Glen Check", "Roll Neck", "Layered"],
+        note:
+            "A grey glen-check jacket layered over a roll neck and a cap, standing among turning leaves. Country pattern taken somewhere quieter — check that reads as texture at a distance.",
+        guidePath: ["fabrics", "suiting", "pattern_and_texture", "glen_check"],
+        guideLabel: "Read: Glen Check",
     },
 ];
 
