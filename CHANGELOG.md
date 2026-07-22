@@ -10,14 +10,21 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-22 — Cloth Room refinements
+
+- **Named cloth cards.** The bunch now reads as tidy cloth cards — four to a
+  row — each showing the woven swatch with its name and mill, so a specific
+  cloth is easy to spot and pick. (The 3D coverflow browse is kept in reserve
+  for a future feature.)
+- **Trousers always dress in cloth.** Fixed a case where a returning session
+  could show a garment — most visibly the trousers — as a bare white/cream
+  shape instead of its cloth. Every garment now always renders dressed.
+- **No black swatch on touch.** Fixed cloth cards turning dark when pressed or
+  hovered.
+
 ## 2026-07-22 — In-store experience polish
 
 A warmer, more considered feel across the whole app, plus a mobile fix.
-
-- **A new way to browse cloth.** The Cloth Room now presents the bunch as a
-  tactile 3D coverflow: filter to narrow, then drag or swipe through the
-  cloths, with the centre one dressing the garment live. A strip of tiny
-  swatches jumps straight to any cloth.
 - **A living backdrop.** A soft, flowing "cashmere mist" now drifts quietly
   behind every screen — light and low-key, with the content sitting on a gently
   textured cream sheet. The old drifting-tape background is retired.

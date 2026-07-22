@@ -21,6 +21,20 @@ function getFabricByKey(key) {
     return FABRIC_LIBRARY[0];
 }
 
+// getFabricByKey always returns a cloth (falling back to the first), so it
+// cannot answer "does this key still exist". A session persisted before the
+// 14->102 cloth rename can hold a key that no longer resolves (e.g. the old
+// "hopsack"); renderGarmentPhoto then finds no cloth via findCloth(), clears
+// the canvas and returns — leaving the garment blank, which reads on the
+// cream sheet as a bare white/cream shape. This is the honest existence test.
+function fabricResolves(key) {
+    if (!key) return false;
+    for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
+        if (FABRIC_LIBRARY[i].key === key) return true;
+    }
+    return false;
+}
+
 // Cloths recommended for the client's style archetype, derived from
 // the archetype's existing exploreNext guide links (fabrics/suiting/*).
 // Returns [] when no archetype result exists yet.
@@ -403,13 +417,21 @@ function getVisSwatchesHTML(recommended, selKey, altKey) {
     }
     for (var i = 0; i < shown.length; i++) {
         var f = shown[i];
-        var cls = "vis-swatch";
+        // .btn-bare opts the card out of the global button:hover chrome invert
+        // (button:hover:not(.btn-bare) { background: var(--accent) }), which
+        // otherwise paints the whole card near-black on hover — turning a pale
+        // cloth into a black box. See the "button:hover trap" note in CLAUDE.md.
+        var cls = "vis-swatch btn-bare";
         if (recommended.indexOf(f.key) !== -1) cls += " reco";
         if (f.key === selKey) cls += " sel";
         else if (altKey && f.key === altKey) cls += " sel-alt";
         swatchesHTML +=
             '<button class="' + cls + '" data-action="vis-pick-fabric" data-fabric="' + f.key + '" aria-label="' + f.name + '" title="' + f.name + '">' +
             '<span class="vis-swatch-cloth" style="background-image:url(' + getFabricTile(f.key) + ')"></span>' +
+            '<span class="vis-swatch-label">' +
+            '<span class="vis-swatch-n">' + f.name + "</span>" +
+            '<span class="vis-swatch-m">' + (f.mill || "") + "</span>" +
+            "</span>" +
             "</button>";
     }
     return swatchesHTML;
@@ -526,6 +548,10 @@ window.startVisCoverflow = startVisCoverflow;
 
 function renderFabricVisualiser() {
     var recommended = getRecommendedFabricKeys();
+    // Drop any persisted cloth key that no longer resolves, so a stale session
+    // never dresses the single-cloth or compare garment in a blank cream shape.
+    if (!fabricResolves(appState.visFabricKey)) appState.visFabricKey = null;
+    if (appState.visFabricKeyB && !fabricResolves(appState.visFabricKeyB)) appState.visFabricKeyB = null;
     var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
     if (appState.visEnsemble) return renderClothEnsemble(recommended);
     if (appState.visCompare) return renderClothCompare(activeKey, recommended);
@@ -541,7 +567,8 @@ function renderFabricVisualiser() {
         ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>' +
         "</div>" +
         getVisFilterBarHTML() +
-        getVisCoverflowHTML(getFilteredCloths(), activeKey, recommended) +
+        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
+        getVisRecoStripHTML(recommended) +
         '<div class="vis-mode-toggles">' +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
@@ -1228,6 +1255,20 @@ var VIS_ENS_STYLE_OPTIONS = {
     }
 };
 
+// Is `value` a currently-offered key for a garment's style group? Used to
+// scrub a persisted option that has since been retired from the menu (e.g. the
+// dropped single-pleat trouser) back to a default, before it resolves to a
+// garment photo that no longer exists.
+function ensStyleValueAllowed(garment, group, value) {
+    var groups = VIS_ENS_STYLE_OPTIONS[garment];
+    if (!groups || !groups[group]) return false;
+    var opts = groups[group];
+    for (var i = 0; i < opts.length; i++) {
+        if (opts[i].key === value) return true;
+    }
+    return false;
+}
+
 // Turns a garment's chosen options into a readable line ("Single
 // Breasted, Notch Lapel, Flap Pockets") by looking the labels back up,
 // so the Design Spec PDF and the on-screen summary stay in step with
@@ -1281,14 +1322,43 @@ function getVisEnsembleState() {
     }
     if (!ens.style || typeof ens.style !== "object") ens.style = {};
 
-    // Fill any missing garment or option from defaults, so a state
-    // saved before an option existed still renders.
+    // Fill any missing garment or option from defaults, so a state saved
+    // before an option existed still renders — and, crucially, reset any saved
+    // option whose value is no longer offered. Trousers dropped the single-pleat
+    // and Gurkha makes; a session persisted with style.trousers.style = "single"
+    // resolves to a "trousers-single" photo that no longer exists, dropping the
+    // garment onto the hand-drawn fallback — which has no trouser clip or shading
+    // and renders as a bare white/cream shape (the reported trouser bug).
     for (var garment in VIS_ENS_STYLE_DEFAULTS) {
         if (!VIS_ENS_STYLE_DEFAULTS.hasOwnProperty(garment)) continue;
         if (!ens.style[garment] || typeof ens.style[garment] !== "object") ens.style[garment] = {};
         for (var opt in VIS_ENS_STYLE_DEFAULTS[garment]) {
             if (!VIS_ENS_STYLE_DEFAULTS[garment].hasOwnProperty(opt)) continue;
-            if (!ens.style[garment][opt]) ens.style[garment][opt] = VIS_ENS_STYLE_DEFAULTS[garment][opt];
+            var cur = ens.style[garment][opt];
+            // A menu-driven option must hold one of its currently-offered values;
+            // an option with no menu (a fixed detail) only needs to be present.
+            var menu = VIS_ENS_STYLE_OPTIONS[garment] && VIS_ENS_STYLE_OPTIONS[garment][opt];
+            var valid = cur && (!menu || ensStyleValueAllowed(garment, opt, cur));
+            if (!valid) ens.style[garment][opt] = VIS_ENS_STYLE_DEFAULTS[garment][opt];
+        }
+    }
+
+    // Validate persisted cloth keys the same way style is validated above. A
+    // state saved before the 14->102 cloth rename can point a garment at a key
+    // that no longer resolves; renderGarmentPhoto then leaves that garment's
+    // canvas blank, so it shows as a bare white/cream shape (the trouser bug).
+    // Reset any unresolvable key to a sensible default so every garment dresses.
+    var recoKeys = getRecommendedFabricKeys();
+    var fabricDefaults = {
+        jacket: recoKeys.length ? recoKeys[0] : FABRIC_LIBRARY[0].key,
+        vest: "solbiati_wool_silk_linen",
+        trousers: "fox_flannel_mid_grey"
+    };
+    if (!ens.fabrics || typeof ens.fabrics !== "object") ens.fabrics = {};
+    for (var fg in fabricDefaults) {
+        if (!fabricDefaults.hasOwnProperty(fg)) continue;
+        if (!fabricResolves(ens.fabrics[fg])) {
+            ens.fabrics[fg] = fabricResolves(fabricDefaults[fg]) ? fabricDefaults[fg] : FABRIC_LIBRARY[0].key;
         }
     }
     return ens;
@@ -1406,6 +1476,16 @@ function getVisEnsGarmentBlock(garment, ens) {
     var photoKey = typeof resolveGarmentKey === "function" ? resolveGarmentKey(garment, style) : null;
     var hasPhoto = photoKey && typeof GARMENT_ASSET_KEYS !== "undefined" &&
         GARMENT_ASSET_KEYS.indexOf(photoKey) !== -1;
+
+    // Trousers always have a photograph — the hand-drawn fallback below only
+    // covers a jacket or vest (there is no trouser clip or shading). If a
+    // trouser style ever resolves to a missing asset, dress it in the default
+    // make rather than dropping it onto that fallback, which renders blank.
+    if (garment === "trousers" && !hasPhoto && typeof resolveGarmentKey === "function") {
+        photoKey = resolveGarmentKey("trousers", { style: VIS_ENS_STYLE_DEFAULTS.trousers.style });
+        hasPhoto = typeof GARMENT_ASSET_KEYS !== "undefined" &&
+            GARMENT_ASSET_KEYS.indexOf(photoKey) !== -1;
+    }
 
     if (hasPhoto) {
         // Buffer matches the asset's native size so renderGarmentPhoto

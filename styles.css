@@ -6604,51 +6604,85 @@ body.has-fab #app {
     pointer-events: none;
 }
 
-/* Swatch tray: the cloth bunch */
+/* Swatch tray: the cloth bunch, as named cloth cards four to a row */
 .vis-swatch-tray {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 14px;
-    margin: 1.8rem 0 1.6rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 40rem;
+    margin: 1.8rem auto 1.6rem;
     padding: 0 1rem;
 }
 
 .vis-swatch {
-    width: 56px;
-    height: 56px;
+    display: flex;
+    flex-direction: column;
     padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: none;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
     cursor: pointer;
     position: relative;
-    transition: transform 0.18s ease;
+    text-align: left;
+    transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
+.vis-swatch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(58, 46, 28, 0.14);
+}
+
 .vis-swatch:active {
-    transform: scale(0.92);
+    transform: translateY(0) scale(0.98);
 }
 
 .vis-swatch-cloth {
     display: block;
     width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-size: 40px 40px;
-    box-shadow:
-        inset 0 2px 6px rgba(255, 255, 255, 0.18),
-        inset 0 -2px 6px rgba(0, 0, 0, 0.25),
-        0 2px 6px rgba(17, 17, 16, 0.22);
+    aspect-ratio: 5 / 4;
+    background-size: 44px 44px;
+    box-shadow: inset 0 -16px 22px -16px rgba(0, 0, 0, 0.28);
 }
 
+.vis-swatch-label {
+    padding: 8px 10px 10px;
+    min-width: 0;
+}
+
+.vis-swatch-n {
+    /* two-line clamp so a long cloth name never makes cards uneven heights */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 0.92rem;
+    line-height: 1.12;
+    color: var(--text);
+}
+
+.vis-swatch-m {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.58rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Selection ring, drawn just inside the card edge */
 .vis-swatch::after {
     content: "";
     position: absolute;
-    inset: -6px;
-    border-radius: 50%;
-    border: 1.5px solid transparent;
+    inset: 0;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    pointer-events: none;
     transition: border-color 0.25s ease;
 }
 
@@ -6657,7 +6691,15 @@ body.has-fab #app {
 }
 
 .vis-swatch.sel {
-    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 6px 18px rgba(58, 46, 28, 0.16);
+}
+
+/* On a phone four cloth cards a row become unreadably small — drop to two. */
+@media (max-width: 560px) {
+    .vis-swatch-tray {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* Info card */
@@ -6823,7 +6865,6 @@ body.has-fab #app {
         gap: 0.8rem;
     }
     .home-cloth-room-cta { width: 100%; }
-    .vis-swatch { width: 50px; height: 50px; }
 }
 
 /* ============================================================
@@ -6935,12 +6976,10 @@ button:disabled {
     box-shadow: 0 2px 14px rgba(17, 17, 16, 0.22) !important;
 }
 
-/* Swatches stay circular — but NOT .colour-hero-swatch: those are
-   flexible bands in the result card's seamless palette ribbon, and
-   50% radius on a 76x110 band renders a distended ellipse. */
-.vis-swatch,
-.vis-swatch-cloth,
-.vis-swatch::after,
+/* Colour-result chips stay circular — but NOT the cloth swatches (now
+   rounded cloth cards, see the .vis-swatch card block) and NOT
+   .colour-hero-swatch (flexible ribbon bands: 50% radius on a 76x110 band
+   renders a distended ellipse). */
 .hcr-chip,
 .palette-swatch-circle {
     border-radius: 50% !important;
@@ -7099,17 +7138,18 @@ textarea {
 
 /* --- Maison layer: exemptions and refinements --- */
 
-/* Swatch buttons are pure cloth chips — undo the global button chrome
-   (its padding collapses the 56px chip's content box to zero width) */
+/* Cloth cards — undo the global button chrome (its pill padding/border would
+   fight the card), but keep a real card border + surface so the named cloth
+   cards read as cards, not floating chips. */
 .vis-swatch {
     padding: 0 !important;
-    border: none !important;
-    background: none !important;
+    border: 1px solid var(--line) !important;
+    background: var(--surface) !important;
     min-height: 0 !important;
 }
 
     .vis-swatch:hover {
-        background: none !important;
+        background: var(--surface) !important;
     }
 
 /* Change-client: a whisper of a text link, not a button */
@@ -7137,14 +7177,15 @@ textarea {
 .vis-swatch.reco::before {
     content: "";
     position: absolute;
-    top: -3px;
-    right: -3px;
-    width: 9px;
-    height: 9px;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: #b08d5f;
     border: 1.5px solid var(--surface);
-    z-index: 1;
+    box-shadow: 0 1px 3px rgba(17, 17, 16, 0.28);
+    z-index: 2;
 }
 
 .vis-reco-strip {
@@ -10081,6 +10122,7 @@ textarea:focus-visible,
 }
 
 .vis-swatch-empty {
+    grid-column: 1 / -1;
     padding: 1.6rem 0;
     text-align: center;
     color: var(--soft);
