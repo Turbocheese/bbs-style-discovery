@@ -11390,27 +11390,40 @@ textarea:focus-visible,
     transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .kin-title.kin-play .kin-word { opacity: 1; transform: none; }
+/* One brass band, no-repeat, that sweeps once fully across and off — the same
+   setup as .name-shine. (A repeating gradient sent several bands through at
+   once — "flashes a few times" — and without `forwards` it snapped back to a
+   band parked over the text — "colour stuck on the right".) The band sits off
+   to the right at rest, so the overlay is invisible until .kin-play runs it. */
 .kin-shine {
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
-    opacity: 0;
-    background: linear-gradient(105deg, transparent 42%, rgba(199, 163, 102, 0.9) 50%, transparent 58%);
-    background-size: 220% 100%;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(100deg,
+        transparent 0%,
+        rgba(198, 148, 74, 0.5) 28%,
+        #caa25f 44%,
+        #f6e6bb 50%,
+        #caa25f 56%,
+        rgba(198, 148, 74, 0.5) 72%,
+        transparent 100%);
+    background-repeat: no-repeat;
+    background-size: 60% 100%;
     background-position: 200% 0;
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
+    will-change: background-position;
 }
-.kin-title.kin-play .kin-shine { opacity: 1; animation: kinFoil 1.05s ease 0.5s 1; }
-@keyframes kinFoil {
-    from { background-position: 200% 0; }
-    to { background-position: -120% 0; }
-}
+.kin-title.kin-play .kin-shine { animation: kinFoil 1.5s ease-in-out 0.45s forwards; }
+@keyframes kinFoil { to { background-position: -180% 0; } }
 @media (prefers-reduced-motion: reduce) {
     .kin-word { opacity: 1; transform: none; transition: none; }
-    .kin-title.kin-play .kin-shine { animation: none; opacity: 0; }
+    .kin-shine { display: none; }
 }
 
 /* ============================================================
