@@ -11317,6 +11317,92 @@ textarea:focus-visible,
 }
 
 /* ============================================================
+   CLOTH STUDY — the interactive tools for the selected cloth
+   (drape, tilt-to-light sheen with a loupe toggle, pairing web).
+   ============================================================ */
+.cstudy {
+    width: 100%;
+    max-width: 34rem;
+    margin: 1.8rem auto 0;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+}
+.cstudy-eyebrow {
+    font-size: 0.66rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    text-align: center;
+    margin-bottom: 1.1rem;
+}
+.cstudy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+@media (max-width: 560px) { .cstudy-grid { grid-template-columns: 1fr; } }
+.cstudy-cell { position: relative; margin: 0; }
+.cstudy-canvas {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    touch-action: none;
+    cursor: crosshair;
+}
+.cstudy-cell figcaption {
+    margin-top: 8px;
+    text-align: center;
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+.cstudy-cell figcaption span {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+}
+.cstudy-loupe-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.58rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    background: rgba(251, 249, 243, 0.88) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    padding: 5px 12px !important;
+    min-height: 0 !important;
+    cursor: pointer;
+}
+.cstudy-loupe-btn[aria-pressed="true"] {
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+    border-color: var(--accent) !important;
+}
+.cstudy-pair { margin-top: 1.5rem; }
+.cstudy-pair-head {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 0;
+}
+.cstudy-pair-head em {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    color: var(--text);
+    font-size: 0.98rem;
+}
+#cstudy-web { cursor: pointer; }
+
+/* ============================================================
    THE PROVENANCE RIBBON
    Houses drift past oldest-to-newest as an ambient brass-ruled
    marquee (replaced the draggable tape blade). The track is

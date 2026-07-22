@@ -574,6 +574,7 @@ function renderFabricVisualiser() {
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
         "</div>" +
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
+        (typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
@@ -800,6 +801,14 @@ function visApplyFabric(key) {
     }
     var info = document.getElementById("vis-info");
     if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
+    // Rebuild the cloth-study tools for the newly selected cloth (this is a
+    // partial update, so the study block below the info card must be refreshed
+    // in step — it re-initialises its drape/sheen/pairing off the new key).
+    var study = document.getElementById("cstudy");
+    if (study && typeof getClothStudyHTML === "function") {
+        study.outerHTML = getClothStudyHTML(getFabricByKey(key));
+        if (typeof initClothStudy === "function") initClothStudy();
+    }
     visSyncSwatchMarks(key, null);
 }
 

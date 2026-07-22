@@ -25,6 +25,21 @@ Another small batch in the "21st" run of interface polish.
   and catch a single brass foil sweep as you land — the same moment as the
   name reveal on your results, extended to the Cloth Room and Provenance Chart.
 
+## 2026-07-22 — Study the cloth
+
+Every cloth in the Cloth Room now carries a set of live tools for reading it,
+below the details card.
+
+- **The drape.** A panel of the cloth hangs from a bound edge like a swatch in
+  a fabric book and stirs gently — its behaviour set by the cloth itself, so a
+  soft flannel falls fuller than a crisp worsted. Push it and it sways.
+- **Tilt to the light, with a loupe.** Drag a light across the swatch to see how
+  it catches — matte or lustrous, read from the cloth's own make. Tap **Loupe**
+  and the same swatch becomes a tailor's glass that magnifies the weave to its
+  threads.
+- **Sits well beside.** The cloths that pair with this one, drawn as a small
+  web — tap any of them to switch the room to that cloth.
+
 ## 2026-07-22 — Archetype figures no longer missing their trousers
 
 - **The cut-out figures are whole again.** Several archetype illustrations

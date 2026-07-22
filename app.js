@@ -5994,6 +5994,7 @@ function render(options) {
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (typeof initKineticTitles === "function") initKineticTitles();
+        if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -6025,6 +6026,7 @@ function render(options) {
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
         if (typeof initKineticTitles === "function") initKineticTitles();
+        if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
