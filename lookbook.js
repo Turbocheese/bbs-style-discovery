@@ -210,16 +210,17 @@ function renderLookbook() {
         "<p>A curated gallery of our tailoring, seasonal campaigns, and styling architecture. Tap any look to turn it over.</p>";
     html += "</div>";
 
-    html += '<div class="lookbook-filter" role="group" aria-label="Filter looks by season">';
-    html += '<button class="lookbook-filter-btn btn-bare" data-action="lookbook-filter" data-season="all" aria-pressed="' +
-        (filter === "all") + '">All looks</button>';
+    var optsHTML = getDropdownOptHTML("lookbook-filter", 'data-season="all"', filter === "all", "All looks");
     for (var f = 0; f < seasons.length; f++) {
-        html += '<button class="lookbook-filter-btn btn-bare" data-action="lookbook-filter" data-season="' +
-            seasons[f] + '" aria-pressed="' + (filter === seasons[f]) + '">' + seasons[f] + "</button>";
+        optsHTML += getDropdownOptHTML("lookbook-filter", 'data-season="' + seasons[f] + '"',
+            filter === seasons[f], seasons[f]);
     }
+    html += '<div class="lookbook-filter-dd">';
+    html += getDropdownHTML("lookbook-season", "Season", filter === "all" ? "All looks" : filter,
+        filter === "all" ? 0 : 1, optsHTML);
+    html += '<span class="filter-dd-count">' + shown.length +
+        (shown.length === 1 ? " look" : " looks") + "</span>";
     html += "</div>";
-    html += '<div class="lookbook-filter-count">' + shown.length +
-        (shown.length === 1 ? " look" : " looks") + (filter === "all" ? "" : " &middot; " + filter) + "</div>";
 
     html += '<div class="lookbook-grid">';
 

@@ -362,47 +362,42 @@ function getVisFilterBarHTML() {
     var filters = getVisFilters();
     var active = countActiveVisFilters();
     var shown = getFilteredCloths().length;
+    var useDD = typeof getDropdownHTML === "function";
 
-    var groupsHTML = "";
+    var ddsHTML = "";
     for (var f = 0; f < VIS_FACETS.length; f++) {
         var facet = VIS_FACETS[f];
         // Values are collected from the library rather than hardcoded,
-        // so a facet can never offer a chip that matches nothing.
+        // so a facet can never offer an option that matches nothing.
         var values = [];
         for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
             var v = getClothFacetValue(FABRIC_LIBRARY[i], facet.key);
             if (v && values.indexOf(v) === -1) values.push(v);
         }
         values.sort();
+        var chosen = filters[facet.key];
 
-        var chipsHTML = "";
+        var opts = getDropdownOptHTML("vis-filter-facet-clear", 'data-facet="' + facet.key + '"',
+            chosen.length === 0, "Any " + facet.label.toLowerCase());
         for (var c = 0; c < values.length; c++) {
-            var on = filters[facet.key].indexOf(values[c]) !== -1;
-            chipsHTML +=
-                '<button class="vis-filter-chip' + (on ? " on" : "") + '"' +
-                ' data-action="vis-filter" data-facet="' + facet.key + '" data-value="' + values[c] + '"' +
-                ' aria-pressed="' + (on ? "true" : "false") + '">' +
-                facetValueLabel(facet.key, values[c]) +
-                "</button>";
+            var on = chosen.indexOf(values[c]) !== -1;
+            opts += getDropdownOptHTML("vis-filter",
+                'data-facet="' + facet.key + '" data-value="' + values[c] + '"',
+                on, facetValueLabel(facet.key, values[c]));
         }
-        groupsHTML +=
-            '<div class="vis-filter-group">' +
-            '<span class="vis-filter-group-label">' + facet.label + "</span>" +
-            '<div class="vis-filter-chips">' + chipsHTML + "</div>" +
-            "</div>";
+        var valText = chosen.length === 0 ? "Any" :
+            (chosen.length === 1 ? facetValueLabel(facet.key, chosen[0]) : chosen.length + " chosen");
+        ddsHTML += getDropdownHTML("vis-" + facet.key, facet.label, valText, chosen.length, opts);
     }
 
     return (
-        '<div class="vis-filter-bar' + (active ? " has-active" : "") + '">' +
-        '<div class="vis-filter-head">' +
-        '<button class="vis-filter-toggle" data-action="vis-filter-toggle" aria-expanded="' +
-        (appState.visFiltersOpen ? "true" : "false") + '">Filter' +
-        (active ? ' <span class="vis-filter-count">' + active + "</span>" : "") +
-        "</button>" +
-        '<span class="vis-filter-result" role="status">' + shown + " of " + FABRIC_LIBRARY.length + " cloths</span>" +
-        (active ? '<button class="vis-filter-clear" data-action="vis-filter-clear">Clear</button>' : "") +
+        '<div class="vis-filter-dd-bar">' +
+        '<div class="filter-dd-row">' + ddsHTML + "</div>" +
+        '<div class="filter-dd-meta">' +
+        '<span class="filter-dd-count" id="vis-filter-count-text" role="status">' +
+        shown + " of " + FABRIC_LIBRARY.length + " cloths</span>" +
+        (active ? '<button class="filter-dd-clear btn-bare" data-action="vis-filter-clear">Clear all</button>' : "") +
         "</div>" +
-        '<div class="vis-filter-groups' + (appState.visFiltersOpen ? " open" : "") + '">' + groupsHTML + "</div>" +
         "</div>"
     );
 }

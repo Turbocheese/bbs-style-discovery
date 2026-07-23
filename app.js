@@ -3299,6 +3299,8 @@ function getFreshState() {
         colourStep: 0,
         colourAnswersById: {},
         colourResultKey: null,
+        lookbookFilter: "all",
+        openFilterDD: null,
         wardrobeChecklist: {},
         visFabricKey: null,
         visFabricKeyB: null,
@@ -5853,6 +5855,39 @@ function getJourneyStripHTML(active) {
 }
 window.getJourneyStripHTML = getJourneyStripHTML;
 
+// A reusable filter dropdown, shared by the Cloth Room facets and the Lookbook
+// season filter (a big library needs filtering the founder can see, not a
+// hidden disclosure). Open state lives in appState.openFilterDD so it survives
+// the full re-render that a filter change triggers; open/close itself is a DOM
+// class toggle (see the "dd-toggle" action) so opening a menu never re-renders.
+function getDropdownHTML(id, label, valueText, activeCount, optionsHTML) {
+    var open = appState.openFilterDD === id;
+    return (
+        '<div class="filter-dd' + (open ? " open" : "") + '" data-dd="' + id + '">' +
+        '<button class="filter-dd-btn btn-bare" data-action="dd-toggle" data-dd="' + id + '"' +
+        ' aria-haspopup="listbox" aria-expanded="' + (open ? "true" : "false") + '">' +
+        '<span class="filter-dd-facet">' + label + "</span>" +
+        '<span class="filter-dd-value">' + valueText + "</span>" +
+        (activeCount ? '<span class="filter-dd-badge">' + activeCount + "</span>" : "") +
+        '<svg class="filter-dd-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        "</button>" +
+        '<div class="filter-dd-panel" role="listbox">' + optionsHTML + "</div>" +
+        "</div>"
+    );
+}
+// One selectable row inside a dropdown panel.
+function getDropdownOptHTML(action, dataAttrs, selected, labelText) {
+    return (
+        '<button class="filter-dd-opt btn-bare' + (selected ? " is-sel" : "") + '" data-action="' + action + '" ' +
+        dataAttrs + ' role="option" aria-selected="' + (selected ? "true" : "false") + '">' +
+        '<span class="filter-dd-tick" aria-hidden="true">&#10003;</span>' +
+        "<span>" + labelText + "</span>" +
+        "</button>"
+    );
+}
+window.getDropdownHTML = getDropdownHTML;
+window.getDropdownOptHTML = getDropdownOptHTML;
+
 // Spotlight cards: one delegated pointermove (not a click, so it does not
 // touch the single delegated click handler) drives a brass edge-glow that
 // follows the finger across the menu and gallery cards. The read/write is
@@ -6161,6 +6196,22 @@ var _logoTapCount = 0;
 var _logoTapTimer = null;
 
 document.body.addEventListener("click", function (e) {
+    // Close any open filter dropdown when the click lands outside it. This runs
+    // on every body click (before the data-action dispatch below, which returns
+    // early for non-action targets), and only touches the DOM — no re-render.
+    var openDDs = document.querySelectorAll(".filter-dd.open");
+    if (openDDs.length) {
+        var inside = e.target.closest(".filter-dd.open");
+        for (var _d = 0; _d < openDDs.length; _d++) {
+            if (openDDs[_d] !== inside) {
+                openDDs[_d].classList.remove("open");
+                var _b = openDDs[_d].querySelector(".filter-dd-btn");
+                if (_b) _b.setAttribute("aria-expanded", "false");
+            }
+        }
+        if (!inside) appState.openFilterDD = null;
+    }
+
     var logoEl = e.target.closest(".bbs-logo");
     if (logoEl) {
         _logoTapCount++;
@@ -6204,6 +6255,7 @@ document.body.addEventListener("click", function (e) {
     else if (action === "lookbook") { runMeasureMoment("Opening the lookbook…", navigateLookbook, 650); }
     else if (action === "lookbook-filter") {
         appState.lookbookFilter = target.dataset.season || "all";
+        appState.openFilterDD = null;
         render();
     }
     else if (action === "quick-query") {
@@ -6637,21 +6689,42 @@ document.body.addEventListener("click", function (e) {
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render({ animate: false });
     }
+    else if (action === "dd-toggle") {
+        // Open/close a filter dropdown in place — no re-render. The state is
+        // kept so a subsequent filter change (which does re-render) can leave
+        // the dropdown open.
+        var dd = target.closest(".filter-dd");
+        if (!dd) return;
+        var ddId = dd.getAttribute("data-dd");
+        var willOpen = appState.openFilterDD !== ddId;
+        var others = document.querySelectorAll(".filter-dd.open");
+        for (var _o = 0; _o < others.length; _o++) {
+            others[_o].classList.remove("open");
+            var _ob = others[_o].querySelector(".filter-dd-btn");
+            if (_ob) _ob.setAttribute("aria-expanded", "false");
+        }
+        dd.classList.toggle("open", willOpen);
+        target.setAttribute("aria-expanded", willOpen ? "true" : "false");
+        appState.openFilterDD = willOpen ? ddId : null;
+    }
     else if (action === "vis-filter") {
-        // Re-render rather than patch: the tray, the result count and
-        // the chip's own pressed state all change together, and they
-        // are in three different places in the markup.
+        // Multi-select facet: toggle the value and re-render (the tray, the
+        // count and the option's tick all change). openFilterDD is preserved,
+        // so the dropdown re-opens and you can keep ticking.
         toggleVisFilter(target.dataset.facet, target.dataset.value);
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render();
+    }
+    else if (action === "vis-filter-facet-clear") {
+        var fk = target.dataset.facet;
+        var vf = getVisFilters();
+        if (vf[fk]) vf[fk] = [];
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render();
     }
     else if (action === "vis-filter-clear") {
         clearVisFilters();
-        localStorage.setItem("bbs_session", JSON.stringify(appState));
-        render();
-    }
-    else if (action === "vis-filter-toggle") {
-        appState.visFiltersOpen = !appState.visFiltersOpen;
+        appState.openFilterDD = null;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render();
     }
