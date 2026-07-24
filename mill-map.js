@@ -1014,7 +1014,6 @@ function renderMillMap() {
         getProvenanceTapeHTML() +
         '<div class="map-index">' + getMapIndexHTML() + "</div>" +
         '<div class="vis-footnote">A stylised merchant’s chart &mdash; drawn for the story, not for navigation.</div>' +
-        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }

@@ -571,7 +571,6 @@ function renderFabricVisualiser() {
         '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
         (typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
-        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }
@@ -643,7 +642,6 @@ function renderClothCompare(aKey, recommended) {
         getFabricInfoHTML(side === "a" ? a : b) + "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
-        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }
@@ -1640,7 +1638,6 @@ function renderClothEnsemble(recommended) {
         "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
-        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }

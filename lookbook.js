@@ -264,11 +264,6 @@ function renderLookbook() {
 
     html += "</div>";
 
-    html +=
-        '<div class="nav-buttons" style="margin-top: 3rem; justify-content: center;">';
-    html += '<button data-action="home">Back to Home</button>';
-    html += "</div>";
-
     html += "</div>";
 
     return html;

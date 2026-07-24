@@ -5286,7 +5286,6 @@ function renderGuideHome(node) {
         '<div class="guide-list-v2">' +
         childrenHTML +
         "</div>" +
-        '<div class="nav-buttons"><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }
@@ -5359,7 +5358,6 @@ function renderGroup(node) {
         '<div class="guide-list-v2">' +
         childrenHTML +
         "</div>" +
-        '<div class="nav-buttons"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }
@@ -5568,7 +5566,6 @@ function renderTopic(node) {
         imageHTML +
         sectionsHTML +
         relatedHTML +
-        '<div class="nav-buttons" style="margin-top: 3rem;"><button data-action="back">Back</button><button data-action="home">Home</button></div>' +
         "</div>"
     );
 }
@@ -5688,7 +5685,6 @@ function renderArchetypeGallery() {
     }
     html += "</div></div>";
 
-    html += '<div class="gallery-nav"><button data-action="home">Home</button></div>';
     html += "</div>";
     return html;
 }
