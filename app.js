@@ -3505,6 +3505,16 @@ function getBreadcrumb(path) {
 // FAB VISIBILITY
 // ============================================
 
+// Persistent top nav: visible on every view except welcome/home, where
+// there is nowhere to go up or back from the top of the app.
+function syncTopNav() {
+    var nav = document.getElementById("topnav");
+    if (!nav) return;
+    var hide = appState.view === "welcome" || appState.view === "home";
+    nav.hidden = hide;
+    document.body.classList.toggle("has-topnav", !hide);
+}
+
 function syncFabVisibility() {
     var fab = document.querySelector(".fab");
     if (!fab) return;
@@ -6054,6 +6064,7 @@ function render(options) {
         app.classList.toggle("is-home", appState.view === "home");
         app.classList.toggle("is-welcome", appState.view === "welcome");
         syncFabVisibility();
+        syncTopNav();
         applyScrollReveals();
 
 
@@ -6086,6 +6097,7 @@ function render(options) {
         app.classList.toggle("is-home", appState.view === "home");
         app.classList.toggle("is-welcome", appState.view === "welcome");
         syncFabVisibility();
+        syncTopNav();
         applyScrollReveals();
 
 

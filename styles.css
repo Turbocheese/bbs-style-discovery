@@ -11900,3 +11900,38 @@ textarea:focus-visible,
     .home-hero-card::after,
     .home-cloth-room::after { transition: none; }
 }
+
+/* ============================================================
+   Persistent top navigation (2026-07 nav & defaults)
+   ============================================================ */
+.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 400;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.9rem;
+    background: rgba(234, 229, 221, 0.88);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(17, 17, 16, 0.1);
+}
+.topnav[hidden] { display: none; }
+.topnav-btn {
+    min-height: 44px;
+    padding: 0.4rem 1rem;
+    font: inherit;
+    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-size: 0.95rem;
+    color: var(--text, #111110);
+    background: transparent;
+    border: 1px solid rgba(17, 17, 16, 0.18);
+    border-radius: 999px;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+.topnav-btn:active { background: var(--bg, #eae5dd); }
+@media (prefers-reduced-motion: reduce) {
+    .topnav { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
