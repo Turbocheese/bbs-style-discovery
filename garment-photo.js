@@ -254,6 +254,36 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
 window.renderGarmentPhoto = renderGarmentPhoto;
 
+// Neutral "ghost" of a garment: the same photo pipeline as renderGarmentPhoto
+// but with a flat cloth-free fill, so the Cloth Room can show the bare shape
+// before the client has chosen a cloth. Keeps the drape multiply + alpha clip
+// so it reads as a garment, not a slab.
+function renderGarmentGhost(canvas, garmentKey) {
+    var img = garmentImages[garmentKey];
+    if (!img) { loadGarmentImage(garmentKey, function () {
+        renderGarmentGhost(canvas, garmentKey);
+    }); return false; }
+
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Flat neutral fill (a step off the cream background so the shape reads).
+    ctx.fillStyle = "#d7d1c7";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Multiply the drape for form.
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Clip to the garment's alpha.
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    ctx.globalCompositeOperation = "source-over";
+    return true;
+}
+window.renderGarmentGhost = renderGarmentGhost;
+
 // The photographs that exist and are selectable. Double-breasted vests
 // (vest-db-none, vest-db-shawl) and the Gurkha trouser are real makes but
 // have no photograph yet, so they are absent here and hidden from the

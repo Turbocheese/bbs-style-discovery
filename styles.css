@@ -11981,3 +11981,22 @@ textarea:focus-visible,
     color: var(--text, #111110) !important;
     border-color: color-mix(in srgb, var(--text, #111110) 18%, transparent) !important;
 }
+
+/* Cloth Room neutral entry (2026-07). The ghost garment is drawn on the
+   canvas; this just floats the invitation over the empty stage. */
+.vis-stage--empty { position: relative; }
+.vis-ghost-prompt {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-size: 0.95rem;
+    color: var(--ink, #111110);
+    background: color-mix(in srgb, var(--surface, #fff) 82%, transparent);
+    border-radius: 999px;
+    text-align: center;
+    pointer-events: none;
+}

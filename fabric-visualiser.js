@@ -547,6 +547,7 @@ function renderFabricVisualiser() {
     // never dresses the single-cloth or compare garment in a blank cream shape.
     if (!fabricResolves(appState.visFabricKey)) appState.visFabricKey = null;
     if (appState.visFabricKeyB && !fabricResolves(appState.visFabricKeyB)) appState.visFabricKeyB = null;
+    var hasSelection = fabricResolves(appState.visFabricKey);
     var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
     if (appState.visEnsemble) return renderClothEnsemble(recommended);
     if (appState.visCompare) return renderClothCompare(activeKey, recommended);
@@ -556,20 +557,21 @@ function renderFabricVisualiser() {
         '<div class="vis-shell">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
-        '<p class="vis-lead">Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop.</p>' +
-        '<div class="vis-stage vis-stage--photo">' +
+        '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. The jacket dresses itself the moment you choose.") + "</p>" +
+        '<div class="vis-stage vis-stage--photo' + (hasSelection ? "" : " vis-stage--empty") + '">' +
         '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +
-        ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>' +
+        ' data-garment-key="jacket-sb" data-ghost="' + (hasSelection ? "0" : "1") + '" data-cloth="' + (hasSelection ? activeKey : "") + '"></canvas>' +
+        (hasSelection ? "" : '<p class="vis-ghost-prompt">Pick a cloth to see it come to life.</p>') +
         "</div>" +
         getVisFilterBarHTML() +
-        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, activeKey, null) + "</div>" +
+        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, hasSelection ? activeKey : null, null) + "</div>" +
         getVisRecoStripHTML(recommended) +
         '<div class="vis-mode-toggles">' +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
         "</div>" +
-        '<div class="vis-info" id="vis-info">' + getFabricInfoHTML(fabric) + "</div>" +
-        (typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
+        '<div class="vis-info" id="vis-info">' + (hasSelection ? getFabricInfoHTML(fabric) : "") + "</div>" +
+        (hasSelection && typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         "</div>"
     );
@@ -787,9 +789,16 @@ function visSyncSwatchMarks(selKey, altKey) {
 // Partial DOM update on swatch tap — repaint the jacket canvas with the
 // new cloth instead of re-rendering the whole view.
 function visApplyFabric(key) {
+    var stage = document.querySelector(".vis-stage--empty");
+    if (stage) {
+        stage.classList.remove("vis-stage--empty");
+        var prompt = stage.querySelector(".vis-ghost-prompt");
+        if (prompt) prompt.parentNode.removeChild(prompt);
+    }
     var canvas = document.getElementById("vis-jacket-canvas");
     if (canvas && typeof renderGarmentPhoto === "function") {
         canvas.setAttribute("data-cloth", key);
+        canvas.setAttribute("data-ghost", "0");
         renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
     }
     var info = document.getElementById("vis-info");
@@ -797,9 +806,15 @@ function visApplyFabric(key) {
     // Rebuild the cloth-study tools for the newly selected cloth (this is a
     // partial update, so the study block below the info card must be refreshed
     // in step — it re-initialises its drape/sheen/pairing off the new key).
+    // On the neutral entry (no cloth chosen yet) the cstudy block was never
+    // rendered at all, so there is nothing to swap on the first tap — insert
+    // it fresh right after the info card instead.
     var study = document.getElementById("cstudy");
     if (study && typeof getClothStudyHTML === "function") {
         study.outerHTML = getClothStudyHTML(getFabricByKey(key));
+        if (typeof initClothStudy === "function") initClothStudy();
+    } else if (!study && info && typeof getClothStudyHTML === "function") {
+        info.insertAdjacentHTML("afterend", getClothStudyHTML(getFabricByKey(key)));
         if (typeof initClothStudy === "function") initClothStudy();
     }
     visSyncSwatchMarks(key, null);
@@ -1540,6 +1555,7 @@ function startVisEnsPhotos() {
         var key = c.getAttribute("data-garment-key");
         var cloth = c.getAttribute("data-cloth");
         if (key && cloth) renderGarmentPhoto(c, key, cloth);
+        else if (key && c.getAttribute("data-ghost") === "1" && typeof renderGarmentGhost === "function") renderGarmentGhost(c, key);
     }
 }
 window.startVisEnsPhotos = startVisEnsPhotos;
