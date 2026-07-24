@@ -11924,6 +11924,7 @@ textarea:focus-visible,
     font: inherit;
     font-family: var(--font-ui, Manrope, system-ui, sans-serif);
     font-size: 0.95rem !important;
+    font-weight: 500 !important;
     letter-spacing: normal !important;
     text-transform: none !important;
     color: var(--text, #111110);
