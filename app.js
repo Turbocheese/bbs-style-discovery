@@ -3513,6 +3513,35 @@ function syncTopNav() {
     var hide = appState.view === "welcome" || appState.view === "home";
     nav.hidden = hide;
     document.body.classList.toggle("has-topnav", !hide);
+
+    // Reset the back-to-top button on every view change (it re-shows
+    // itself via the scroll listener once the new view is scrolled).
+    var btn = document.getElementById("back-to-top");
+    if (btn) btn.hidden = true;
+    armBackToTop();
+}
+
+function scrollAppToTop() {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try {
+        window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    } catch (e) {
+        window.scrollTo(0, 0);
+    }
+}
+
+// One passive scroll listener (never a click listener). Shows the
+// back-to-top button once the page is scrolled and a top nav is present.
+var _backToTopArmed = false;
+function armBackToTop() {
+    if (_backToTopArmed) return;
+    _backToTopArmed = true;
+    window.addEventListener("scroll", function () {
+        var btn = document.getElementById("back-to-top");
+        if (!btn) return;
+        var navVisible = !(appState.view === "welcome" || appState.view === "home");
+        btn.hidden = !(navVisible && window.pageYOffset > 400);
+    }, { passive: true });
 }
 
 function syncFabVisibility() {
@@ -6278,6 +6307,7 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "back") { navigateBack(); }
     else if (action === "home") { navigateHome(); }
+    else if (action === "scroll-top") { scrollAppToTop(); }
     else if (action === "save-name") {
         var input = document.getElementById("client-name-input");
         if (input && input.value.trim()) saveClientName(input.value);
