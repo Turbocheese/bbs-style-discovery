@@ -497,6 +497,9 @@ var colourDirectionQuestions = [
 var colourDirectionProfiles = {
     soft_tonal_warmth: {
         key: "soft_tonal_warmth",
+        // colour_family tokens matching this profile's warm, softly blended
+        // palette (stone/oat/taupe, soft brown, olive accent, soft blue).
+        colourFamilies: ["tan", "brown", "cream", "green", "blue"],
         name: "Soft Tonal Warmth",
         desc: "You look best in softly blended, warmer tones. These colours feel natural, grounded, and gently connected rather than sharply contrasted.",
         bestColours: [
@@ -548,6 +551,8 @@ var colourDirectionProfiles = {
     },
     clean_cool_contrast: {
         key: "clean_cool_contrast",
+        // Cool, clear palette: navy, soft grey, off-white, charcoal, steel blue.
+        colourFamilies: ["navy", "charcoal", "grey", "cream", "blue"],
         name: "Clean Cool Contrast",
         desc: "You look strongest in clearer, cooler combinations. Your best colours have enough separation to feel fresh, sharp, and visually defined without becoming severe.",
         bestColours: [
@@ -599,6 +604,8 @@ var colourDirectionProfiles = {
     },
     earth_led_balance: {
         key: "earth_led_balance",
+        // Grounded, natural palette: olive/moss, sand, tobacco, cream, rust.
+        colourFamilies: ["green", "tan", "brown", "cream"],
         name: "Earth Led Balance",
         desc: "You suit grounded, natural colour better than sharp or synthetic contrast. Earthy combinations will feel rooted, warm, and quietly expressive.",
         bestColours: [
@@ -650,6 +657,9 @@ var colourDirectionProfiles = {
     },
     quiet_monochrome: {
         key: "quiet_monochrome",
+        // Restrained neutrals: charcoal, soft grey, off-white, stone, black,
+        // with a muted navy accent.
+        colourFamilies: ["charcoal", "grey", "black", "cream", "navy"],
         name: "Quiet Monochrome",
         desc: "You look best in restrained neutrals and tonal combinations. Colour is used quietly, letting texture and value do more of the work than obvious contrast.",
         bestColours: [
@@ -700,6 +710,9 @@ var colourDirectionProfiles = {
     },
     light_warm_clarity: {
         key: "light_warm_clarity",
+        // Lighter, warmer palette: cream, stone, sand, warm taupe, soft blue,
+        // olive accent.
+        colourFamilies: ["cream", "tan", "blue", "green"],
         name: "Light Warm Clarity",
         desc: "You are strongest in lighter, warmer colours that feel clear and fresh. These are bright enough to lift the wardrobe, but still grounded enough to feel refined.",
         bestColours: [
@@ -751,6 +764,9 @@ var colourDirectionProfiles = {
     },
     deep_controlled_colour: {
         key: "deep_controlled_colour",
+        // Deep, saturated palette: navy, charcoal, dark chocolate, forest,
+        // burgundy, deep blue.
+        colourFamilies: ["navy", "charcoal", "brown", "green", "blue"],
         name: "Deep Controlled Colour",
         desc: "You carry richer, deeper tones well. These are especially strong when balanced by solid neutrals and used with enough restraint to feel composed rather than loud.",
         bestColours: [
@@ -802,6 +818,9 @@ var colourDirectionProfiles = {
     },
     muted_olive_balance: {
         key: "muted_olive_balance",
+        // Muted, olive-leaning palette: olive/moss, mushroom, stone, soft
+        // brown, rust, soft blue.
+        colourFamilies: ["green", "tan", "brown", "blue"],
         name: "Muted Olive Balance",
         desc: "You are strongest in more muted, grounded colour. These are tones that feel softened, olive leaning, and naturally balanced rather than bright, icy, or highly saturated.",
         bestColours: [
@@ -853,6 +872,9 @@ var colourDirectionProfiles = {
     },
     refined_neutral_contrast: {
         key: "refined_neutral_contrast",
+        // Strong neutrals with deliberate contrast: navy, charcoal, off-white,
+        // soft grey, forest/burgundy/airforce accents.
+        colourFamilies: ["navy", "charcoal", "grey", "cream", "blue"],
         name: "Refined Neutral Contrast",
         desc: "You suit a wardrobe built on strong neutrals and deliberate contrast. Cleaner combinations and sharper separation allow colour to feel polished rather than busy.",
         bestColours: [

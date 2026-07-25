@@ -10,6 +10,15 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-25 — Your colours shape the Cloth Room
+
+The Colour quiz now reaches into the Cloth Room. Once a client has a colour
+result, the cloths recommended for them float the shades that suit their
+palette to the front — a warm client sees browns, tans, olives and creams
+first; a cool client sees navies, charcoals and greys. Nothing is hidden, just
+reordered, and if no colour result has been taken the recommendations look
+exactly as before.
+
 ## 2026-07-25 — Colour, reimagined
 
 A new front door for the Colour quiz, and a cleaner finish line for both quizzes.

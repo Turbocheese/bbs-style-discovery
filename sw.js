@@ -6,7 +6,7 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v80";
+var CACHE_VERSION = "bbs-v81";
 
 var PRECACHE = [
     "./",
@@ -24,7 +24,7 @@ var PRECACHE = [
     "./attract-shader.js?v=2",
     "./weave-engine.js?v=1",
     "./garment-photo.js?v=10",
-    "./fabric-visualiser.js?v=18",
+    "./fabric-visualiser.js?v=19",
     "./cloth-study.js?v=2",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",

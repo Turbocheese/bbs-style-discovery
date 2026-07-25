@@ -56,6 +56,23 @@ function getRecommendedFabricKeys() {
             if (gp && gp.length === 3 && gp[2] === path[2]) keys.push(FABRIC_LIBRARY[j].key);
         }
     }
+    // Phase 2 (Colour x Style journey): when the client has a colour result,
+    // float cloths whose colour_family is in the profile's palette to the
+    // front. Stable partition — matches keep their relative order, non-matches
+    // keep theirs, so nothing is dropped or duplicated. With no colour result
+    // the list is returned unchanged (graceful degrade).
+    if (appState.colourResultKey && typeof getColourDirectionProfileData === "function") {
+        var families = getColourDirectionProfileData(appState.colourResultKey).colourFamilies;
+        if (families && families.length) {
+            var matched = [], rest = [];
+            for (var k = 0; k < keys.length; k++) {
+                var fam = getFabricByKey(keys[k]).colour_family;
+                if (families.indexOf(fam) !== -1) matched.push(keys[k]);
+                else rest.push(keys[k]);
+            }
+            keys = matched.concat(rest);
+        }
+    }
     return keys;
 }
 
