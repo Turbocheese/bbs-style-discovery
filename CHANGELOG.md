@@ -10,6 +10,15 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-25 — Your worksheet, in your colours
+
+The wardrobe worksheet now speaks in the client's palette. Once a colour result
+exists, the Foundation Pieces section carries a small "Your neutrals" swatch
+strip drawn from the client's own neutral shades, so the checklist of core
+pieces is framed in the colours that actually suit them. It is a gentle cue, not
+a redesign — and if no colour result has been taken, the worksheet looks exactly
+as before.
+
 ## 2026-07-25 — Your colours shape the Cloth Room
 
 The Colour quiz now reaches into the Cloth Room. Once a client has a colour

@@ -4728,6 +4728,28 @@ function renderWorksheet() {
     var foundationItems = filterItemsByClimate(template.foundation, selectedClimate);
     var refinementItems = filterItemsByClimate(template.refinements, selectedClimate);
 
+    // Phase 3 — Colour x Style journey: when a colour result exists, present the
+    // foundation pieces in the client's neutral palette (a "your neutrals" swatch
+    // cue on the Foundation section). Reuse the profile's strongNeutrals; do NOT
+    // re-derive colours. No colour result => cue is empty string => worksheet
+    // unchanged (graceful degrade).
+    var foundationNeutralsCueHTML = '';
+    if (appState.colourResultKey) {
+        var colourProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var neutralsCue = (colourProfile && colourProfile.strongNeutrals) || [];
+        if (neutralsCue.length) {
+            foundationNeutralsCueHTML = '<div class="worksheet-neutrals-cue" data-neutrals-cue="1">';
+            foundationNeutralsCueHTML += '<span class="worksheet-neutrals-cue-label">Your neutrals</span>';
+            foundationNeutralsCueHTML += '<div class="worksheet-neutrals-cue-swatches">';
+            for (var nc = 0; nc < neutralsCue.length; nc++) {
+                foundationNeutralsCueHTML += '<span class="worksheet-neutral-swatch" style="background-color:' +
+                    neutralsCue[nc].hex + ';" title="' +
+                    String(neutralsCue[nc].name).replace(/"/g, '&quot;') + '"></span>';
+            }
+            foundationNeutralsCueHTML += '</div></div>';
+        }
+    }
+
     foundationItems.sort(function (a, b) { return a.priority - b.priority; });
     refinementItems.sort(function (a, b) { return a.priority - b.priority; });
 
@@ -4857,6 +4879,7 @@ function renderWorksheet() {
     var foundationHTML = '<div class="worksheet-section">';
     foundationHTML += '<div class="worksheet-section-header"><h3 class="worksheet-section-title">Foundation Pieces</h3>';
     foundationHTML += '<span class="worksheet-section-count">' + foundationChecked + ' / ' + foundationItems.length + ' complete</span></div>';
+    foundationHTML += foundationNeutralsCueHTML;
     foundationHTML += '<div class="worksheet-items">';
     for (var i = 0; i < foundationItems.length; i++) {
         var state = checklist[foundationItems[i].id] || { checked: false, expanded: false };
