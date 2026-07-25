@@ -4022,7 +4022,6 @@ function renderDiscover() {
         '<button class="arch-btn-back" data-action="back"' +
         (appState.quizStep === 0 ? " disabled" : "") +
         ">\u2190 Back</button>" +
-        '<button class="arch-btn-home" data-action="home">Home</button>' +
         '<button class="arch-btn-next" data-action="quiz-next"' +
         (canContinue ? "" : " disabled") +
         ">" +
@@ -7264,7 +7263,6 @@ function renderColourDirection() {
         '<button class="arch-btn-back" data-action="colour-back"' +
         (appState.colourStep === 0 ? " disabled" : "") +
         ">\u2190 Back</button>" +
-        '<button class="arch-btn-home" data-action="home">Home</button>' +
         '<button class="arch-btn-next" data-action="colour-next"' +
         (canContinue ? "" : " disabled") +
         ">" +
