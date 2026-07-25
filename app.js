@@ -4555,9 +4555,29 @@ function renderResult() {
             "</div>";
     }
 
+    // Unified journey result: when Colour + Style are both complete (journey
+    // done), read both scoring outputs and present one identity. Reuses the
+    // colour content helper — no duplicated colour layout. Never merges the
+    // two scoring models; this is presentation only.
+    var isUnified = appState.journeyStage === "done" && !!appState.colourResultKey;
+    var unifiedTieHTML = "";
+    var unifiedColourHTML = "";
+    if (isUnified) {
+        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = getColourDescriptor(cScores);
+        unifiedTieHTML =
+            '<p class="unified-tie">The ' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
+        unifiedColourHTML =
+            '<div class="unified-colour-section">' +
+            '<div class="unified-section-label">Your colours</div>' +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile) +
+            "</div>";
+    }
+
     return (
-        '<div class="arch-result-shell">' +
-        '<div class="arch-result-label">Your Match</div>' +
+        '<div class="arch-result-shell' + (isUnified ? " unified-result-shell" : "") + '">' +
+        '<div class="arch-result-label">' + (isUnified ? "This Is You" : "Your Match") + "</div>" +
         '<div class="arch-result-name">' +
         (name ? '<span class="arch-result-client">' + name + "</span>" : "") +
         getRevealNameHTML(archetype.name, "arch-result-persona") +
@@ -4567,6 +4587,7 @@ function renderResult() {
         (secondaryArchetype
             ? '<p class="arch-result-secondary">Secondary influence: ' + secondaryArchetype.name + "</p>"
             : "") +
+        unifiedTieHTML +
         '<div class="arch-card-wrap">' +
         '<div class="arch-style-card" id="arch-style-card">' +
         '<div class="arch-card-top">' +
@@ -4638,20 +4659,27 @@ function renderResult() {
         "</div>" +
         "</div>" +
         "</div>" +
+        // Unified journey result folds the colour identity in here, right
+        // under the archetype card, so the two read as one.
+        unifiedColourHTML +
         // Where the client is, then the ONE thing to do next, then everything
         // else. This used to be five equal buttons with the actual next step
         // (the colour quiz) buried underneath them, so nobody found it.
         getJourneyStripHTML("style") +
 
-        '<div class="arch-journey-bridge" data-action="colour-direction" role="button" tabindex="0"' +
-        ' aria-label="Next step: find your colours">' +
-        '<div class="arch-journey-bridge-content">' +
-        '<div class="arch-journey-bridge-label">Next &middot; Step 2 of 3</div>' +
-        '<h3 class="arch-journey-bridge-title">Find Your Colours</h3>' +
-        '<p class="arch-journey-bridge-desc">Your silhouette is set. Two minutes more finds the palette and contrast that suit your complexion.</p>' +
-        "</div>" +
-        '<div class="arch-journey-bridge-icon">&rarr;</div>' +
-        "</div>" +
+        // The "Find Your Colours" bridge only makes sense when colour is not
+        // yet done; once it is (unified result), the palette is already shown.
+        (appState.colourResultKey
+            ? ""
+            : '<div class="arch-journey-bridge" data-action="colour-direction" role="button" tabindex="0"' +
+            ' aria-label="Next step: find your colours">' +
+            '<div class="arch-journey-bridge-content">' +
+            '<div class="arch-journey-bridge-label">Next &middot; Step 2 of 3</div>' +
+            '<h3 class="arch-journey-bridge-title">Find Your Colours</h3>' +
+            '<p class="arch-journey-bridge-desc">Your silhouette is set. Two minutes more finds the palette and contrast that suit your complexion.</p>' +
+            "</div>" +
+            '<div class="arch-journey-bridge-icon">&rarr;</div>' +
+            "</div>") +
 
         '<div class="arch-secondary-actions">' +
         '<button class="arch-btn-stroke" data-action="fabric-vis">See Your Cloths</button>' +
