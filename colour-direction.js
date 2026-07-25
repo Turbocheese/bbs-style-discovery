@@ -1003,6 +1003,61 @@ function scoreColourDirectionAnswers(answersById) {
 
     return sc;
 }
+// Plain-language read of a colouring for client-facing copy. Derives from the
+// same score tallies scoreColourDirectionAnswers produces; the four-variable
+// model stays under the hood — the client only ever sees these words.
+function getColourDescriptor(scores) {
+    var s = scores || {};
+    // Undertone: pick the dominant of warm/cool/neutral/olive.
+    var undertone = "Balanced";
+    var uWarm = s.warm || 0, uCool = s.cool || 0, uNeut = s.neutral || 0, uOlive = s.olive || 0;
+    var uMax = Math.max(uWarm, uCool, uNeut, uOlive);
+    if (uMax > 0 && uMax === uWarm) undertone = "Warm";
+    else if (uMax > 0 && uMax === uCool) undertone = "Cool";
+    else if (uMax > 0 && uMax === uOlive) undertone = "Olive";
+    else undertone = "Balanced";
+    // Depth: pick the dominant of light/medium/deep.
+    var depth = "Medium";
+    var dL = s.light || 0, dM = s.medium || 0, dD = s.deep || 0;
+    var dMax = Math.max(dL, dM, dD);
+    if (dMax > 0 && dMax === dD) depth = "Deep";
+    else if (dMax > 0 && dMax === dL) depth = "Light";
+    else depth = "Medium";
+    if (undertone === "Balanced") return depth === "Medium" ? "Balanced" : "Balanced & " + depth;
+    return undertone + " & " + depth;
+}
+
+function getColourReasons(scores) {
+    var s = scores || {};
+    // Undertone reason.
+    var uWarm = s.warm || 0, uCool = s.cool || 0, uOlive = s.olive || 0;
+    var uMax = Math.max(uWarm, uCool, uOlive, s.neutral || 0);
+    var undertone = { k: "Undertone", v: "Balanced",
+        d: "You carry both warm and cool well — lean on whichever a cloth leads with." };
+    if (uMax > 0 && uMax === uWarm) undertone = { k: "Undertone", v: "Warm",
+        d: "Gold and earth tones bring you to life; icy shades drain you." };
+    else if (uMax > 0 && uMax === uCool) undertone = { k: "Undertone", v: "Cool",
+        d: "Clear blues, greys and silver suit you; heavy warm tones muddy you." };
+    else if (uMax > 0 && uMax === uOlive) undertone = { k: "Undertone", v: "Olive",
+        d: "Grounded, greened tones flatter you more than clean warm or cool." };
+    // Depth reason.
+    var dL = s.light || 0, dM = s.medium || 0, dD = s.deep || 0;
+    var dMax = Math.max(dL, dM, dD);
+    var depth = { k: "Depth", v: "Medium",
+        d: "Mid-depth shades sit most naturally on you." };
+    if (dMax > 0 && dMax === dD) depth = { k: "Depth", v: "Deep",
+        d: "Rich, grounded shades suit you better than pale or washed-out ones." };
+    else if (dMax > 0 && dMax === dL) depth = { k: "Depth", v: "Light",
+        d: "Softer, lighter shades flatter you more than very dark ones." };
+    // Contrast reason.
+    var soft = s.softContrast || 0, strong = s.strongContrast || 0;
+    var contrast = strong > soft
+        ? { k: "Contrast", v: "Crisp",
+            d: "You carry sharp light-dark pairings with natural authority." }
+        : { k: "Contrast", v: "Soft",
+            d: "Tonal, blended outfits flatter you more than stark separation." };
+    return [undertone, depth, contrast];
+}
 function getColourDirectionProfileData(profileKey) {
     return (
         colourDirectionProfiles[profileKey] ||
