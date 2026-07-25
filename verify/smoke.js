@@ -109,7 +109,68 @@ function check(name, ok) {
         await page.waitForTimeout(250);
     }
     await page.waitForTimeout(1900);
-    check("colour quiz reaches result", (await page.locator(".colour-hero-palette, .arch-card-persona").count()) > 0);
+    // Standalone colour result markup (this branch): .colour-result-shell wraps
+    // the premium result; the descriptor is the single hero .colour-type-headline
+    // and must NOT also appear as an .arch-result-persona reveal.
+    check("colour quiz reaches result", (await page.locator(".colour-result-shell").count()) > 0);
+    check(
+        "colour result descriptor shows once (no duplicate persona reveal)",
+        (await page.locator(".colour-result-shell .colour-type-headline").count()) === 1 &&
+            (await page.locator(".colour-result-shell .arch-result-persona").count()) === 0
+    );
+
+    // --- Guided journey ordering (colour-combined-journey branch):
+    //     begin-journey -> Colour quiz FIRST -> auto-advances into Style ->
+    //     one unified result. Colour and Style keep separate scoring; this
+    //     only verifies the sequencing and the combined presentation. ---
+    await page.evaluate(function () { navigateHome(); });
+    await page.waitForTimeout(400);
+    await page.locator('[data-action="begin-journey"]').first().click();
+    await page.waitForTimeout(1000); // "Beginning your journey…" moment
+    var journeyColourFirst =
+        (await page.locator('[data-action="colour-next"]').count()) > 0 &&
+        (await page.locator('[data-action="quiz-pick"]').count()) === 0;
+    check("journey begins on Colour quiz (Colour-first ordering)", journeyColourFirst);
+    // Complete the Colour leg.
+    for (var jc = 0; jc < 5; jc++) {
+        await page.locator('[data-action="colour-pick"], .arch-opt--colour').first().click();
+        await page.waitForTimeout(150);
+        await page.locator('[data-action="colour-next"]').click().catch(function () {});
+        await page.waitForTimeout(250);
+    }
+    await page.waitForTimeout(1900); // "Reading your colours…" moment + handoff
+    // Colour hands straight off into Style — NOT the standalone colour result.
+    var journeyAdvancedToStyle =
+        (await page.locator('[data-action="quiz-pick"]').count()) > 0 &&
+        (await page.locator(".colour-result-shell").count()) === 0;
+    check("journey auto-advances Colour -> Style (skips standalone colour result)", journeyAdvancedToStyle);
+    // Complete the Style leg.
+    for (var jsq = 0; jsq < 7; jsq++) {
+        await page.locator('[data-action="quiz-pick"]').first().click();
+        await page.locator('[data-action="quiz-next"]').click().catch(function () {});
+        await page.waitForTimeout(200);
+    }
+    await page.waitForTimeout(300);
+    await page.locator('[data-action="onboard-focus"]').first().click();
+    await page.waitForTimeout(150);
+    await page.locator('[data-action="onboard-fit"]').first().click();
+    await page.waitForTimeout(150);
+    await page.locator('[data-action="onboard-palette"]').first().click();
+    await page.waitForTimeout(150);
+    await page.locator('[data-action="onboard-colour-use"]').first().click();
+    await page.waitForTimeout(150);
+    await page.locator('[data-action="onboard-submit"]').click();
+    await page.waitForTimeout(1900); // "Taking your measurements…" moment
+    // One unified result carrying archetype + colour together, cross-referenced.
+    var unifiedOk =
+        (await page.locator(".unified-result-shell").count()) > 0 &&
+        (await page.locator(".unified-tie").count()) > 0 &&
+        (await page.locator(".unified-colour-section").count()) > 0;
+    check("journey ends on unified result (archetype + colour together)", unifiedOk);
+    check(
+        "unified result colour descriptor shows once",
+        (await page.locator(".unified-colour-section .colour-type-headline").count()) === 1
+    );
 
     // --- Offline (service worker; localhost counts as secure) ---
     await page.goto(BASE + "/", { waitUntil: "networkidle" });

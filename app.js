@@ -7208,12 +7208,14 @@ function renderColourDirectionResult() {
     return (
         '<div class="arch-result-shell colour-result-shell">' +
         '<div class="arch-result-label">Palette Analysis</div>' +
-        '<div class="arch-result-name">' +
+        // The descriptor is the single hero via .colour-type-headline inside
+        // getColourResultContentHTML below; do NOT also reveal it here or it
+        // renders twice. This masthead carries only the client name.
         (appState.clientName
-            ? '<span class="arch-result-client">' + appState.clientName + "</span>"
+            ? '<div class="arch-result-name">' +
+              '<span class="arch-result-client">' + appState.clientName + "</span>" +
+              "</div>"
             : "") +
-        getRevealNameHTML(getColourDescriptor(scores), "arch-result-persona") +
-        "</div>" +
         '<div class="arch-result-divider"></div>' +
         getColourResultContentHTML(resultKey, scores, profile) +
         // In the journey this screen is skipped in favour of the unified
