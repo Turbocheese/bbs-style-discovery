@@ -6549,7 +6549,12 @@ document.body.addEventListener("click", function (e) {
         navigateGuide(newPath);
     }
     else if (action === "save-card") {
-  var card = document.getElementById("arch-style-card");
+  // The colour result exports a light card (#colour-share-card); the style /
+  // unified result exports the dark archetype card (#arch-style-card).
+  var isColourCard = appState.view === "colour-result";
+  var cardId = isColourCard ? "colour-share-card" : "arch-style-card";
+  var exportBg = isColourCard ? "#faf8f3" : "#050505";
+  var card = document.getElementById(cardId);
   if (!card) {
     alert("Tip: Take a screenshot of your style card!");
     return;
@@ -6566,11 +6571,11 @@ document.body.addEventListener("click", function (e) {
 
   setTimeout(function () {
     renderElementToCanvas(card, {
-      backgroundColor: "#050505",
+      backgroundColor: exportBg,
       useCORS: true,
       windowWidth: 1000,
       onclone: function (clonedDoc) {
-        var clonedCard = clonedDoc.getElementById("arch-style-card");
+        var clonedCard = clonedDoc.getElementById(cardId);
         if (clonedCard) {
           clonedCard.style.width = "1000px";
           clonedCard.style.maxWidth = "1000px";
@@ -6596,6 +6601,7 @@ document.body.addEventListener("click", function (e) {
     else if (action === "share-native") {
         var shareCard = null;
         var isWorksheet = false;
+        var isColourCard = false;
         var clientName = appState.clientName ? appState.clientName.replace(/\s+/g, "") : "Client";
         var filename = 'BBS-Profile-' + clientName + '.png';
 
@@ -6603,7 +6609,9 @@ document.body.addEventListener("click", function (e) {
             shareCard = document.getElementById("arch-style-card");
             filename = 'BBS-Style-Archetype-' + clientName + '.png';
         } else if (appState.view === "colour-result") {
-            shareCard = document.getElementById("arch-style-card");
+            // Light colour card, not the dark archetype card.
+            isColourCard = true;
+            shareCard = document.getElementById("colour-share-card");
             filename = 'BBS-Colour-Direction-' + clientName + '.png';
         } else if (appState.view === "worksheet") {
             shareCard = document.querySelector(".worksheet-shell");
@@ -6626,13 +6634,13 @@ document.body.addEventListener("click", function (e) {
 
         setTimeout(function () {
             renderElementToCanvas(shareCard, {
-                backgroundColor: isWorksheet ? "#faf8f4" : "#050505",
+                backgroundColor: isWorksheet ? "#faf8f4" : (isColourCard ? "#faf8f3" : "#050505"),
                 useCORS: true,
                 windowWidth: 1000,
                 onclone: function (clonedDoc) {
                     var clonedCard = isWorksheet
                         ? clonedDoc.querySelector(".worksheet-shell")
-                        : clonedDoc.getElementById("arch-style-card");
+                        : clonedDoc.getElementById(isColourCard ? "colour-share-card" : "arch-style-card");
 
                     if (clonedCard) {
                         clonedCard.style.width = "1000px";
@@ -7144,6 +7152,53 @@ function getColourResultCrossPromptHTML() {
     );
 }
 
+// A compact, light-themed shareable card for the standalone colour result —
+// the export/share target (mirrors the Style result's #arch-style-card role,
+// but on-brand light). Rendered off-screen: the on-page result IS the full
+// premium layout, so this card exists purely as a clean, self-contained
+// artifact for the PNG/PDF. Captured by the save-card / share-native actions
+// through the shared export helpers (renderElementToCanvas -> canvasToPDF /
+// shareCanvasAsPNG); no re-inlined html2canvas/jsPDF.
+function getColourShareCardHTML(resultKey, scores, profile) {
+    var descriptor = getColourDescriptor(scores);
+    var neutrals = profile.strongNeutrals || [];
+    var accents = profile.accentColours || [];
+
+    function chips(items) {
+        var h = '<div class="colour-share-chips">';
+        for (var i = 0; i < items.length; i++) {
+            h +=
+                '<div class="colour-share-chip' +
+                (isLightHex(items[i].hex) ? " colour-share-chip--light" : "") +
+                '" style="background-color:' + items[i].hex + ';">' +
+                '<span class="colour-share-chip-name">' + items[i].name + "</span>" +
+                "</div>";
+        }
+        return h + "</div>";
+    }
+
+    return (
+        '<div class="colour-share-card" id="colour-share-card" aria-hidden="true">' +
+        '<div class="colour-share-top">' +
+        '<span class="colour-share-brand">Benjamin Barker Studios</span>' +
+        '<span class="colour-share-tag">Colour Direction</span>' +
+        "</div>" +
+        (appState.clientName ? '<div class="colour-share-client">Name: ' + appState.clientName + "</div>" : "") +
+        '<div class="colour-share-headline">' + descriptor + "</div>" +
+        '<div class="colour-share-sub">' + profile.name + "</div>" +
+        '<div class="colour-share-rule"></div>' +
+        '<div class="colour-share-pal-label">Neutrals &mdash; your foundation</div>' +
+        chips(neutrals) +
+        '<div class="colour-share-pal-label">Accents &mdash; near your face</div>' +
+        chips(accents) +
+        '<div class="colour-share-foot">' +
+        "<span>Show this card to staff in store</span>" +
+        "<span>benjaminbarkerstudios.com</span>" +
+        "</div>" +
+        "</div>"
+    );
+}
+
 function renderColourDirectionResult() {
     var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
     var resultKey = getColourDirectionProfileKey(scores);
@@ -7164,10 +7219,22 @@ function renderColourDirectionResult() {
         // In the journey this screen is skipped in favour of the unified
         // result; reached standalone, offer to complete the Style quiz.
         (appState.inJourney ? "" : getColourResultCrossPromptHTML()) +
+        // Cloth Room bridge — restore the hop into the fabric library
+        // (existing fabric-vis action), matching the Style result's secondary
+        // actions.
+        '<div class="arch-secondary-actions">' +
+        '<button class="arch-btn-stroke" data-action="fabric-vis">See Your Cloths</button>' +
+        "</div>" +
+        // Save & share — restored. Routes through the shared export helpers via
+        // the save-card / share-native actions (one delegated handler); both
+        // capture the light colour card rendered below.
         '<div class="arch-staff-actions">' +
-        '<div class="arch-staff-label">Staff</div>' +
+        '<div class="arch-staff-label">Save &amp; share</div>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="colour-restart">Start Again</button>' +
         "</div>" +
+        getColourShareCardHTML(resultKey, scores, profile) +
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
         "</div>" +

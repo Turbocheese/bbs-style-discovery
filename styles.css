@@ -12000,3 +12000,510 @@ textarea:focus-visible,
     text-align: center;
     pointer-events: none;
 }
+
+/* ============================================================
+   COLOUR × STYLE — client-simple Colour result + unified result
+   (Phase 1, Task 5). Palette-as-hero. Light-only, brand tokens
+   (ink #111110, cream #eae5dd, taupe #a4a19c, bronze #9a7b4f),
+   EB Garamond display + Manrope UI. Appended last so these NEW
+   hook classes win over earlier layered blocks. Flat rgba only
+   (no CSS colour interpolation) for old-Safari iPad. All motion
+   here is `animation`
+   / `transition` only, so the global prefers-reduced-motion net
+   (which zeroes animation + transition duration) disables every
+   reveal automatically. The restored Save/Share + Cloth Room
+   buttons reuse .arch-btn-quiet / .arch-btn-stroke; their :active
+   is patched below to a cream press so the
+   `@media(hover:none) button:active { background: var(--accent) }`
+   near-black trap (0,1,1) does not win on tap.
+   ============================================================ */
+
+/* --- Content wrapper --- */
+.colour-result-content {
+    max-width: 46rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* --- 1. Type header: bronze kicker, EB Garamond hero, sub, lede --- */
+.colour-type-header {
+    max-width: 34rem;
+    margin: 0 auto 2.6rem;
+}
+.colour-type-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--bronze, #9a7b4f);
+    margin-bottom: 0.9rem;
+}
+.colour-type-headline {
+    font-family: "EB Garamond", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(2.3rem, 6vw, 3.5rem);
+    line-height: 1.04;
+    letter-spacing: 0.004em;
+    color: var(--text);
+    margin-bottom: 0.55rem;
+}
+.colour-type-subtitle {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--soft, #665f57);
+    margin-bottom: 1rem;
+}
+.colour-type-desc {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 32rem;
+    margin: 0 auto;
+}
+
+/* --- 2. Three reasons (Undertone / Depth / Contrast) --- */
+.colour-reasons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 40rem;
+    margin: 0 auto 2.8rem;
+    text-align: left;
+}
+.colour-reason {
+    background: var(--surface, #fff);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1.1rem 1.15rem 1.2rem;
+}
+.colour-reason-k {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--bronze, #9a7b4f);
+    margin-bottom: 0.5rem;
+}
+.colour-reason-v {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+.colour-reason-d {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+/* --- 3. Palette split — the hero. Tall paint-chip swatches with the
+   name + hex anchored at the foot, like a tailor's cloth-bunch card. --- */
+.colour-palette-split {
+    max-width: 42rem;
+    margin: 0 auto 3rem;
+    text-align: left;
+}
+.colour-palette-group + .colour-palette-group {
+    margin-top: 1.8rem;
+}
+.colour-palette-heading {
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--soft, #665f57);
+    margin-bottom: 0.85rem;
+}
+.colour-swatch-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 10px;
+}
+.colour-swatch {
+    position: relative;
+    min-height: 152px;
+    border-radius: 4px;
+    padding: 0.7rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    color: #f7f3ec;
+    border: 1px solid rgba(17, 17, 16, 0.06);
+    transition: transform var(--dur-base, 220ms) var(--ease-out, ease),
+                box-shadow var(--dur-base, 220ms) ease;
+}
+.colour-swatch-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.colour-swatch-hex {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.78;
+    margin-top: 2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.colour-swatch--light {
+    color: #23201b;
+    border-color: rgba(17, 17, 16, 0.12);
+}
+.colour-swatch--light .colour-swatch-name,
+.colour-swatch--light .colour-swatch-hex {
+    text-shadow: none;
+}
+@media (hover: hover) {
+    .colour-swatch:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(17, 17, 16, 0.14);
+    }
+}
+
+/* --- 4. How to wear it, in three moves --- */
+.colour-how {
+    max-width: 44rem;
+    margin: 0 auto 3rem;
+}
+.colour-how-heading {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.55rem;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+}
+.colour-how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    text-align: left;
+}
+.colour-how-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface, #fff);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1.2rem 1.2rem 1.3rem;
+}
+.colour-how-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    color: var(--text);
+    margin-bottom: 0.55rem;
+}
+.colour-how-desc {
+    flex: 1 1 auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+.colour-dot-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+.colour-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(17, 17, 16, 0.12);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.18);
+}
+
+/* --- 5. Two supporting cards (fabric finish + contrast) --- */
+.colour-support-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 40rem;
+    margin: 0 auto 2.6rem;
+    text-align: left;
+}
+.colour-support-card {
+    background: var(--surface-2, #f3f3f3);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1.2rem 1.25rem;
+}
+.colour-support-title {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bronze, #9a7b4f);
+    margin-bottom: 0.5rem;
+}
+.colour-support-desc {
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+/* --- The full read: dense profile kept behind a quiet <details> --- */
+.colour-full-read {
+    max-width: 40rem;
+    margin: 0 auto 2.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    text-align: left;
+}
+.colour-full-read-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--soft, #665f57);
+    cursor: pointer;
+    list-style: none;
+}
+.colour-full-read-summary::-webkit-details-marker { display: none; }
+.colour-full-read-summary::after {
+    content: "+";
+    margin-left: auto;
+    font-size: 1rem;
+    color: var(--bronze, #9a7b4f);
+}
+.colour-full-read[open] .colour-full-read-summary::after { content: "\2013"; }
+.colour-full-read-body { padding-top: 0.8rem; }
+.colour-full-read-block { margin-bottom: 1.1rem; }
+.colour-full-read-block h4 {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+}
+.colour-full-read-block p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+/* --- Standalone-only cross-prompt to complete the Style quiz.
+   A <div role="button"> (not a <button>) — no button-cascade trap. --- */
+.colour-cross-prompt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 40rem;
+    margin: 0 auto 1.6rem;
+    padding: 1.4rem 1.6rem;
+    text-align: left;
+    background: var(--surface, #fff);
+    border: 1px solid var(--line-strong);
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: var(--shadow-warm, 0 14px 44px rgba(78, 58, 38, 0.10));
+    transition: transform var(--dur-base, 220ms) var(--ease-out, ease),
+                border-color var(--dur-base, 220ms) ease;
+}
+.colour-cross-prompt-copy { flex: 1 1 auto; }
+.colour-cross-prompt-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--bronze, #9a7b4f);
+    margin-bottom: 0.4rem;
+}
+.colour-cross-prompt-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+}
+.colour-cross-prompt-desc {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--muted);
+}
+.colour-cross-prompt-icon {
+    flex-shrink: 0;
+    font-size: 1.4rem;
+    color: var(--bronze, #9a7b4f);
+    transition: transform var(--dur-base, 220ms) var(--ease-out, ease);
+}
+@media (hover: hover) {
+    .colour-cross-prompt:hover {
+        transform: translateY(-2px);
+        border-color: var(--bronze, #9a7b4f);
+    }
+    .colour-cross-prompt:hover .colour-cross-prompt-icon { transform: translateX(4px); }
+}
+.colour-cross-prompt:active { transform: scale(0.99); }
+
+/* --- Unified result: archetype + colour as one identity --- */
+.unified-tie {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    line-height: 1.5;
+    color: var(--soft, #665f57);
+    text-align: center;
+    max-width: 32rem;
+    margin: 0.2rem auto 1.8rem;
+}
+.unified-colour-section {
+    margin-top: 2.6rem;
+    padding-top: 2.4rem;
+    border-top: 1px solid var(--line-strong);
+    animation: maisonRise 0.7s var(--ease-out, ease) 0.5s both;
+}
+.unified-section-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--bronze, #9a7b4f);
+    text-align: center;
+    margin-bottom: 1.8rem;
+}
+
+/* --- Off-screen light card = the Save/Share export target for the
+   standalone colour result (mirrors #arch-style-card's role, on-brand
+   light). Captured at 1000px via the shared export helpers. --- */
+.colour-share-card {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 460px;
+    padding: 2.4rem 2.2rem;
+    background: #ffffff;
+    color: #111110;
+    text-align: left;
+    font-family: "Manrope", sans-serif;
+    border: 1px solid rgba(17, 17, 16, 0.10);
+}
+.colour-share-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.6rem;
+}
+.colour-share-brand {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #111110;
+}
+.colour-share-tag {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #9a7b4f;
+}
+.colour-share-client {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: #5f5a51;
+    margin-bottom: 1rem;
+}
+.colour-share-headline {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 2.8rem;
+    line-height: 1.02;
+    color: #111110;
+    margin-bottom: 0.35rem;
+}
+.colour-share-sub {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #665f57;
+    margin-bottom: 1.4rem;
+}
+.colour-share-rule {
+    width: 2rem;
+    height: 2px;
+    background: #9a7b4f;
+    margin-bottom: 1.6rem;
+}
+.colour-share-pal-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #665f57;
+    margin-bottom: 0.7rem;
+}
+.colour-share-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.4rem;
+}
+.colour-share-chip {
+    display: flex;
+    align-items: flex-end;
+    flex: 1 1 70px;
+    min-width: 70px;
+    min-height: 70px;
+    padding: 0.5rem;
+    border-radius: 4px;
+    color: #f7f3ec;
+    border: 1px solid rgba(17, 17, 16, 0.06);
+}
+.colour-share-chip--light {
+    color: #23201b;
+    border-color: rgba(17, 17, 16, 0.12);
+}
+.colour-share-chip-name {
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.colour-share-chip--light .colour-share-chip-name { text-shadow: none; }
+.colour-share-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 0.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(17, 17, 16, 0.1);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a857c;
+}
+
+/* --- Restored buttons reuse .arch-btn-quiet / .arch-btn-stroke; these
+   :active rules (specificity 0,2,0) beat the near-black
+   `@media(hover:none) button:active` accent trap (0,1,1) with a calm
+   cream press — the documented correct :active for this app. --- */
+.arch-btn-quiet:active,
+.arch-btn-stroke:active {
+    background: var(--bg, #eae5dd) !important;
+    color: var(--text, #111110) !important;
+    border-color: var(--line-strong, rgba(17, 17, 16, 0.18)) !important;
+}
+
+/* --- Narrow (iPad portrait / phone): collapse the multi-column grids --- */
+@media (max-width: 640px) {
+    .colour-reasons,
+    .colour-how-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+    .colour-support-cards { grid-template-columns: 1fr; }
+}
