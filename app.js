@@ -3299,6 +3299,8 @@ function getFreshState() {
         colourStep: 0,
         colourAnswersById: {},
         colourResultKey: null,
+        inJourney: false,
+        journeyStage: null,
         lookbookFilter: "all",
         openFilterDD: null,
         wardrobeChecklist: {},
@@ -3796,11 +3798,23 @@ function renderHome() {
             : "A bespoke discovery experience built around how you dress.") +
         "</p>" +
         "</div>" +
-                // --- Begin: the two quizzes ---------------------------------
-        // Style Direction is the primary action, so it is a full-width
-        // hero carrying a real archetype figure rather than a fourth
-        // identical card with an outline icon.
+                // --- Begin: the guided journey leads --------------------------
+        // The primary path is the combined journey (Colour then Style, one
+        // result). The two individual quizzes stay below it for staff and
+        // returning clients. A div (not a button) to avoid the button
+        // cascade traps entirely, matching the other home cards.
         '<div class="home-section-label">Begin</div>' +
+        '<div class="home-journey-cta" data-action="begin-journey" role="button" tabindex="0" aria-label="Begin your discovery">' +
+        '<div class="home-journey-cta-copy">' +
+        '<div class="home-card-tag">The Full Journey</div>' +
+        '<h2 class="home-journey-cta-title">Begin Your Discovery</h2>' +
+        '<p class="home-card-body">Colour first, then style — resolved into one complete picture of how you dress. About five minutes.</p>' +
+        '<div class="home-card-cta">Begin &rarr;</div>' +
+        "</div>" +
+        "</div>" +
+        // Individual quizzes below. Style Direction is a full-width hero
+        // carrying a real archetype figure rather than a fourth identical
+        // card with an outline icon.
         '<div class="home-hero-card" data-action="discover">' +
         '<div class="home-hero-card-copy">' +
         '<div class="home-card-tag">Wardrobe Blueprint</div>' +
@@ -6286,6 +6300,7 @@ document.body.addEventListener("click", function (e) {
     if (action === "discover") { runMeasureMoment("Sharpening the chalk…", navigateDiscover, 650); }
     else if (action === "guide") { runMeasureMoment("Opening the guide…", function () { navigateGuide([]); }, 650); }
     else if (action === "colour-direction") { runMeasureMoment("Preparing the colour room…", navigateColourDirection, 650); }
+    else if (action === "begin-journey") { runMeasureMoment("Beginning your journey…", navigateJourney, 650); }
     else if (action === "lookbook") { runMeasureMoment("Opening the lookbook…", navigateLookbook, 650); }
     else if (action === "lookbook-filter") {
         appState.lookbookFilter = target.dataset.season || "all";
@@ -6418,6 +6433,11 @@ document.body.addEventListener("click", function (e) {
         appState.archetypeKey = primaryKey;
 
         runMeasureMoment("Taking your measurements…", function () {
+            // Journey: Style is the last leg — mark the journey done so the
+            // result view renders the unified Colour + Style identity.
+            if (appState.inJourney && appState.journeyStage === "style") {
+                appState.journeyStage = "done";
+            }
             appState.view = "result";
             render({ animate: true });
         });
@@ -6449,6 +6469,16 @@ document.body.addEventListener("click", function (e) {
             render({ animate: false });
         } else {
             runMeasureMoment("Reading your colours…", function () {
+                // In the guided journey, skip the standalone colour result:
+                // compute and store the colour key, then hand straight off
+                // into the Style quiz. Fires only on journey completion of
+                // colour (inJourney + stage "colour"), never on a revisit.
+                if (appState.inJourney && appState.journeyStage === "colour") {
+                    appState.colourResultKey = getColourDirectionProfileKey(scoreColourDirectionAnswers(appState.colourAnswersById));
+                    appState.journeyStage = "style";
+                    navigateDiscover();
+                    return;
+                }
                 appState.view = "colour-result";
                 render({ animate: true });
             });
@@ -7142,6 +7172,32 @@ function renderColourDirectionResult() {
 // ============================================
 // COLOUR DIRECTION NAVIGATION & RENDERING
 // ============================================
+
+// The guided journey: Colour first, then Style, then one unified result.
+// The two quizzes keep their own state and scoring; this only sequences them.
+// Both quizzes start fresh so the journey always runs Colour then Style in
+// full, regardless of any prior individual-quiz state on the session.
+function navigateJourney() {
+    appState.inJourney = true;
+    appState.journeyStage = "colour";
+    // Colour quiz fresh-start (mirror navigateColourDirection's fresh path).
+    appState.colourStep = 0;
+    appState.colourAnswersById = {};
+    appState.colourResultKey = null;
+    // Style quiz fresh-start (mirror navigateDiscover's fresh path) so a
+    // returning session cannot skip the Style leg or resume it half-done.
+    appState.quizStep = 0;
+    appState.quizAnswers = [];
+    appState.quizAnswersById = {};
+    appState.selFocus = "";
+    appState.selFit = "";
+    appState.selPalette = "";
+    appState.selColourUse = "";
+    appState.selClimate = "";
+    appState.archetypeKey = null;
+    appState.view = "colour-direction";
+    render({ animate: true });
+}
 
 function navigateColourDirection() {
     // 1. If they already completed the quiz, take them to the Result
