@@ -10,6 +10,22 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-25 — Navigation & defaults
+
+A round of tidying to how you move around the app.
+
+- **A steady Back/Home bar.** Every screen now carries a persistent bar at the
+  top with Back and Home, so you always know how to retreat or restart without
+  hunting for a button lower down the page.
+- **Jump to top.** Long pages (the guide, the gallery, worksheets) grow a
+  back-to-top button once you've scrolled a way down.
+- **Cleaner screens.** The old duplicate Back/Home clusters at the bottom of
+  quiz and detail screens are gone now that the top bar covers them, and a
+  pass over every screen removed stray duplicate Home buttons left behind.
+- **The Cloth Room starts empty.** Before you pick a cloth, the room now shows
+  a plain ghost garment rather than a specific one, so it doesn't look like a
+  choice has already been made for you.
+
 ## 2026-07-22 — Three more house touches
 
 Another small batch in the "21st" run of interface polish.
