@@ -261,6 +261,7 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 function renderGarmentGhost(canvas, garmentKey) {
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
+        if (canvas.getAttribute("data-ghost") !== "1") return;
         renderGarmentGhost(canvas, garmentKey);
     }); return false; }
 

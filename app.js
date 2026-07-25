@@ -3512,7 +3512,6 @@ function syncTopNav() {
     if (!nav) return;
     var hide = appState.view === "welcome" || appState.view === "home";
     nav.hidden = hide;
-    document.body.classList.toggle("has-topnav", !hide);
 
     // Reset the back-to-top button on every view change (it re-shows
     // itself via the scroll listener once the new view is scrolled).
