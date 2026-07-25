@@ -5751,7 +5751,6 @@ function renderArchetypeDetail(archetype, index) {
 
     html += '<div class="gallery-nav">';
     html += '<button data-action="gallery-back">&larr; All Archetypes</button>';
-    html += '<button data-action="home">Home</button>';
     html += "</div></div>";
     return html;
 }
