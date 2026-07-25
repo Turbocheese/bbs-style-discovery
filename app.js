@@ -4566,8 +4566,10 @@ function renderResult() {
         var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
         var cProfile = getColourDirectionProfileData(appState.colourResultKey);
         var cDescriptor = getColourDescriptor(cScores);
+        // archetype.name already begins with "The" (e.g. "The Tropical
+        // Traditionalist"), so it is used as-is here.
         unifiedTieHTML =
-            '<p class="unified-tie">The ' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
+            '<p class="unified-tie">' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
         unifiedColourHTML =
             '<div class="unified-colour-section">' +
             '<div class="unified-section-label">Your colours</div>' +
