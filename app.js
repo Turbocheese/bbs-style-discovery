@@ -6922,64 +6922,145 @@ document.addEventListener("input", function (e) {
 // ============================================
 // COLOUR DIRECTION HELPERS
 // ==========================================
-function renderColourDirectionResult() {
-    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
-    var resultKey = getColourDirectionProfileKey(scores);
-    var profile = getColourDirectionProfileData(resultKey);
+// One plain sentence out of a rich profile field. The colour profiles carry
+// dense, consultation-style paragraphs; the client-simple result shows only
+// the lead sentence and keeps the full text for the optional "full read".
+function colourFirstSentence(text) {
+    if (!text) return "";
+    var m = String(text).match(/^[\s\S]*?[.!?](?=\s|$)/);
+    return m ? m[0].trim() : String(text).trim();
+}
 
-    appState.colourResultKey = resultKey;
+// Single source of truth for the client-simple colour result content:
+// type header, three plain reasons, palette split by role, how-to-wear-it
+// in three moves, two supporting cards, and the explore links. Reused by
+// the standalone colour-result view and the unified result (no duplication).
+function getColourResultContentHTML(resultKey, scores, profile) {
+    var descriptor = getColourDescriptor(scores);
+    var reasons = getColourReasons(scores);
+    var neutrals = profile.strongNeutrals || [];
+    var accents = profile.accentColours || [];
 
-    var heroPaletteHTML = '<div class="colour-hero-palette">';
-    for (var h = 0; h < profile.bestColours.length; h++) {
-        // White-on-pale was unreadable (Off-White scored 1.14:1). Pick the
-        // label colour from the swatch's own luminance instead.
-        heroPaletteHTML +=
-            '<div class="colour-hero-swatch' +
-            (isLightHex(profile.bestColours[h].hex) ? " colour-hero-swatch--light" : "") +
-            '" style="background-color: ' +
-            profile.bestColours[h].hex +
-            ';" title="' +
-            profile.bestColours[h].name +
-            '">' +
-            '<span class="colour-hero-swatch-name">' +
-            profile.bestColours[h].name +
-            "</span>" +
-            "</div>";
-    }
-    heroPaletteHTML += "</div>";
-
-    function renderColourList(items) {
-        var html = '<div class="colour-result-chip-row">';
+    // Named swatch with luminance-aware label colour (reuses isLightHex —
+    // white-on-pale was unreadable, so light swatches get a dark label).
+    function swatchRow(items) {
+        var html = '<div class="colour-swatch-row">';
         for (var i = 0; i < items.length; i++) {
             html +=
-                '<div class="colour-result-chip">' +
-                '<span class="colour-result-chip-swatch" style="background-color:' +
-                items[i].hex +
-                ';"></span>' +
-                '<span class="colour-result-chip-label">' +
-                items[i].name +
-                "</span>" +
+                '<div class="colour-swatch' +
+                (isLightHex(items[i].hex) ? " colour-swatch--light" : "") +
+                '" style="background-color:' + items[i].hex + ';">' +
+                '<span class="colour-swatch-name">' + items[i].name + "</span>" +
+                '<span class="colour-swatch-hex">' + items[i].hex + "</span>" +
                 "</div>";
         }
-        html += "</div>";
-        return html;
+        return html + "</div>";
     }
 
-    function renderMatchingList(items) {
-        var html = '<div class="colour-result-notes">';
+    // Small colour dots for a how-to card.
+    function dotRow(items) {
+        var html = '<div class="colour-dot-row" aria-hidden="true">';
         for (var i = 0; i < items.length; i++) {
-            html += '<div class="arch-card-note">' + items[i] + "</div>";
+            html += '<span class="colour-dot" style="background-color:' + items[i].hex + ';"></span>';
         }
-        html += "</div>";
-        return html;
+        return html + "</div>";
     }
 
+    // 1. Type header.
+    var headerHTML =
+        '<div class="colour-type-header">' +
+        '<div class="colour-type-label">Your Colour Type</div>' +
+        '<h2 class="colour-type-headline">' + descriptor + "</h2>" +
+        '<div class="colour-type-subtitle">' + profile.name + "</div>" +
+        '<p class="colour-type-desc">' + profile.desc + "</p>" +
+        "</div>";
+
+    // 2. Three reasons.
+    var reasonsHTML = '<div class="colour-reasons">';
+    for (var r = 0; r < reasons.length; r++) {
+        reasonsHTML +=
+            '<div class="colour-reason">' +
+            '<div class="colour-reason-k">' + reasons[r].k + "</div>" +
+            '<div class="colour-reason-v">' + reasons[r].v + "</div>" +
+            '<p class="colour-reason-d">' + reasons[r].d + "</p>" +
+            "</div>";
+    }
+    reasonsHTML += "</div>";
+
+    // 3. Palette split by role.
+    var paletteHTML =
+        '<div class="colour-palette-split">' +
+        '<div class="colour-palette-group">' +
+        '<div class="colour-palette-heading">Neutrals &mdash; your foundation (suits, coats, trousers)</div>' +
+        swatchRow(neutrals) +
+        "</div>" +
+        '<div class="colour-palette-group">' +
+        '<div class="colour-palette-heading">Accents &mdash; closer to the face (shirts, knits, ties)</div>' +
+        swatchRow(accents) +
+        "</div>" +
+        "</div>";
+
+    // 4. How to wear it, in three moves.
+    var calmNeutrals = neutrals.slice(0, 2);
+    var shirtColours = calmNeutrals.concat(accents.length > 0 ? [accents[0]] : []);
+    var hardwareLine = profile.hardware ? colourFirstSentence(profile.hardware.desc) : "";
+    var howHTML =
+        '<div class="colour-how">' +
+        '<div class="colour-how-heading">How to wear it, in three moves</div>' +
+        '<div class="colour-how-grid">' +
+        '<div class="colour-how-card">' +
+        '<div class="colour-how-title">Suits &amp; coats &rarr; your neutrals</div>' +
+        '<p class="colour-how-desc">Build the big pieces from these. They are the shades that carry you head to toe.</p>' +
+        dotRow(neutrals) +
+        "</div>" +
+        '<div class="colour-how-card">' +
+        '<div class="colour-how-title">Shirts &rarr; near your face</div>' +
+        '<p class="colour-how-desc">Keep the calmer neutrals against your collar, lifted with a touch of accent.</p>' +
+        dotRow(shirtColours) +
+        "</div>" +
+        '<div class="colour-how-card">' +
+        '<div class="colour-how-title">Ties, knits &amp; metal &rarr; where to play</div>' +
+        '<p class="colour-how-desc">' + (hardwareLine || "Bring your accents in here, and match your hardware to your palette.") + "</p>" +
+        dotRow(accents) +
+        "</div>" +
+        "</div>" +
+        "</div>";
+
+    // 5. Two supporting cards.
+    var finishField = profile.fabricFinish || {};
+    var contrastField = profile.contrastArchitecture || profile.strategy || {};
+    var cardsHTML =
+        '<div class="colour-support-cards">' +
+        '<div class="colour-support-card">' +
+        '<div class="colour-support-title">Fabric finish</div>' +
+        '<p class="colour-support-desc">' + colourFirstSentence(finishField.desc) + "</p>" +
+        "</div>" +
+        '<div class="colour-support-card">' +
+        '<div class="colour-support-title">' + (contrastField.title || "Contrast") + "</div>" +
+        '<p class="colour-support-desc">' + colourFirstSentence(contrastField.desc) + "</p>" +
+        "</div>" +
+        "</div>";
+
+    // Optional "the full read" — the dense profile depth kept available but
+    // never the default surface (native <details>, no extra JS or handler).
+    var fullReadHTML =
+        '<details class="colour-full-read">' +
+        '<summary class="colour-full-read-summary">The full read</summary>' +
+        '<div class="colour-full-read-body">' +
+        (profile.fabricFinish ? '<div class="colour-full-read-block"><h4>' + profile.fabricFinish.title + "</h4><p>" + profile.fabricFinish.desc + "</p></div>" : "") +
+        (profile.contrastArchitecture ? '<div class="colour-full-read-block"><h4>' + profile.contrastArchitecture.title + "</h4><p>" + profile.contrastArchitecture.desc + "</p></div>" : "") +
+        (profile.hardware ? '<div class="colour-full-read-block"><h4>' + profile.hardware.title + "</h4><p>" + profile.hardware.desc + "</p></div>" : "") +
+        (profile.pattern ? '<div class="colour-full-read-block"><h4>' + profile.pattern.title + "</h4><p>" + profile.pattern.desc + "</p></div>" : "") +
+        (profile.strategy ? '<div class="colour-full-read-block"><h4>' + profile.strategy.title + "</h4><p>" + profile.strategy.desc + "</p></div>" : "") +
+        "</div>" +
+        "</details>";
+
+    // 6. Explore links (reuse getColourExploreLinks).
     var links = getColourExploreLinks(resultKey);
     var linksHTML = "";
     for (var i = 0; i < links.length; i++) {
         var link = links[i];
         var pathJson = JSON.stringify(link.path);
-
         var kindMap = {
             garment: "Garment",
             fabric: "Fabric",
@@ -6990,178 +7071,73 @@ function renderColourDirectionResult() {
             guide: "Guide",
         };
         var kindLabel = kindMap[link.topic_kind] || "Guide";
-
         linksHTML +=
-            '<div class="arch-explore-card" data-action="result-link" data-path=\'' +
-            pathJson +
-            "'>" +
-            '<span class="arch-explore-kind">' +
-            kindLabel +
-            "</span>" +
-            '<div class="arch-explore-title">' +
-            link.title +
-            "</div>" +
-            '<div class="arch-explore-intro">' +
-            (link.intro || "") +
-            "</div>" +
+            '<div class="arch-explore-card" data-action="result-link" data-path=\'' + pathJson + "'>" +
+            '<span class="arch-explore-kind">' + kindLabel + "</span>" +
+            '<div class="arch-explore-title">' + link.title + "</div>" +
+            '<div class="arch-explore-intro">' + (link.intro || "") + "</div>" +
             "</div>";
     }
-
-    // 🌟 FIVE BESPOKE SVG ICONS
-    var iconFabric =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>';
-    var iconContrast =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><polygon points="12 2 2 22 22 22"></polygon></svg>';
-    var iconHardware =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="14" cy="10" r="1"></circle><circle cx="10" cy="14" r="1"></circle><circle cx="14" cy="14" r="1"></circle></svg>';
-    var iconPattern =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>';
-    var iconStrategy =
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color: #a8998a; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>';
+    var exploreHTML = links.length > 0
+        ? '<div class="arch-explore-section">' +
+          '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
+          '<p class="arch-explore-intro-text">Deepen your knowledge of the fabrics and strategies suited to your colours.</p>' +
+          '<div class="arch-explore-grid">' + linksHTML + "</div>" +
+          "</div>"
+        : "";
 
     return (
-        '<div class="arch-result-shell">' +
+        '<div class="colour-result-content">' +
+        headerHTML +
+        reasonsHTML +
+        paletteHTML +
+        howHTML +
+        cardsHTML +
+        fullReadHTML +
+        exploreHTML +
+        "</div>"
+    );
+}
+
+// Standalone-only cross-prompt: reached without the guided journey, offer to
+// complete the Style quiz for the full picture (reuses the "discover" action).
+function getColourResultCrossPromptHTML() {
+    return (
+        '<div class="colour-cross-prompt" data-action="discover" role="button" tabindex="0" aria-label="Complete the Style quiz">' +
+        '<div class="colour-cross-prompt-copy">' +
+        '<div class="colour-cross-prompt-label">The full picture</div>' +
+        '<h3 class="colour-cross-prompt-title">Complete the Style quiz</h3>' +
+        '<p class="colour-cross-prompt-desc">You have your colours. Add your style direction to see your full identity &mdash; how you dress, in your palette.</p>' +
+        "</div>" +
+        '<div class="colour-cross-prompt-icon">&rarr;</div>' +
+        "</div>"
+    );
+}
+
+function renderColourDirectionResult() {
+    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+    var resultKey = getColourDirectionProfileKey(scores);
+    var profile = getColourDirectionProfileData(resultKey);
+    appState.colourResultKey = resultKey;
+
+    return (
+        '<div class="arch-result-shell colour-result-shell">' +
         '<div class="arch-result-label">Palette Analysis</div>' +
         '<div class="arch-result-name">' +
         (appState.clientName
             ? '<span class="arch-result-client">' + appState.clientName + "</span>"
             : "") +
-        getRevealNameHTML(profile.name, "arch-result-persona") +
+        getRevealNameHTML(getColourDescriptor(scores), "arch-result-persona") +
         "</div>" +
         '<div class="arch-result-divider"></div>' +
-        '<p class="arch-result-desc">' +
-        profile.desc +
-        "</p>" +
-        '<div class="arch-card-wrap">' +
-        '<div class="arch-style-card" id="arch-style-card">' +
-        '<div class="arch-card-top">' +
-        '<span class="arch-card-brand">Benjamin Barker Studios</span>' +
-        '<span class="arch-card-tag">Colour Direction</span>' +
-        "</div>" +
-        (appState.clientName
-            ? '<div class="arch-card-client">Name: ' + appState.clientName + "</div>"
-            : "") +
-        '<div class="arch-card-persona">' +
-        profile.name +
-        "</div>" +
-        '<div class="arch-card-rule"></div>' +
-        heroPaletteHTML +
-        '<div class="arch-card-section-label">Best On You</div>' +
-        renderColourList(profile.bestColours) +
-        // Strong Neutrals minus anything already shown in Best On You —
-        // the raw lists overlap heavily and read as padding. Founder
-        // call: the lists must be mutually exclusive on the card.
-        (function () {
-            var seen = {};
-            for (var bi = 0; bi < profile.bestColours.length; bi++) {
-                seen[profile.bestColours[bi].name] = true;
-            }
-            var uniqueNeutrals = [];
-            for (var ni = 0; ni < profile.strongNeutrals.length; ni++) {
-                if (!seen[profile.strongNeutrals[ni].name]) uniqueNeutrals.push(profile.strongNeutrals[ni]);
-            }
-            return uniqueNeutrals.length > 0
-                ? '<div class="arch-card-section-label">Strong Neutrals</div>' + renderColourList(uniqueNeutrals)
-                : "";
-        })() +
-        '<div class="arch-card-section-label">Accent Colours</div>' +
-        renderColourList(profile.accentColours) +
-        // 🌟 THE NEW GAUNTLET OF BESPOKE INSIGHTS
-        '<div class="arch-card-section-label" style="margin-top: 1.5rem;">Bespoke Insights</div>' +
-        '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' +
-        iconFabric +
-        '<span class="bespoke-insight-title">' +
-        profile.fabricFinish.title +
-        "</span></div>" +
-        '<p class="bespoke-insight-desc">' +
-        profile.fabricFinish.desc +
-        "</p>" +
-        "</div>" +
-        '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' +
-        iconContrast +
-        '<span class="bespoke-insight-title">' +
-        profile.contrastArchitecture.title +
-        "</span></div>" +
-        '<p class="bespoke-insight-desc">' +
-        profile.contrastArchitecture.desc +
-        "</p>" +
-        "</div>" +
-        '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' +
-        iconHardware +
-        '<span class="bespoke-insight-title">' +
-        profile.hardware.title +
-        "</span></div>" +
-        '<p class="bespoke-insight-desc">' +
-        profile.hardware.desc +
-        "</p>" +
-        "</div>" +
-        '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' +
-        iconPattern +
-        '<span class="bespoke-insight-title">' +
-        profile.pattern.title +
-        "</span></div>" +
-        '<p class="bespoke-insight-desc">' +
-        profile.pattern.desc +
-        "</p>" +
-        "</div>" +
-        '<div class="bespoke-insight-card">' +
-        '<div class="bespoke-insight-header">' +
-        iconStrategy +
-        '<span class="bespoke-insight-title">' +
-        profile.strategy.title +
-        "</span></div>" +
-        '<p class="bespoke-insight-desc">' +
-        profile.strategy.desc +
-        "</p>" +
-        "</div>" +
-        '<div class="arch-card-section-label" style="margin-top: 1.5rem;">Matching Guidance</div>' +
-        renderMatchingList(profile.matching) +
-        '<div class="arch-card-footer">' +
-        '<div class="arch-card-cta-text">Use this as a colour guide in store</div>' +
-        '<div class="arch-card-url">benjaminbarkerstudios.com</div>' +
-        "</div>" +
-        "</div>" +
-        "</div>" +
-        // Same shape as the style result: where you are, the one next thing,
-        // then the quiet staff jobs. This screen used to end at Save/Share and
-        // gave no hint that the Cloth Room was the next step.
-        getJourneyStripHTML("colour") +
-
-        '<div class="arch-journey-bridge" data-action="fabric-vis" role="button" tabindex="0"' +
-        ' aria-label="Next step: see your cloths">' +
-        '<div class="arch-journey-bridge-content">' +
-        '<div class="arch-journey-bridge-label">Next &middot; Step 3 of 3</div>' +
-        '<h3 class="arch-journey-bridge-title">See Your Cloths</h3>' +
-        '<p class="arch-journey-bridge-desc">Your palette is set. Now see it in real cloth &mdash; the bunch on a tailored cut, with the cloths marked that suit your direction.</p>' +
-        "</div>" +
-        '<div class="arch-journey-bridge-icon">&rarr;</div>' +
-        "</div>" +
-
-        '<div class="arch-secondary-actions">' +
-        '<button class="arch-btn-stroke" data-action="worksheet">Build Your Wardrobe</button>' +
-        "</div>" +
-
+        getColourResultContentHTML(resultKey, scores, profile) +
+        // In the journey this screen is skipped in favour of the unified
+        // result; reached standalone, offer to complete the Style quiz.
+        (appState.inJourney ? "" : getColourResultCrossPromptHTML()) +
         '<div class="arch-staff-actions">' +
-        '<div class="arch-staff-label">Save &amp; share</div>' +
-        '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
-        '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<div class="arch-staff-label">Staff</div>' +
         '<button class="arch-btn-quiet btn-bare" data-action="colour-restart">Start Again</button>' +
         "</div>" +
-
-
-        (links.length > 0
-            ? '<div class="arch-explore-section">' +
-            '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
-            '<p class="arch-explore-intro-text">Deepen your knowledge of the fabrics and strategies suited to your profile.</p>' +
-            '<div class="arch-explore-grid">' +
-            linksHTML +
-            "</div>" +
-            "</div>"
-            : "") +
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
         "</div>" +
