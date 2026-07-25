@@ -10,6 +10,20 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-25 — Colour, reimagined
+
+A new front door for the Colour quiz, and a cleaner finish line for both quizzes.
+
+- **A guided Colour-first journey.** The Colour quiz now opens with its own
+  guided run-through rather than dropping you straight into questions, giving
+  it the same considered arrival as the Style quiz.
+- **A simpler standalone Colour result.** Taken on its own, the Colour quiz
+  now finishes on a clean, client-friendly result screen — the headline
+  colours without the extra detail that only matters once Style is in the mix.
+- **One combined result.** Take both quizzes back to back and you now land on
+  a single unified Colour + Style result, instead of two separate screens to
+  piece together yourself.
+
 ## 2026-07-25 — Navigation & defaults
 
 A round of tidying to how you move around the app.
