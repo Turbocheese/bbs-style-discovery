@@ -3692,7 +3692,7 @@ function renderWelcome() {
         '<div class="welcome-hero">' +
         '<span class="welcome-kicker">Personal Style Discovery</span>' +
         "<h1>Your wardrobe,<br>considered.</h1>" +
-        '<p class="welcome-intro">Two minutes, a few questions. Your personal style, mapped.</p>' +
+        '<p class="welcome-intro">A few questions. Your personal style, mapped.</p>' +
         "</div>" +
         '<div class="welcome-form-card">' +
         '<div class="welcome-form">' +
@@ -3807,9 +3807,9 @@ function renderHome() {
         '<div class="home-journey-cta" data-action="begin-journey" role="button" tabindex="0" aria-label="Begin your discovery">' +
         '<div class="home-journey-cta-copy">' +
         '<div class="home-card-tag">The Full Journey</div>' +
-        '<h2 class="home-journey-cta-title">Begin Your Discovery</h2>' +
-        '<p class="home-card-body">Colour first, then style — resolved into one complete picture of how you dress. About five minutes.</p>' +
-        '<div class="home-card-cta">Begin &rarr;</div>' +
+        '<h2 class="home-journey-cta-title">Your Style Discovery</h2>' +
+        '<p class="home-card-body">Colour first, then style — resolved into one complete picture of how you dress.</p>' +
+        '<div class="home-card-cta">Take the full journey &rarr;</div>' +
         "</div>" +
         "</div>" +
         // Individual quizzes below. Style Direction is a full-width hero
@@ -4678,7 +4678,7 @@ function renderResult() {
             '<div class="arch-journey-bridge-content">' +
             '<div class="arch-journey-bridge-label">Next &middot; Step 2 of 3</div>' +
             '<h3 class="arch-journey-bridge-title">Find Your Colours</h3>' +
-            '<p class="arch-journey-bridge-desc">Your silhouette is set. Two minutes more finds the palette and contrast that suit your complexion.</p>' +
+            '<p class="arch-journey-bridge-desc">Your silhouette is set. Now find the palette and contrast that suit your complexion.</p>' +
             "</div>" +
             '<div class="arch-journey-bridge-icon">&rarr;</div>' +
             "</div>") +
