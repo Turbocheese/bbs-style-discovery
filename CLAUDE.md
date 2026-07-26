@@ -1,18 +1,3 @@
-# Persistent Memory Directives
-
-Before responding to queries, check the Session Summaries NotebookLM notebook 
-(ID: `db9c779b-13bb-4a9f-bd4b-38946a8dd939`) for the most recent session context.
-
-- **Session Summaries Notebook ID:** `db9c779b-13bb-4a9f-bd4b-38946a8dd939`
-- **Raw Transcripts Notebook ID:** `f71ec634-7f3f-4823-bc72-de77cbc4c69a`
-
-Use the MCP query:
-> "What does the Claude Latest Session document say? Return the filename, timestamp, tags, and summary."
-
-Do not respond to my opening prompt until this query has completed and its result is in your context. If the MCP tool is unavailable, stop and inform me rather than proceeding without context.
-
----
-
 # CLAUDE.md — BBS Style Discovery
 
 In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 312-topic
@@ -20,8 +5,7 @@ menswear guide, wardrobe worksheet, and PDF/PNG exports. Vanilla JS/HTML/CSS,
 no framework, no build step, no backend, no runtime dependencies (everything is
 vendored). It runs by opening `index.html` (or any static file server), and is
 deployed via GitHub Pages at https://turbocheese.github.io/bbs-style-discovery/
-(serves `master`, HTTPS, service worker active). Keep it that way — do not
-suggest frameworks, bundlers, TypeScript, or a backend unless the founder asks.
+(serves `master`, HTTPS, service worker active). This is deliberately vanilla / no-build / offline / no-backend — that is what makes it "open index.html" and run on a kiosk offline. A framework, bundler, or backend trades that away, so it is the wrong default. If the founder is weighing one, show the real cost rather than just agreeing or refusing.
 
 **Product framing (founder direction, July 2026):** the quizzes are a fun,
 "wow"-factor experience for customers — NOT a consultation. Prefer playful,
@@ -56,7 +40,7 @@ Script order in `index.html` is load-bearing (globals defined top-down). Current
 15. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
 16. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 
-Do not reorder. Do not move the validation runner.
+Script order is load-bearing — globals are defined top-down, so reordering breaks references, and the validation runner must stay after app.js. Move something only once you have traced the dependency and know it holds.
 
 **The `button:hover` trap.** `styles.css` restyles every `button` as a chrome pill and inverts it on hover with `background: var(--accent) !important`. That selector is `button:hover` — element + pseudo-class (0,1,1) — so it **outranks any single class (0,1,0), including one with `!important`**. Five components have hit this: the Complete-the-Look cards, the provenance tape markers, the globe country labels, the split's side selectors and the gallery view toggle, each turning into an unreadable black box under the pointer. On a touch-first app a tap can leave a sticky hover, so this is a real fault and not desktop cosmetics. **A button that is a card, pin, label or swatch should carry `.btn-bare`**, which opts out. Otherwise you will find it the hard way.
 
@@ -78,7 +62,7 @@ must degrade to an alert, never crash.
 - Single global `appState`; shape defined by `getFreshState()` in app.js. New state fields go there first.
 - Persisted to `localStorage` key `bbs_session` on every `render()`. Loading is wrapped in try/catch that clears a corrupted key — do not remove that guard.
 - `render()` in app.js is the single router: every view is a `case` in its `switch`. New views = new `case` + a `render<View>()` function returning an HTML string.
-- Views are built by **string concatenation** returning full HTML, injected via `innerHTML`. Follow that pattern; do not introduce templating.
+- Views are built by **string concatenation** returning full HTML, injected via `innerHTML`. Match that string-concat pattern. A templating layer would fragment the codebase for no build-time payoff, so it is not worth it here.
 - Double-tap on the logo wipes the session (staff reset between clients). Preserve it.
 - **Idle attract-reset:** 3 minutes without interaction on any non-welcome view wipes
   the session and returns to welcome (`_armIdleReset()` in app.js, listening on
@@ -90,8 +74,7 @@ must degrade to an alert, never crash.
 - `runMeasureMoment(label, done, ms)` in app.js is the app's only loading screen:
   a tape-measure interstitial. Full 1.5s unroll/hold/roll-back cycle before quiz
   results ("Taking your measurements…" / "Reading your colours…"); short ~650ms
-  beat entering each main-menu section. Deeper navigation is instant on purpose —
-  do not add more loading screens.
+  beat entering each main-menu section. Deeper navigation is instant by design; add a loading beat only where a real wait exists, not for decoration.
 - The tape-measure is the app's visual signature: quiz/colour-quiz progress renders
   as a numbered tape blade (numbers self-invert via `mix-blend-mode: difference`
   as the fill sweeps under them), the worksheet progress bar shares the same
@@ -103,8 +86,7 @@ must degrade to an alert, never crash.
 
 There is exactly **one** delegated click handler on `document.body` in app.js,
 dispatching on `data-action` attributes. Add new interactions as new `data-action`
-branches inside it. **Never attach a second click listener** — duplicate handlers
-caused serious false-trail bugs in this project's history. (The idle-reset
+branches inside it. **A second click listener is almost never right** — duplicate handlers caused serious false-trail bugs in this project's history, so route clicks through the one delegated handler. (The idle-reset
 listeners deliberately use `pointerdown`/`keydown`/`scroll`, not `click`, to
 stay compliant.) Export/share buttons get an automatic "Preparing…" busy state
 in the click handler — a fixed 4s restore, because the export paths share no
@@ -112,9 +94,7 @@ completion callback; wire real hooks if exports ever grow slower.
 
 ## Code conventions (match, don't modernize)
 
-- ES5 style: `var`, function declarations, string concatenation. No `let`/`const`,
-  arrow functions, template literals, classes, or modules in these files — consistency
-  beats modernity in a no-build codebase.
+- ES5 style: `var`, function declarations, string concatenation. Match this style — half a file in modern syntax and half in ES5 is the real cost, so consistency beats modernity in a no-build codebase. Introduce `let`/`const`, arrow functions, template literals, classes, or modules only if you would convert the whole file, and there is no reason to.
 - 4-space indent, double quotes dominant in app.js (some worksheet-era blocks use
   single quotes — match whichever the block you're editing uses).
 - One source of truth per function. When replacing or reverting anything, delete the
@@ -195,10 +175,12 @@ Other UI invariants:
   render time (card and dossier) — the raw profile lists in colour-direction.js
   overlap by design; do not "fix" the data to match.
 
-## Product decisions that constrain code (do not relitigate)
+## Founder product decisions (settled defaults, not laws)
+
+These are the current answers, and the founder revisits them. Do not silently override one — flag it and let the founder call it.
 
 - Shoes live under Accessories.
-- Style Direction and Colour Direction are separate quizzes — never merge.
+- Score Style and Colour independently — keep the two diagnostics separate (fusing them loses each read). Combining their presentation into one result is fine and expected; combining the scoring is not.
 - Quiz branching is id/path-based (`quizAnswersById`), never positional array indexes.
 - Quiz advance is tap-answer → tap-Next. No auto-advance (founder decision).
 - Sharing is native device share (PNG) + PDF export. QR-code sharing was deferred
