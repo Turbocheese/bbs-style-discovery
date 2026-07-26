@@ -576,9 +576,16 @@ function renderFabricVisualiser() {
         '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
         '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. The jacket dresses itself the moment you choose.") + "</p>" +
         '<div class="vis-stage vis-stage--photo' + (hasSelection ? "" : " vis-stage--empty") + '">' +
-        '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +
-        ' data-garment-key="jacket-sb" data-ghost="' + (hasSelection ? "0" : "1") + '" data-cloth="' + (hasSelection ? activeKey : "") + '"></canvas>' +
-        (hasSelection ? "" : '<p class="vis-ghost-prompt">Pick a cloth to see it come to life.</p>') +
+        // Fully blank until a cloth is chosen: no garment is rendered on entry
+        // (no ghost silhouette), just the invitation. The canvas is inserted on
+        // the first swatch tap by visApplyFabric, which then dresses it.
+        (hasSelection
+            ? '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +
+              ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>'
+            : '<div class="vis-stage-invite">' +
+              '<span class="vis-stage-invite-mark" aria-hidden="true"></span>' +
+              '<p class="vis-ghost-prompt">Pick a cloth to see it come to life.</p>' +
+              "</div>") +
         "</div>" +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, hasSelection ? activeKey : null, null) + "</div>" +
@@ -809,13 +816,23 @@ function visApplyFabric(key) {
     var stage = document.querySelector(".vis-stage--empty");
     if (stage) {
         stage.classList.remove("vis-stage--empty");
-        var prompt = stage.querySelector(".vis-ghost-prompt");
-        if (prompt) prompt.parentNode.removeChild(prompt);
+        // Blank entry: the stage held only the invitation (no canvas). Clear it
+        // and build the jacket canvas now, so the first tap dresses a real garment.
+        var invite = stage.querySelector(".vis-stage-invite");
+        if (invite) invite.parentNode.removeChild(invite);
+        if (!document.getElementById("vis-jacket-canvas")) {
+            var fresh = document.createElement("canvas");
+            fresh.className = "vis-jacket-canvas";
+            fresh.id = "vis-jacket-canvas";
+            fresh.width = 644;
+            fresh.height = 800;
+            fresh.setAttribute("data-garment-key", "jacket-sb");
+            stage.appendChild(fresh);
+        }
     }
     var canvas = document.getElementById("vis-jacket-canvas");
     if (canvas && typeof renderGarmentPhoto === "function") {
         canvas.setAttribute("data-cloth", key);
-        canvas.setAttribute("data-ghost", "0");
         renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
     }
     var info = document.getElementById("vis-info");
@@ -1333,15 +1350,17 @@ var VIS_ENS_STYLE_DEFAULTS = {
 };
 
 function getVisEnsembleState() {
+    // Build-your-own outfit: a fresh session starts EMPTY. The client adds
+    // garments (jacket / vest / trousers) one at a time and dresses each. The
+    // included set is `garments` (a subset of VIS_ENS_GARMENTS, in that order);
+    // `fabrics[g]` is present only once a cloth is chosen for g (absent = an
+    // empty placeholder slot); `activeGarment` is the piece being edited (a
+    // member of `garments`, or null when the outfit is empty).
     if (!appState.visEnsembleState || typeof appState.visEnsembleState !== "object") {
-        var recos = getRecommendedFabricKeys();
         appState.visEnsembleState = {
-            activeGarment: "jacket",
-            fabrics: {
-                jacket: recos.length ? recos[0] : FABRIC_LIBRARY[0].key,
-                vest: "solbiati_wool_silk_linen",
-                trousers: "fox_flannel_mid_grey"
-            },
+            garments: [],
+            activeGarment: null,
+            fabrics: {},
             style: {}
         };
     }
@@ -1377,25 +1396,66 @@ function getVisEnsembleState() {
         }
     }
 
-    // Validate persisted cloth keys the same way style is validated above. A
-    // state saved before the 14->102 cloth rename can point a garment at a key
-    // that no longer resolves; renderGarmentPhoto then leaves that garment's
-    // canvas blank, so it shows as a bare white/cream shape (the trouser bug).
-    // Reset any unresolvable key to a sensible default so every garment dresses.
+    if (!ens.fabrics || typeof ens.fabrics !== "object") ens.fabrics = {};
+
+    // Migration to build-your-own: a pre-change session had no `garments` list
+    // but always carried a cloth for all three garments (jacket / vest /
+    // trousers). Derive the included set from the fabrics it had, so a returning
+    // session keeps exactly the outfit it was showing.
+    if (!Array.isArray(ens.garments)) {
+        var derived = [];
+        for (var gi = 0; gi < VIS_ENS_GARMENTS.length; gi++) {
+            var gg = VIS_ENS_GARMENTS[gi];
+            if (ens.fabrics.hasOwnProperty(gg) && ens.fabrics[gg]) derived.push(gg);
+        }
+        ens.garments = derived;
+    }
+
+    // Sanitise the included set: only known garments, no duplicates, canonical
+    // order (jacket, vest, trousers) regardless of how it was persisted.
+    var clean = [];
+    for (var ci = 0; ci < VIS_ENS_GARMENTS.length; ci++) {
+        if (ens.garments.indexOf(VIS_ENS_GARMENTS[ci]) !== -1) clean.push(VIS_ENS_GARMENTS[ci]);
+    }
+    ens.garments = clean;
+
+    // Validate persisted cloth keys. A key saved before the 14->102 cloth
+    // rename may no longer resolve; renderGarmentPhoto then leaves that
+    // garment's canvas blank (the old trouser bug). For an INCLUDED garment,
+    // reset an unresolvable key to a sensible default so it still dresses; drop
+    // any stray fabric for a garment that is not included. A garment with no
+    // fabric entry at all is a deliberate empty slot and is left untouched.
     var recoKeys = getRecommendedFabricKeys();
     var fabricDefaults = {
         jacket: recoKeys.length ? recoKeys[0] : FABRIC_LIBRARY[0].key,
         vest: "solbiati_wool_silk_linen",
         trousers: "fox_flannel_mid_grey"
     };
-    if (!ens.fabrics || typeof ens.fabrics !== "object") ens.fabrics = {};
-    for (var fg in fabricDefaults) {
-        if (!fabricDefaults.hasOwnProperty(fg)) continue;
-        if (!fabricResolves(ens.fabrics[fg])) {
-            ens.fabrics[fg] = fabricResolves(fabricDefaults[fg]) ? fabricDefaults[fg] : FABRIC_LIBRARY[0].key;
+    for (var fk in ens.fabrics) {
+        if (!ens.fabrics.hasOwnProperty(fk)) continue;
+        if (ens.garments.indexOf(fk) === -1) { delete ens.fabrics[fk]; continue; }
+        if (ens.fabrics[fk] && !fabricResolves(ens.fabrics[fk])) {
+            ens.fabrics[fk] = fabricResolves(fabricDefaults[fk]) ? fabricDefaults[fk] : FABRIC_LIBRARY[0].key;
         }
     }
+
+    // The active garment must be one that is actually included (or null when
+    // the outfit is empty), so the swatch tray and style menu always target a
+    // real slot.
+    if (!ens.activeGarment || ens.garments.indexOf(ens.activeGarment) === -1) {
+        ens.activeGarment = ens.garments.length ? ens.garments[0] : null;
+    }
     return ens;
+}
+
+// The cloth that "Complete the Look" and the register read from: the first
+// dressed garment in the outfit (jacket first). null when nothing is dressed.
+function ensLeadFabricKey(ens) {
+    for (var i = 0; i < ens.garments.length; i++) {
+        var k = ens.fabrics[ens.garments[i]];
+        if (fabricResolves(k)) return k;
+    }
+    return null;
 }
 
 // ============================================
@@ -1465,7 +1525,12 @@ var LOOK_ICONS = {
 };
 
 function getCompleteTheLookHTML(ens) {
-    var jacketCloth = getFabricByKey(ens.fabrics.jacket);
+    // Read the register off the lead cloth (first dressed garment). In a
+    // build-your-own outfit the jacket may not be included, so this no longer
+    // assumes ens.fabrics.jacket exists.
+    var leadKey = ensLeadFabricKey(ens);
+    if (!leadKey) return "";
+    var jacketCloth = getFabricByKey(leadKey);
     var register = getLookRegister(jacketCloth);
     var slots = LOOK_SLOTS[register] || LOOK_SLOTS.business;
 
@@ -1498,8 +1563,27 @@ function getCompleteTheLookHTML(ens) {
     );
 }
 
+// An included garment with no cloth chosen yet: a quiet, on-brand empty slot
+// that holds the garment's footprint and invites a choice. No canvas is drawn
+// until a cloth is picked (build-your-own: a piece stays blank until dressed).
+function getVisEnsPlaceholderBlock(garment, ens) {
+    var activeClass = ens.activeGarment === garment ? " active" : "";
+    var label = garment.charAt(0).toUpperCase() + garment.slice(1);
+    return (
+        '<div class="ds-garment ds-garment--' + garment + " ds-garment--empty" + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
+        '<div class="ds-garment-empty-inner">' +
+        '<span class="ds-garment-empty-mark" aria-hidden="true"></span>' +
+        '<span class="ds-garment-empty-hint">Choose a cloth</span>' +
+        "</div>" +
+        '<div class="ds-garment-label">' + label + "</div>" +
+        "</div>"
+    );
+}
+
 function getVisEnsGarmentBlock(garment, ens) {
     var fabricKey = ens.fabrics[garment];
+    // Blank slot until a cloth is chosen for this piece.
+    if (!fabricResolves(fabricKey)) return getVisEnsPlaceholderBlock(garment, ens);
     var style = ens.style[garment] || {};
     var activeClass = ens.activeGarment === garment ? " active" : "";
     var label = garment.charAt(0).toUpperCase() + garment.slice(1);
@@ -1572,29 +1656,86 @@ function startVisEnsPhotos() {
         var key = c.getAttribute("data-garment-key");
         var cloth = c.getAttribute("data-cloth");
         if (key && cloth) renderGarmentPhoto(c, key, cloth);
-        else if (key && c.getAttribute("data-ghost") === "1" && typeof renderGarmentGhost === "function") renderGarmentGhost(c, key);
     }
 }
 window.startVisEnsPhotos = startVisEnsPhotos;
 
+// The outfit builder's piece bar: one control that adds, removes, and switches
+// between garments. An included garment shows a select chip (sets the active
+// piece) paired with a remove control; a garment not yet in the outfit shows an
+// "add" chip. Everything carries .btn-bare to opt out of the button:hover /
+// button-reset cascade traps (see CLAUDE.md); the selected fill is applied with
+// !important in styles.css for the same reason.
+function getVisEnsPiecesHTML(ens) {
+    var html = '<div class="ds-pieces">';
+    for (var i = 0; i < VIS_ENS_GARMENTS.length; i++) {
+        var g = VIS_ENS_GARMENTS[i];
+        var label = g.charAt(0).toUpperCase() + g.slice(1);
+        if (ens.garments.indexOf(g) !== -1) {
+            var sel = ens.activeGarment === g;
+            html +=
+                '<div class="ds-piece' + (sel ? " sel" : "") + '">' +
+                '<button class="ds-piece-select btn-bare' + (sel ? " sel" : "") + '" data-action="vis-ens-garment" data-garment="' + g + '" aria-pressed="' + (sel ? "true" : "false") + '">' + label + "</button>" +
+                '<button class="ds-piece-remove btn-bare" data-action="vis-ens-remove" data-garment="' + g + '" aria-label="Remove ' + label + '">&times;</button>' +
+                "</div>";
+        } else {
+            html +=
+                '<button class="ds-piece-add btn-bare" data-action="vis-ens-add" data-garment="' + g + '">' +
+                '<span class="ds-piece-add-plus" aria-hidden="true">+</span>' + label +
+                "</button>";
+        }
+    }
+    html += "</div>";
+    return html;
+}
+
 function renderClothEnsemble(recommended) {
     var ens = getVisEnsembleState();
-    var activeFabric = getFabricByKey(ens.fabrics[ens.activeGarment]);
+    var piecesHTML = getVisEnsPiecesHTML(ens);
 
-    var tabsHTML = '<div class="ds-tabs">';
-    for (var g = 0; g < VIS_ENS_GARMENTS.length; g++) {
-        var gar = VIS_ENS_GARMENTS[g];
-        tabsHTML +=
-            '<button class="ds-tab' + (ens.activeGarment === gar ? " sel" : "") + '" data-action="vis-ens-garment" data-garment="' + gar + '">' +
-            gar.charAt(0).toUpperCase() + gar.slice(1) +
-            "</button>";
+    // Empty outfit: nothing added yet. Show the invitation and the piece bar
+    // (three "add" chips) and stop — no swatch tray, style menu or export until
+    // there is a garment to dress.
+    if (!ens.garments.length) {
+        return (
+            '<div class="vis-shell ds-shell">' +
+            '<div class="vis-eyebrow">The Cloth Room</div>' +
+            "<h1 class=\"vis-title\">Design an Ensemble</h1>" +
+            '<p class="vis-lead">Build the outfit piece by piece. Add a garment, choose its cloth, then shape it.</p>' +
+            '<div class="ds-stage ds-stage--vacant" id="vis-ens-stage">' +
+            '<div class="ds-stage-empty">' +
+            '<span class="ds-stage-empty-mark" aria-hidden="true"></span>' +
+            '<h2 class="ds-stage-empty-title">Your outfit is empty</h2>' +
+            '<p class="ds-stage-empty-note">Add a jacket, a vest, or trousers to begin.</p>' +
+            "</div>" +
+            "</div>" +
+            piecesHTML +
+            '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
+            '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
+            "</div>"
+        );
     }
-    tabsHTML += "</div>";
+
+    var activeKey = ens.activeGarment ? ens.fabrics[ens.activeGarment] : null;
+    var activeFabric = fabricResolves(activeKey) ? getFabricByKey(activeKey) : null;
+    var dressed = !!ensLeadFabricKey(ens);
+
+    // Adaptive flat-lay: the jacket (if included) takes the wider left column;
+    // vest and trousers stack in the right column. Any subset renders cleanly —
+    // reusing the existing two-column CSS rather than a new grid.
+    var stageInner = "";
+    if (ens.garments.indexOf("jacket") !== -1) {
+        stageInner += '<div class="ds-stage-left">' + getVisEnsGarmentBlock("jacket", ens) + "</div>";
+    }
+    var rightBlocks = "";
+    if (ens.garments.indexOf("vest") !== -1) rightBlocks += getVisEnsGarmentBlock("vest", ens);
+    if (ens.garments.indexOf("trousers") !== -1) rightBlocks += getVisEnsGarmentBlock("trousers", ens);
+    if (rightBlocks) stageInner += '<div class="ds-stage-right">' + rightBlocks + "</div>";
 
     var swatchesHTML =
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray ds-swatch-tray">' +
-        getVisSwatchesHTML(recommended, ens.fabrics[ens.activeGarment], null) +
+        getVisSwatchesHTML(recommended, fabricResolves(activeKey) ? activeKey : null, null) +
         "</div>";
 
     // The menu follows whichever garment is active, so every garment
@@ -1651,24 +1792,20 @@ function renderClothEnsemble(recommended) {
         '<div class="vis-shell ds-shell">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">Design an Ensemble</h1>" +
-        '<p class="vis-lead">Assign a cloth to each garment, shape the jacket, and take the finished design to your fitting.</p>' +
-        '<div class="ds-stage" id="vis-ens-stage">' +
-        '<div class="ds-stage-left">' + getVisEnsGarmentBlock("jacket", ens) + "</div>" +
-        '<div class="ds-stage-right">' +
-        getVisEnsGarmentBlock("vest", ens) +
-        getVisEnsGarmentBlock("trousers", ens) +
-        "</div>" +
-        "</div>" +
-        tabsHTML +
+        '<p class="vis-lead">Assign a cloth to each garment, shape it, and take the finished design to your fitting.</p>' +
+        '<div class="ds-stage" id="vis-ens-stage">' + stageInner + "</div>" +
+        piecesHTML +
         swatchesHTML +
         getVisRecoStripHTML(recommended) +
         styleHTML +
         '<div class="ds-selected-cloth" id="vis-ens-selected">' + getVisEnsSelectedHTML(activeFabric) + "</div>" +
         getCompleteTheLookHTML(ens) +
-        '<div class="ds-actions">' +
-        '<button class="arch-btn-fill" data-action="vis-ens-export">Export Design Spec</button>' +
-        '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +
-        "</div>" +
+        (dressed
+            ? '<div class="ds-actions">' +
+              '<button class="arch-btn-fill" data-action="vis-ens-export">Export Design Spec</button>' +
+              '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +
+              "</div>"
+            : "") +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
         '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         "</div>"
@@ -1676,6 +1813,11 @@ function renderClothEnsemble(recommended) {
 }
 
 function getVisEnsSelectedHTML(fabric) {
+    // The active garment may be a blank slot (no cloth chosen yet) — invite a
+    // choice rather than naming a cloth that was never picked.
+    if (!fabric) {
+        return '<span class="ds-selected-empty">Tap a cloth below to dress this piece.</span>';
+    }
     var millSpec =
         typeof getMillPinByName === "function" && getMillPinByName(fabric.mill)
             ? '<button class="vis-spec vis-spec-link" data-action="mill-map-focus" data-mill="' + fabric.mill + '">' + fabric.mill + "</button>"
@@ -1690,7 +1832,7 @@ function getVisEnsSelectedHTML(fabric) {
 // Partial DOM update: dress the active garment, crossfade in place.
 function visEnsApplyFabric(fabricKey) {
     var ens = getVisEnsembleState();
-    ens.activeGarment = ens.activeGarment || "jacket";
+    if (!ens.activeGarment) return;
     ens.fabrics[ens.activeGarment] = fabricKey;
     // Photo garments repaint their canvas with the new cloth; a drawn
     // fallback garment (no photo yet) just swaps its tiled background.
@@ -1762,9 +1904,10 @@ function exportEnsembleSpec() {
         '<div style="' + serif + ' font-size:40px; text-align:center; margin-bottom:4px;">' + clientName + "</div>" +
         '<div style="font-size:12px; color:#6b6155; text-align:center; margin-bottom:36px;">' + dateLabel + "</div>" +
         '<div class="ds-spec-stage-slot" style="display:flex; justify-content:center; margin-bottom:36px;"></div>' +
-        garmentRow("jacket") +
-        garmentRow("vest") +
-        garmentRow("trousers") +
+        // Only the garments actually included AND dressed appear in the spec —
+        // a build-your-own outfit exports whatever the client chose, in canonical
+        // order, and never lists a piece with no cloth chosen.
+        ens.garments.filter(function (g) { return fabricResolves(ens.fabrics[g]); }).map(garmentRow).join("") +
         '<div style="' + eyebrow + ' text-align:center; margin-top:50px;">Bring this specification to your fitting &mdash; benjaminbarkerstudios.com</div>';
 
     var liveStage = document.getElementById("vis-ens-stage");
@@ -1774,6 +1917,12 @@ function exportEnsembleSpec() {
         stageClone.style.width = "540px";
         stageClone.style.maxWidth = "540px";
         stageClone.style.margin = "0";
+        // Strip any empty placeholder slots so the spec's flat-lay shows only
+        // dressed garments, matching the rows below it.
+        var vacants = stageClone.querySelectorAll(".ds-garment--empty");
+        for (var vi = 0; vi < vacants.length; vi++) {
+            if (vacants[vi].parentNode) vacants[vi].parentNode.removeChild(vacants[vi]);
+        }
         var slot = page.querySelector(".ds-spec-stage-slot");
         if (slot) slot.appendChild(stageClone);
     }

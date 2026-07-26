@@ -11982,23 +11982,43 @@ textarea:focus-visible,
     border-color: rgba(17, 17, 16, 0.18) !important;
 }
 
-/* Cloth Room neutral entry (2026-07). The ghost garment is drawn on the
-   canvas; this just floats the invitation over the empty stage. */
+/* Cloth Room blank entry (2026-07). The single-cloth view now renders NO
+   garment until a cloth is chosen — the stage holds only a centred invitation
+   with a small tape-measure tick motif. The canvas is inserted on first tap. */
 .vis-stage--empty { position: relative; }
-.vis-ghost-prompt {
+.vis-stage-invite {
     position: absolute;
-    left: 50%;
-    bottom: 8%;
-    transform: translateX(-50%);
-    margin: 0;
-    padding: 0.5rem 1rem;
-    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
-    font-size: 0.95rem;
-    color: var(--text, #111110);
-    background: rgba(255, 255, 255, 0.82);
-    border-radius: 999px;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 1.5rem;
     text-align: center;
     pointer-events: none;
+}
+.vis-stage-invite-mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18));
+    /* Two tailor's ticks — the tape-measure motif, quietly stated. */
+    background-image:
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43)),
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43));
+    background-repeat: no-repeat;
+    background-size: 1.5px 12px, 1.5px 8px;
+    background-position: 42% 50%, 58% 50%;
+    opacity: 0.72;
+}
+.vis-ghost-prompt {
+    margin: 0;
+    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+    color: var(--soft, #665f57);
+    max-width: 15rem;
 }
 
 /* ============================================================
@@ -12541,4 +12561,183 @@ textarea:focus-visible,
     height: 22px;
     border-radius: 4px;
     box-shadow: inset 0 0 0 1px rgba(17, 17, 16, 0.14);
+}
+
+/* ============================================================
+   CLOTH ROOM — BUILD-YOUR-OWN ENSEMBLE (2026-07)
+   The ensemble stage starts empty; the client adds jacket / vest /
+   trousers, dresses each, and removes any. Appended last so these hooks
+   win. Every control carries .btn-bare and applies its selected fill with
+   !important, to clear the button:hover invert + button-reset traps
+   (see CLAUDE.md). Flat colours only — no colour-mix().
+   ============================================================ */
+
+/* Empty outfit: the vacant stage invitation. */
+.ds-stage--vacant {
+    align-items: center;
+    justify-content: center;
+    min-height: 15rem;
+}
+.ds-stage-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 2rem 1.5rem;
+}
+.ds-stage-empty-mark {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.35rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18));
+    background-image:
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43)),
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43)),
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43));
+    background-repeat: no-repeat;
+    background-size: 1.5px 14px, 1.5px 9px, 1.5px 14px;
+    background-position: 36% 50%, 50% 50%, 64% 50%;
+    opacity: 0.72;
+}
+.ds-stage-empty-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--text, #111110);
+    margin: 0;
+}
+.ds-stage-empty-note {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.92rem;
+    color: var(--soft, #665f57);
+    margin: 0;
+}
+
+/* An included garment with no cloth chosen yet: a quiet dashed footprint. */
+.ds-garment--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--line-strong, rgba(17, 17, 16, 0.18)) !important;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+}
+.ds-garment--empty.active {
+    border-color: var(--bronze, #8a6d43) !important;
+    background: rgba(255, 255, 255, 0.55);
+}
+.ds-garment-empty-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 15px; /* clears the caption strip, like the other slots */
+}
+.ds-garment-empty-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18));
+    background-image:
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43)),
+        linear-gradient(to bottom, var(--bronze, #8a6d43), var(--bronze, #8a6d43));
+    background-repeat: no-repeat;
+    background-size: 1.3px 8px, 1.3px 5px;
+    background-position: 42% 50%, 58% 50%;
+    opacity: 0.7;
+}
+.ds-garment-empty-hint {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft, #665f57);
+}
+
+/* The piece bar: add / remove / switch the garments in the outfit. */
+.ds-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin: 1.6rem 0 0.4rem;
+}
+.ds-piece {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18));
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface, #fff);
+}
+.ds-piece.sel {
+    border-color: var(--accent, #111110);
+}
+.ds-piece-select {
+    min-height: 44px !important;
+    padding: 0 8px 0 18px !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: "Manrope", system-ui, sans-serif !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--text, #111110) !important;
+    cursor: pointer;
+}
+.ds-piece.sel .ds-piece-select {
+    background: var(--accent, #111110) !important;
+    color: #f4f0e8 !important;
+}
+.ds-piece-remove {
+    min-height: 44px !important;
+    min-width: 40px !important;
+    padding: 0 12px 0 6px !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 1.1rem !important;
+    line-height: 1;
+    color: var(--soft, #665f57) !important;
+    cursor: pointer;
+}
+.ds-piece.sel .ds-piece-remove {
+    background: var(--accent, #111110) !important;
+    color: #d9d2c6 !important;
+}
+.ds-piece-remove:active {
+    background: var(--bg, #eae5dd) !important;
+    color: var(--text, #111110) !important;
+}
+.ds-piece-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px !important;
+    padding: 0 18px !important;
+    border: 1px dashed var(--line-strong, rgba(17, 17, 16, 0.18)) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    font-family: "Manrope", system-ui, sans-serif !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--text, #111110) !important;
+    cursor: pointer;
+}
+.ds-piece-add:active {
+    background: var(--bg, #eae5dd) !important;
+}
+.ds-piece-add-plus {
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--bronze, #8a6d43);
+}
+
+.ds-selected-empty {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.92rem;
+    color: var(--soft, #665f57);
 }

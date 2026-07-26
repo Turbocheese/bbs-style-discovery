@@ -6796,8 +6796,15 @@ document.body.addEventListener("click", function (e) {
         var fabricKey = target.dataset.fabric;
         if (!fabricKey) return;
         if (appState.visEnsemble) {
-            visEnsApplyFabric(fabricKey);
+            // If the active garment was a blank slot (no cloth yet), its canvas
+            // does not exist — a full re-render replaces the placeholder with a
+            // dressed canvas. An already-dressed garment repaints in place.
+            var ensPick = getVisEnsembleState();
+            var wasDressed = ensPick.activeGarment && fabricResolves(ensPick.fabrics[ensPick.activeGarment]);
+            if (ensPick.activeGarment) ensPick.fabrics[ensPick.activeGarment] = fabricKey;
             localStorage.setItem("bbs_session", JSON.stringify(appState));
+            if (wasDressed) visEnsApplyFabric(fabricKey);
+            else render({ animate: false });
         } else if (appState.visCompare) {
             var pickSide = appState.visCompareSide === "a" ? "a" : "b";
             if (pickSide === "a") appState.visFabricKey = fabricKey;
@@ -6890,6 +6897,43 @@ document.body.addEventListener("click", function (e) {
         var ensState = getVisEnsembleState();
         if (ensState.activeGarment !== ensGarment) {
             ensState.activeGarment = ensGarment;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            render({ animate: false });
+        }
+    }
+    else if (action === "vis-ens-add") {
+        // Add a garment to the outfit and make it the active piece. It joins in
+        // canonical order (jacket, vest, trousers) and starts as a blank slot —
+        // no cloth until the client picks one.
+        var addGarment = target.dataset.garment;
+        if (!addGarment) return;
+        var ensAdd = getVisEnsembleState();
+        if (ensAdd.garments.indexOf(addGarment) === -1) {
+            var ordered = [];
+            for (var ai = 0; ai < VIS_ENS_GARMENTS.length; ai++) {
+                if (ensAdd.garments.indexOf(VIS_ENS_GARMENTS[ai]) !== -1 || VIS_ENS_GARMENTS[ai] === addGarment) {
+                    ordered.push(VIS_ENS_GARMENTS[ai]);
+                }
+            }
+            ensAdd.garments = ordered;
+        }
+        ensAdd.activeGarment = addGarment;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render({ animate: false });
+    }
+    else if (action === "vis-ens-remove") {
+        // Remove a garment from the outfit, dropping its chosen cloth. If it was
+        // the active piece, hand active to another included garment (or none).
+        var remGarment = target.dataset.garment;
+        if (!remGarment) return;
+        var ensRem = getVisEnsembleState();
+        var remAt = ensRem.garments.indexOf(remGarment);
+        if (remAt !== -1) {
+            ensRem.garments.splice(remAt, 1);
+            delete ensRem.fabrics[remGarment];
+            if (ensRem.activeGarment === remGarment) {
+                ensRem.activeGarment = ensRem.garments.length ? ensRem.garments[0] : null;
+            }
             localStorage.setItem("bbs_session", JSON.stringify(appState));
             render({ animate: false });
         }

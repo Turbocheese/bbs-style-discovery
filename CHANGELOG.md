@@ -10,6 +10,20 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-26 — Build your own outfit in the Cloth Room
+
+The Cloth Room now starts from a blank sheet. The single-cloth view opens with
+no garment on the stage at all — just an invitation — and dresses the jacket the
+moment you tap a cloth. The Ensemble becomes a proper outfit builder: it opens
+empty, and the client adds a Jacket, a Vest and/or Trousers as they like, in any
+combination. Each piece stays a blank slot until a cloth is chosen for it, then
+renders — and every piece is still cloth-swappable and style-adjustable. Remove
+any piece at any time. The Design Spec PDF exports exactly the pieces included.
+Returning sessions from before this change keep the outfit they were showing.
+
+Copy tidy-up across the app: every "two minutes / five minutes" time promise has
+been removed, and the home page now has a single, unambiguous start.
+
 ## 2026-07-25 — Your worksheet, in your colours
 
 The wardrobe worksheet now speaks in the client's palette. Once a colour result
