@@ -180,35 +180,12 @@ var colourDirectionQuestions = [
                 b: "Green, muted cast",
                 swatches: ["#B5A06F", "#9B8A5A"],
                 s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
                     warm: 1,
-                    cool: 0,
                     neutral: 1,
                     olive: 3,
+                    muted: 2,
                     softContrast: 2,
-                    strongContrast: 0,
-                    colourOpen: 0,
                     neutralLean: 1,
-                },
-            },
-            {
-                a: "Rich / saturated", // ← NEW OPTION
-                b: "Deeper, more colour",
-                swatches: ["#8B5A42", "#6F4030"],
-                s: {
-                    light: 0,
-                    medium: 1,
-                    deep: 2,
-                    warm: 1,
-                    cool: 0,
-                    neutral: 0,
-                    olive: 0,
-                    softContrast: 0,
-                    strongContrast: 2,
-                    colourOpen: 2,
-                    neutralLean: 0,
                 },
             },
             {
@@ -216,22 +193,108 @@ var colourDirectionQuestions = [
                 b: "Skip this question",
                 swatches: ["#D9C8BB"],
                 s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 0,
-                    cool: 0,
                     neutral: 1,
-                    olive: 0,
-                    softContrast: 0,
-                    strongContrast: 0,
-                    colourOpen: 0,
                     neutralLean: 1,
                 },
             },
         ],
     },
-
+    {
+        id: "metal_tone",
+        text: "Which metal looks best against your skin?",
+        helper:
+            "Hold a gold and a silver piece near your face. One usually looks more natural than the other.",
+        opts: [
+            {
+                a: "Warm gold or brass",
+                b: "Gold suits me",
+                swatches: ["#C9A24B", "#B8860B"],
+                s: { warm: 3, clear: 1 },
+            },
+            {
+                a: "Cool silver or platinum",
+                b: "Silver suits me",
+                swatches: ["#C3C7CC", "#A9AEB4"],
+                s: { cool: 3, clear: 1 },
+            },
+            {
+                a: "Both look fine on me",
+                b: "Either works",
+                swatches: ["#C9A24B", "#C3C7CC"],
+                s: { neutral: 3 },
+            },
+            {
+                a: "A soft mix, like rose gold",
+                b: "Softly mixed",
+                swatches: ["#D9A6A0", "#C9A24B"],
+                s: { neutral: 1, olive: 1, muted: 1 },
+            },
+            {
+                a: "I'm not sure",
+                b: "Skip this question",
+                swatches: ["#D9C8BB"],
+                s: { neutral: 1 },
+            },
+        ],
+    },
+    {
+        id: "eye_clarity",
+        text: "Which describes your eyes best?",
+        helper:
+            "Look at the colour and pattern of your iris in good light.",
+        opts: [
+            {
+                a: "Clear and bright, with a defined pattern",
+                b: "Clear and defined",
+                s: { clear: 3, strongContrast: 1 },
+            },
+            {
+                a: "Soft and blended, gentle in colour",
+                b: "Soft and blended",
+                s: { muted: 3, softContrast: 1 },
+            },
+            {
+                a: "Deep and rich, dark and glossy",
+                b: "Deep and rich",
+                s: { clear: 2, deep: 1 },
+            },
+            {
+                a: "I'm not sure",
+                b: "Skip this question",
+                swatches: ["#D9C8BB"],
+                s: {},
+            },
+        ],
+    },
+    {
+        id: "hair_skin_contrast",
+        text: "How much do your hair and skin differ in shade?",
+        helper:
+            "Picture your natural hair colour right next to your skin.",
+        opts: [
+            {
+                a: "A lot, clearly darker hair than skin",
+                b: "Strong difference",
+                s: { strongContrast: 3, clear: 1 },
+            },
+            {
+                a: "A little, they are fairly close",
+                b: "Gently blended",
+                s: { softContrast: 3, muted: 1 },
+            },
+            {
+                a: "Somewhere in between",
+                b: "Middle ground",
+                s: { softContrast: 1, strongContrast: 1 },
+            },
+            {
+                a: "I'm not sure",
+                b: "Skip this question",
+                swatches: ["#D9C8BB"],
+                s: {},
+            },
+        ],
+    },
     {
         id: "contrast_preference",
         text: "What kind of contrast usually feels best on you?",
@@ -380,115 +443,6 @@ var colourDirectionQuestions = [
                     strongContrast: 1,
                     colourOpen: 3,
                     neutralLean: 0,
-                },
-            },
-        ],
-    },
-    {
-        id: "main_need",
-        text: "What would be most useful right now?",
-        helper: null,
-        opts: [
-            {
-                a: "Colours that suit me best",
-                b: "Suitability",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 1,
-                    cool: 1,
-                    neutral: 1,
-                    olive: 1,
-                    softContrast: 1,
-                    strongContrast: 1,
-                    colourOpen: 0,
-                    neutralLean: 0,
-                },
-            },
-            {
-                a: "Matching colours together",
-                b: "Matching",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 0,
-                    cool: 0,
-                    neutral: 2,
-                    olive: 1,
-                    softContrast: 2,
-                    strongContrast: 0,
-                    colourOpen: 0,
-                    neutralLean: 2,
-                },
-            },
-            {
-                a: "Building a stronger palette",
-                b: "Palette Building",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 1,
-                    cool: 1,
-                    neutral: 1,
-                    olive: 1,
-                    softContrast: 1,
-                    strongContrast: 1,
-                    colourOpen: 1,
-                    neutralLean: 1,
-                },
-            },
-            {
-                a: "Adding colour without overdoing it",
-                b: "Controlled Colour",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 0,
-                    cool: 0,
-                    neutral: 1,
-                    olive: 0,
-                    softContrast: 2,
-                    strongContrast: 0,
-                    colourOpen: 1,
-                    neutralLean: 2,
-                },
-            },
-            {
-                a: "Understanding seasonal changes", // ← NEW OPTION
-                b: "Seasonal Guidance",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 1,
-                    cool: 1,
-                    neutral: 1,
-                    olive: 1,
-                    softContrast: 1,
-                    strongContrast: 1,
-                    colourOpen: 0,
-                    neutralLean: 1,
-                },
-            },
-            {
-                a: "Dressing more confidently in neutrals",
-                b: "Neutral Confidence",
-                s: {
-                    light: 0,
-                    medium: 0,
-                    deep: 0,
-                    warm: 0,
-                    cool: 0,
-                    neutral: 2,
-                    olive: 0,
-                    softContrast: 2,
-                    strongContrast: 0,
-                    colourOpen: 0,
-                    neutralLean: 3,
                 },
             },
         ],
@@ -945,43 +899,49 @@ function getUndertoneSwatches() {
         Unsure: ["#D9C8BB"],
     };
 }
+// Map the four independent reads (undertone, depth, chroma, contrast) plus a
+// wardrobe-boldness proxy onto one of the eight profiles. Structured as a
+// decisive cascade keyed on the dominant undertone first, then split by the
+// secondary variable that most defines each family — so near-ties resolve to
+// a single profile rather than falling through to the default.
 function getColourDirectionProfileKey(scores) {
-    if (scores.olive >= 3 && scores.softContrast >= 3) {
-        return "muted_olive_balance";
-    }
+    var s = scores || {};
+    // Dominant undertone.
+    var uWarm = s.warm || 0, uCool = s.cool || 0, uNeut = s.neutral || 0, uOlive = s.olive || 0;
+    var uMax = Math.max(uWarm, uCool, uNeut, uOlive);
+    var undertone =
+        uMax === 0 ? "neutral" :
+        uMax === uOlive ? "olive" :
+        uMax === uWarm ? "warm" :
+        uMax === uCool ? "cool" : "neutral";
+    // Dominant depth.
+    var dL = s.light || 0, dD = s.deep || 0;
+    var deep = dD > dL && dD >= (s.medium || 0);
+    var light = dL > dD && dL >= (s.medium || 0);
+    // Chroma and contrast reads.
+    var clear = (s.clear || 0) > (s.muted || 0);
+    var strong = (s.strongContrast || 0) > (s.softContrast || 0);
+    var soft = (s.softContrast || 0) > (s.strongContrast || 0);
+    var muted = (s.muted || 0) > (s.clear || 0);
 
-    if (
-        scores.deep >= 3 &&
-        scores.strongContrast >= 3 &&
-        scores.colourOpen >= 1
-    ) {
-        return "deep_controlled_colour";
-    }
+    if (undertone === "olive") return "muted_olive_balance";
 
-    if (scores.cool >= 3 && scores.strongContrast >= 2) {
-        return "clean_cool_contrast";
-    }
-
-    if (
-        scores.neutralLean >= 3 &&
-        scores.softContrast >= 3 &&
-        scores.colourOpen === 0
-    ) {
-        return "quiet_monochrome";
-    }
-
-    if (scores.warm >= 3 && scores.light >= 2 && scores.softContrast >= 2) {
-        return "light_warm_clarity";
-    }
-
-    if (scores.warm >= 2 && scores.softContrast >= 3 && scores.neutralLean >= 1) {
+    if (undertone === "warm") {
+        if (deep && (clear || strong)) return "deep_controlled_colour";
+        if (light && clear) return "light_warm_clarity";
+        if (clear || strong) return "earth_led_balance";
         return "soft_tonal_warmth";
     }
 
-    if (scores.warm >= 2 && scores.colourOpen >= 1 && scores.neutralLean >= 1) {
-        return "earth_led_balance";
+    if (undertone === "cool") {
+        if (deep && (clear || strong)) return "deep_controlled_colour";
+        if (muted && soft) return "quiet_monochrome";
+        return "clean_cool_contrast";
     }
 
+    // Neutral / balanced undertone.
+    if (deep && (clear || strong)) return "deep_controlled_colour";
+    if (muted && soft && (s.neutralLean || 0) >= 2) return "quiet_monochrome";
     return "refined_neutral_contrast";
 }
 function scoreColourDirectionAnswers(answersById) {
@@ -995,6 +955,8 @@ function scoreColourDirectionAnswers(answersById) {
         olive: 0,
         softContrast: 0,
         strongContrast: 0,
+        clear: 0,
+        muted: 0,
         colourOpen: 0,
         neutralLean: 0,
     };
@@ -1071,6 +1033,13 @@ function getColourReasons(scores) {
         d: "Rich, grounded shades suit you better than pale or washed-out ones." };
     else if (dMax > 0 && dMax === dL) depth = { k: "Depth", v: "Light",
         d: "Softer, lighter shades flatter you more than very dark ones." };
+    // Clarity (chroma) reason.
+    var clear = s.clear || 0, muted = s.muted || 0;
+    var clarity = clear > muted
+        ? { k: "Clarity", v: "Clear",
+            d: "Clean, bright colours lift you more than dusty, greyed-down ones." }
+        : { k: "Clarity", v: "Soft",
+            d: "Softened, muted shades flatter you more than bright, saturated ones." };
     // Contrast reason.
     var soft = s.softContrast || 0, strong = s.strongContrast || 0;
     var contrast = strong > soft
@@ -1078,7 +1047,7 @@ function getColourReasons(scores) {
             d: "You carry sharp light-dark pairings with natural authority." }
         : { k: "Contrast", v: "Soft",
             d: "Tonal, blended outfits flatter you more than stark separation." };
-    return [undertone, depth, contrast];
+    return [undertone, depth, clarity, contrast];
 }
 function getColourDirectionProfileData(profileKey) {
     return (

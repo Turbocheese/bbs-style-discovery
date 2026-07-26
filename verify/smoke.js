@@ -102,7 +102,10 @@ function check(name, ok) {
     await page.waitForTimeout(400);
     await page.locator('[data-action="colour-direction"]').click();
     await page.waitForTimeout(1100);
-    for (var c = 0; c < 5; c++) {
+    // Drive by the live question count so adding/removing colour questions
+    // never leaves the quiz half-answered.
+    var colourQCount = await page.evaluate(function () { return colourDirectionQuestions.length; });
+    for (var c = 0; c < colourQCount; c++) {
         await page.locator('[data-action="colour-pick"], .arch-opt--colour').first().click();
         await page.waitForTimeout(150);
         await page.locator('[data-action="colour-next"]').click().catch(function () {});
@@ -132,7 +135,7 @@ function check(name, ok) {
         (await page.locator('[data-action="quiz-pick"]').count()) === 0;
     check("journey begins on Colour quiz (Colour-first ordering)", journeyColourFirst);
     // Complete the Colour leg.
-    for (var jc = 0; jc < 5; jc++) {
+    for (var jc = 0; jc < colourQCount; jc++) {
         await page.locator('[data-action="colour-pick"], .arch-opt--colour').first().click();
         await page.waitForTimeout(150);
         await page.locator('[data-action="colour-next"]').click().catch(function () {});

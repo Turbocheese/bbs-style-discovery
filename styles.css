@@ -12086,10 +12086,10 @@ textarea:focus-visible,
     margin: 0 auto;
 }
 
-/* --- 2. Three reasons (Undertone / Depth / Contrast) --- */
+/* --- 2. Reasons (Undertone / Depth / Clarity / Contrast) --- */
 .colour-reasons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     max-width: 40rem;
     margin: 0 auto 2.8rem;

@@ -10,6 +10,19 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-26 — A sharper colour read
+
+The colour quiz now reads your colouring more precisely, using the tells a
+professional would reach for first. Two quick new questions ask which metal —
+gold or silver — looks best near your face (the fastest read on warm vs. cool)
+and how bright or soft your eyes are, and a third asks how much your hair and
+skin differ in shade. Behind the scenes the quiz now tracks four independent
+qualities — undertone, depth, clarity and contrast — instead of blending them,
+so results land on the right palette more decisively. The result card now
+includes a plain "Clarity" note (Clear vs. Soft) alongside undertone, depth and
+contrast. The quiz stays short and playful — one weaker intake question was
+retired to keep it that way.
+
 ## 2026-07-26 — Build your own outfit in the Cloth Room
 
 The Cloth Room now starts from a blank sheet. The single-cloth view opens with
