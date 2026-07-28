@@ -21,24 +21,29 @@ Deep context lives in the other docs — read them only when needed:
 
 ## Architecture and load order
 
-Script order in `index.html` is load-bearing (globals defined top-down). Current, real order:
+Script order in `index.html` is load-bearing (globals defined top-down). **`index.html` is the source of truth for the order — read the script block there, do not trust a list here.** The files, in that order, and what is load-bearing about each:
 
-1. `data.js` — guide tree (`window.guideTree`, exactly **312 topics**)
-2. `validator.js` — structural validation of the tree
-3. `query.js` — search/ranking/related-topics engine
-4. `discovery-ui.js` — FAB + slide-out discovery panel, result cards
-5. `colour-direction.js` — colour quiz data/scoring (separate feature by design)
-6. `lookbook.js` — editorial lookbook
-7. `wardrobe-templates.js` — worksheet templates per archetype
-8. `cloth-data.js` — the cloth library: **102 cloths across 34 mills**, pure data, no functions. Read its header before adding one. The load-bearing rule is the `verified` flag: a cloth is either a real researched bunch (carrying `bunch` + spec + a `source` URL) or it carries **no** `composition`, `weight` or `bunch` at all. `verify/audit.js` enforces that, plus that every `millPath` resolves in Cloth Origins. Never fill a spec in to make a card look complete.
-9. `weave-engine.js` — renders a cloth's 96×96 tile from its parameters: six weave grounds (plain, twill, hopsack, flannel, birdseye, herringbone) × five overlays (none, chalkstripe, pinstripe, windowpane, glen). Deterministic — texture is seeded from the cloth key, never `Math.random`, so a cloth looks identical on every load. Pattern pitch is snapped to a divisor of 96 by `snapWeavePitch()` or the tile visibly seams. This replaced 14 hand-written `drawTile` functions; do not add new ones (the `drawTile` escape hatch in `getFabricTile` still works, but no cloth currently needs it).
-10. `fabric-visualiser.js` — the Cloth Room. Three mutually exclusive modes off one view: single cloth, two-cloth compare, and ensemble (three-piece flat-lay with per-garment cloths + jacket styling, exports a Design Spec PDF). Mode flags live in `appState` (`visCompare`, `visEnsemble`) and `renderFabricVisualiser()` routes on them — keep them mutually exclusive when adding a mode. Ensemble style options are **per-garment** (`ens.style.jacket` / `.vest` / `.trousers`, defined in `VIS_ENS_STYLE_OPTIONS`); `getVisEnsembleState()` migrates the old flat jacket-only shape and backfills defaults, so a persisted state from before an option existed still renders. Add an option by adding it to `VIS_ENS_STYLE_OPTIONS` and `VIS_ENS_STYLE_DEFAULTS` — the menu, the Design Spec PDF note (`visEnsStyleNote`) and the migration all read from those, so nothing else needs touching. Faceted filtering (`VIS_FACETS`) filters by **region**, not mill: 34 houses is too many chips for an iPad, and region derives from `millPath` so it cannot disagree with Cloth Origins.
-11. `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
-12. `mill-map.js` — the Mill Map ("Provenance Chart"). Coastlines in `MAP_COASTS` are **generated**, not hand-drawn: Natural Earth 50m land polygons (public domain), clipped to the chart bbox and Douglas-Peucker simplified. Regenerate with `tools/make-coasts.js` (see its header) if the bbox changes — do not hand-edit the coordinate arrays.
-13. `vendor/html2canvas.min.js` (vendored, was cdnjs)
-14. `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
-15. `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
-16. inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
+- `data.js` — guide tree (`window.guideTree`, exactly **312 topics**)
+- `validator.js` — structural validation of the tree
+- `query.js` — search/ranking/related-topics engine
+- `discovery-ui.js` — FAB + slide-out discovery panel, result cards
+- `colour-direction.js` — colour quiz data/scoring (separate feature by design)
+- `lookbook.js` — editorial lookbook
+- `wardrobe-templates.js` — worksheet templates per archetype
+- `cloth-data.js` — the cloth library: **102 cloths across 34 mills**, pure data, no functions. Read its header before adding one. The load-bearing rule is the `verified` flag: a cloth is either a real researched bunch (carrying `bunch` + spec + a `source` URL) or it carries **no** `composition`, `weight` or `bunch` at all. `verify/audit.js` enforces that, plus that every `millPath` resolves in Cloth Origins. Never fill a spec in to make a card look complete.
+- `heritage.js` — animated number tickers on the heritage strips
+- `attract-shader.js` — the `#app-backdrop` canvas shader behind the welcome screen
+- `weave-engine.js` — renders a cloth's 96×96 tile from its parameters: six weave grounds (plain, twill, hopsack, flannel, birdseye, herringbone) × five overlays (none, chalkstripe, pinstripe, windowpane, glen). Deterministic — texture is seeded from the cloth key, never `Math.random`, so a cloth looks identical on every load. Pattern pitch is snapped to a divisor of 96 by `snapWeavePitch()` or the tile visibly seams. This replaced 14 hand-written `drawTile` functions; do not add new ones (the `drawTile` escape hatch in `getFabricTile` still works, but no cloth currently needs it).
+- `garment-photo.js` — the runtime compositor that pours a cloth into a photographed garment (mask, luminance multiply, displacement, drawn buttons/lining). Must precede `fabric-visualiser.js`, which calls `renderGarmentPhoto()`.
+- `fabric-visualiser.js` — the Cloth Room. Three mutually exclusive modes off one view: single cloth, two-cloth compare, and ensemble (three-piece flat-lay with per-garment cloths + jacket styling, exports a Design Spec PDF). Mode flags live in `appState` (`visCompare`, `visEnsemble`) and `renderFabricVisualiser()` routes on them — keep them mutually exclusive when adding a mode. Ensemble style options are **per-garment** (`ens.style.jacket` / `.vest` / `.trousers`, defined in `VIS_ENS_STYLE_OPTIONS`); `getVisEnsembleState()` migrates the old flat jacket-only shape and backfills defaults, so a persisted state from before an option existed still renders. Add an option by adding it to `VIS_ENS_STYLE_OPTIONS` and `VIS_ENS_STYLE_DEFAULTS` — the menu, the Design Spec PDF note (`visEnsStyleNote`) and the migration all read from those, so nothing else needs touching. Faceted filtering (`VIS_FACETS`) filters by **region**, not mill: 34 houses is too many chips for an iPad, and region derives from `millPath` so it cannot disagree with Cloth Origins.
+- `cloth-study.js` — the Cloth Study panel (drape, sheen, loupe, pairing web)
+- `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
+- `vendor/cobe.js` — the Cloth Origins globe (vendored, ESM rewritten to a global). Must precede `mill-map.js`.
+- `mill-map.js` — the Mill Map ("Provenance Chart"). Coastlines in `MAP_COASTS` are **generated**, not hand-drawn: Natural Earth 50m land polygons (public domain), clipped to the chart bbox and Douglas-Peucker simplified. Regenerate with `tools/make-coasts.js` (see its header) if the bbox changes — do not hand-edit the coordinate arrays.
+- `vendor/html2canvas.min.js` (vendored, was cdnjs)
+- `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
+- `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
+- inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 
 Script order is load-bearing — globals are defined top-down, so reordering breaks references, and the validation runner must stay after app.js. Move something only once you have traced the dependency and know it holds.
 

@@ -426,7 +426,11 @@
 
 # \### Script load order is critical
 
-# Current order:
+# **Superseded.** This 10-file list predates the cloth library, Cloth Room and
+# photo mockups. The shipped chain is 20 scripts. Read `index.html`; annotations
+# live in CLAUDE.md. Kept below as history only.
+
+# Historical order:
 
 # 1\. `data.js`
 

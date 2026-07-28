@@ -59,7 +59,7 @@ Future: product linking to real inventory, customer-facing adaptation.
 ### Project files
 - `index.html` — app shell, discovery panel HTML, script tags, SW registration
 - `styles.css` — all styling (layered override structure; see CLAUDE.md)
-- `data.js` — 288-topic guide tree
+- `data.js` — 312-topic guide tree
 - `validator.js` — structural validation, runs on every load
 - `query.js` — search/ranking engine
 - `discovery-ui.js` — discovery panel + result cards
@@ -67,9 +67,14 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `lookbook.js` — lookbook rendering
 - `wardrobe-templates.js` — worksheet templates per archetype
 - `cloth-data.js` — the 102-cloth library (pure data; see its `verified` rule)
+- `heritage.js` — animated number tickers on the heritage strips
+- `attract-shader.js` — the `#app-backdrop` canvas shader behind the welcome screen
 - `weave-engine.js` — procedural cloth tiles from weave parameters
+- `garment-photo.js` — runtime compositor: cloth poured into photographed garments
 - `fabric-visualiser.js` — the Cloth Room
+- `cloth-study.js` — the Cloth Study panel (drape, sheen, loupe, pairing web)
 - `archetype-avatars.js` — SVG avatar busts for the Archetype Gallery
+- `vendor/cobe.js` — the Cloth Origins globe (vendored, ESM rewritten to a global)
 - `mill-map.js` — the Mill Map (generated Natural Earth coastlines, pin data,
   chart SVG builders, district de-overlap relaxation, partial updates)
 - `app.js` — views, quizzes, worksheet, exports, navigation, kiosk behaviours
@@ -77,13 +82,16 @@ Future: product linking to real inventory, customer-facing adaptation.
 - `verify/smoke.js` — automated smoke harness
 
 ### Critical script load order
-data.js → validator.js → query.js → discovery-ui.js → colour-direction.js →
-lookbook.js → wardrobe-templates.js → cloth-data.js → weave-engine.js →
-fabric-visualiser.js → archetype-avatars.js → mill-map.js →
-vendor/html2canvas.min.js → vendor/jspdf.umd.min.js → app.js →
-inline validation runner + SW registration. This order is critical and must not change.
-(cloth-data.js and weave-engine.js must precede fabric-visualiser.js, which
-reads `CLOTH_LIBRARY` and calls `drawClothTile` at module scope.)
+Read the `<script>` block in `index.html` — that is the only accurate order, and
+it must not change. Do not keep a copy of it here; every copy in this repo had
+drifted by July 2026. Annotations per file live in CLAUDE.md.
+
+The dependencies that make the order load-bearing:
+- `cloth-data.js` and `weave-engine.js` must precede `fabric-visualiser.js`,
+  which reads `CLOTH_LIBRARY` and calls `drawClothTile` at module scope.
+- `garment-photo.js` must precede `fabric-visualiser.js`, which calls `renderGarmentPhoto()`.
+- `vendor/cobe.js` must precede `mill-map.js`, which builds the globe.
+- The inline validation runner must stay after `app.js`.
 
 ## 3. Architecture
 
