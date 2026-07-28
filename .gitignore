@@ -367,3 +367,13 @@ FodyWeavers.xsd
 node_modules/
 
 .superpowers/
+
+# Agent tooling state and generated artifacts. None of this is part of the
+# app -- it is all regenerable (graphify-out/ from `graphify .`), and it is
+# machine-local. Keep it out of the repo.
+.claude/
+.tokensave/
+graphify-out/
+# Only the exported session transcripts -- claude_logs/ also holds real
+# verification scripts and screenshots, which stay tracked.
+claude_logs/*.md
