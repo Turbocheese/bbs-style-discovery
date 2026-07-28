@@ -375,5 +375,12 @@ node_modules/
 .tokensave/
 graphify-out/
 # Only the exported session transcripts -- claude_logs/ also holds real
-# verification scripts and screenshots, which stay tracked.
+# verification scripts, which stay tracked.
 claude_logs/*.md
+# Screenshots from the July 2026 topnav debugging: ~900K for a bug that is
+# fixed. The verify_topnav.js / debug_topnav.js beside them stay tracked.
+claude_logs/*.png
+
+# Session continuation dumps written by the agent harness at the repo root.
+# Machine-local and large (700K each).
+*-this-session-is-being-continued-from-a-previous-c.txt
