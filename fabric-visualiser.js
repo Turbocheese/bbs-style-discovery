@@ -336,6 +336,31 @@ function clearVisFilters() {
     for (var i = 0; i < VIS_FACETS.length; i++) filters[VIS_FACETS[i].key] = [];
 }
 
+// Fix 2: entering the Cloth Room with a colour result, default the Colour
+// facet to the client's palette families (the profile's colourFamilies) so
+// the room opens on their colours. Called once per entry (from the fabric-vis
+// action), never per render, so the user's later filter edits stand. The
+// "Show all cloths" affordance in the filter bar (vis-filter-clear) restores
+// the full library. No colour result -> no-op, so behaviour is unchanged.
+function applyClothRoomColourDefault() {
+    if (!appState.colourResultKey || typeof getColourDirectionProfileData !== "function") return;
+    var data = getColourDirectionProfileData(appState.colourResultKey);
+    var families = data && data.colourFamilies;
+    if (!families || !families.length) return;
+    // Only default to families that actually exist as cloth colour_family
+    // values, so the facet never selects a value that matches nothing.
+    var present = {};
+    for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
+        if (FABRIC_LIBRARY[i].colour_family) present[FABRIC_LIBRARY[i].colour_family] = true;
+    }
+    var sel = [];
+    for (var f = 0; f < families.length; f++) {
+        if (present[families[f]] && sel.indexOf(families[f]) === -1) sel.push(families[f]);
+    }
+    if (!sel.length) return;
+    getVisFilters().colour_family = sel;
+}
+
 function countActiveVisFilters() {
     var filters = getVisFilters();
     var n = 0;
@@ -413,7 +438,8 @@ function getVisFilterBarHTML() {
         '<div class="filter-dd-meta">' +
         '<span class="filter-dd-count" id="vis-filter-count-text" role="status">' +
         shown + " of " + FABRIC_LIBRARY.length + " cloths</span>" +
-        (active ? '<button class="filter-dd-clear btn-bare" data-action="vis-filter-clear">Clear all</button>' : "") +
+        (active ? '<button class="filter-dd-clear btn-bare" data-action="vis-filter-clear">' +
+            (appState.colourResultKey ? "Show all cloths" : "Clear all") + "</button>" : "") +
         "</div>" +
         "</div>"
     );

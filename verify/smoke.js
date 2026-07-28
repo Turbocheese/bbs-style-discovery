@@ -158,10 +158,20 @@ function check(name, ok) {
     await page.waitForTimeout(150);
     await page.locator('[data-action="onboard-fit"]').first().click();
     await page.waitForTimeout(150);
-    await page.locator('[data-action="onboard-palette"]').first().click();
-    await page.waitForTimeout(150);
-    await page.locator('[data-action="onboard-colour-use"]').first().click();
-    await page.waitForTimeout(150);
+    // Fix 1: mid-journey the Style onboarding must NOT ask palette / colour-use
+    // (Colour already ran); it derives both from the colour result instead.
+    check(
+        "journey onboarding skips palette + colour-use questions",
+        (await page.locator('[data-action="onboard-palette"]').count()) === 0 &&
+            (await page.locator('[data-action="onboard-colour-use"]').count()) === 0
+    );
+    check(
+        "journey onboarding derives valid palette + colour-use for scoring",
+        await page.evaluate(function () {
+            return !!appState.colourResultKey &&
+                appState.selPalette !== "" && appState.selColourUse !== "";
+        })
+    );
     await page.locator('[data-action="onboard-submit"]').click();
     await page.waitForTimeout(1900); // "Taking your measurements…" moment
     // One unified result carrying archetype + colour together, cross-referenced.
@@ -174,6 +184,31 @@ function check(name, ok) {
         "unified result colour descriptor shows once",
         (await page.locator(".unified-colour-section .colour-type-headline").count()) === 1
     );
+
+    // --- Cloth Room default-filters to the client's colours after the quiz
+    //     (Fix 2). The journey above left a colour result set, so entering the
+    //     Cloth Room should open filtered to the palette families; "Show all
+    //     cloths" restores the full library. ---
+    var TOTAL_CLOTHS = await page.evaluate(function () { return FABRIC_LIBRARY.length; });
+    await page.evaluate(function () { navigateHome(); });
+    await page.waitForTimeout(400);
+    await page.locator('[data-action="fabric-vis"]').first().click();
+    await page.waitForTimeout(900);
+    var clothRoomFiltered = await page.evaluate(function () {
+        return {
+            colourFacet: getVisFilters().colour_family.length,
+            shown: getFilteredCloths().length
+        };
+    });
+    check(
+        "Cloth Room opens filtered to client's palette families (with colour result)",
+        clothRoomFiltered.colourFacet > 0 && clothRoomFiltered.shown < TOTAL_CLOTHS
+    );
+    check("Show all cloths control is visible", (await page.locator('[data-action="vis-filter-clear"]').count()) > 0);
+    await page.locator('[data-action="vis-filter-clear"]').first().click();
+    await page.waitForTimeout(400);
+    var afterShowAll = await page.evaluate(function () { return getFilteredCloths().length; });
+    check("Show all cloths restores the full library", afterShowAll === TOTAL_CLOTHS);
 
     // --- Offline (service worker; localhost counts as secure) ---
     await page.goto(BASE + "/", { waitUntil: "networkidle" });

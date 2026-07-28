@@ -4072,7 +4072,39 @@ function getPaletteSwatches(palette) {
     return ["#D8D0C2", "#B7B2AA", "#8A7E73", "#4A4A4A", "#E6DED2"];
 }
 
+// Journey bridge (Fix 1): once the Colour quiz has produced a result, the
+// Style onboarding no longer asks for palette + colour-use — it derives both
+// from the colour profile so the archetype scoring still gets valid values.
+// Explicit hand-map (like colourFamilies), nearest of the 8 Style palettes per
+// colour profile; colour-use follows the profile's contrast/boldness
+// (soft -> mostly neutrals, balanced -> one accent, strong -> more playful).
+var COLOUR_PROFILE_TO_STYLE = {
+    soft_tonal_warmth:        { palette: "Earth & Olive",   colourUse: "Mostly neutrals" },
+    clean_cool_contrast:      { palette: "Navy & Stone",    colourUse: "More playful colour" },
+    earth_led_balance:        { palette: "Earth & Olive",   colourUse: "One accent colour" },
+    quiet_monochrome:         { palette: "City Greys",      colourUse: "Mostly neutrals" },
+    light_warm_clarity:       { palette: "Riviera Light",   colourUse: "Mostly neutrals" },
+    deep_controlled_colour:   { palette: "Deep Colour",     colourUse: "More playful colour" },
+    muted_olive_balance:      { palette: "Heritage Browns", colourUse: "Mostly neutrals" },
+    refined_neutral_contrast: { palette: "Navy & Stone",    colourUse: "One accent colour" }
+};
+
+function deriveStyleFromColour(profileKey) {
+    return COLOUR_PROFILE_TO_STYLE[profileKey] ||
+        { palette: "Soft Neutrals", colourUse: "Mostly neutrals" };
+}
+
 function renderOnboarding() {
+    // With a colour result in hand (always true mid-journey — Colour runs
+    // first), derive selPalette + selColourUse from it and skip re-asking.
+    // Standalone Style (no colour done) still asks both questions below.
+    var hasColourResult = !!appState.colourResultKey;
+    if (hasColourResult) {
+        var derivedStyle = deriveStyleFromColour(appState.colourResultKey);
+        appState.selPalette = derivedStyle.palette;
+        appState.selColourUse = derivedStyle.colourUse;
+    }
+
     var focusOptions = [
         { val: "Everyday Essentials", label: "Everyday Wardrobe" },
         { val: "Business Attire", label: "Professional Dressing" },
@@ -4393,18 +4425,20 @@ function renderOnboarding() {
             "</div>" +
             "</div>"
             : "") +
-        '<div class="arch-pref-group">' +
-        '<div class="arch-pref-label">Colour direction</div>' +
-        '<div class="arch-pref-options">' +
-        paletteHTML +
-        "</div>" +
-        "</div>" +
-        '<div class="arch-pref-group">' +
-        '<div class="arch-pref-label">How do you like to wear colour?</div>' +
-        '<div class="arch-pref-options">' +
-        colourUseHTML +
-        "</div>" +
-        "</div>" +
+        (hasColourResult
+            ? ""
+            : '<div class="arch-pref-group">' +
+              '<div class="arch-pref-label">Colour direction</div>' +
+              '<div class="arch-pref-options">' +
+              paletteHTML +
+              "</div>" +
+              "</div>" +
+              '<div class="arch-pref-group">' +
+              '<div class="arch-pref-label">How do you like to wear colour?</div>' +
+              '<div class="arch-pref-options">' +
+              colourUseHTML +
+              "</div>" +
+              "</div>") +
         '<div class="arch-nav">' +
         '<button class="arch-btn-back" data-action="back">\u2190 Back</button>' +
         '<button class="arch-btn-next" data-action="onboard-submit"' +
@@ -6724,6 +6758,10 @@ document.body.addEventListener("click", function (e) {
         exportWorksheetPDF();
     }
     else if (action === "fabric-vis") {
+        // Fix 2: default the Cloth Room to the client's palette colours on
+        // entry when a colour result exists. Once per entry (here), so manual
+        // filter edits inside the room are never fought.
+        applyClothRoomColourDefault();
         runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
     else if (action === "archetype-gallery") {
