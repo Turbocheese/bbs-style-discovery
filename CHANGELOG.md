@@ -10,6 +10,23 @@ customer or staff member would actually notice, with the date they landed.
 
 ---
 
+## 2026-07-28 — Your colours carry through the whole visit
+
+The colour result no longer stops at its own screen — it now follows the
+client into everything that comes after. The style quiz has stopped asking
+which palette they like and how boldly they wear colour, because the colour
+read has already answered both; those two questions simply disappear, and the
+archetype result is scored from the colour profile instead. Two fewer taps,
+and no more being asked something the app already knows.
+
+The Cloth Room now opens on their colours. Walk in after a colour result and
+the library arrives already narrowed to the shades that suit them — a
+first look worth having rather than all 102 cloths at once. "Show all cloths"
+opens it back up, and any filter changed by hand is left alone from then on.
+
+Clients who only take the style quiz, or only browse cloth, see none of this —
+everything behaves exactly as before.
+
 ## 2026-07-26 — A sharper colour read
 
 The colour quiz now reads your colouring more precisely, using the tells a
