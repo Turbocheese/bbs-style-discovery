@@ -35,10 +35,10 @@
     // a light cloth breaks into more, finer folds than a heavy one.
     function handleOf(cloth) {
         var weave = (cloth.weave || ""), wt = (cloth.weight_class || "");
-        if (weave === "flannel") return { stiff: 2, grav: 0.23, damp: 0.96, breeze: 0.07, gather: 0.66, folds: 1.05, label: "Soft, full drape" };
-        if (wt === "heavy") return { stiff: 4, grav: 0.14, damp: 0.92, breeze: 0.024, gather: 0.77, folds: 0.78, label: "Crisp, structured" };
-        if (wt === "light") return { stiff: 2, grav: 0.2, damp: 0.95, breeze: 0.06, gather: 0.62, folds: 1.32, label: "Light, fluid drape" };
-        return { stiff: 3, grav: 0.18, damp: 0.94, breeze: 0.04, gather: 0.70, folds: 1.0, label: "Balanced drape" };
+        if (weave === "flannel") return { stiff: 2, grav: 0.23, damp: 0.96, breeze: 0.07, gather: 0.66, folds: 0.62, label: "Soft, full drape" };
+        if (wt === "heavy") return { stiff: 4, grav: 0.14, damp: 0.92, breeze: 0.024, gather: 0.77, folds: 0.46, label: "Crisp, structured" };
+        if (wt === "light") return { stiff: 2, grav: 0.2, damp: 0.95, breeze: 0.06, gather: 0.62, folds: 0.78, label: "Light, fluid drape" };
+        return { stiff: 3, grav: 0.18, damp: 0.94, breeze: 0.04, gather: 0.70, folds: 0.60, label: "Balanced drape" };
     }
 
     function fit(cv, h) {
@@ -208,12 +208,28 @@
         }
         function colX(i) { var s = 0; for (var j = 0; j < ROWS; j++) s += pts[j * COLS + i].sx; return s / ROWS; }
         function colZ(i) { var s = 0; for (var j = 0; j < ROWS; j++) s += pts[j * COLS + i].z + pts[j * COLS + i + 1].z; return s / (ROWS * 2); }
+        // The silhouette, drawn as a curve rather than as the mesh polygon. The
+        // hem is 20 straight segments between column points, and a fold that
+        // hangs lower than its neighbour turns that into a visible sawtooth —
+        // the panel looks torn along the bottom. Curving through the same
+        // points costs nothing and the hem swags instead.
         function outline() {
             var i, j, p;
             ctx.beginPath();
             for (i = 0; i < COLS; i++) { p = pts[i]; if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy); }
             for (j = 1; j < ROWS; j++) { p = pts[j * COLS + COLS - 1]; ctx.lineTo(p.sx, p.sy); }
-            for (i = COLS - 2; i >= 0; i--) { p = pts[(ROWS - 1) * COLS + i]; ctx.lineTo(p.sx, p.sy); }
+            // The hem only. Curving through the bottom points instead of
+            // joining them with 19 straight segments is what stops a fold
+            // hanging lower than its neighbour reading as a sawtooth — the
+            // panel looked torn along the bottom. The corners and the two
+            // selvedges stay straight: curving those rounded the whole
+            // silhouette into a pillow.
+            var hem = (ROWS - 1) * COLS;
+            for (i = COLS - 2; i >= 1; i--) {
+                var c = pts[hem + i], nx = pts[hem + i - 1];
+                ctx.quadraticCurveTo(c.sx, c.sy, (c.sx + nx.sx) / 2, (c.sy + nx.sy) / 2);
+            }
+            p = pts[hem]; ctx.lineTo(p.sx, p.sy);
             for (j = ROWS - 2; j >= 1; j--) { p = pts[j * COLS]; ctx.lineTo(p.sx, p.sy); }
             ctx.closePath();
         }
@@ -228,6 +244,9 @@
             //    hairline seams along every cell.
             var solid = "rgb(" + base[0] + "," + base[1] + "," + base[2] + ")";
             outline(); ctx.fillStyle = solid; ctx.fill();
+            // Quads are straight-edged, so without this they poke past the
+            // curved hem and put the sawtooth straight back.
+            ctx.save(); outline(); ctx.clip();
             // Back to front. A fold nearer the viewer projects wider and hangs
             // lower, so it overlaps its neighbours; drawn left to right the
             // farther column paints over it and the hem gains a hard step.
@@ -255,6 +274,7 @@
                 ctx.fillRect(i * spacing - 2, j * spacing - 2, spacing + 4, spacing + 4);
                 ctx.restore();
             }
+            ctx.restore();
             // 2. Fold shading, multiplied over the weave so folds read as shadow
             //    without hiding the texture (grey <= 1 only darkens).
             var minx = colX(0), maxx = colX(COLS - 1); if (maxx <= minx) maxx = minx + 1;

@@ -7496,7 +7496,14 @@ function renderColourDirection() {
         '<button class="arch-btn-next" data-action="colour-next"' +
         (canContinue ? "" : " disabled") +
         ">" +
-        (isLastStep ? "See My Colour Direction \u2192" : "Next \u2192") +
+        // In the guided journey the last colour answer hands straight off to
+        // the Style quiz (see the colour-next branch), so promising the colour
+        // result here sends the client somewhere they are not going yet.
+        (isLastStep
+            ? (appState.inJourney && appState.journeyStage === "colour"
+                ? "On to the Style Quiz \u2192"
+                : "See My Colour Direction \u2192")
+            : "Next \u2192") +
         "</button>" +
         "</div>" +
         "</div>"

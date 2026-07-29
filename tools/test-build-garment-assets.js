@@ -204,6 +204,45 @@ assert(count2pass < count1pass,
 
 console.log("PASS: erodeMask (multi-pass, passes=2)");
 
+// --- erodeFringe: a bright rim is cut, a clean edge is left alone ---------
+//
+// 29x29 frame: a two-pixel background margin, then the garment. In the
+// haloed fixture the garment's outer three rings are luma 230 (background
+// bleed) over a luma 120 body: erodeFringe must keep cutting until the
+// boundary sits on the body. In the clean fixture the whole garment is luma
+// 120, so it must not cut at all — a fixed erosion wide enough for the halo
+// would eat three rings off every clean garment.
+function ringedFixture(rimLuma) {
+    var w = 29, h = 29, px = new Uint8Array(w * h * 4), mask = new Uint8Array(w * h);
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+        var i = y * w + x;
+        var depth = Math.min(Math.min(x, w - 1 - x), Math.min(y, h - 1 - y));
+        var v = depth < 2 ? 250 : (depth < 5 ? rimLuma : 120);
+        px[i * 4] = v; px[i * 4 + 1] = v; px[i * 4 + 2] = v; px[i * 4 + 3] = 255;
+        mask[i] = depth < 2 ? 0 : 255;
+    }
+    return { px: px, mask: mask, w: w, h: h };
+}
+
+var haloed = ringedFixture(230);
+var cut = b.erodeFringe(haloed.px, haloed.mask, haloed.w, haloed.h);
+
+assert.ok(cut.passes >= 3, "a three-pixel bright rim is cut away (passes " + cut.passes + ")");
+assert.strictEqual(cut.mask[14 * 29 + 14], 255, "the garment body survives the fringe cut");
+assert.ok(
+    b.ringMeanLuma(haloed.px, cut.mask, haloed.w, haloed.h) <= b.medianMaskedLuma(haloed.px, cut.mask, haloed.w, haloed.h) + 8,
+    "after cutting, the boundary ring is no brighter than the garment median"
+);
+
+var clean = ringedFixture(120);
+assert.strictEqual(
+    b.erodeFringe(clean.px, clean.mask, clean.w, clean.h).passes,
+    0,
+    "a garment with no bright rim is not eroded at all"
+);
+
+console.log("PASS: erodeFringe (bright rim cut, clean edge untouched)");
+
 // A garment spanning luma 100..180 should stretch to fill the band.
 var w2 = 4, h2 = 1;
 var px2 = new Uint8Array(w2 * h2 * 4);

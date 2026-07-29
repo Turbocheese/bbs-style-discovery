@@ -208,11 +208,88 @@ function erodeMask(mask, w, h, passes) {
     return cur;
 }
 
+// How far the boundary ring may sit above the garment's own median luma
+// before it counts as background bleed rather than as a lit edge.
+var FRINGE_TOLERANCE = 8;
+
+// How far in to look for the garment's own luma when judging the rim.
+var FRINGE_PROBE_DEPTH = 6;
+
+function medianMaskedLuma(px, mask, w, h) {
+    var hist = new Int32Array(256);
+    var n = w * h, total = 0, i;
+    for (i = 0; i < n; i++) {
+        if (!mask[i]) continue;
+        hist[Math.round(luma(px, i))]++;
+        total++;
+    }
+    if (!total) return 0;
+    var seen = 0;
+    for (i = 0; i < 256; i++) {
+        seen += hist[i];
+        if (seen * 2 >= total) return i;
+    }
+    return 255;
+}
+
+// Mean luma of the masked pixels that touch the outside — the ring the
+// silhouette edge is currently cut through.
+function ringMeanLuma(px, mask, w, h) {
+    var sum = 0, count = 0, x, y, i;
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < w; x++) {
+            i = y * w + x;
+            if (!mask[i]) continue;
+            if ((x > 0 && !mask[i - 1]) || (x < w - 1 && !mask[i + 1]) ||
+                (y > 0 && !mask[i - w]) || (y < h - 1 && !mask[i + w])) {
+                sum += luma(px, i);
+                count++;
+            }
+        }
+    }
+    return count ? sum / count : 0;
+}
+
+// The mask boundary lands wherever the background flood stopped, which is
+// partway down the photograph's own soft edge. On a clean white-ground shot
+// that leaves a pixel or two of fringe and the fixed EDGE_ERODE covers it.
+// The two trousers that arrived on a tinted ground and were white-normalised
+// are different: the normalisation stretched their falloff into a bright rim
+// more than ten pixels deep, which multiplies through as a pale halo tracing
+// the whole silhouette (measured +71 luma over the garment's interior). A
+// fixed erosion wide enough for those would bite lapel points and hems off
+// every other garment, so cut one pass at a time and stop as soon as the
+// boundary ring is no longer brighter than the garment's own median.
+function erodeFringe(px, mask, w, h, tolerance, maxPasses) {
+    if (tolerance === undefined) tolerance = FRINGE_TOLERANCE;
+    if (maxPasses === undefined) maxPasses = 40;
+    // Take the reference median from well inside the silhouette. Measured on
+    // the whole mask the rim would help set the very level it is being judged
+    // against, and a wide enough rim drags the median up to its own value.
+    var probe = erodeMask(mask, w, h, FRINGE_PROBE_DEPTH);
+    var probed = false;
+    for (var p = 0; p < w * h; p++) { if (probe[p]) { probed = true; break; } }
+    var limit = medianMaskedLuma(px, probed ? probe : mask, w, h) + tolerance;
+    var passes = 0;
+    while (passes < maxPasses && ringMeanLuma(px, mask, w, h) > limit) {
+        var next = erodeMask(mask, w, h, 1);
+        var any = false;
+        for (var i = 0; i < w * h; i++) { if (next[i]) { any = true; break; } }
+        if (!any) break; // pathological photo: keep what we have rather than nothing
+        mask = next;
+        passes++;
+    }
+    return { mask: mask, passes: passes };
+}
+
 module.exports = {
     extractMask: extractMask,
     luma: luma,
     keepLargestComponent: keepLargestComponent,
     erodeMask: erodeMask,
+    erodeFringe: erodeFringe,
+    medianMaskedLuma: medianMaskedLuma,
+    ringMeanLuma: ringMeanLuma,
     normaliseLuminance: normaliseLuminance,
     LUMA_FLOOR: LUMA_FLOOR,
     LUMA_CEIL: LUMA_CEIL
@@ -297,6 +374,9 @@ if (require.main === module) {
 
                 var mask = extractMask(px, w, h);
                 mask = erodeMask(mask, w, h, EDGE_ERODE);
+                var fringe = erodeFringe(px, mask, w, h);
+                mask = fringe.mask;
+                if (fringe.passes) console.log("  " + key + ": cut " + fringe.passes + " extra pass(es) of bright fringe");
                 var lum = normaliseLuminance(px, mask, w, h);
 
                 var out = Buffer.alloc(w * h * 4);

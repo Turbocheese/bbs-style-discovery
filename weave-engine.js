@@ -64,6 +64,13 @@ function weaveShade(hex, amount) {
     return "rgb(" + step(c.r) + "," + step(c.g) + "," + step(c.b) + ")";
 }
 
+// 0 (black) to 1 (white). Used to keep overlay contrast relative to the
+// ground rather than absolute.
+function weaveLightness(hex) {
+    var c = weaveHexToRGB(hex);
+    return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+}
+
 function weaveRGBA(hex, alpha) {
     var c = weaveHexToRGB(hex);
     return "rgba(" + c.r + "," + c.g + "," + c.b + "," + alpha + ")";
@@ -135,7 +142,16 @@ function weaveGroundPlain(g, ground, rnd) {
 // side by side, which is what makes the diagonal read as raised.
 // They must be spaced well apart — packed tighter than about 6px the
 // lit and shadowed faces average out and the whole field goes flat.
-function weaveRibs(g, spacing, rightward, lit, shade) {
+function weaveRibs(g, ground, spacing, rightward, lit, shade) {
+    // A rib is sheen off a raised face, and sheen is a RELATIVE lift. A flat
+    // 0.17 white line over a near-black worsted is a pale grey rope: at swatch
+    // size it looks like texture, but poured into a jacket it reads as heavy
+    // diagonal ribbing across the whole garment. Scale both faces with the
+    // ground's own lightness so a black cloth keeps a whisper of wale and a
+    // pale one keeps the full rib.
+    var L = weaveLightness(ground);
+    lit = lit * (0.30 + 0.70 * L);
+    shade = shade * (0.45 + 0.55 * L);
     g.lineWidth = 2;
     for (var d = -WEAVE_TILE * 2; d < WEAVE_TILE * 2; d += spacing) {
         g.strokeStyle = "rgba(255,255,255," + lit + ")";
@@ -164,7 +180,7 @@ function weaveRibs(g, spacing, rightward, lit, shade) {
 function weaveGroundTwill(g, ground, rnd) {
     g.fillStyle = ground;
     g.fillRect(0, 0, WEAVE_TILE, WEAVE_TILE);
-    weaveRibs(g, 8, true, 0.17, 0.16);
+    weaveRibs(g, ground, 8, true, 0.17, 0.16);
     weaveMelange(g, ground, rnd, 0.02, 0.09);
 }
 
@@ -238,7 +254,7 @@ function weaveGroundHerringbone(g, ground, rnd) {
         g.beginPath();
         g.rect(b, 0, band, WEAVE_TILE);
         g.clip();
-        weaveRibs(g, 8, (b / band) % 2 === 0, 0.19, 0.17);
+        weaveRibs(g, ground, 8, (b / band) % 2 === 0, 0.19, 0.17);
         g.restore();
     }
     // A hairline down each band join. Real herringbone shows a visible
