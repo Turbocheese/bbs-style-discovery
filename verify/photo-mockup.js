@@ -97,9 +97,11 @@ var playwright = require("playwright");
         result.differing + "/" + result.sampled + " sampled pixels differed between charcoal and navy)");
 
     // The load-bearing check. Render a chalkstripe and confirm stripe
-    // spacing at the lapel differs from spacing at the hem. If they match,
-    // the displacement field is not being applied and everything else is
-    // theatre.
+    // spacing across the sleeve differs from spacing at the hem. If they
+    // match, the displacement field is not being applied and everything
+    // else is theatre. (Displacement moved to sleeves-only after the chest
+    // and lapel regions were found to warp checked cloth — see
+    // garment-photo.js's JACKET_SLEEVES comment.)
     var stripes = await page.evaluate(function () {
         var c = document.createElement("canvas");
         c.width = 400; c.height = 500;
@@ -116,26 +118,26 @@ var playwright = require("playwright");
             }
             return n;
         }
-        return { lapel: edgesAcross(140), hem: edgesAcross(430) };
+        return { sleeve: edgesAcross(140), hem: edgesAcross(430) };
     });
 
-    if (stripes.lapel === stripes.hem) {
-        console.error("FAIL: stripe density identical at lapel and hem — displacement not applied");
+    if (stripes.sleeve === stripes.hem) {
+        console.error("FAIL: stripe density identical at sleeve and hem — displacement not applied");
         process.exit(1);
     }
-    console.log("PASS: displacement bends the pattern (lapel " + stripes.lapel + " vs hem " + stripes.hem + ")");
+    console.log("PASS: displacement bends the pattern (sleeve " + stripes.sleeve + " vs hem " + stripes.hem + ")");
 
     // The edge-count check above can pass on incidental noise alone —
-    // confirmed by disabling displacement and finding lapel(3) still
+    // confirmed by disabling displacement and finding sleeve(3) still
     // != hem(4) purely from mask-width/texture variation, with no
     // displacement code running at all. This is the decisive check:
     // build a "flat baseline" render with the same public helpers
     // (findCloth, drawClothTile) but skip the displacement step, then
-    // diff it against the real output. The lapel band MUST differ
+    // diff it against the real output. The sleeve band MUST differ
     // substantially from that baseline (displacement changed it) and
-    // the hem band MUST be byte-identical (no region covers it, so
-    // nothing should have changed there — if it did, something other
-    // than the four defined regions is being touched).
+    // both the hem band and the chest-centre band MUST be byte-identical
+    // (no region covers either, so nothing should have changed there — if
+    // it did, something other than the defined regions is being touched).
     var regionCheck = await page.evaluate(function () {
         return new Promise(function (resolve) {
             var c1 = document.createElement("canvas");
@@ -171,10 +173,10 @@ var playwright = require("playwright");
                     var real = c1.getContext("2d").getImageData(0, 0, 400, 500).data;
                     var ref = c2.getContext("2d").getImageData(0, 0, 400, 500).data;
 
-                    function regionDiff(y0, y1) {
+                    function regionDiff(x0, x1, y0, y1) {
                         var sampled = 0, differing = 0;
                         for (var y = y0; y < y1; y++) {
-                            for (var x = 0; x < 400; x++) {
+                            for (var x = x0; x < x1; x++) {
                                 var i = (y * 400 + x) * 4;
                                 if (real[i + 3] < 128 || ref[i + 3] < 128) continue;
                                 sampled++;
@@ -185,7 +187,14 @@ var playwright = require("playwright");
                         return { sampled: sampled, differing: differing };
                     }
 
-                    resolve({ lapel: regionDiff(120, 160), hem: regionDiff(410, 450) });
+                    // Left sleeve (JACKET_SLEEVES x 0.05-0.27 -> px 20-108) has
+                    // a region; chest-centre (x 0.35-0.65 -> px 140-260) and
+                    // the hem do not.
+                    resolve({
+                        sleeve: regionDiff(20, 108, 120, 160),
+                        chest: regionDiff(140, 260, 120, 160),
+                        hem: regionDiff(0, 400, 410, 450)
+                    });
                 };
                 img.src = "images/garments/jacket-sb.webp";
             }
@@ -194,16 +203,18 @@ var playwright = require("playwright");
         });
     });
 
-    var lapelFrac = regionCheck.lapel.sampled ? regionCheck.lapel.differing / regionCheck.lapel.sampled : 0;
+    var sleeveFrac = regionCheck.sleeve.sampled ? regionCheck.sleeve.differing / regionCheck.sleeve.sampled : 0;
+    var chestFrac = regionCheck.chest.sampled ? regionCheck.chest.differing / regionCheck.chest.sampled : 0;
     var hemFrac = regionCheck.hem.sampled ? regionCheck.hem.differing / regionCheck.hem.sampled : 0;
 
-    if (lapelFrac <= 0.3 || hemFrac >= 0.05) {
-        console.error("FAIL: displacement not confirmed as region-confined (lapel " + (lapelFrac * 100).toFixed(0) +
-            "% differ from flat baseline, hem " + (hemFrac * 100).toFixed(0) + "% differ — expected lapel > 30%, hem < 5%)");
+    if (sleeveFrac <= 0.3 || chestFrac >= 0.05 || hemFrac >= 0.05) {
+        console.error("FAIL: displacement not confirmed as region-confined (sleeve " + (sleeveFrac * 100).toFixed(0) +
+            "% differ from flat baseline, chest " + (chestFrac * 100).toFixed(0) + "%, hem " + (hemFrac * 100).toFixed(0) +
+            "% differ — expected sleeve > 30%, chest and hem < 5%)");
         process.exit(1);
     }
-    console.log("PASS: displacement confined to defined regions (lapel " + (lapelFrac * 100).toFixed(0) +
-        "% of pixels differ from flat baseline, hem " + (hemFrac * 100).toFixed(0) + "% differ)");
+    console.log("PASS: displacement confined to defined regions (sleeve " + (sleeveFrac * 100).toFixed(0) +
+        "% of pixels differ from flat baseline, chest " + (chestFrac * 100).toFixed(0) + "%, hem " + (hemFrac * 100).toFixed(0) + "% differ)");
 
     // Coverage: walk the full cross-product of the (Task 8-reduced)
     // option set and confirm every combination resolves to a key that

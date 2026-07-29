@@ -43,11 +43,16 @@ function loadGarmentImage(key, onReady) {
 // grid rendered over each photograph — regenerate that grid before moving
 // any of them rather than nudging numbers blind.
 //
-// A lapel is a triangle, not a rectangle, so each one takes two stacked
-// boxes that step inboard as they descend and follow the roll edge. One
-// tall box per lapel (the original shape) reached down and out over bare
-// chest, tilting cloth that should have lain flat — visible as a kink in
-// any chalkstripe.
+// Only the sleeves move. Lapels used to get their own boxes (two stacked
+// per side, stepping inboard down the roll edge) and they never worked: a
+// lapel is a triangle and a region is a rectangle, so the box always tilted
+// a wedge of flat chest alongside it. On a stripe that read as a faint
+// kink; on a check the grid visibly breaks and steps at the box edge, which
+// is what the founder circled. A real jacket's lapel is the same panel
+// folded back and is pattern-matched at the roll line anyway, so cloth that
+// runs straight off the chest and onto the lapel is the truer render.
+// Sleeves keep their regions: an arm is a cylinder and the box matches its
+// silhouette, so the squeeze reads as form rather than as a seam.
 var JACKET_SLEEVES = [
     { x: 0.05, y: 0.12, w: 0.22, h: 0.55, angle: -0.05, strength: 0.74 },
     { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
@@ -69,34 +74,14 @@ var TROUSER_LEGS = [
 ];
 
 var DISPLACEMENT_REGIONS = {
-    // Notch lapels: roll edge from the notch at (0.29, 0.17) to the button
-    // break at (0.47, 0.50).
-    "jacket-sb": [
-        { x: 0.28, y: 0.12, w: 0.14, h: 0.17, angle: -0.16, strength: 0.84 },
-        { x: 0.34, y: 0.29, w: 0.14, h: 0.21, angle: -0.11, strength: 0.88 },
-        { x: 0.58, y: 0.12, w: 0.14, h: 0.17, angle: 0.16, strength: 0.84 },
-        { x: 0.52, y: 0.29, w: 0.14, h: 0.21, angle: 0.11, strength: 0.88 }
-    ].concat(JACKET_SLEEVES),
+    "jacket-sb": JACKET_SLEEVES,
+    "jacket-db": JACKET_SLEEVES,
 
-    // Peak lapels sit lower and cross further down: peak tip at (0.28, 0.19),
-    // crossover at (0.42, 0.52).
-    "jacket-db": [
-        { x: 0.27, y: 0.14, w: 0.15, h: 0.18, angle: -0.16, strength: 0.84 },
-        { x: 0.33, y: 0.32, w: 0.14, h: 0.22, angle: -0.11, strength: 0.88 },
-        { x: 0.58, y: 0.14, w: 0.15, h: 0.18, angle: 0.16, strength: 0.84 },
-        { x: 0.53, y: 0.32, w: 0.14, h: 0.22, angle: 0.11, strength: 0.88 }
-    ].concat(JACKET_SLEEVES),
-
-    // Vest fronts wrap the chest with no sleeve to speak of, so only the
-    // outer panels move; the centre stays flat under the buttons.
-    "vest-sb-none": [
-        { x: 0.22, y: 0.02, w: 0.15, h: 0.96, angle: -0.05, strength: 0.80 },
-        { x: 0.63, y: 0.02, w: 0.15, h: 0.96, angle: 0.05, strength: 0.80 }
-    ],
-    "vest-sb-shawl": [
-        { x: 0.22, y: 0.02, w: 0.15, h: 0.96, angle: -0.05, strength: 0.80 },
-        { x: 0.63, y: 0.02, w: 0.15, h: 0.96, angle: 0.05, strength: 0.80 }
-    ],
+    // A vest front is a flat panel with no sleeve to curve. It used to get
+    // two tall bands either side of the buttons, which broke a check down
+    // the length of the garment for the same reason the lapel boxes did.
+    "vest-sb-none": [],
+    "vest-sb-shawl": [],
 
     "trousers-flat": TROUSER_LEGS,
     "trousers-double": TROUSER_LEGS,
