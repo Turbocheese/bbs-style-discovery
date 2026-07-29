@@ -50,11 +50,14 @@ function loadGarmentImage(key, onReady) {
 // check the grid visibly broke and stepped at the box edge — what the
 // founder circled. Removing the rotation entirely (sleeves-only) fixed
 // the leak but lost the lapel's roll, which a real lapel does have (the
-// founder's reference photos of an actual suit confirm a small, confined
-// bend at the roll line, not zero). So the box is back, at a smaller
-// angle than the original, but every lapel region now also carries a
-// `clip`: a polygon (fractions of canvas, read off the same labelled grid
-// as the box coordinates) tracing the lapel's actual roll-line triangle.
+// founder's reference photos of an actual suit confirm a real, visible
+// bend at the roll line, not zero — a first pass at ~4.6 degrees turned
+// out visually indistinguishable from no rotation at all at normal
+// viewing size, so the angle now matches the original's magnitude
+// (~10 degrees). What's different from the original is that every lapel
+// region now also carries a `clip`: a polygon (fractions of canvas, read
+// off the same labelled grid as the box coordinates) tracing the lapel's
+// actual roll-line triangle.
 // applyClothDisplacement fills the polygon in addition to feathering the
 // box, so no rotated pixel can land outside the true lapel shape — the
 // box only sets the rotation's centre and the feather's extent.
@@ -67,11 +70,11 @@ var JACKET_SLEEVES = [
 // button break — traced off jacket-sb.webp's own fractional grid.
 var JACKET_SB_LAPELS = [
     {
-        x: 0.26, y: 0.07, w: 0.22, h: 0.44, angle: -0.08, strength: 0.88,
+        x: 0.26, y: 0.07, w: 0.22, h: 0.44, angle: -0.18, strength: 0.82,
         clip: [{ x: 0.305, y: 0.095 }, { x: 0.36, y: 0.20 }, { x: 0.44, y: 0.49 }]
     },
     {
-        x: 0.52, y: 0.07, w: 0.22, h: 0.44, angle: 0.08, strength: 0.88,
+        x: 0.52, y: 0.07, w: 0.22, h: 0.44, angle: 0.18, strength: 0.82,
         clip: [{ x: 0.695, y: 0.095 }, { x: 0.64, y: 0.20 }, { x: 0.56, y: 0.49 }]
     }
 ];
@@ -81,11 +84,11 @@ var JACKET_SB_LAPELS = [
 // points further out than a notch, so the box is a little wider.
 var JACKET_DB_LAPELS = [
     {
-        x: 0.30, y: 0.09, w: 0.20, h: 0.46, angle: -0.08, strength: 0.88,
+        x: 0.30, y: 0.09, w: 0.20, h: 0.46, angle: -0.18, strength: 0.82,
         clip: [{ x: 0.42, y: 0.115 }, { x: 0.335, y: 0.255 }, { x: 0.44, y: 0.52 }]
     },
     {
-        x: 0.50, y: 0.09, w: 0.20, h: 0.46, angle: 0.08, strength: 0.88,
+        x: 0.50, y: 0.09, w: 0.20, h: 0.46, angle: 0.18, strength: 0.82,
         clip: [{ x: 0.58, y: 0.115 }, { x: 0.665, y: 0.255 }, { x: 0.56, y: 0.52 }]
     }
 ];
