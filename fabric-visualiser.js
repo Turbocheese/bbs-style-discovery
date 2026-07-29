@@ -1755,10 +1755,24 @@ function renderClothEnsemble(recommended) {
     if (ens.garments.indexOf("trousers") !== -1) rightBlocks += getVisEnsGarmentBlock("trousers", ens);
     if (rightBlocks) stageInner += '<div class="ds-stage-right">' + rightBlocks + "</div>";
 
+    // The 117-cloth wall used to run straight on from the piece chips
+    // with no break, and straight into the style menu after it with no
+    // break either — one long undifferentiated scroll. A named section
+    // (reusing the "Complete the Look" divider language below) also
+    // says which garment a swatch tap will dress, which the chip row
+    // alone (an active/inactive colour change) does not say clearly
+    // once it has scrolled off screen.
+    var activeGarmentLabel = ens.activeGarment
+        ? ens.activeGarment.charAt(0).toUpperCase() + ens.activeGarment.slice(1)
+        : "";
+
     var swatchesHTML =
+        '<div class="ds-section">' +
+        '<div class="ds-section-label">Choose a Cloth' + (activeGarmentLabel ? " — " + activeGarmentLabel : "") + "</div>" +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray ds-swatch-tray">' +
         getVisSwatchesHTML(recommended, fabricResolves(activeKey) ? activeKey : null, null) +
+        "</div>" +
         "</div>";
 
     // The menu follows whichever garment is active, so every garment
@@ -1767,7 +1781,10 @@ function renderClothEnsemble(recommended) {
     var garmentOpts = VIS_ENS_STYLE_OPTIONS[ens.activeGarment];
     var garmentStyle = ens.style[ens.activeGarment] || {};
     if (garmentOpts) {
-        styleHTML = '<div class="ds-style-menu">';
+        styleHTML =
+            '<div class="ds-section">' +
+            '<div class="ds-section-label">Style It' + (activeGarmentLabel ? " — " + activeGarmentLabel : "") + "</div>" +
+            '<div class="ds-style-menu">';
         for (var groupKey in garmentOpts) {
             if (!garmentOpts.hasOwnProperty(groupKey)) continue;
             var opts = garmentOpts[groupKey];
@@ -1809,6 +1826,7 @@ function renderClothEnsemble(recommended) {
                 reads.join("") +
                 "</div>";
         }
+        styleHTML += "</div>";
     }
 
     return (

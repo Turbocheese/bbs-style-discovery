@@ -3887,6 +3887,7 @@ function renderHome() {
         // the deepest feature and the one staff demo from — while the
         // Gallery and Mill Map sit beside it. Same three destinations,
         // but the grid now says which one is the main event.
+        '<div class="home-section-label">The Ateliers</div>' +
         '<div class="home-bento">' +
         '<div class="home-cloth-room home-bento-lead" data-action="fabric-vis">' +
         '<div class="home-cloth-room-swatches" aria-hidden="true">' +
@@ -3929,7 +3930,7 @@ function renderHome() {
         '<div class="home-cloth-room-cta">Chart &rarr;</div>' +
         "</div>" +
         "</div>" +
-        // 🌟 FIXED COMMAND BAR: Now uses data-action to trigger the panel slide-out
+        '<div class="home-quick-label">Quick filters</div>' +
         '<div class="home-quick-queries">' +
         '<button class="quick-query-btn" data-action="quick-query" data-query="tropical_work">' +
         sunSVG +
@@ -6544,7 +6545,7 @@ document.body.addEventListener("click", function (e) {
         var currentColourQuestion = colourDirectionQuestions[appState.colourStep];
         var currentColourAnswer = appState.colourAnswersById && appState.colourAnswersById[currentColourQuestion.id] !== undefined ? appState.colourAnswersById[currentColourQuestion.id] : null;
 
-        if (currentColourAnswer === null || currentColourAnswer === undefined) return;
+        if ((currentColourAnswer === null || currentColourAnswer === undefined) && !currentColourQuestion.optional) return;
 
         if (appState.colourStep < colourDirectionQuestions.length - 1) {
             appState.colourStep++;
@@ -7410,7 +7411,7 @@ function renderColourDirection() {
             ? appState.colourAnswersById[q.id]
             : null;
     var isLastStep = appState.colourStep === totalSteps - 1;
-    var canContinue = currentAnswer !== null && currentAnswer !== undefined;
+    var canContinue = (currentAnswer !== null && currentAnswer !== undefined) || !!q.optional;
 
     var tapePct = Math.max(0, Math.min(100, (appState.colourStep / totalSteps) * 100));
     var tapeNumsHTML = "";
@@ -7503,7 +7504,9 @@ function renderColourDirection() {
             ? (appState.inJourney && appState.journeyStage === "colour"
                 ? "On to the Style Quiz \u2192"
                 : "See My Colour Direction \u2192")
-            : "Next \u2192") +
+            : (q.optional && (currentAnswer === null || currentAnswer === undefined)
+                ? "Skip \u2192"
+                : "Next \u2192")) +
         "</button>" +
         "</div>" +
         "</div>"

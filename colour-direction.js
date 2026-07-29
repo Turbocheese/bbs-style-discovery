@@ -17,7 +17,7 @@ var colourDirectionQuestions = [
                     cool: 0,
                     neutral: 0,
                     olive: 0,
-                    softContrast: 1,
+                    softContrast: 0,
                     strongContrast: 0,
                     colourOpen: 0,
                     neutralLean: 0,
@@ -35,7 +35,7 @@ var colourDirectionQuestions = [
                     cool: 0,
                     neutral: 0,
                     olive: 0,
-                    softContrast: 1,
+                    softContrast: 0,
                     strongContrast: 0,
                     colourOpen: 0,
                     neutralLean: 0,
@@ -72,7 +72,7 @@ var colourDirectionQuestions = [
                     neutral: 0,
                     olive: 0,
                     softContrast: 0,
-                    strongContrast: 1,
+                    strongContrast: 0,
                     colourOpen: 0,
                     neutralLean: 0,
                 },
@@ -90,7 +90,7 @@ var colourDirectionQuestions = [
                     neutral: 0,
                     olive: 0,
                     softContrast: 0,
-                    strongContrast: 2,
+                    strongContrast: 0,
                     colourOpen: 0,
                     neutralLean: 0,
                 },
@@ -112,6 +112,66 @@ var colourDirectionQuestions = [
                     colourOpen: 0,
                     neutralLean: 0,
                 },
+            },
+        ],
+    },
+    {
+        // Skin depth alone used to also vote on contrast (a "Deep" skin
+        // answer pushed strongContrast directly), which is wrong: a deep
+        // skin with deep-black hair is LOW contrast, and a deep skin with
+        // grey hair is HIGH contrast. Contrast is a skin-vs-hair relationship,
+        // not a property of either alone — hair colour was also the one
+        // classic colour-analysis input this quiz skipped entirely, so this
+        // question now supplies both the missing hair-depth read and (via its
+        // grey/silver option, the one case hair colour genuinely does imply
+        // contrast on its own — white against any skin reads as a value
+        // jump) a real contribution to strongContrast that skin_depth no
+        // longer makes up front.
+        id: "hair_depth",
+        text: "Which best describes your natural hair colour?",
+        helper: "Your natural colour, even if you no longer wear it that way. Optional — skip ahead if you're not sure.",
+        // Optional: some clients have shaved, dyed, or otherwise-obscured
+        // hair with no honest answer available. Next stays enabled with
+        // nothing picked — renderColourDirection/colour-next both read
+        // this flag — and an unanswered optional question simply never
+        // enters answersById, so it contributes nothing to any axis.
+        optional: true,
+        opts: [
+            {
+                a: "Black",
+                b: "Near-black, no warmth",
+                swatches: ["#1C1712"],
+                s: { deep: 3 },
+            },
+            {
+                a: "Dark brown",
+                b: "Deep, rich brown",
+                swatches: ["#3B2A1F"],
+                s: { deep: 2, medium: 1 },
+            },
+            {
+                a: "Medium brown or auburn",
+                b: "Warm mid-brown or auburn",
+                swatches: ["#6B4A30"],
+                s: { medium: 3 },
+            },
+            {
+                a: "Blonde or light brown",
+                b: "Fair to golden blonde",
+                swatches: ["#C9A06A"],
+                s: { light: 2, medium: 1 },
+            },
+            {
+                a: "Grey, silver or white",
+                b: "Fully or mostly grey",
+                swatches: ["#B8B3AC"],
+                s: { light: 1, cool: 1, clear: 1, strongContrast: 2 },
+            },
+            {
+                a: "I'm not sure",
+                b: "Skip this question",
+                swatches: ["#D9C8BB"],
+                s: { medium: 1 },
             },
         ],
     },
@@ -300,6 +360,13 @@ var colourDirectionQuestions = [
         text: "What kind of contrast usually feels best on you?",
         helper:
             "Think about the difference between the colours you wear — softer and blended, or clearer and stronger.",
+        // This is the one question that asks for a self-reported preference
+        // rather than an observed trait — and a preference can be wrong (or
+        // just untested) in a way a skin/hair/eye read can't. Its contrast
+        // weight is capped at 1 (down from 3) so it can only break a close
+        // call between hair_skin_contrast's readings, never outvote them.
+        // Its neutral/olive/colourOpen contributions are untouched — those
+        // feed the Style quiz's derived palette, not the colour profile.
         opts: [
             {
                 a: "Softer, tonal contrast",
@@ -312,7 +379,7 @@ var colourDirectionQuestions = [
                     cool: 0,
                     neutral: 1,
                     olive: 1,
-                    softContrast: 3,
+                    softContrast: 1,
                     strongContrast: 0,
                     colourOpen: 0,
                     neutralLean: 2,
@@ -320,7 +387,7 @@ var colourDirectionQuestions = [
             },
             {
                 a: "Balanced contrast",
-                b: "Moderate disinctions",
+                b: "Moderate distinctions",
                 s: {
                     light: 0,
                     medium: 0,
@@ -347,7 +414,7 @@ var colourDirectionQuestions = [
                     neutral: 0,
                     olive: 0,
                     softContrast: 0,
-                    strongContrast: 3,
+                    strongContrast: 1,
                     colourOpen: 1,
                     neutralLean: 0,
                 },

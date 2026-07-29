@@ -12741,3 +12741,94 @@ textarea:focus-visible,
     font-size: 0.92rem;
     color: var(--soft, #665f57);
 }
+
+/* ============================================
+   HOME — JOURNEY CTA (was unstyled; see app.js's
+   .home-journey-cta markup)
+   The primary path had zero CSS: bare text bled straight onto the
+   page background right above the Style Direction card, so the two
+   secondary quiz cards (full white panels) read as more important
+   than the one thing meant to lead. Given an ink card so it visually
+   outranks the white cards below it, matching the ink/cream brand
+   tokens in the primary :root rather than inventing a new colour.
+   ============================================ */
+
+.home-journey-cta {
+    display: block;
+    background: var(--text);
+    border-radius: 3px;
+    padding: clamp(1.6rem, 4vw, 2.4rem);
+    cursor: pointer;
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.08),
+        0 24px 48px -28px rgba(17, 17, 16, 0.55);
+    transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+}
+
+.home-journey-cta:active {
+    transform: scale(0.994);
+    box-shadow:
+        0 1px 2px rgba(17, 17, 16, 0.1),
+        0 12px 26px -18px rgba(17, 17, 16, 0.6);
+}
+
+.home-journey-cta-title {
+    font-family: "EB Garamond", serif;
+    font-size: clamp(1.9rem, 4.6vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.08;
+    color: var(--bg);
+    margin: 0.5rem 0 0.7rem;
+}
+
+.home-journey-cta .home-card-body {
+    color: rgba(234, 229, 221, 0.72);
+    max-width: 34rem;
+}
+
+.home-journey-cta .home-card-cta {
+    color: var(--bg);
+}
+
+/* A small, quiet label for the quick-filter shortcut bar — it sat
+   unlabelled between the real navigation and the footer, reading as
+   an orphaned toolbar rather than a named part of the page. */
+.home-quick-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--soft);
+    text-align: center;
+    margin-top: clamp(1.4rem, 3vh, 2rem);
+}
+
+.home-quick-queries { margin-top: 0.6rem; }
+
+/* ============================================
+   ENSEMBLE — SECTION DIVIDERS (fabric-visualiser.js's
+   .ds-section / .ds-section-label)
+   The swatch wall and the style menu used to run on from the piece
+   chips and from each other with no break — one undifferentiated
+   scroll through unrelated tools. Same divider language as
+   .look-block below (border-top + small caption), so a returning
+   client reads it as the same kind of section break.
+   ============================================ */
+
+.ds-section {
+    margin-top: 2rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+}
+
+.ds-section-label {
+    text-align: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 1rem;
+}
