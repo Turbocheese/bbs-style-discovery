@@ -32,8 +32,8 @@ It is a fully operational product with:
   inset (Officine Paladino), and cross-links to/from the Cloth Room
 - an editorial lookbook (placeholder imagery, pending photography)
 - full offline operation via a service worker, with all dependencies vendored
-- kiosk behaviours: idle attract-reset, staff double-tap-logo reset,
-  session persistence for iPad continuity
+- kiosk behaviours: staff double-tap-logo reset, session persistence for
+  iPad continuity (no timed idle reset — results are kept)
 
 ### Product framing (important)
 The quizzes are a fun, memorable experience for customers — **not a
@@ -158,7 +158,8 @@ measure-moment loading interstitial, and kiosk behaviours.
 - Native PNG share + PDF export; QR state-sharing rejected.
 - No pricing in the worksheet; measurements stay offline (Goodnotes).
 - Browse All Topics is uncapped (288 results).
-- One delegated click handler; idle-reset listeners use pointerdown/keydown/scroll.
+- One delegated click handler; anything else observing interaction uses
+  pointerdown/keydown/scroll.
 
 ## 7. Verification
 

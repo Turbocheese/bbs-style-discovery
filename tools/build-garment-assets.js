@@ -123,18 +123,52 @@ var LUMA_CEIL = 255;
 var LINING_LUMA = 60;
 var LINING_CEIL = 70;
 
+// The endpoints are percentiles, not the absolute darkest and lightest
+// pixel. A single crushed pixel and a single blown highlight are enough to
+// pin min/max to the full range, which turns the stretch below into a no-op
+// and leaves the garment with whatever contrast the photograph happened to
+// have. That is what shipped: the trousers measured a luminance spread of
+// sd 18 against the jacket's sd 39, so under multiply they modelled almost
+// no form and read flat and washed out beside it. Clipping the extreme 1%
+// at each end throws those outliers away and stretches the range the cloth
+// actually occupies, which evens the garments out against each other.
+// Anything beyond the endpoints clamps, which is intended — a genuine
+// deep fold should sit at the floor.
+var LUMA_CLIP_LOW = 0.01;
+var LUMA_CLIP_HIGH = 0.99;
+
 function normaliseLuminance(px, mask, w, h) {
     var out = new Uint8Array(w * h);
     var min = 255, max = 0, i, v;
 
     // Cloth range excludes the lining-dark pixels, so the lining can't drag
-    // the floor down and darken the whole garment.
+    // the floor down and darken the whole garment. Histogram rather than a
+    // sort: this runs over the supersampled image (millions of pixels) and
+    // luma is already integral, so 256 bins give exact percentiles in one
+    // pass and no allocation per pixel.
+    var hist = new Uint32Array(256);
+    var total = 0;
     for (i = 0; i < w * h; i++) {
         if (!mask[i]) continue;
         v = luma(px, i);
         if (v < LINING_LUMA) continue;
-        if (v < min) min = v;
-        if (v > max) max = v;
+        hist[v | 0]++;
+        total++;
+    }
+
+    if (total > 0) {
+        var lowTarget = total * LUMA_CLIP_LOW;
+        var highTarget = total * LUMA_CLIP_HIGH;
+        var seen = 0;
+        min = 255; max = 0;
+        for (v = 0; v < 256; v++) {
+            if (!hist[v]) continue;
+            var before = seen;
+            seen += hist[v];
+            if (before <= lowTarget && min === 255 && seen > lowTarget) min = v;
+            if (before < highTarget && seen >= highTarget) { max = v; break; }
+        }
+        if (min === 255 && max === 0) { min = 0; max = 255; }
     }
     if (max <= min) max = min + 1;
 
@@ -219,7 +253,13 @@ if (require.main === module) {
         // it by name rather than failing.
     };
 
-    var MAX_EDGE = 800; // Final asset. Renders at most ~600px in app; 800 leaves headroom.
+    // Final asset. Renders at most ~600 CSS px in app, but the Cloth Room
+    // canvases are devicePixelRatio-scaled (2x on an iPad) and the loupe
+    // magnifies further, so 1600 is the sharpness ceiling worth shipping.
+    // Sources are 1856x2304 / 1696x2528, so this never upscales.
+    // No file-size budget here by founder decision: the kiosk precaches once
+    // over shop wifi and then runs offline.
+    var MAX_EDGE = 1600;
 
     // Mask, erode and normalise at 2x the final size, then let sharp downscale
     // the assembled RGBA to MAX_EDGE. Sharp anti-aliases the (binary) alpha as
@@ -227,8 +267,12 @@ if (require.main === module) {
     // turns the hard 1-bit silhouette into smooth edges. EDGE_ERODE is applied
     // at supersample scale to cut just past the source's own soft edge fringe
     // before that downscale, so the smoothing comes from clean coverage.
+    // SUPERSAMPLE asks for 2x but withoutEnlargement caps it at the source's
+    // own size, so at MAX_EDGE 1600 the mask work happens at native
+    // resolution (~1.5x final). EDGE_ERODE is in supersample pixels and is
+    // scaled to match, staying ~2 final pixels of cut.
     var SUPERSAMPLE = MAX_EDGE * 2;
-    var EDGE_ERODE = 2;
+    var EDGE_ERODE = 3;
 
     var SRC_DIR = path.join(__dirname, "..", "images", "styleBuilder");
     var OUT_DIR = path.join(__dirname, "..", "images", "garments");

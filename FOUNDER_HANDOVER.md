@@ -1023,8 +1023,9 @@ consultation. All UI copy now reflects this ("Take the style quiz",
   selections, and the panel Search button at various times.
 
 **Kiosk behaviour**
-- Idle attract-reset: 3 minutes untouched wipes the session and returns to
-  welcome. The staff double-tap-logo reset remains.
+- Idle attract-reset: removed July 2026. Results now survive a client
+  wandering off and coming back. The staff double-tap-logo reset is the only
+  wipe.
 - Touch-first pass: 44px targets, press states, no iOS focus-zoom.
 
 **Infrastructure**

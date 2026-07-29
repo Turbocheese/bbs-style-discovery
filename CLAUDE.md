@@ -30,13 +30,25 @@ Script order in `index.html` is load-bearing (globals defined top-down). **`inde
 - `colour-direction.js` — colour quiz data/scoring (separate feature by design)
 - `lookbook.js` — editorial lookbook
 - `wardrobe-templates.js` — worksheet templates per archetype
-- `cloth-data.js` — the cloth library: **102 cloths across 34 mills**, pure data, no functions. Read its header before adding one. The load-bearing rule is the `verified` flag: a cloth is either a real researched bunch (carrying `bunch` + spec + a `source` URL) or it carries **no** `composition`, `weight` or `bunch` at all. `verify/audit.js` enforces that, plus that every `millPath` resolves in Cloth Origins. Never fill a spec in to make a card look complete.
+- `cloth-data.js` — the cloth library: **117 cloths across 34 mills, 34 of them verified**, pure data, no functions. Read its header before adding one. The load-bearing rule is the `verified` flag: a cloth is either a real researched bunch (carrying `bunch` + spec + a `source` URL) or it carries **no** `composition`, `weight` or `bunch` at all. `verify/audit.js` enforces that, plus that every `millPath` resolves in Cloth Origins. Never fill a spec in to make a card look complete.
 - `heritage.js` — animated number tickers on the heritage strips
 - `attract-shader.js` — the `#app-backdrop` canvas shader behind the welcome screen
 - `weave-engine.js` — renders a cloth's 96×96 tile from its parameters: six weave grounds (plain, twill, hopsack, flannel, birdseye, herringbone) × five overlays (none, chalkstripe, pinstripe, windowpane, glen). Deterministic — texture is seeded from the cloth key, never `Math.random`, so a cloth looks identical on every load. Pattern pitch is snapped to a divisor of 96 by `snapWeavePitch()` or the tile visibly seams. This replaced 14 hand-written `drawTile` functions; do not add new ones (the `drawTile` escape hatch in `getFabricTile` still works, but no cloth currently needs it).
 - `garment-photo.js` — the runtime compositor that pours a cloth into a photographed garment (mask, luminance multiply, displacement, drawn buttons/lining). Must precede `fabric-visualiser.js`, which calls `renderGarmentPhoto()`.
 - `fabric-visualiser.js` — the Cloth Room. Three mutually exclusive modes off one view: single cloth, two-cloth compare, and ensemble (three-piece flat-lay with per-garment cloths + jacket styling, exports a Design Spec PDF). Mode flags live in `appState` (`visCompare`, `visEnsemble`) and `renderFabricVisualiser()` routes on them — keep them mutually exclusive when adding a mode. Ensemble style options are **per-garment** (`ens.style.jacket` / `.vest` / `.trousers`, defined in `VIS_ENS_STYLE_OPTIONS`); `getVisEnsembleState()` migrates the old flat jacket-only shape and backfills defaults, so a persisted state from before an option existed still renders. Add an option by adding it to `VIS_ENS_STYLE_OPTIONS` and `VIS_ENS_STYLE_DEFAULTS` — the menu, the Design Spec PDF note (`visEnsStyleNote`) and the migration all read from those, so nothing else needs touching. Faceted filtering (`VIS_FACETS`) filters by **region**, not mill: 34 houses is too many chips for an iPad, and region derives from `millPath` so it cannot disagree with Cloth Origins.
-- `cloth-study.js` — the Cloth Study panel (drape, sheen, loupe, pairing web)
+- `cloth-study.js` — the Cloth Study panel (drape, sheen, loupe, pairing web).
+  The drape is a **gathered** panel: the cloth is wider than the bar it hangs
+  from (`handle.gather`), so the surplus buckles out of the plane and the mesh
+  is solved in 3D. Three parts hold that up and each one has already been the
+  difference between cloth and a flat grey rectangle — the diagonal shear
+  constraints (without them the surplus splays sideways and the fold relaxes
+  away within a second), the Lambert shading off the real surface normal (so a
+  fold has a lit face and a shaded face rather than symmetric corrugation), and
+  the per-quad texture mapping (so a chalkstripe bends around the fold; per
+  column strip was tried and stretched the weave into pale wedges at the
+  edges). Folds are seeded from the cloth key, never `Math.random`, so a cloth
+  hangs the same way every time. `node verify/drape.js` measures all of this
+  from pixels — run it after touching the drape.
 - `archetype-avatars.js` — faceless SVG tailoring busts for the Archetype Gallery
 - `vendor/cobe.js` — the Cloth Origins globe (vendored, ESM rewritten to a global). Must precede `mill-map.js`.
 - `mill-map.js` — the Mill Map ("Provenance Chart"). Coastlines in `MAP_COASTS` are **generated**, not hand-drawn: Natural Earth 50m land polygons (public domain), clipped to the chart bbox and Douglas-Peucker simplified. Regenerate with `tools/make-coasts.js` (see its header) if the bbox changes — do not hand-edit the coordinate arrays.
@@ -69,10 +81,11 @@ must degrade to an alert, never crash.
 - `render()` in app.js is the single router: every view is a `case` in its `switch`. New views = new `case` + a `render<View>()` function returning an HTML string.
 - Views are built by **string concatenation** returning full HTML, injected via `innerHTML`. Match that string-concat pattern. A templating layer would fragment the codebase for no build-time payoff, so it is not worth it here.
 - Double-tap on the logo wipes the session (staff reset between clients). Preserve it.
-- **Idle attract-reset:** 3 minutes without interaction on any non-welcome view wipes
-  the session and returns to welcome (`_armIdleReset()` in app.js, listening on
-  pointerdown/keydown/scroll). Kiosk behaviour — an abandoned iPad must never show
-  the previous client's name or results. Preserve it.
+- **No idle attract-reset.** There used to be one (3 minutes wiped the session
+  and returned to welcome); the founder removed it in July 2026 because a client
+  who finishes a quiz, walks the floor and comes back must still find their
+  results. The double-tap-logo wipe is now the only reset. Do not reintroduce a
+  timed wipe without the founder asking.
 
 ## Loading moments and motion
 
@@ -91,9 +104,9 @@ must degrade to an alert, never crash.
 
 There is exactly **one** delegated click handler on `document.body` in app.js,
 dispatching on `data-action` attributes. Add new interactions as new `data-action`
-branches inside it. **A second click listener is almost never right** — duplicate handlers caused serious false-trail bugs in this project's history, so route clicks through the one delegated handler. (The idle-reset
-listeners deliberately use `pointerdown`/`keydown`/`scroll`, not `click`, to
-stay compliant.) Export/share buttons get an automatic "Preparing…" busy state
+branches inside it. **A second click listener is almost never right** — duplicate handlers caused serious false-trail bugs in this project's history, so route clicks through the one delegated handler. Anything that must observe
+interaction outside that handler uses `pointerdown`/`keydown`/`scroll`, not
+`click`. Export/share buttons get an automatic "Preparing…" busy state
 in the click handler — a fixed 4s restore, because the export paths share no
 completion callback; wire real hooks if exports ever grow slower.
 
@@ -192,9 +205,14 @@ These are the current answers, and the founder revisits them. Do not silently ov
   until hosting existed; hosting now exists (GitHub Pages) but QR remains
   unbuilt — do not build it without the founder asking.
 - No pricing in the worksheet. No digitized measurement flow.
-- The lookbook currently has placeholder hotlinked photos; its look-02 entry was
-  removed when its hotlink died. Restore/expand only with real BBS campaign
-  photography. Lookbook `<img>` tags carry an `onerror` that hides a failed tile.
+- The lookbook is **28 looks, all real BBS campaign photography vendored into
+  `images/lookbook/`** (scraped from benjaminbarkerstudios.com's Shopify CDN via
+  its sitemap, July 2026). Never hotlink — the app must work offline, and a dead
+  hotlink is what killed the old look-02 entry. Captions describe only what is
+  visible in the frame: do not assert fibre content or cloth names you cannot
+  see, link the guide topic and let the topic do the talking. Lookbook `<img>`
+  tags carry an `onerror` that hides a failed tile, so a missing photo makes a
+  look vanish silently — `node verify/lookbook.js` is what catches that.
 
 ## Definition of done
 
@@ -214,14 +232,21 @@ Work is not finished until all of these pass:
    (libraries are vendored — no CDN stubbing needed) and sanity-check output
    file sizes: each PDF should be well under ~1MB. A multi-MB PDF means the
    JPEG conversion in `fitCanvasToA4Page` regressed.
-6. **If you touched data.js:** run `node verify/audit.js` (committed data-health
+6. **If you touched the drape in cloth-study.js:** run `node verify/drape.js`
+   (needs the same `npx serve .` as the smoke harness). It fails if the panel
+   stops folding — which looks like working code and renders a flat rectangle.
+7. **If you touched lookbook.js or `images/lookbook/`:** run
+   `node verify/lookbook.js` (plain Node, no server). It fails if a photo is
+   not vendored, is missing from `sw.js`'s PRECACHE, or a `guidePath` does not
+   resolve to a topic — all three break silently in the browser.
+8. **If you touched data.js:** run `node verify/audit.js` (committed data-health
    audit; the "console audit scripts" older docs mention were never committed).
    Metadata and topic_kind must both stay at zero missing — the audit is fully
    green as of 19 July 2026, so any failure is something you introduced.
    Confirm Browse All Topics still returns the full topic count.
-7. **If you changed app.js or styles.css:** bump the `?v=` in index.html AND in
+9. **If you changed app.js or styles.css:** bump the `?v=` in index.html AND in
    `sw.js`'s precache list, and bump `CACHE_VERSION` in sw.js.
-8. Before a staff demo, run the full `SMOKE_TEST_CHECKLIST.md`.
+10. Before a staff demo, run the full `SMOKE_TEST_CHECKLIST.md`.
 
 `verify/smoke.js` is the only automated safety net (no unit tests, no CI) —
 skipping it is how regressions ship.

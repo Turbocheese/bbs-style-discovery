@@ -37,17 +37,70 @@ function loadGarmentImage(key, onReady) {
     img.src = src;
 }
 
-// Flat-laid garments curve in four places only. Each region redraws the
-// cloth rotated and horizontally compressed, which is what makes a
-// stripe read as bending around form rather than lying on top of it.
+// Each region redraws the cloth rotated and horizontally compressed, which
+// is what makes a stripe read as bending around form rather than lying on
+// top of it. Coordinates are fractions of the canvas, read off a labelled
+// grid rendered over each photograph — regenerate that grid before moving
+// any of them rather than nudging numbers blind.
+//
+// A lapel is a triangle, not a rectangle, so each one takes two stacked
+// boxes that step inboard as they descend and follow the roll edge. One
+// tall box per lapel (the original shape) reached down and out over bare
+// chest, tilting cloth that should have lain flat — visible as a kink in
+// any chalkstripe.
+var JACKET_SLEEVES = [
+    { x: 0.05, y: 0.12, w: 0.22, h: 0.55, angle: -0.05, strength: 0.74 },
+    { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
+];
+
+// All three trousers share one envelope: waistband to y 0.11, legs to
+// y 0.94, inseam at x 0.50, front creases near x 0.35 and x 0.63. Each leg
+// gets a band either side of its crease, tilted away from it, so the cloth
+// falls off the crease in both directions the way it does on the leg
+// rather than simply running finer than the jacket's.
+// They run past the top and bottom of the frame on purpose: a region edge
+// that lands inside the garment leaves the feather band visible as a faint
+// horizontal seam across the hem.
+var TROUSER_LEGS = [
+    { x: 0.25, y: 0.02, w: 0.12, h: 1.00, angle: -0.03, strength: 0.80 },
+    { x: 0.37, y: 0.02, w: 0.12, h: 1.00, angle: 0.03, strength: 0.80 },
+    { x: 0.51, y: 0.02, w: 0.12, h: 1.00, angle: -0.03, strength: 0.80 },
+    { x: 0.63, y: 0.02, w: 0.12, h: 1.00, angle: 0.03, strength: 0.80 }
+];
+
 var DISPLACEMENT_REGIONS = {
+    // Notch lapels: roll edge from the notch at (0.29, 0.17) to the button
+    // break at (0.47, 0.50).
     "jacket-sb": [
-        { x: 0.30, y: 0.08, w: 0.20, h: 0.34, angle: -0.14, strength: 0.82 },
-        { x: 0.50, y: 0.08, w: 0.20, h: 0.34, angle: 0.14, strength: 0.82 },
-        { x: 0.05, y: 0.12, w: 0.22, h: 0.55, angle: -0.05, strength: 0.74 },
-        { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
-    ]
-    // Remaining garments follow once their photographs exist.
+        { x: 0.28, y: 0.12, w: 0.14, h: 0.17, angle: -0.16, strength: 0.84 },
+        { x: 0.34, y: 0.29, w: 0.14, h: 0.21, angle: -0.11, strength: 0.88 },
+        { x: 0.58, y: 0.12, w: 0.14, h: 0.17, angle: 0.16, strength: 0.84 },
+        { x: 0.52, y: 0.29, w: 0.14, h: 0.21, angle: 0.11, strength: 0.88 }
+    ].concat(JACKET_SLEEVES),
+
+    // Peak lapels sit lower and cross further down: peak tip at (0.28, 0.19),
+    // crossover at (0.42, 0.52).
+    "jacket-db": [
+        { x: 0.27, y: 0.14, w: 0.15, h: 0.18, angle: -0.16, strength: 0.84 },
+        { x: 0.33, y: 0.32, w: 0.14, h: 0.22, angle: -0.11, strength: 0.88 },
+        { x: 0.58, y: 0.14, w: 0.15, h: 0.18, angle: 0.16, strength: 0.84 },
+        { x: 0.53, y: 0.32, w: 0.14, h: 0.22, angle: 0.11, strength: 0.88 }
+    ].concat(JACKET_SLEEVES),
+
+    // Vest fronts wrap the chest with no sleeve to speak of, so only the
+    // outer panels move; the centre stays flat under the buttons.
+    "vest-sb-none": [
+        { x: 0.22, y: 0.02, w: 0.15, h: 0.96, angle: -0.05, strength: 0.80 },
+        { x: 0.63, y: 0.02, w: 0.15, h: 0.96, angle: 0.05, strength: 0.80 }
+    ],
+    "vest-sb-shawl": [
+        { x: 0.22, y: 0.02, w: 0.15, h: 0.96, angle: -0.05, strength: 0.80 },
+        { x: 0.63, y: 0.02, w: 0.15, h: 0.96, angle: 0.05, strength: 0.80 }
+    ],
+
+    "trousers-flat": TROUSER_LEGS,
+    "trousers-double": TROUSER_LEGS,
+    "trousers-belt": TROUSER_LEGS
 };
 window.DISPLACEMENT_REGIONS = DISPLACEMENT_REGIONS;
 
@@ -210,6 +263,17 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
 // with a "multiply", a near-black lining stays near-black on every cloth,
 // so it needs no separate runtime pass.
 
+// The 96px cloth tile was authored against a 644px-wide garment frame. The
+// canvases now carry the asset's native pixel size (2x that) so the weave
+// stays sharp on a retina iPad and in the loupe, so the tile is drawn at the
+// same whole-number multiple — the weave keeps its scale relative to the
+// garment, and the multiple stays whole because a fractional tile seams.
+var TILE_REFERENCE_WIDTH = 644;
+
+function clothTileScale(canvas) {
+    return Math.max(1, Math.round(canvas.width / TILE_REFERENCE_WIDTH));
+}
+
 function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
@@ -225,8 +289,11 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
     var cloth = findCloth(clothKey);
     if (!cloth) return false;
     var tile = document.createElement("canvas");
-    tile.width = 96; tile.height = 96;
-    drawClothTile(tile.getContext("2d"), cloth);
+    var s = clothTileScale(canvas);
+    tile.width = 96 * s; tile.height = 96 * s;
+    var tctx = tile.getContext("2d");
+    tctx.scale(s, s);
+    drawClothTile(tctx, cloth);
     var pattern = ctx.createPattern(tile, "repeat");
     ctx.fillStyle = pattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);

@@ -3754,6 +3754,15 @@ function getHomeColourSwatches() {
 function renderHome() {
     var greeting = appState.clientName ? appState.clientName : null;
 
+    // A finished quiz is kept for the whole visit, but home used to keep
+    // saying "Take the style quiz", which reads as though the session was
+    // wiped. When a result exists the card names it and offers to reopen it
+    // (the quiz actions already jump straight back to the result screen).
+    var styleResult = appState.archetypeKey ? archetypeProfiles[appState.archetypeKey] : null;
+    var colourResult = appState.colourResultKey && typeof getColourDirectionProfileData === "function"
+        ? getColourDirectionProfileData(appState.colourResultKey)
+        : null;
+
     var footerActions = "";
     if (appState.clientName) {
         footerActions =
@@ -3817,10 +3826,14 @@ function renderHome() {
         // card with an outline icon.
         '<div class="home-hero-card" data-action="discover">' +
         '<div class="home-hero-card-copy">' +
-        '<div class="home-card-tag">Wardrobe Blueprint</div>' +
+        '<div class="home-card-tag">' + (styleResult ? "Your Style Direction" : "Wardrobe Blueprint") + "</div>" +
         '<h2 class="home-hero-card-title">Style Direction</h2>' +
-        '<p class="home-card-body">Seven questions map your ideal cloth, cut and silhouette — and land you on one of twenty-four style directions.</p>' +
-        '<div class="home-card-cta">Take the style quiz &rarr;</div>' +
+        '<p class="home-card-body">' +
+        (styleResult
+            ? styleResult.name + " &mdash; " + styleResult.sub + ". Saved for this visit."
+            : "Seven questions map your ideal cloth, cut and silhouette — and land you on one of twenty-four style directions.") +
+        "</p>" +
+        '<div class="home-card-cta">' + (styleResult ? "See your result &rarr;" : "Take the style quiz &rarr;") + "</div>" +
         "</div>" +
         '<div class="home-hero-card-figures" aria-hidden="true">' +
         getHomeHeroFigures() +
@@ -3830,10 +3843,14 @@ function renderHome() {
         // palette icon — it shows what the quiz actually produces.
         '<div class="home-card home-card--colour" data-action="colour-direction">' +
         '<div class="home-card-content">' +
-        '<div class="home-card-tag">Tonal Match</div>' +
+        '<div class="home-card-tag">' + (colourResult ? "Your Colour Direction" : "Tonal Match") + "</div>" +
         '<h2 class="home-card-title">Colour Direction</h2>' +
-        '<p class="home-card-body">Find the palettes and contrast that harmonise with you.</p>' +
-        '<div class="home-card-cta">Take the colour quiz &rarr;</div>' +
+        '<p class="home-card-body">' +
+        (colourResult
+            ? colourResult.name + ". Saved for this visit."
+            : "Find the palettes and contrast that harmonise with you.") +
+        "</p>" +
+        '<div class="home-card-cta">' + (colourResult ? "See your result &rarr;" : "Take the colour quiz &rarr;") + "</div>" +
         "</div>" +
         '<div class="home-colour-swatches" aria-hidden="true">' + getHomeColourSwatches() + "</div>" +
         "</div>" +
@@ -6248,33 +6265,11 @@ function render(options) {
     }, 120);
 }
 
-// ============================================
-// IDLE ATTRACT-RESET (in-store kiosk behaviour)
-// ============================================
-
-// An abandoned iPad should never greet the next customer with the
-// previous client's name and half-finished quiz. After 3 minutes
-// without interaction on any non-welcome screen, wipe the session
-// (same as the staff double-tap-logo reset) and return to welcome.
-var IDLE_RESET_MS = 3 * 60 * 1000;
-var _idleTimer = null;
-
-function _armIdleReset() {
-    clearTimeout(_idleTimer);
-    _idleTimer = setTimeout(function () {
-        if (appState.view === "welcome") return;
-        localStorage.removeItem("bbs_session");
-        appState = getFreshState();
-        render({ animate: true });
-    }, IDLE_RESET_MS);
-}
-
-// pointerdown (not click — the delegated click handler stays the only
-// one, per project rule) covers touch, mouse, and pencil alike.
-["pointerdown", "keydown", "scroll"].forEach(function (evt) {
-    document.addEventListener(evt, _armIdleReset, { passive: true });
-});
-_armIdleReset();
+// The 3-minute idle attract-reset used to live here. It was removed on
+// founder direction (July 2026): a client who finishes a quiz, wanders the
+// shop and comes back should still find their results. Wiping between
+// clients is staff work — the double-tap on the logo does it, and that is
+// the only reset the app performs.
 
 // ============================================
 // PRESS-POINT HIGHLIGHT

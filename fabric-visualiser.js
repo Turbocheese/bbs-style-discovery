@@ -606,7 +606,7 @@ function renderFabricVisualiser() {
         // (no ghost silhouette), just the invitation. The canvas is inserted on
         // the first swatch tap by visApplyFabric, which then dresses it.
         (hasSelection
-            ? '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="644" height="800"' +
+            ? '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="1289" height="1600"' +
               ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>'
             : '<div class="vis-stage-invite">' +
               '<span class="vis-stage-invite-mark" aria-hidden="true"></span>' +
@@ -622,7 +622,6 @@ function renderFabricVisualiser() {
         "</div>" +
         '<div class="vis-info" id="vis-info">' + (hasSelection ? getFabricInfoHTML(fabric) : "") + "</div>" +
         (hasSelection && typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
-        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         "</div>"
     );
 }
@@ -640,7 +639,7 @@ function getVisSplitLayerHTML(side, key, pct) {
     var clip = side === "a" ? ' style="clip-path:inset(0 ' + (100 - pct) + '% 0 0)"' : "";
     return (
         '<div class="vis-split-layer vis-split-layer--' + side + '" id="vis-split-layer-' + side + '"' + clip + ">" +
-        '<canvas class="vis-jacket-canvas vis-split-canvas" id="vis-split-canvas-' + side + '" width="644" height="800"' +
+        '<canvas class="vis-jacket-canvas vis-split-canvas" id="vis-split-canvas-' + side + '" width="1289" height="1600"' +
         ' data-garment-key="jacket-sb" data-cloth="' + key + '"></canvas>' +
         "</div>"
     );
@@ -693,7 +692,6 @@ function renderClothCompare(aKey, recommended) {
         '<div class="vis-info vis-info--cmp" id="vis-info-' + side + '">' +
         getFabricInfoHTML(side === "a" ? a : b) + "</div>" +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
-        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         "</div>"
     );
 }
@@ -850,8 +848,8 @@ function visApplyFabric(key) {
             var fresh = document.createElement("canvas");
             fresh.className = "vis-jacket-canvas";
             fresh.id = "vis-jacket-canvas";
-            fresh.width = 644;
-            fresh.height = 800;
+            fresh.width = 1289;
+            fresh.height = 1600;
             fresh.setAttribute("data-garment-key", "jacket-sb");
             stage.appendChild(fresh);
         }
@@ -1633,11 +1631,11 @@ function getVisEnsGarmentBlock(garment, ens) {
 
     if (hasPhoto) {
         // Buffer matches the asset's native size so renderGarmentPhoto
-        // draws it 1:1. Trousers are 537x800, everything else 644x800.
-        var w = garment === "trousers" ? 537 : 644;
+        // draws it 1:1. Trousers are 1073x1600, everything else 1289x1600.
+        var w = garment === "trousers" ? 1073 : 1289;
         return (
             '<div class="ds-garment ds-garment--' + garment + " has-photo" + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
-            '<canvas class="ds-garment-canvas" id="vis-ens-canvas-' + garment + '" width="' + w + '" height="800"' +
+            '<canvas class="ds-garment-canvas" id="vis-ens-canvas-' + garment + '" width="' + w + '" height="1600"' +
             ' data-garment-key="' + photoKey + '" data-cloth="' + fabricKey + '"></canvas>' +
             '<div class="ds-garment-label">' + label + "</div>" +
             "</div>"
@@ -1737,7 +1735,6 @@ function renderClothEnsemble(recommended) {
             "</div>" +
             piecesHTML +
             '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
-            '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
             "</div>"
         );
     }
@@ -1833,7 +1830,6 @@ function renderClothEnsemble(recommended) {
               "</div>"
             : "") +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
-        '<div class="vis-footnote">Garments shown as photographed mockups dressed in generated cloth previews.</div>' +
         "</div>"
     );
 }

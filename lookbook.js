@@ -164,6 +164,160 @@ var lookbookData = [
         guidePath: ["fabrics", "suiting", "pattern_and_texture", "glen_check"],
         guideLabel: "Read: Glen Check",
     },
+    {
+        id: "look-check-and-stripe",
+        img: "images/lookbook/bbs-editorial-jc2005.jpg",
+        title: "Glen Check, and a Stripe",
+        season: "Autumn",
+        tags: ["Glen Check", "Striped Tie", "Coat Over Arm"],
+        note:
+            "A glen-check jacket, a striped tie and a cream coat carried over the shoulder. Two patterns at different scales — the check quiet and close, the stripe bold and wide, which is the whole trick.",
+        guidePath: ["fabrics", "suiting", "pattern_and_texture", "glen_check"],
+        guideLabel: "Read: Glen Check",
+    },
+    {
+        id: "look-black-mono",
+        img: "images/lookbook/bbs-editorial-r21329bw.jpg",
+        title: "Black, in Monochrome",
+        season: "Autumn",
+        tags: ["Dark Suit", "Roll Neck", "Black and White"],
+        note:
+            "A dark suit over a roll neck, shot against bare concrete in black and white. No colour, no shirt, no tie — everything left to the line of the shoulder and the break of the trouser.",
+        guidePath: ["tailoring", "suits", "use_case", "evening"],
+        guideLabel: "Read: the Evening Suit",
+    },
+    {
+        id: "look-brown-walking",
+        img: "images/lookbook/bbs-editorial-r21601.jpg",
+        title: "Brown, Walking Out",
+        season: "Autumn",
+        tags: ["Brown Suit", "Full Trouser", "Coat Over Arm"],
+        note:
+            "A brown suit walking away over fallen leaves, coat folded over the arm. Brown is the least severe of the dark neutrals — it belongs outdoors in low autumn light.",
+        guidePath: ["colour_wardrobe", "core_colours", "brown"],
+        guideLabel: "Read: Brown",
+    },
+    {
+        id: "look-swatch-book",
+        img: "images/lookbook/bbs-editorial-t7b0165.jpg",
+        title: "Cloth, Chosen First",
+        season: "Autumn",
+        tags: ["Swatch Book", "Bunches", "The Choice"],
+        note:
+            "A hand turning through swatch cards, checks and blues laid open. Every look in this book starts here — the cloth is picked before the cut is drawn.",
+        guidePath: ["fabrics", "suiting", "worsted_wool"],
+        guideLabel: "Read: Worsted Wool",
+    },
+    {
+        id: "look-check-wide-trouser",
+        img: "images/lookbook/bbs-editorial-t7b0689.jpg",
+        title: "Odd Jacket, Wide Trouser",
+        season: "Warm Weather",
+        tags: ["Checked Jacket", "Deep Pleats", "Indigo Trouser"],
+        note:
+            "A checked jacket worn open over a tee, with deep-pleated indigo trousers cut wide. The pleat is doing the work — volume in the leg is what keeps a soft jacket from reading as formal.",
+        guidePath: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"],
+        guideLabel: "Read: Double Pleats",
+    },
+    {
+        id: "look-tobacco-tie",
+        img: "images/lookbook/bbs-editorial-t7b0806.jpg",
+        title: "Tobacco, and a Printed Tie",
+        season: "Autumn",
+        tags: ["Tobacco", "Printed Tie", "Peak Lapel"],
+        note:
+            "A tobacco jacket with a small-print tie against a pale shirt. Warm mid-brown sits between a business navy and a country tweed — it goes almost anywhere and announces nothing.",
+        guidePath: ["colour_wardrobe", "core_colours", "tobacco"],
+        guideLabel: "Read: Tobacco",
+    },
+    {
+        id: "look-loafers-rug",
+        img: "images/lookbook/bbs-editorial-t7b2191.jpg",
+        title: "Loafers, Lined Up",
+        season: "Resort",
+        tags: ["Loafers", "Suede and Calf", "No Laces"],
+        note:
+            "Three pairs of loafers laid out on a patterned rug — suede and polished calf, dark to light. The slip-on is the warm-climate dress shoe: less ceremony, the same line.",
+        guidePath: ["accessories", "shoes", "loafers", "penny_loafer"],
+        guideLabel: "Read: the Penny Loafer",
+    },
+    {
+        id: "look-white-jacket",
+        img: "images/lookbook/bbs-editorial-t7b3615.jpg",
+        title: "White Jacket, Dark Trouser",
+        season: "Resort",
+        tags: ["Ivory Jacket", "Dark Trouser", "High Contrast"],
+        note:
+            "An ivory jacket worn open over dark pleated trousers. The sharpest contrast in the wardrobe, and the one that most needs the cut to be right — nothing hides on a pale jacket.",
+        guidePath: ["colour_wardrobe", "core_colours", "cream_offwhite"],
+        guideLabel: "Read: Cream and Off-White",
+    },
+    {
+        id: "look-charcoal-courtyard",
+        img: "images/lookbook/bbs-editorial-t7b4037.jpg",
+        title: "Charcoal, in the Courtyard",
+        season: "Warm Weather",
+        tags: ["Charcoal Suit", "Patterned Tie", "Soft Shoulder"],
+        note:
+            "A charcoal suit with a patterned tie and dark glasses, out in the open air. Charcoal is the serious neutral — worn soft-shouldered and unbuttoned, it stops short of a boardroom.",
+        guidePath: ["colour_wardrobe", "core_colours", "charcoal"],
+        guideLabel: "Read: Charcoal",
+    },
+    {
+        id: "look-foulard-tie",
+        img: "images/lookbook/bbs-editorial-t7b4044.jpg",
+        title: "The Printed Tie",
+        season: "Warm Weather",
+        tags: ["Printed Tie", "Open Jacket", "Textured Cloth"],
+        note:
+            "A small repeating print worn against a textured dark jacket and a pale shirt. A print at this scale reads as texture from across a room and as detail up close — the useful kind of tie.",
+        guidePath: ["accessories", "ties", "when_to_wear_a_tie"],
+        guideLabel: "Read: When to Wear a Tie",
+    },
+    {
+        id: "look-tan-db",
+        img: "images/lookbook/bbs-editorial-t7b4833.jpg",
+        title: "Tan, Double-Breasted",
+        season: "Warm Weather",
+        tags: ["Double Breasted", "Tan", "Terracotta Floor"],
+        note:
+            "A tan double-breasted suit caught mid-stride across a terracotta floor. The heaviest silhouette in tailoring, cut in the lightest colour — which is what keeps it from looking like a uniform.",
+        guidePath: ["colour_wardrobe", "core_colours", "tan_camel"],
+        guideLabel: "Read: Tan and Camel",
+    },
+    {
+        id: "look-wine-jacket",
+        img: "images/lookbook/bbs-editorial-t7b9494.jpg",
+        title: "Wine, Single-Breasted",
+        season: "Warm Weather",
+        tags: ["Odd Jacket", "Patch Pockets", "Wine"],
+        note:
+            "A wine-coloured single-breasted jacket on the stand, patch pockets and a soft lapel. A colour that only works as an odd jacket — as a suit it would be costume, on its own it is just confident.",
+        guidePath: ["tailoring", "jackets", "styles", "single_breasted_jacket"],
+        guideLabel: "Read: the Single-Breasted Jacket",
+    },
+    {
+        id: "look-pinstripe-counter",
+        img: "images/lookbook/bbs-editorial-t7b9535.jpg",
+        title: "Pinstripe, at the Counter",
+        season: "Autumn",
+        tags: ["Pinstripe", "Navy", "Tie"],
+        note:
+            "A navy pinstripe suit and a printed tie, leaning at a café counter. The city stripe taken out of the city — the pattern is formal, everything about the posture is not.",
+        guidePath: ["fabrics", "suiting", "pattern_and_texture", "pinstripe"],
+        guideLabel: "Read: Pinstripe",
+    },
+    {
+        id: "look-chalk-and-tape",
+        img: "images/lookbook/bbs-editorial-t7b9822.jpg",
+        title: "Chalk and Tape",
+        season: "Autumn",
+        tags: ["Cut Panels", "Tape Measure", "In the Making"],
+        note:
+            "Cut panels, chalk lines and a tape measure, in black and white. What a finished jacket looks like halfway through — the shape is decided here, long before anyone tries it on.",
+        guidePath: ["tailoring", "jackets", "details", "construction", "full_canvas"],
+        guideLabel: "Read: Full Canvas",
+    },
 ];
 
 function navigateLookbook() {
