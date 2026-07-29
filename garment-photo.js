@@ -43,19 +43,51 @@ function loadGarmentImage(key, onReady) {
 // grid rendered over each photograph — regenerate that grid before moving
 // any of them rather than nudging numbers blind.
 //
-// Only the sleeves move. Lapels used to get their own boxes (two stacked
-// per side, stepping inboard down the roll edge) and they never worked: a
-// lapel is a triangle and a region is a rectangle, so the box always tilted
-// a wedge of flat chest alongside it. On a stripe that read as a faint
-// kink; on a check the grid visibly breaks and steps at the box edge, which
-// is what the founder circled. A real jacket's lapel is the same panel
-// folded back and is pattern-matched at the roll line anyway, so cloth that
-// runs straight off the chest and onto the lapel is the truer render.
-// Sleeves keep their regions: an arm is a cylinder and the box matches its
-// silhouette, so the squeeze reads as form rather than as a seam.
+// Lapels used to get their own boxes (two stacked per side, stepping
+// inboard down the roll edge) and they never worked: a lapel is a
+// triangle and a region is a rectangle, so the box always tilted a wedge
+// of flat chest alongside it. On a stripe that read as a faint kink; on a
+// check the grid visibly broke and stepped at the box edge — what the
+// founder circled. Removing the rotation entirely (sleeves-only) fixed
+// the leak but lost the lapel's roll, which a real lapel does have (the
+// founder's reference photos of an actual suit confirm a small, confined
+// bend at the roll line, not zero). So the box is back, at a smaller
+// angle than the original, but every lapel region now also carries a
+// `clip`: a polygon (fractions of canvas, read off the same labelled grid
+// as the box coordinates) tracing the lapel's actual roll-line triangle.
+// applyClothDisplacement fills the polygon in addition to feathering the
+// box, so no rotated pixel can land outside the true lapel shape — the
+// box only sets the rotation's centre and the feather's extent.
 var JACKET_SLEEVES = [
     { x: 0.05, y: 0.12, w: 0.22, h: 0.55, angle: -0.05, strength: 0.74 },
     { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
+];
+
+// Notch lapel (jacket-sb): shoulder seam, notch tip, roll line down to the
+// button break — traced off jacket-sb.webp's own fractional grid.
+var JACKET_SB_LAPELS = [
+    {
+        x: 0.26, y: 0.07, w: 0.22, h: 0.44, angle: -0.08, strength: 0.88,
+        clip: [{ x: 0.305, y: 0.095 }, { x: 0.36, y: 0.20 }, { x: 0.44, y: 0.49 }]
+    },
+    {
+        x: 0.52, y: 0.07, w: 0.22, h: 0.44, angle: 0.08, strength: 0.88,
+        clip: [{ x: 0.695, y: 0.095 }, { x: 0.64, y: 0.20 }, { x: 0.56, y: 0.49 }]
+    }
+];
+
+// Peak lapel (jacket-db): shoulder seam, peak tip, roll line down to the
+// crossover — traced off jacket-db.webp's own fractional grid. The peak
+// points further out than a notch, so the box is a little wider.
+var JACKET_DB_LAPELS = [
+    {
+        x: 0.30, y: 0.09, w: 0.20, h: 0.46, angle: -0.08, strength: 0.88,
+        clip: [{ x: 0.42, y: 0.115 }, { x: 0.335, y: 0.255 }, { x: 0.44, y: 0.52 }]
+    },
+    {
+        x: 0.50, y: 0.09, w: 0.20, h: 0.46, angle: 0.08, strength: 0.88,
+        clip: [{ x: 0.58, y: 0.115 }, { x: 0.665, y: 0.255 }, { x: 0.56, y: 0.52 }]
+    }
 ];
 
 // All three trousers share one envelope: waistband to y 0.11, legs to
@@ -74,8 +106,8 @@ var TROUSER_LEGS = [
 ];
 
 var DISPLACEMENT_REGIONS = {
-    "jacket-sb": JACKET_SLEEVES,
-    "jacket-db": JACKET_SLEEVES,
+    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SLEEVES),
+    "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
     // two tall bands either side of the buttons, which broke a check down
@@ -166,6 +198,42 @@ function getFeatherMask(width, height, feather) {
     return mask;
 }
 
+// A region's rectangular feather mask softens the box's own edges, but a
+// lapel isn't the box — it's the triangle traced by its `clip` points. This
+// fills just that triangle (in the offscreen region's local coordinates),
+// blurred by the same feather width so the roll line fades rather than
+// cuts. Composited via "destination-in" alongside the feather mask, so a
+// rotated pixel needs to pass BOTH: inside the box's soft edge AND inside
+// the true lapel shape. That second test is what stops the rotation from
+// ever landing on the flat chest next to the lapel, whatever the box says.
+function buildPolygonMask(width, height, localPoints, blurPx) {
+    var mask = document.createElement("canvas");
+    mask.width = width;
+    mask.height = height;
+    var mctx = mask.getContext("2d");
+    if (blurPx > 0) mctx.filter = "blur(" + blurPx + "px)";
+    mctx.fillStyle = "#000";
+    mctx.beginPath();
+    for (var i = 0; i < localPoints.length; i++) {
+        var p = localPoints[i];
+        if (i === 0) mctx.moveTo(p.x, p.y); else mctx.lineTo(p.x, p.y);
+    }
+    mctx.closePath();
+    mctx.fill();
+    return mask;
+}
+
+var polygonMaskCache = {};
+
+function getPolygonMask(width, height, localPoints, blurPx) {
+    var key = width + "x" + height + "x" + blurPx + ":" + JSON.stringify(localPoints);
+    var cached = polygonMaskCache[key];
+    if (cached) return cached;
+    var mask = buildPolygonMask(width, height, localPoints, blurPx);
+    polygonMaskCache[key] = mask;
+    return mask;
+}
+
 // Redraws the cloth pattern inside each of the garment's curvature
 // regions with a rotation and a horizontal-only scale applied to the
 // pattern's transform, so straight stripes/checks bend the way they
@@ -233,6 +301,22 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
         var mask = getFeatherMask(offW, offH, feather);
         octx.globalCompositeOperation = "destination-in";
         octx.drawImage(mask, 0, 0);
+
+        // A lapel/collar region also carries a `clip`: the box only
+        // decides the rotation's centre and reach, the polygon decides
+        // what's actually allowed to show the rotated pattern.
+        if (r.clip) {
+            var localPoints = [];
+            for (var p = 0; p < r.clip.length; p++) {
+                localPoints.push({
+                    x: r.clip[p].x * canvas.width - offX,
+                    y: r.clip[p].y * canvas.height - offY
+                });
+            }
+            var polyMask = getPolygonMask(offW, offH, localPoints, feather);
+            octx.globalCompositeOperation = "destination-in";
+            octx.drawImage(polyMask, 0, 0);
+        }
 
         ctx.drawImage(off, offX, offY);
     }

@@ -189,9 +189,16 @@ var playwright = require("playwright");
 
                     // Left sleeve (JACKET_SLEEVES x 0.05-0.27 -> px 20-108) has
                     // a region; chest-centre (x 0.35-0.65 -> px 140-260) and
-                    // the hem do not.
+                    // the hem do not. The lapel box (x 0.275-0.50, y 0.18-0.50
+                    // -> px 110-200, 90-250) generously contains the lapel's
+                    // `clip` triangle, which is a thin diagonal sliver of that
+                    // box rather than the whole thing — so this only asserts
+                    // SOME displacement lands inside it (differing > 0), not a
+                    // percentage; the chest sample past the triangle's own
+                    // reach is the one proving containment.
                     resolve({
                         sleeve: regionDiff(20, 108, 120, 160),
+                        lapelZone: regionDiff(110, 200, 90, 250),
                         chest: regionDiff(140, 260, 120, 160),
                         hem: regionDiff(0, 400, 410, 450)
                     });
@@ -215,6 +222,16 @@ var playwright = require("playwright");
     }
     console.log("PASS: displacement confined to defined regions (sleeve " + (sleeveFrac * 100).toFixed(0) +
         "% of pixels differ from flat baseline, chest " + (chestFrac * 100).toFixed(0) + "%, hem " + (hemFrac * 100).toFixed(0) + "% differ)");
+
+    // The lapel's own confined rotation (the founder's ask: bend like a real
+    // roll line, but never leak past it). If this regresses to 0, the clip
+    // polygon (or the lapel regions themselves) got dropped somewhere.
+    if (regionCheck.lapelZone.differing === 0) {
+        console.error("FAIL: no displacement detected anywhere in the lapel zone — lapel rotation may have been removed");
+        process.exit(1);
+    }
+    console.log("PASS: lapel shows confined displacement (" + regionCheck.lapelZone.differing + " differing px in its zone, chest past it still " +
+        (chestFrac * 100).toFixed(0) + "%)");
 
     // Coverage: walk the full cross-product of the (Task 8-reduced)
     // option set and confirm every combination resolves to a key that
