@@ -11389,6 +11389,41 @@ textarea:focus-visible,
 }
 
 /* ============================================================
+   LOOKBOOK CATEGORY CHIPS — same visible-pill language as the Mill
+   Map's .map-chip country filter (own classes, not a shared selector,
+   so the two features can't drift into each other by accident). A
+   tap beats a hidden dropdown for the five-option primary sort.
+   ============================================================ */
+.lookbook-category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 1rem;
+    max-width: 42rem;
+}
+
+.lookbook-category-chip {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 7px 16px !important;
+    min-height: 0 !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.lookbook-category-chip.sel {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
+/* ============================================================
    FILTER DROPDOWNS — shared by the Cloth Room facets and the
    Lookbook season filter. A visible, touch-first menu (a native
    <select> is a poor target on a counter-top iPad and hides its

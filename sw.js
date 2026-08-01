@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v98";
+var CACHE_VERSION = "bbs-v99";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=85",
+    "./styles.css?v=86",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -136,6 +136,18 @@ var PRECACHE = [
     "./images/lookbook/bbs-editorial-t7b9494.jpg",
     "./images/lookbook/bbs-editorial-t7b9535.jpg",
     "./images/lookbook/bbs-editorial-t7b9822.jpg",
+    "./images/lookbook/bbs-editorial-r21519.jpg",
+    "./images/lookbook/bbs-editorial-r21535.jpg",
+    "./images/lookbook/bbs-editorial-r21358bw.jpg",
+    "./images/lookbook/bbs-editorial-jc2085.jpg",
+    "./images/lookbook/bbs-editorial-jc2003.jpg",
+    "./images/lookbook/bbs-editorial-r21692.jpg",
+    "./images/lookbook/bbs-editorial-r21713.jpg",
+    "./images/lookbook/bbs-editorial-jc1954bw.jpg",
+    "./images/lookbook/bbs-editorial-r21435.jpg",
+    "./images/lookbook/bbs-editorial-jc2104.jpg",
+    "./images/lookbook/bbs-editorial-jc9567.jpg",
+    "./images/lookbook/bbs-editorial-jc8829.jpg",
     "./images/garments/jacket-sb.webp",
     "./images/garments/jacket-db.webp",
     "./images/garments/vest-sb-none.webp",

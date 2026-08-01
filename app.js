@@ -3302,6 +3302,7 @@ function getFreshState() {
         inJourney: false,
         journeyStage: null,
         lookbookFilter: "all",
+        lookbookCategory: "all",
         openFilterDD: null,
         wardrobeChecklist: {},
         visFabricKey: null,
@@ -6388,6 +6389,10 @@ document.body.addEventListener("click", function (e) {
     else if (action === "lookbook-filter") {
         appState.lookbookFilter = target.dataset.season || "all";
         appState.openFilterDD = null;
+        render();
+    }
+    else if (action === "lookbook-category") {
+        appState.lookbookCategory = target.dataset.category || "all";
         render();
     }
     else if (action === "quick-query") {
