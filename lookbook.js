@@ -530,6 +530,55 @@ var lookbookData = [
         guidePath: ["tailoring", "jackets", "other_styles", "safari"],
         guideLabel: "Read: the Safari Jacket",
     },
+    // Added from the Cala editorial page (/pages/cala), August 2026.
+    {
+        id: "look-cala-pintuck",
+        img: "images/lookbook/bbs-editorial-cala-pintuck.png",
+        title: "Pintuck Shirt-Jacket, on Deck",
+        season: "Coastal",
+        category: "Jackets",
+        tags: ["Pintuck Detail", "Tie Waist", "Sailboat"],
+        note:
+            "A cream pintuck shirt-jacket with a tie waist, worn open over a white tank and matching trousers, lounging on a sailboat deck at golden hour. The pintucks catch the low light and give a plain cloth some texture to work with.",
+        guidePath: ["tailoring", "jackets", "other_styles", "safari"],
+        guideLabel: "Read: the Safari Jacket",
+    },
+    {
+        id: "look-cala-lemon",
+        img: "images/lookbook/bbs-editorial-cala-lemon.png",
+        title: "Cream Jacket, with a Lemon",
+        season: "Coastal",
+        category: "Jackets",
+        tags: ["Patch Pocket", "Boxy Fit", "Sailboat Rigging"],
+        note:
+            "A cream patch-pocket jacket over dark trousers, leaning against sailboat rigging with a lemon in hand. A boxy, unstructured cut that asks nothing of the wearer.",
+        guidePath: ["tailoring", "jackets", "other_styles", "chore"],
+        guideLabel: "Read: the Chore Jacket",
+    },
+    {
+        id: "look-cala-olive-zip",
+        img: "images/lookbook/bbs-editorial-cala-olivezip.png",
+        title: "Olive Zip Jacket, Pleated Waist",
+        season: "Coastal",
+        category: "Jackets",
+        tags: ["Zip Jacket", "Stand Collar", "Pleated Trouser"],
+        note:
+            "An olive zip jacket with a stand collar and patch pockets over a white tank, cream pleated trousers closed with a tab and button. Close enough to see the trouser's own waistband construction, not just the jacket's.",
+        guidePath: ["tailoring", "jackets", "other_styles", "flight"],
+        guideLabel: "Read: the Flight Jacket",
+    },
+    {
+        id: "look-cala-white-set",
+        img: "images/lookbook/bbs-editorial-cala-whiteset.png",
+        title: "White Linen Set, at the Marina",
+        season: "Coastal",
+        category: "Suits",
+        tags: ["Matching Set", "Breton Stripe", "Sandals"],
+        note:
+            "A white linen jacket and matching trousers over a navy-and-white striped knit, standing at the end of a wooden jetty. Head-to-toe in one cloth, with just the stripe underneath doing the contrast work.",
+        guidePath: ["fabrics", "suiting", "linen_suiting"],
+        guideLabel: "Read: Linen Suiting",
+    },
 ];
 
 function navigateLookbook() {
