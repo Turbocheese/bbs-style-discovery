@@ -188,18 +188,24 @@ var playwright = require("playwright");
                     }
 
                     // Left sleeve (JACKET_SLEEVES x 0.05-0.27 -> px 20-108) has
-                    // a region; chest-centre (x 0.35-0.65 -> px 140-260) and
-                    // the hem do not. The lapel box (x 0.275-0.50, y 0.18-0.50
-                    // -> px 110-200, 90-250) generously contains the lapel's
-                    // `clip` triangle, which is a thin diagonal sliver of that
-                    // box rather than the whole thing — so this only asserts
-                    // SOME displacement lands inside it (differing > 0), not a
-                    // percentage; the chest sample past the triangle's own
-                    // reach is the one proving containment.
+                    // a region. The lapel box (x 0.275-0.50, y 0.18-0.50 ->
+                    // px 110-200, 90-250) generously contains the lapel's
+                    // `clip` polygon — so this only asserts SOME displacement
+                    // lands inside it (differing > 0), not a percentage.
+                    //
+                    // The lapel's real traced shape is wide near the collar
+                    // (both lapels together span nearly the full chest width
+                    // up there — that's what a lapel does) and only narrows
+                    // to a sliver at the button, so "chest-centre" can't be a
+                    // fixed x-band at collar height without landing inside
+                    // the lapel. x 0.30-0.36 at y 0.48-0.52 (px 120-144,
+                    // 240-260) sits in the true gap between the sleeve's
+                    // reach and the lapel's narrowed reach at that height —
+                    // confirmed against the traced polygon, not guessed.
                     resolve({
                         sleeve: regionDiff(20, 108, 120, 160),
                         lapelZone: regionDiff(110, 200, 90, 250),
-                        chest: regionDiff(140, 260, 120, 160),
+                        chest: regionDiff(120, 144, 240, 260),
                         hem: regionDiff(0, 400, 410, 450)
                     });
                 };

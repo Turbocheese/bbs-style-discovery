@@ -66,16 +66,21 @@ var JACKET_SLEEVES = [
     { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
 ];
 
-// Notch lapel (jacket-sb): shoulder seam, notch tip, roll line down to the
-// button break — traced off jacket-sb.webp's own fractional grid.
+// Notch lapel (jacket-sb): the founder traced the true outline by hand
+// (collar top -> notch -> roll line down to the button) over a render of
+// this exact photo; these points are that trace, extracted by flood-filling
+// the drawn outline and simplifying the resulting contour (Douglas-Peucker,
+// same technique as MAP_COASTS in mill-map.js), not hand-estimated off a
+// grid. The two halves share one seam down the centre (x 0.5051) so they
+// meet without a gap.
 var JACKET_SB_LAPELS = [
     {
-        x: 0.26, y: 0.07, w: 0.22, h: 0.44, angle: -0.18, strength: 0.82,
-        clip: [{ x: 0.305, y: 0.095 }, { x: 0.36, y: 0.20 }, { x: 0.44, y: 0.49 }]
+        x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.18, strength: 0.82,
+        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.32, y: 0.2799 }, { x: 0.2824, y: 0.2018 }, { x: 0.3278, y: 0.1773 }, { x: 0.302, y: 0.151 }, { x: 0.4052, y: 0.088 }, { x: 0.413, y: 0.0693 }, { x: 0.5051, y: 0.0611 }]
     },
     {
-        x: 0.52, y: 0.07, w: 0.22, h: 0.44, angle: 0.18, strength: 0.82,
-        clip: [{ x: 0.695, y: 0.095 }, { x: 0.64, y: 0.20 }, { x: 0.56, y: 0.49 }]
+        x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.18, strength: 0.82,
+        clip: [{ x: 0.7045, y: 0.2535 }, { x: 0.5051, y: 0.5343 }, { x: 0.5051, y: 0.0611 }, { x: 0.5874, y: 0.0707 }, { x: 0.6151, y: 0.0994 }, { x: 0.707, y: 0.1515 }, { x: 0.6901, y: 0.1805 }, { x: 0.7265, y: 0.2021 }, { x: 0.7057, y: 0.2478 }]
     }
 ];
 
