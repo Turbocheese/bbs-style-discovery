@@ -1401,29 +1401,33 @@ textarea {
     margin-bottom: 0;
 }
 
-/* Metadata widget grid */
+/* Metadata widget grid — hairline cells, same rule language as the
+   verdict grid below, so this reads as one considered page rather
+   than a dashboard of shadow-lifted cards. */
 .topic-meta-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-    gap: 10px;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
     margin-top: 1.8rem;
     margin-bottom: 2.8rem;
 }
 
 .topic-meta-card {
-    background: #ffffff;
-    border: 1px solid rgba(200, 191, 176, 0.6);
-    border-radius: 12px;
+    background: var(--surface);
     padding: 14px 18px;
     display: flex;
     flex-direction: column;
     gap: 7px;
-    box-shadow: 0 2px 6px rgba(17, 17, 16, 0.02);
 }
 
 .topic-meta-card--signature {
-    border-color: var(--accent);
     background: rgba(245, 240, 232, 0.3);
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
 }
 
 .topic-meta-card-header {
@@ -1514,20 +1518,21 @@ textarea {
 }
 
 .topic-related-card {
-    background: #ffffff;
-    border: 1px solid rgba(200, 191, 176, 0.55);
-    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
     padding: 20px 22px;
-    box-shadow: 0 2px 8px rgba(17, 17, 16, 0.03);
-    transition: all 0.22s ease;
+    transition: border-color 0.22s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
 }
 
+    /* Hover stays flat (no tint, no lift) — the Maison layer further down
+       (search "Hairline dividers gain presence") already governs the
+       hover state for this component with !important and expects white;
+       this base rule only sets the resting state so the two agree. */
     .topic-related-card:hover {
-        box-shadow: 0 10px 28px rgba(17, 17, 16, 0.08);
-        transform: translateY(-2px);
         border-color: var(--line-strong);
     }
 
@@ -9946,6 +9951,12 @@ textarea:focus-visible,
 .home-shell-v2 .home-change-name {
     color: #6b6862 !important;
 }
+
+/* Hallmark · genre: editorial · macrostructure: Long Document ·
+   design-system: design.md · designed-as-app
+   The metadata grid and related-topic cards below now share the same
+   hairline-cell language as the verdict grid instead of white
+   shadow-lifted boxes — one considered page, not a card dashboard. */
 
 /* ============================================================
    GUIDE TOPIC — editorial hierarchy

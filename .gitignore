@@ -374,6 +374,9 @@ node_modules/
 .claude/
 .tokensave/
 graphify-out/
+.agents/
+.hallmark/
+skills-lock.json
 # Only the exported session transcripts -- claude_logs/ also holds real
 # verification scripts, which stay tracked.
 claude_logs/*.md
