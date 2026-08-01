@@ -6,7 +6,7 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v99";
+var CACHE_VERSION = "bbs-v100";
 
 var PRECACHE = [
     "./",
@@ -148,6 +148,9 @@ var PRECACHE = [
     "./images/lookbook/bbs-editorial-jc2104.jpg",
     "./images/lookbook/bbs-editorial-jc9567.jpg",
     "./images/lookbook/bbs-editorial-jc8829.jpg",
+    "./images/lookbook/bbs-editorial-cala-db.png",
+    "./images/lookbook/bbs-editorial-cala-cargo.png",
+    "./images/lookbook/bbs-editorial-cala-safari.png",
     "./images/garments/jacket-sb.webp",
     "./images/garments/jacket-db.webp",
     "./images/garments/vest-sb-none.webp",

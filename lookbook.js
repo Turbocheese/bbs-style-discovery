@@ -493,6 +493,43 @@ var lookbookData = [
         guidePath: ["tailoring", "shirts", "use_case", "resort"],
         guideLabel: "Read: the Resort Shirt",
     },
+    // Added from the "Cala" (High Summer '26) collection page, August 2026.
+    {
+        id: "look-cala-db",
+        img: "images/lookbook/bbs-editorial-cala-db.png",
+        title: "Double-Breasted, Golden Hour",
+        season: "Coastal",
+        category: "Suits",
+        tags: ["Double Breasted", "Knit Polo", "Raking Light"],
+        note:
+            "A brown double-breasted jacket over a cream knit polo, caught in raking evening light against open sky. The double-breasted line reads even in a tight crop — the silhouette does the work.",
+        guidePath: ["tailoring", "suits", "styles", "double_breasted"],
+        guideLabel: "Read: Double-Breasted Suit",
+    },
+    {
+        id: "look-cala-cargo",
+        img: "images/lookbook/bbs-editorial-cala-cargo.png",
+        title: "Cargo Trouser, Dockside",
+        season: "Coastal",
+        category: "Trousers",
+        tags: ["Cargo Trouser", "Deep Pleats", "Safari Shirt"],
+        note:
+            "A four-pocket shirt tucked over deep-pleated cargo trousers, hands in pockets on a wooden jetty. The cargo pocket sits low on the thigh, out of the way of a tucked-in shirt.",
+        guidePath: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"],
+        guideLabel: "Read: Double Pleats",
+    },
+    {
+        id: "look-cala-safari-boat",
+        img: "images/lookbook/bbs-editorial-cala-safari.png",
+        title: "The Safari Jacket, Underway",
+        season: "Coastal",
+        category: "Jackets",
+        tags: ["Safari Jacket", "Shorts", "Sailboat"],
+        note:
+            "A cream safari jacket over a white tee and dark shorts, tossing a piece of fruit across the deck of a sailboat. Proof the four-pocket jacket works as easily above the waist as it does with tailored trousers below it.",
+        guidePath: ["tailoring", "jackets", "other_styles", "safari"],
+        guideLabel: "Read: the Safari Jacket",
+    },
 ];
 
 function navigateLookbook() {
