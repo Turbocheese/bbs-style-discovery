@@ -1836,9 +1836,9 @@ function renderClothEnsemble(recommended) {
         '<p class="vis-lead">Assign a cloth to each garment, shape it, and take the finished design to your fitting.</p>' +
         '<div class="ds-stage" id="vis-ens-stage">' + stageInner + "</div>" +
         piecesHTML +
+        styleHTML +
         swatchesHTML +
         getVisRecoStripHTML(recommended) +
-        styleHTML +
         '<div class="ds-selected-cloth" id="vis-ens-selected">' + getVisEnsSelectedHTML(activeFabric) + "</div>" +
         getCompleteTheLookHTML(ens) +
         (dressed

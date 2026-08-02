@@ -28,7 +28,7 @@ var WEAVE_TILE = 96;
 var WEAVE_PITCHES = [2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96];
 
 var WEAVE_GROUNDS = ["plain", "twill", "hopsack", "flannel", "birdseye", "herringbone"];
-var WEAVE_OVERLAYS = ["none", "chalkstripe", "pinstripe", "windowpane", "glen"];
+var WEAVE_OVERLAYS = ["none", "chalkstripe", "pinstripe", "windowpane", "glen", "houndstooth"];
 
 function snapWeavePitch(pitch) {
     var best = WEAVE_PITCHES[0];
@@ -380,12 +380,36 @@ function weaveOverlayGlen(g, o, rnd) {
     }
 }
 
+// Houndstooth (dogtooth) is glen's "dense" quadrant — the staggered
+// broken check — as the whole pattern rather than one quadrant of it,
+// which is what tells the two apart at swatch scale: glen alternates
+// dense blocks with sparse hairline blocks, houndstooth is dense
+// everywhere. A row-offset checkerboard rather than an in-phase one —
+// in phase reads as windowpane, the half-cell offset per row is what
+// breaks it into the four-pointed tooth.
+function weaveOverlayHoundstooth(g, o, rnd) {
+    var pitch = snapWeavePitch(o.pitch || 8);
+    var half = pitch / 2;
+    for (var y = 0; y < WEAVE_TILE; y += half) {
+        var row = y / half;
+        for (var x = 0; x < WEAVE_TILE; x += half) {
+            var col = x / half;
+            var on = ((col + (row % 2)) % 2) === 0;
+            if (on) {
+                g.fillStyle = weaveRGBA(o.colour, 0.36);
+                g.fillRect(x, y, half, half);
+            }
+        }
+    }
+}
+
 var WEAVE_OVERLAY_FNS = {
     none: null,
     chalkstripe: weaveOverlayChalkstripe,
     pinstripe: weaveOverlayPinstripe,
     windowpane: weaveOverlayWindowpane,
-    glen: weaveOverlayGlen
+    glen: weaveOverlayGlen,
+    houndstooth: weaveOverlayHoundstooth
 };
 
 // ============================================

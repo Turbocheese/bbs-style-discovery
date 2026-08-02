@@ -61,7 +61,7 @@ for (var i = 0; i < topics.length; i++) {
 var CLOTH_LIBRARY = require("../cloth-data.js").CLOTH_LIBRARY;
 
 var VALID_WEAVES = { plain: 1, twill: 1, hopsack: 1, flannel: 1, birdseye: 1, herringbone: 1 };
-var VALID_PATTERNS = { none: 1, chalkstripe: 1, pinstripe: 1, windowpane: 1, glen: 1 };
+var VALID_PATTERNS = { none: 1, chalkstripe: 1, pinstripe: 1, windowpane: 1, glen: 1, houndstooth: 1 };
 
 function resolvePath(path) {
     var node = guideTree;
