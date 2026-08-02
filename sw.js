@@ -23,7 +23,7 @@ var PRECACHE = [
     "./heritage.js?v=2",
     "./attract-shader.js?v=2",
     "./weave-engine.js?v=2",
-    "./garment-photo.js?v=16",
+    "./garment-photo.js?v=17",
     "./fabric-visualiser.js?v=23",
     "./cloth-study.js?v=4",
     "./archetype-avatars.js",

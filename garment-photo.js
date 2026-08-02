@@ -84,17 +84,29 @@ var JACKET_SB_LAPELS = [
     }
 ];
 
-// Peak lapel (jacket-db): shoulder seam, peak tip, roll line down to the
-// crossover — traced off jacket-db.webp's own fractional grid. The peak
-// points further out than a notch, so the box is a little wider.
+// Peak lapel (jacket-db): traced the same way as JACKET_SB_LAPELS — a
+// founder-drawn outline (green) on a real DB peak-lapel photo, flood-filled,
+// ray-cast from the enclosed area's centroid into a boundary polygon,
+// Douglas-Peucker simplified, then calibrated onto jacket-db.webp's own
+// fractional grid using the peak tips and the crossover point as the shared
+// landmarks (the two photos differ in pose, so this is a proportional
+// calibration, not a pixel-identical one). The founder's reference also
+// marked a small red-outlined corner at each collar notch, sitting at a
+// visibly different stripe angle than the lapel body — that corner is the
+// collar, cut as a separate piece in real tailoring, and is deliberately
+// left out of the clip so it keeps the body's own alignment instead of
+// inheriting the lapel's rotation.
+// Both lapels share one traced shape split at the centre front (x=0.505);
+// the boxes below overlap slightly past centre, but the clip keeps each to
+// its own half.
 var JACKET_DB_LAPELS = [
     {
-        x: 0.30, y: 0.09, w: 0.20, h: 0.46, angle: -0.18, strength: 0.82,
-        clip: [{ x: 0.42, y: 0.115 }, { x: 0.335, y: 0.255 }, { x: 0.44, y: 0.52 }]
+        x: 0.13, y: 0.10, w: 0.40, h: 0.44, angle: -0.18, strength: 0.82,
+        clip: [{ x: 0.2275, y: 0.2434 }, { x: 0.1921, y: 0.2205 }, { x: 0.1513, y: 0.1781 }, { x: 0.1566, y: 0.1757 }, { x: 0.2524, y: 0.1879 }, { x: 0.3428, y: 0.1455 }, { x: 0.505, y: 0.1469 }, { x: 0.505, y: 0.3403 }, { x: 0.4651, y: 0.3625 }, { x: 0.4403, y: 0.2858 }, { x: 0.4315, y: 0.2858 }, { x: 0.3729, y: 0.3429 }, { x: 0.279, y: 0.2866 }, { x: 0.263, y: 0.2646 }, { x: 0.2311, y: 0.2458 }]
     },
     {
-        x: 0.50, y: 0.09, w: 0.20, h: 0.46, angle: 0.18, strength: 0.82,
-        clip: [{ x: 0.58, y: 0.115 }, { x: 0.665, y: 0.255 }, { x: 0.56, y: 0.52 }]
+        x: 0.47, y: 0.10, w: 0.40, h: 0.44, angle: 0.18, strength: 0.82,
+        clip: [{ x: 0.505, y: 0.1469 }, { x: 0.5237, y: 0.1471 }, { x: 0.5804, y: 0.1855 }, { x: 0.5964, y: 0.1887 }, { x: 0.7099, y: 0.1781 }, { x: 0.6974, y: 0.2002 }, { x: 0.5503, y: 0.3152 }, { x: 0.505, y: 0.3403 }]
     }
 ];
 
