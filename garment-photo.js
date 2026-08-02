@@ -125,6 +125,24 @@ var TROUSER_LEGS = [
     { x: 0.63, y: 0.02, w: 0.12, h: 1.00, angle: 0.03, strength: 0.80 }
 ];
 
+// The waistband is its own cut piece, sewn on so the pattern runs along
+// its own length rather than continuing the legs' vertical run — a real
+// waistband is on the cross grain from the leg, which is what "sewn
+// perpendicular" means here. One region, rotated a full quarter turn
+// (not scaled — this is a flat band, not a cylinder, so there's no
+// foreshortening to fake), spanning past both the left and right edges
+// for the same "run past the frame" reason TROUSER_LEGS runs past top
+// and bottom: a region edge that lands inside the garment leaves the
+// feather band visible as a seam. Confined to the waistband's own
+// narrow vertical span (all three trousers share this envelope, per the
+// comment above) so it composites over the legs only there, feathering
+// into their vertical run at the seam below — the legs themselves are
+// untouched outside that band, which is what keeps the rest of the body
+// straight.
+var TROUSER_WAISTBAND = [
+    { x: -0.1, y: 0.045, w: 1.2, h: 0.065, angle: Math.PI / 2, strength: 1.0 }
+];
+
 var DISPLACEMENT_REGIONS = {
     "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
@@ -135,9 +153,9 @@ var DISPLACEMENT_REGIONS = {
     "vest-sb-none": [],
     "vest-sb-shawl": [],
 
-    "trousers-flat": TROUSER_LEGS,
-    "trousers-double": TROUSER_LEGS,
-    "trousers-belt": TROUSER_LEGS
+    "trousers-flat": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
+    "trousers-double": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
+    "trousers-belt": TROUSER_LEGS.concat(TROUSER_WAISTBAND)
 };
 window.DISPLACEMENT_REGIONS = DISPLACEMENT_REGIONS;
 
