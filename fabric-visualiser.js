@@ -628,18 +628,20 @@ window.startVisCoverflow = startVisCoverflow;
 
 function renderFabricVisualiser() {
     var recommended = getRecommendedFabricKeys();
+    var surpriseFlash = !!appState.visSurpriseFlash;
+    appState.visSurpriseFlash = false;
     // Drop any persisted cloth key that no longer resolves, so a stale session
     // never dresses the single-cloth or compare garment in a blank cream shape.
     if (!fabricResolves(appState.visFabricKey)) appState.visFabricKey = null;
     if (appState.visFabricKeyB && !fabricResolves(appState.visFabricKeyB)) appState.visFabricKeyB = null;
     var hasSelection = fabricResolves(appState.visFabricKey);
     var activeKey = appState.visFabricKey || (recommended.length ? recommended[0] : FABRIC_LIBRARY[0].key);
-    if (appState.visEnsemble) return renderClothEnsemble(recommended);
-    if (appState.visCompare) return renderClothCompare(activeKey, recommended);
+    if (appState.visEnsemble) return renderClothEnsemble(recommended, surpriseFlash);
+    if (appState.visCompare) return renderClothCompare(activeKey, recommended, surpriseFlash);
     var fabric = getFabricByKey(activeKey);
 
     return (
-        '<div class="vis-shell">' +
+        '<div class="vis-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
         '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. The jacket dresses itself the moment you choose.") + "</p>" +
@@ -658,6 +660,7 @@ function renderFabricVisualiser() {
         '<div class="vis-mode-toggles">' +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
+        '<button class="vis-mode-toggle vis-surprise-btn" data-action="vis-surprise-me">Surprise Me</button>' +
         "</div>" +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, hasSelection ? activeKey : null, null) + "</div>" +
@@ -687,7 +690,7 @@ function getVisSplitLayerHTML(side, key, pct) {
     );
 }
 
-function renderClothCompare(aKey, recommended) {
+function renderClothCompare(aKey, recommended, surpriseFlash) {
     var bKey = appState.visFabricKeyB || visDefaultCompareKey(aKey);
     var side = appState.visCompareSide === "b" ? "b" : "a";
     var selKey = side === "a" ? aKey : bKey;
@@ -698,7 +701,7 @@ function renderClothCompare(aKey, recommended) {
     var b = getFabricByKey(bKey);
 
     return (
-        '<div class="vis-shell">' +
+        '<div class="vis-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">Two Cloths, One Decision</h1>" +
         '<p class="vis-lead">One jacket, two cloths. Drag the chalk line across to see where each one takes it.</p>' +
@@ -729,6 +732,7 @@ function renderClothCompare(aKey, recommended) {
         "</div>" +
 
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
+        '<button class="vis-mode-toggle vis-surprise-btn" data-action="vis-surprise-me">Surprise Me</button>' +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, selKey, altKey) + "</div>" +
         getVisRecoStripHTML(recommended) +
@@ -1755,7 +1759,7 @@ function getVisEnsPiecesHTML(ens) {
     return html;
 }
 
-function renderClothEnsemble(recommended) {
+function renderClothEnsemble(recommended, surpriseFlash) {
     var ens = getVisEnsembleState();
     var piecesHTML = getVisEnsPiecesHTML(ens);
 
@@ -1764,7 +1768,7 @@ function renderClothEnsemble(recommended) {
     // there is a garment to dress.
     if (!ens.garments.length) {
         return (
-            '<div class="vis-shell ds-shell">' +
+            '<div class="vis-shell ds-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
             '<div class="vis-eyebrow">The Cloth Room</div>' +
             "<h1 class=\"vis-title\">Design an Ensemble</h1>" +
             '<p class="vis-lead">Build the outfit piece by piece. Add a garment, choose its cloth, then shape it.</p>' +
@@ -1777,6 +1781,7 @@ function renderClothEnsemble(recommended) {
             "</div>" +
             piecesHTML +
             '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
+        '<button class="vis-mode-toggle vis-surprise-btn" data-action="vis-surprise-me">Surprise Me</button>' +
             "</div>"
         );
     }
@@ -1872,13 +1877,14 @@ function renderClothEnsemble(recommended) {
     }
 
     return (
-        '<div class="vis-shell ds-shell">' +
+        '<div class="vis-shell ds-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">Design an Ensemble</h1>" +
         '<p class="vis-lead">Assign a cloth to each garment, shape it, and take the finished design to your fitting.</p>' +
         '<div class="ds-stage" id="vis-ens-stage">' + stageInner + "</div>" +
         piecesHTML +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
+        '<button class="vis-mode-toggle vis-surprise-btn" data-action="vis-surprise-me">Surprise Me</button>' +
         styleHTML +
         swatchesHTML +
         getVisRecoStripHTML(recommended) +
