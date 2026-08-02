@@ -7805,6 +7805,15 @@ button,
     animation: cardReveal 0.8s var(--ease-out) 0.35s both;
 }
 
+/* Cloth Room — Surprise Me reveal. Reuses cardReveal; the global
+   prefers-reduced-motion rule above already neutralises this. */
+.vis-surprise-reveal .vis-stage,
+.vis-surprise-reveal .vis-split-stage,
+.vis-surprise-reveal .vis-swatch-tray,
+.vis-surprise-reveal .ds-stage {
+    animation: cardReveal 0.6s var(--ease-out) both;
+}
+
 /* --- Measure moment: the one deliberate pause (quiz -> result).
    Centered kicker + serif line, tape sweeping to full beneath. --- */
 .measure-moment {
