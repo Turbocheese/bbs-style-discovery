@@ -6946,6 +6946,30 @@ document.body.addEventListener("click", function (e) {
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render({ animate: true });
     }
+    else if (action === "vis-surprise-me") {
+        var surprisePool = getFilteredCloths();
+        if (!surprisePool.length) return;
+        if (appState.visEnsemble) {
+            var ensSurprise = getVisEnsembleState();
+            var surprise = pickSurpriseEnsemble(surprisePool);
+            ensSurprise.garments = VIS_ENS_GARMENTS.slice();
+            ensSurprise.fabrics = surprise.fabrics;
+            ensSurprise.activeGarment = surprise.feature;
+        } else if (appState.visCompare) {
+            var cmpCurrent = [];
+            if (appState.visFabricKey) cmpCurrent.push(appState.visFabricKey);
+            if (appState.visFabricKeyB) cmpCurrent.push(appState.visFabricKeyB);
+            var cmpPicks = pickRandomKeys(surprisePool, 2, cmpCurrent);
+            appState.visFabricKey = cmpPicks[0];
+            appState.visFabricKeyB = cmpPicks[1];
+        } else {
+            var singleCurrent = appState.visFabricKey ? [appState.visFabricKey] : [];
+            appState.visFabricKey = pickRandomKeys(surprisePool, 1, singleCurrent)[0];
+        }
+        appState.visSurpriseFlash = true;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        runMeasureMoment("Styling you a look…", function () { render({ animate: true }); }, 1500);
+    }
     else if (action === "vis-ens-garment") {
         var ensGarment = target.dataset.garment;
         if (!ensGarment) return;
