@@ -3334,6 +3334,16 @@ try {
     appState = getFreshState();
 }
 
+// Compare/Ensemble are sub-modes of the Cloth Room, not places a client
+// meant to leave the app in — the tap-to-quit-mid-visit that "leaves"
+// the app there is far more likely than someone deliberately wanting to
+// reopen straight into a half-built ensemble. Reset on every boot
+// (reload, reopen, kiosk relaunch) so the room always opens on the
+// single-cloth view; the current garment/cloth selections themselves
+// are untouched.
+appState.visCompare = false;
+appState.visEnsemble = false;
+
 // ============================================
 // NAVIGATION
 // ============================================
@@ -6763,6 +6773,12 @@ document.body.addEventListener("click", function (e) {
         // entry when a colour result exists. Once per entry (here), so manual
         // filter edits inside the room are never fought.
         applyClothRoomColourDefault();
+        // Compare/Ensemble are sub-modes reached from inside the room, not
+        // separate destinations — without this, visEnsemble/visCompare
+        // persist from the last visit (state survives in bbs_session) and
+        // the room's own entry point stops landing on the single-cloth view.
+        appState.visCompare = false;
+        appState.visEnsemble = false;
         runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
     else if (action === "archetype-gallery") {

@@ -613,13 +613,13 @@ function renderFabricVisualiser() {
               '<p class="vis-ghost-prompt">Pick a cloth to see it come to life.</p>' +
               "</div>") +
         "</div>" +
-        getVisFilterBarHTML() +
-        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, hasSelection ? activeKey : null, null) + "</div>" +
-        getVisRecoStripHTML(recommended) +
         '<div class="vis-mode-toggles">' +
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">Compare two cloths &rarr;</button>' +
         '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">Design an ensemble &rarr;</button>' +
         "</div>" +
+        getVisFilterBarHTML() +
+        '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, hasSelection ? activeKey : null, null) + "</div>" +
+        getVisRecoStripHTML(recommended) +
         '<div class="vis-info" id="vis-info">' + (hasSelection ? getFabricInfoHTML(fabric) : "") + "</div>" +
         (hasSelection && typeof getClothStudyHTML === "function" ? getClothStudyHTML(fabric) : "") +
         "</div>"
@@ -686,12 +686,12 @@ function renderClothCompare(aKey, recommended) {
         "</button>" +
         "</div>" +
 
+        '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         getVisFilterBarHTML() +
         '<div class="vis-swatch-tray">' + getVisSwatchesHTML(recommended, selKey, altKey) + "</div>" +
         getVisRecoStripHTML(recommended) +
         '<div class="vis-info vis-info--cmp" id="vis-info-' + side + '">' +
         getFabricInfoHTML(side === "a" ? a : b) + "</div>" +
-        '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         "</div>"
     );
 }
@@ -1836,6 +1836,7 @@ function renderClothEnsemble(recommended) {
         '<p class="vis-lead">Assign a cloth to each garment, shape it, and take the finished design to your fitting.</p>' +
         '<div class="ds-stage" id="vis-ens-stage">' + stageInner + "</div>" +
         piecesHTML +
+        '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
         styleHTML +
         swatchesHTML +
         getVisRecoStripHTML(recommended) +
@@ -1847,7 +1848,6 @@ function renderClothEnsemble(recommended) {
               '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +
               "</div>"
             : "") +
-        '<button class="vis-mode-toggle" data-action="vis-ensemble-toggle">&larr; Back to one cloth</button>' +
         "</div>"
     );
 }
