@@ -391,6 +391,48 @@ function getFilteredCloths() {
     return out;
 }
 
+// Cloth Room — Surprise Me. Picks `count` distinct cloths from `cloths`,
+// preferring ones not in `excludeKeys` so a tap always changes what's
+// showing. Falls back to the full pool if excluding leaves too few to
+// fill `count`, and pads by repeating the last pick if `cloths` itself
+// has fewer than `count` entries (e.g. a facet filtered down to one).
+function pickRandomKeys(cloths, count, excludeKeys) {
+    var pool = [];
+    for (var i = 0; i < cloths.length; i++) {
+        if (excludeKeys.indexOf(cloths[i].key) === -1) pool.push(cloths[i]);
+    }
+    if (pool.length < count) pool = cloths.slice();
+    var picks = [];
+    while (picks.length < count && pool.length) {
+        picks.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0].key);
+    }
+    while (picks.length < count && picks.length) picks.push(picks[picks.length - 1]);
+    return picks;
+}
+
+// Ensemble coordination: one garment (chosen at random) may get any
+// cloth from the filtered pool; the other two are restricted to
+// plain-pattern cloths (pattern === "none") so a loud pattern never
+// doubles up across the outfit. Falls back to the full pool for the
+// quiet slots if the current filter has no plain cloths at all.
+function pickSurpriseEnsemble(pool) {
+    var feature = VIS_ENS_GARMENTS[Math.floor(Math.random() * VIS_ENS_GARMENTS.length)];
+    var featureKey = pickRandomKeys(pool, 1, [])[0];
+    var quietPool = [];
+    for (var i = 0; i < pool.length; i++) {
+        if (pool[i].pattern === "none") quietPool.push(pool[i]);
+    }
+    if (!quietPool.length) quietPool = pool;
+    var quietKeys = pickRandomKeys(quietPool, 2, [featureKey]);
+    var fabrics = {};
+    var qi = 0;
+    for (var g = 0; g < VIS_ENS_GARMENTS.length; g++) {
+        var garment = VIS_ENS_GARMENTS[g];
+        fabrics[garment] = garment === feature ? featureKey : quietKeys[qi++];
+    }
+    return { fabrics: fabrics, feature: feature };
+}
+
 function facetValueLabel(facetKey, value) {
     if (facetKey === "region") return VIS_REGION_LABELS[value] || value;
     // "Plain" is a weave. An unpatterned cloth is "Solid" — labelling
