@@ -329,7 +329,14 @@
     // ---- 2. The Sheen swatch, with a loupe toggle ----
     function startSheen(cv, cloth, btn, cap) {
         var lus = lustreOf(cloth), tile = tileCanvasFor(cloth), Z = 3.4;
-        var d, ctx, W, H, pattern, lightx = 0.5, loupe = false, mx = 0, my = 0, LR = 52;
+        // Feeding the loupe from the same 96px tile, blown up by canvas
+        // scale, blurs fine detail (pinstripe, herringbone, glen) since
+        // there's no more real pixel data past 96px. tileCanvasFor(cloth,
+        // size) redraws the weave fresh at any size, so the loupe instead
+        // draws from a genuinely higher-resolution tile and only needs the
+        // remaining Z/LOUPE_OVERSAMPLE of magnification on top of that.
+        var LOUPE_OVERSAMPLE = 4;
+        var d, ctx, W, H, pattern, hqPattern, lightx = 0.5, loupe = false, mx = 0, my = 0, LR = 52;
         function size() { d = fit(cv, 220); ctx = d.ctx; W = d.w; H = d.h; mx = W / 2; my = H / 2; pattern = ctx.createPattern(tile, "repeat"); }
         size();
         function fillWeave() { ctx.fillStyle = pattern || (cloth.ground || "#555"); ctx.fillRect(0, 0, W, H); }
@@ -347,7 +354,11 @@
             // a smooth optical magnification of the real weave — moving the
             // loupe reveals different parts of the actual cloth
             ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
-            ctx.translate(mx, my); ctx.scale(Z, Z); ctx.translate(-mx, -my); fillWeave(); ctx.restore();
+            if (!hqPattern) hqPattern = ctx.createPattern(tileCanvasFor(cloth, 96 * LOUPE_OVERSAMPLE), "repeat");
+            var loupeZ = Z / LOUPE_OVERSAMPLE;
+            ctx.translate(mx, my); ctx.scale(loupeZ, loupeZ); ctx.translate(-mx, -my);
+            ctx.fillStyle = hqPattern; ctx.fillRect(0, 0, W, H);
+            ctx.restore();
             ctx.beginPath(); ctx.arc(mx, my, LR, 0, 7); ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(154,122,62,0.95)"; ctx.stroke();
             ctx.beginPath(); ctx.arc(mx, my, LR - 2, 0, 7); ctx.lineWidth = 1; ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.stroke();
             var hl = ctx.createRadialGradient(mx - LR * 0.4, my - LR * 0.4, 2, mx, my, LR); hl.addColorStop(0, "rgba(255,255,255,0.13)"); hl.addColorStop(0.55, "rgba(255,255,255,0)"); ctx.fillStyle = hl; ctx.beginPath(); ctx.arc(mx, my, LR, 0, 7); ctx.fill();
