@@ -6826,6 +6826,12 @@ document.body.addEventListener("click", function (e) {
     else if (action === "map-region") {
         mapSetRegion(target.dataset.region);
     }
+    else if (action === "mill-tour-start") {
+        startMillTour();
+    }
+    else if (action === "mill-tour-exit") {
+        stopMillTour();
+    }
     else if (action === "map-see-cloth") {
         appState.visFabricKey = target.dataset.fabric;
         appState.visCompare = false;

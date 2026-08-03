@@ -165,10 +165,10 @@ var MILL_MAP_PINS = [
     { key: "reda", short: "Reda", name: "Reda", place: "Valle Mosso, Biella", region: "Italy", cluster: "n_italy", est: 1865, lat: 45.63, lon: 8.16, blurb: "Springy, resilient merino — the travel suit's best friend.", guidePath: ["cloth_origins", "suiting", "italian", "reda"], fabricKey: "high_twist_wool" },
     { key: "cerruti", short: "Cerruti", name: "Cerruti", place: "Biella", region: "Italy", cluster: "n_italy", est: 1881, lat: 45.56, lon: 8.06, blurb: "Fluid, softly tailored cloth from a house that runs through fashion history.", guidePath: ["cloth_origins", "suiting", "italian", "cerruti"] },
     { key: "piacenza", short: "Piacenza", name: "Piacenza", place: "Pollone, Biella", region: "Italy", cluster: "n_italy", est: 1733, lat: 45.60, lon: 7.92, blurb: "Biella's oldest cashmere house — jacketing with a nap like candlelight.", guidePath: ["cloth_origins", "suiting", "italian", "piacenza"], fabricKey: "piacenza_camel" },
-    { key: "drago", short: "Drago", name: "Drago", place: "Biella", region: "Italy", cluster: "n_italy", lat: 45.53, lon: 8.15, blurb: "Fine merino with quiet dimension — boardroom cloth, alive up close.", guidePath: ["cloth_origins", "suiting", "italian", "drago"], fabricKey: "drago_birdseye" },
+    { key: "drago", short: "Drago", name: "Drago", place: "Biella", region: "Italy", cluster: "n_italy", est: 1973, lat: 45.53, lon: 8.15, blurb: "Fine merino with quiet dimension — boardroom cloth, alive up close.", guidePath: ["cloth_origins", "suiting", "italian", "drago"], fabricKey: "drago_birdseye" },
     { key: "tallia_delfino", short: "Tallia", name: "Tallia di Delfino", place: "Strona, Biella", region: "Italy", cluster: "n_italy", est: 1903, lat: 45.68, lon: 7.96, blurb: "The connoisseur's corner of Biella — refined worsteds with a luminous finish.", guidePath: ["cloth_origins", "suiting", "italian", "tallia_delfino"] },
     { key: "loro_piana", short: "Loro Piana", name: "Loro Piana", place: "Quarona, Valsesia", region: "Italy", cluster: "n_italy", est: 1924, lat: 45.76, lon: 8.27, blurb: "The luxury benchmark: softness, finish, and fibre obsession.", guidePath: ["cloth_origins", "suiting", "italian", "loro_piana"], fabricKey: "wool_silk_linen" },
-    { key: "solbiati", short: "Solbiati", name: "Solbiati", place: "Busto Arsizio, Lombardy", region: "Italy", cluster: "n_italy", lat: 45.58, lon: 8.85, blurb: "Italy's great linen house — dry, honest cloth for real heat.", guidePath: ["cloth_origins", "suiting", "italian", "solbiati"], fabricKey: "linen_suiting" },
+    { key: "solbiati", short: "Solbiati", name: "Solbiati", place: "Busto Arsizio, Lombardy", region: "Italy", cluster: "n_italy", est: 1874, lat: 45.58, lon: 8.85, blurb: "Italy's great linen house — dry, honest cloth for real heat.", guidePath: ["cloth_origins", "suiting", "italian", "solbiati"], fabricKey: "linen_suiting" },
     { key: "albini", short: "Albini", name: "Albini", place: "Albino, Bergamo", region: "Italy", cluster: "n_italy", est: 1876, lat: 45.76, lon: 9.79, blurb: "The shirting specialist — five generations of fine cotton weaving.", guidePath: ["cloth_origins", "shirtings", "italian", "albini"] },
     { key: "thomas_mason", short: "T. Mason", name: "Thomas Mason", place: "Bergamo (English heritage)", region: "Italy", cluster: "n_italy", est: 1796, lat: 45.71, lon: 9.62, blurb: "An English shirting archive of 1796, kept alive on Albini's Bergamo looms.", guidePath: ["cloth_origins", "shirtings", "italian", "thomas_mason"] },
     { key: "guabello", short: "Guabello", name: "Guabello", place: "Mongrando, Biella", region: "Italy", cluster: "n_italy", est: 1815, lat: 45.50, lon: 8.00, blurb: "Biella wool since 1815 — the dependable Italian middle: soft enough to please, sturdy enough to live in.", guidePath: ["cloth_origins", "suiting", "italian", "guabello"] },
@@ -593,6 +593,7 @@ function getMapStageHTML() {
 
 var _globeHandle = null;
 var _globeRAF = null;
+var _tourState = null;
 
 // Measured, not fitted. tmp/probe.js renders an isolated globe carrying
 // a SINGLE marker at a known lat/lon and reads back where COBE actually
@@ -676,8 +677,14 @@ function getMillGlobeHTML() {
         '<svg class="map-globe-leaders" id="map-globe-leaders" aria-hidden="true"></svg>' +
         '<div class="map-globe-dots" id="map-globe-dots" aria-hidden="true">' + dots + "</div>" +
         '<div class="map-globe-pins" id="map-globe-pins">' + labels + "</div>" +
+        '<div class="map-tour-reticle" aria-hidden="true"></div>' +
+        '<div class="map-tour-card" id="map-tour-card" aria-live="polite"></div>' +
         "</div>" +
         '<p class="map-globe-note">Drag to turn the globe &middot; tap a country to filter the chart</p>' +
+        '<div class="map-tour-controls">' +
+        '<button class="map-tour-start" data-action="mill-tour-start">Take the Tour</button>' +
+        '<button class="map-tour-exit" data-action="mill-tour-exit">Exit Tour</button>' +
+        "</div>" +
         "</div>"
     );
 }
@@ -890,7 +897,12 @@ function startMillGlobe() {
 
     function tick() {
         if (!cv.isConnected || !_globeHandle) { _globeRAF = null; return; }
-        if (!dragging) phi += spin;
+        if (_tourState && _tourState.active) {
+            var tourFrame = millTourFrame(phi, theta);
+            if (tourFrame) { phi = tourFrame.phi; theta = tourFrame.theta; }
+        } else if (!dragging) {
+            phi += spin;
+        }
         _globeHandle.update({ phi: phi, theta: theta });
         placePins();
         _globeRAF = requestAnimationFrame(tick);
@@ -944,6 +956,13 @@ function startMillGlobe() {
                 if (Date.now() - press.t > 700) return;
             }
 
+            // Touring: any tap on the stage advances to the next stop,
+            // overriding the usual region-pin hit-test below.
+            if (_tourState && _tourState.active) {
+                millTourSkip();
+                return;
+            }
+
             var stageRect = stage.getBoundingClientRect();
             var px = e.clientX - stageRect.left;
             var py = e.clientY - stageRect.top;
@@ -969,6 +988,7 @@ function startMillGlobe() {
     }
 
     cv.addEventListener("pointerdown", function (e) {
+        if (_tourState && _tourState.active) return;
         dragging = true;
         lastX = e.clientX;
         try {
@@ -992,6 +1012,158 @@ function stopMillGlobe() {
     if (_globeRAF) { cancelAnimationFrame(_globeRAF); _globeRAF = null; }
     if (_globeHandle && _globeHandle.destroy) _globeHandle.destroy();
     _globeHandle = null;
+}
+
+// ============================================
+// GUIDED TOUR — "Take the Tour" flies the camera through 8 curated
+// houses in chronological order. Camera math is the placePins()
+// projection solved for x=0,y=0 (dead centre, facing the viewer):
+// phi = -(lonDeg*PI/180) - GLOBE_PHI_OFFSET, theta = latDeg*PI/180.
+// Not a new calibration — the same numbers placePins() already uses.
+// ============================================
+
+var MILL_TOUR_STOPS = ["vbc", "fox", "holland_sherry", "solbiati", "loro_piana", "drago", "officine_paladino", "hellard"];
+var MILL_TOUR_PAN_MS = 900;
+var MILL_TOUR_DWELL_MS = 4000;
+
+function millTourPins() {
+    var out = [];
+    for (var i = 0; i < MILL_TOUR_STOPS.length; i++) {
+        for (var j = 0; j < MILL_MAP_PINS.length; j++) {
+            if (MILL_MAP_PINS[j].key === MILL_TOUR_STOPS[i]) { out.push(MILL_MAP_PINS[j]); break; }
+        }
+    }
+    return out;
+}
+
+function millTourTarget(pin) {
+    return {
+        phi: -(pin.lon * Math.PI / 180) - GLOBE_PHI_OFFSET,
+        theta: pin.lat * Math.PI / 180
+    };
+}
+
+function startMillTour() {
+    if (!_globeHandle) return;
+    var cv = document.getElementById("map-globe");
+    var block = cv && cv.closest(".map-globe-block");
+    var stops = millTourPins();
+    if (!block || stops.length < 2) return;
+
+    block.classList.add("mill-touring");
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    _tourState = {
+        active: true,
+        stops: stops,
+        index: -1,
+        reduced: reduced,
+        pin: null,
+        target: null,
+        panFrom: null,
+        phiDelta: 0,
+        panStart: 0,
+        landed: false,
+        dwellUntil: 0
+    };
+    millTourAdvance();
+}
+
+function stopMillTour() {
+    var cv = document.getElementById("map-globe");
+    var block = cv && cv.closest(".map-globe-block");
+    if (block) block.classList.remove("mill-touring");
+    _tourState = null;
+    millTourRenderCard(null);
+}
+
+function millTourAdvance() {
+    if (!_tourState) return;
+    _tourState.index++;
+    if (_tourState.index >= _tourState.stops.length) { stopMillTour(); return; }
+    var pin = _tourState.stops[_tourState.index];
+    _tourState.pin = pin;
+    _tourState.target = millTourTarget(pin);
+    _tourState.panFrom = null;
+    _tourState.landed = false;
+    _tourState.dwellUntil = 0;
+    millTourRenderCard(null);
+}
+
+function millTourSkip() {
+    if (!_tourState) return;
+    _tourState.landed = true;
+    _tourState.dwellUntil = 0;
+}
+
+// Called once per rAF frame from tick() while touring. Takes the
+// globe's current phi/theta (tick()'s own local vars — the tour has
+// no access to them otherwise) and returns where they should land
+// this frame; tick() assigns the result back onto its locals.
+function millTourFrame(curPhi, curTheta) {
+    var st = _tourState;
+    var now = Date.now();
+
+    if (st.landed && now >= st.dwellUntil) {
+        millTourAdvance();
+        st = _tourState;
+        if (!st) return null; // tour just ended
+    }
+
+    if (st.panFrom === null) {
+        st.panFrom = { phi: curPhi, theta: curTheta };
+        st.panStart = now;
+        // Shortest-path delta so the camera never spins the long way
+        // round to reach the next stop.
+        var d = st.target.phi - st.panFrom.phi;
+        d = ((d + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+        st.phiDelta = d;
+    }
+
+    if (st.landed) {
+        return { phi: st.target.phi, theta: st.target.theta };
+    }
+
+    if (st.reduced) {
+        st.landed = true;
+        st.dwellUntil = now + MILL_TOUR_DWELL_MS;
+        millTourRenderCard(st.pin);
+        return { phi: st.panFrom.phi + st.phiDelta, theta: st.target.theta };
+    }
+
+    var p = Math.min(1, (now - st.panStart) / MILL_TOUR_PAN_MS);
+    var eased = 1 - Math.pow(1 - p, 3);
+    if (p >= 1) {
+        st.landed = true;
+        st.dwellUntil = now + MILL_TOUR_DWELL_MS;
+        millTourRenderCard(st.pin);
+    }
+    return {
+        phi: st.panFrom.phi + st.phiDelta * eased,
+        theta: st.panFrom.theta + (st.target.theta - st.panFrom.theta) * eased
+    };
+}
+
+function millTourRenderCard(pin) {
+    var card = document.getElementById("map-tour-card");
+    if (!card) return;
+    if (!pin) {
+        card.innerHTML = "";
+        card.classList.remove("is-visible");
+        return;
+    }
+    var coord = Math.abs(pin.lat).toFixed(2) + "°" + (pin.lat >= 0 ? "N" : "S") + ", " +
+        Math.abs(pin.lon).toFixed(2) + "°" + (pin.lon >= 0 ? "E" : "W");
+    card.innerHTML =
+        '<span class="map-tour-coord">' + coord + "</span>" +
+        '<h3 class="map-tour-name">' + pin.name + "</h3>" +
+        '<p class="map-tour-place">' + pin.place + "</p>" +
+        '<p class="map-tour-blurb">' + pin.blurb + "</p>" +
+        (pin.est ? '<span class="map-tour-est">Est. <span class="map-tour-est-num" data-count="' + pin.est + '">0</span></span>' : "");
+    card.classList.add("is-visible");
+    if (pin.est && typeof window.countUp === "function") {
+        var numEl = card.querySelector(".map-tour-est-num");
+        if (numEl) window.countUp(numEl, pin.est, { duration: 900, plain: true });
+    }
 }
 
 function renderMillMap() {

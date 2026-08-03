@@ -35,24 +35,29 @@
         };
     }
 
-    function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
+    // opts.plain skips the thousands separator — grouping suits counts
+    // ("359 Years") but reads wrong on a calendar year ("Est. 1,663").
+    function fmt(n, plain) {
+        return plain ? String(Math.round(n)) : Math.round(n).toLocaleString("en-US");
+    }
 
     // Animate el's text from 0 to target with an ease-out cubic. Honours
     // reduced-motion by jumping straight to the final value.
     function countUp(el, target, opts) {
         opts = opts || {};
         var dur = opts.duration || 1200;
+        var plain = !!opts.plain;
         var reduced = window.matchMedia &&
             window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduced || target <= 0) { el.textContent = fmt(target); return; }
+        if (reduced || target <= 0) { el.textContent = fmt(target, plain); return; }
         var start = null;
         function step(ts) {
             if (start === null) start = ts;
             var p = Math.min(1, (ts - start) / dur);
             var eased = 1 - Math.pow(1 - p, 3);
-            el.textContent = fmt(target * eased);
+            el.textContent = fmt(target * eased, plain);
             if (p < 1) requestAnimationFrame(step);
-            else el.textContent = fmt(target);
+            else el.textContent = fmt(target, plain);
         }
         requestAnimationFrame(step);
     }
