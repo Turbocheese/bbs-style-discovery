@@ -11956,9 +11956,9 @@ textarea:focus-visible,
     display: inline-flex;
     align-items: baseline;
     gap: 0.5rem;
-    padding: 0.7rem 0.2rem;
-    background: none;
-    border: none;
+    padding: 0.7rem 0.2rem !important;
+    background: none !important;
+    border: none !important;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
