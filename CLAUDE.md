@@ -1,6 +1,6 @@
 # CLAUDE.md — BBS Style Discovery
 
-In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 312-topic
+In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 313-topic
 menswear guide, wardrobe worksheet, and PDF/PNG exports. Vanilla JS/HTML/CSS,
 no framework, no build step, no backend, no runtime dependencies (everything is
 vendored). It runs by opening `index.html` (or any static file server), and is
@@ -23,7 +23,7 @@ Deep context lives in the other docs — read them only when needed:
 
 Script order in `index.html` is load-bearing (globals defined top-down). **`index.html` is the source of truth for the order — read the script block there, do not trust a list here.** The files, in that order, and what is load-bearing about each:
 
-- `data.js` — guide tree (`window.guideTree`, exactly **312 topics**)
+- `data.js` — guide tree (`window.guideTree`, exactly **313 topics**)
 - `validator.js` — structural validation of the tree
 - `query.js` — search/ranking/related-topics engine
 - `discovery-ui.js` — FAB + slide-out discovery panel, result cards
@@ -172,10 +172,11 @@ Other UI invariants:
   of data.js" described in the older docs does NOT exist in the code (it was
   apparently a console one-off, never committed). Write explicit metadata; there
   is no safety net.
-- Topic count is currently 312 (288 + 24 mill/merchant topics added July 2026 with
-  the Mill Map). If you add/remove topics, update the count where it appears in
-  docs (and the expected total in `verify/audit.js`), and re-run the audits (below).
-- **topic_kind coverage is complete: 312 of 312 (audited 19 July 2026).** The
+- Topic count is currently 313 (288 + 24 mill/merchant topics added July 2026 with
+  the Mill Map, + 1 outerwear/overcoat topic added August 2026). If you add/remove
+  topics, update the count where it appears in docs (and the expected total in
+  `verify/audit.js`), and re-run the audits (below).
+- **topic_kind coverage is complete: 313 of 313 (audited 19 July 2026, +1 August 2026).** The
   long-standing gap (98 topics, all in tailoring sub-trees) was backfilled per
   METADATA_GOVERNANCE.md's assignment rules. `node verify/audit.js` now exits
   clean — it had failed on this check on every previous run. Keep it at zero:

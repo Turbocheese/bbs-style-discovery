@@ -9653,7 +9653,7 @@ window.guideTree = {
                                                     heading: "Trade-Off",
                                                     body: "It can be slightly more textural and less crisp than pure worsted wool.",
                                                 },
-                                                {
+                                {
                                                     heading: "In the BBS World",
                                                     body: "We use wool-linen frequently because it captures the BBS balance of cloth character, comfort, and tropical appropriateness.",
                                                 },
@@ -9662,6 +9662,78 @@ window.guideTree = {
                                     },
                                 },
                             },
+                        },
+                    },
+                },
+                outerwear: {
+                    type: "group",
+                    key: "outerwear",
+                    title: "Outerwear",
+                    tags: [
+                        "tailoring",
+                        "outerwear",
+                        "travel",
+                        "temperate",
+                        "wardrobe",
+                    ],
+                    intro:
+                        "A travel accommodation for a wardrobe built around the tropics — layering pieces for the cooler climates a client passes through.",
+                    children: {
+                        overcoat: {
+                            type: "topic",
+                            key: "overcoat",
+                            title: "Overcoat",
+                            topic_kind: "garment",
+                            tags: [
+                                "tailoring",
+                                "outerwear",
+                                "overcoat",
+                                "travel",
+                                "temperate",
+                                "structured",
+                            ],
+                            intro: "A layering piece for wardrobes that travel beyond the tropics.",
+                            metadata: {
+                                climate: ["temperate"],
+                                seasonality: ["autumn", "winter"],
+                                formality: ["business_casual", "business"],
+                                use_cases: ["travel", "work"],
+                                weight: "heavyweight",
+                                structure: "structured",
+                                performance: ["durable", "textured"],
+                                care: "professional_clean",
+                                versatility: 2,
+                                bbs_signature: false,
+                                priority: "medium",
+                                frequency: "seasonal",
+                                price_sensitivity: "medium",
+                            },
+                            sections: [
+                                {
+                                    heading: "Intro",
+                                    body: "The overcoat is the one BBS garment built for weather the brand doesn't dress for at home.",
+                                },
+                                {
+                                    heading: "What It Is",
+                                    body: "A long, tailored coat worn over a suit or jacket for warmth — Chesterfield collars, fly fronts, and a knee-to-calf length are the typical BBS treatment.",
+                                },
+                                {
+                                    heading: "Why It Matters",
+                                    body: "Most BBS clients dress for the tropics year-round, but travel and business trips to cooler climates call for a coat that layers cleanly over tailoring without fighting its lines.",
+                                },
+                                {
+                                    heading: "Best For",
+                                    body: "Winter travel, cooler-climate business trips, and layering over a suit wherever the tropics aren't the destination.",
+                                },
+                                {
+                                    heading: "Trade-Off",
+                                    body: "It is a specific-use piece, not daily wear — bulk and warmth a tropical wardrobe rarely needs at home.",
+                                },
+                                {
+                                    heading: "In the BBS World",
+                                    body: "We treat the overcoat as a travel accommodation rather than a core piece, cut to sit cleanly over BBS tailoring's soft shoulder and structure — a coat that fights the jacket underneath defeats the point of both.",
+                                },
+                            ],
                         },
                     },
                 },

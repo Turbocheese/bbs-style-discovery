@@ -358,8 +358,8 @@ var lookbookData = [
         tags: ["Overcoat", "Polka-Dot Scarf", "Suede Loafers"],
         note:
             "A long navy overcoat over a polka-dot scarf and cream trousers, leaning against poured concrete. The scarf does the only colour work here — everything else stays in one tone.",
-        guidePath: ["colour_wardrobe", "core_colours", "navy"],
-        guideLabel: "Read: Navy",
+        guidePath: ["tailoring", "outerwear", "overcoat"],
+        guideLabel: "Read: the Overcoat",
     },
     {
         id: "look-scarf-reflection",
