@@ -7273,6 +7273,7 @@ textarea {
     --radius-md: 4px;
     --radius-lg: 4px;
     --bronze: #8a6d43;            /* was #9a7b4f (3.95:1 on white — failed AA) */
+    --bronze-rule: rgba(138, 109, 67, 0.4);  /* --bronze at 40% — keep in sync */
     --shadow-warm: 0 14px 44px rgba(78, 58, 38, 0.10);
 }
 
@@ -11816,8 +11817,8 @@ textarea:focus-visible,
     margin-top: 1.4rem;
     overflow: hidden;
     background-image:
-        repeating-linear-gradient(90deg, rgba(138, 109, 67, 0.4) 0, rgba(138, 109, 67, 0.4) 1px, transparent 1px, transparent 10px),
-        repeating-linear-gradient(90deg, rgba(138, 109, 67, 0.4) 0, rgba(138, 109, 67, 0.4) 1px, transparent 1px, transparent 10px);
+        repeating-linear-gradient(90deg, var(--bronze-rule) 0, var(--bronze-rule) 1px, transparent 1px, transparent 10px),
+        repeating-linear-gradient(90deg, var(--bronze-rule) 0, var(--bronze-rule) 1px, transparent 1px, transparent 10px);
     background-repeat: no-repeat;
     background-position: top left, bottom left;
     background-size: 100% 1px, 100% 1px;
@@ -11850,12 +11851,10 @@ textarea:focus-visible,
 }
 .pmarq-house::before {
     content: "";
-    display: inline-block;
     width: 1px;
     height: 12px;
-    margin-right: 0.5rem;
-    background: rgba(138, 109, 67, 0.4);
-    vertical-align: middle;
+    align-self: center;
+    background: var(--bronze-rule);
 }
 .pmarq-year {
     font-family: "EB Garamond", Georgia, serif;
@@ -11863,6 +11862,7 @@ textarea:focus-visible,
     font-size: 1.08rem;
     color: var(--bronze);
     line-height: 1;
+    letter-spacing: normal;
 }
 .pmarq-name {
     font-size: 0.68rem;
