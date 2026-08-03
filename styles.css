@@ -11814,9 +11814,13 @@ textarea:focus-visible,
 .pmarq {
     position: relative;
     margin-top: 1.4rem;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
     overflow: hidden;
+    background-image:
+        repeating-linear-gradient(90deg, rgba(138, 109, 67, 0.4) 0, rgba(138, 109, 67, 0.4) 1px, transparent 1px, transparent 10px),
+        repeating-linear-gradient(90deg, rgba(138, 109, 67, 0.4) 0, rgba(138, 109, 67, 0.4) 1px, transparent 1px, transparent 10px);
+    background-repeat: no-repeat;
+    background-position: top left, bottom left;
+    background-size: 100% 1px, 100% 1px;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
@@ -11843,6 +11847,15 @@ textarea:focus-visible,
     border: none !important;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+}
+.pmarq-house::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 12px;
+    margin-right: 0.5rem;
+    background: rgba(138, 109, 67, 0.4);
+    vertical-align: middle;
 }
 .pmarq-year {
     font-family: "EB Garamond", Georgia, serif;
