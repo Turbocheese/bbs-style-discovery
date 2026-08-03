@@ -7,7 +7,7 @@
 //   node verify/audit.js
 //
 // Targets: 0 missing metadata, 0 missing core fields, 0 missing or
-// invalid topic_kind, total topics = 312.
+// invalid topic_kind, total topics = 313.
 
 // data.js's final line references `guideTree` bare, which in a browser
 // resolves through window's global scope — so window must BE the global
@@ -188,7 +188,7 @@ function report(label, arr) {
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
 }
 
-console.log("Total topics scanned: " + topics.length + (topics.length === 312 ? "  (expected 312: PASS)" : "  (EXPECTED 312: FAIL)"));
+console.log("Total topics scanned: " + topics.length + (topics.length === 313 ? "  (expected 313: PASS)" : "  (EXPECTED 313: FAIL)"));
 report("no missing metadata objects", missingMeta);
 report("no missing core fields (formality + versatility)", missingCore);
 report("no missing topic_kind", missingKind);
@@ -211,7 +211,7 @@ report("every mill pin's guidePath resolves", pinNoGuide);
 console.log("\nindex.html script tags checked: " + actualScriptOrder.length);
 report("script tag order matches CLAUDE.md's documented load order", scriptOrderMismatch);
 
-var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1) +
+var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 313 ? 0 : 1) +
     clothDupKeys.length + clothBadMill.length + clothBadGuide.length + clothBadWeave.length +
     clothUnverifiedSpec.length + clothVerifiedNoSource.length + badLinkTarget.length +
     pinNoShort.length + pinNoGuide.length + scriptOrderMismatch.length;
