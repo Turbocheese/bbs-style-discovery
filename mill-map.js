@@ -141,18 +141,22 @@ var MAP_DISTRICTS = {
 var MILL_MAP_PINS = [
     // Britain — West Yorkshire district
     { key: "huddersfield", short: "Huddersfield", name: "Huddersfield", place: "Huddersfield, England", region: "Britain", cluster: "yorkshire", lat: 53.65, lon: -1.78, blurb: "The town that gave fine worsted its home address. Its name on a selvedge still means something.", guidePath: ["cloth_origins", "suiting", "english", "huddersfield"], fabricKey: "fresco" },
-    { key: "standeven", short: "Standeven", name: "Standeven", place: "Huddersfield, England", region: "Britain", cluster: "yorkshire", lat: 53.61, lon: -1.86, blurb: "Classic English suiting character: structure, resilience, and cloth that improves with wear.", guidePath: ["cloth_origins", "suiting", "english", "standeven"], fabricKey: "wool_linen" },
+    { key: "standeven", short: "Standeven", name: "Standeven", place: "Huddersfield, England", region: "Britain", cluster: "yorkshire", est: 1885, lat: 53.61, lon: -1.86, blurb: "Classic English suiting character: structure, resilience, and cloth that improves with wear.", guidePath: ["cloth_origins", "suiting", "english", "standeven"], fabricKey: "wool_linen" },
     { key: "dugdale", short: "Dugdale", name: "Dugdale Bros", place: "Huddersfield, England", region: "Britain", cluster: "yorkshire", est: 1896, lat: 53.70, lon: -1.70, blurb: "Honest, hardworking English worsteds merchanted from Huddersfield since 1896.", guidePath: ["cloth_origins", "suiting", "english", "dugdale"] },
     { key: "scabal", short: "Scabal", name: "Scabal", place: "Brussels & Huddersfield", region: "Britain", cluster: "yorkshire", est: 1938, lat: 53.57, lon: -1.68, blurb: "A Brussels merchant weaving at its own Huddersfield mill — refined worsteds and ambitious superfines.", guidePath: ["cloth_origins", "suiting", "english", "scabal"] },
-    { key: "alfred_brown", short: "A. Brown", name: "Alfred Brown", place: "Leeds, England", region: "Britain", cluster: "yorkshire", lat: 53.82, lon: -1.56, blurb: "Yorkshire weaving with a working wardrobe in mind — clean, dependable business cloth.", guidePath: ["cloth_origins", "suiting", "english", "alfred_brown"], fabricKey: "worsted_wool" },
+    { key: "alfred_brown", short: "A. Brown", name: "Alfred Brown", place: "Leeds, England", region: "Britain", cluster: "yorkshire", est: 1915, lat: 53.82, lon: -1.56, blurb: "Yorkshire weaving with a working wardrobe in mind — clean, dependable business cloth.", guidePath: ["cloth_origins", "suiting", "english", "alfred_brown"], fabricKey: "worsted_wool" },
     { key: "taylor_lodge", short: "Taylor & Lodge", name: "Taylor & Lodge", place: "Huddersfield, England", region: "Britain", cluster: "yorkshire", est: 1883, lat: 53.63, lon: -1.72, blurb: "The luxury end of Huddersfield — fine, lustrous worsteds woven on the edge of the moors.", guidePath: ["cloth_origins", "suiting", "english", "taylor_lodge"] },
     { key: "joshua_ellis", short: "Joshua Ellis", name: "Joshua Ellis", place: "Batley, England", region: "Britain", cluster: "yorkshire", est: 1767, lat: 53.72, lon: -1.63, blurb: "Two and a half centuries of cashmere and fine woollens, woven in Batley since 1767.", guidePath: ["cloth_origins", "suiting", "english", "joshua_ellis"] },
     { key: "abraham_moon", short: "A. Moon", name: "Abraham Moon", place: "Guiseley, Yorkshire", region: "Britain", cluster: "yorkshire", est: 1837, lat: 53.87, lon: -1.71, blurb: "One of Britain's last fully vertical mills — dyed, spun, woven and finished under one roof.", guidePath: ["cloth_origins", "suiting", "english", "abraham_moon"] },
     // Britain — free-standing
     { key: "fox", short: "Fox Bros", labelDy: -13, name: "Fox Brothers", place: "Wellington, Somerset", region: "Britain", est: 1772, lat: 50.98, lon: -3.22, blurb: "The definitive flannel, milled in Somerset since 1772.", guidePath: ["cloth_origins", "suiting", "english", "fox"], fabricKey: "fox_flannel" },
     { key: "holland_sherry", short: "Holland &amp; Sherry", name: "Holland & Sherry", place: "Savile Row, London", region: "Britain", est: 1836, lat: 51.51, lon: -0.14, blurb: "The Savile Row merchant with bunch walls that map the whole cloth world.", guidePath: ["cloth_origins", "suiting", "english", "holland_sherry"], fabricKey: "hs_gabardine" },
-    { key: "harrisons", short: "Harrisons", labelDy: -13, name: "Harrisons", place: "Edinburgh, Scotland", region: "Britain", lat: 55.95, lon: -3.19, blurb: "A storied merchanting name with broad influence across classic tailoring.", guidePath: ["cloth_origins", "suiting", "english", "harrisons"], fabricKey: "summer_tweed" },
+    { key: "harrisons", short: "Harrisons", labelDy: -13, name: "Harrisons", place: "Edinburgh, Scotland", region: "Britain", est: 1863, lat: 55.95, lon: -3.19, blurb: "A storied merchanting name with broad influence across classic tailoring.", guidePath: ["cloth_origins", "suiting", "english", "harrisons"], fabricKey: "summer_tweed" },
     { key: "johnstons", short: "Johnstons", labelDy: -13, name: "Johnstons of Elgin", place: "Elgin, Scotland", region: "Britain", est: 1797, lat: 57.65, lon: -3.31, blurb: "Highland cashmere and estate cloth, woven beside the River Lossie since 1797.", guidePath: ["cloth_origins", "suiting", "scottish", "johnstons"] },
+    // No est: verified sources only place Lovat Mill's own founding
+    // vaguely ("early 1900s"); the precise 1826 date belongs to the word
+    // "tweed" itself, not this mill. Leaving the field out rather than
+    // guessing (see CLAUDE.md's mill topic rule).
     { key: "lovat", short: "Lovat", name: "Lovat Mill", place: "Hawick, Scottish Borders", region: "Britain", lat: 55.42, lon: -2.79, blurb: "The home of estate tweed — patterns woven to disappear into one hillside in particular.", guidePath: ["cloth_origins", "suiting", "scottish", "lovat"] },
     // Ireland
     { key: "magee", short: "Magee", labelDy: -13, name: "Magee", place: "Donegal, Ireland", region: "Ireland", est: 1866, lat: 54.65, lon: -8.11, blurb: "The Donegal house that made flecked tweed a tailoring signature.", guidePath: ["cloth_origins", "suiting", "irish", "magee"] },
@@ -172,11 +176,11 @@ var MILL_MAP_PINS = [
     { key: "albini", short: "Albini", name: "Albini", place: "Albino, Bergamo", region: "Italy", cluster: "n_italy", est: 1876, lat: 45.76, lon: 9.79, blurb: "The shirting specialist — five generations of fine cotton weaving.", guidePath: ["cloth_origins", "shirtings", "italian", "albini"] },
     { key: "thomas_mason", short: "T. Mason", name: "Thomas Mason", place: "Bergamo (English heritage)", region: "Italy", cluster: "n_italy", est: 1796, lat: 45.71, lon: 9.62, blurb: "An English shirting archive of 1796, kept alive on Albini's Bergamo looms.", guidePath: ["cloth_origins", "shirtings", "italian", "thomas_mason"] },
     { key: "guabello", short: "Guabello", name: "Guabello", place: "Mongrando, Biella", region: "Italy", cluster: "n_italy", est: 1815, lat: 45.50, lon: 8.00, blurb: "Biella wool since 1815 — the dependable Italian middle: soft enough to please, sturdy enough to live in.", guidePath: ["cloth_origins", "suiting", "italian", "guabello"] },
-    { key: "e_thomas", short: "E. Thomas", name: "E. Thomas", place: "Biella", region: "Italy", cluster: "n_italy", lat: 45.59, lon: 8.11, blurb: "Refined jacketings and inventive wool-silk-linen blends, better known inside the trade than out.", guidePath: ["cloth_origins", "suiting", "italian", "e_thomas"] },
+    { key: "e_thomas", short: "E. Thomas", name: "E. Thomas", place: "Biella", region: "Italy", cluster: "n_italy", est: 1922, lat: 45.59, lon: 8.11, blurb: "Refined jacketings and inventive wool-silk-linen blends, better known inside the trade than out.", guidePath: ["cloth_origins", "suiting", "italian", "e_thomas"] },
     { key: "botto_giuseppe", short: "Botto Giuseppe", name: "Botto Giuseppe", place: "Valle Mosso, Biella", region: "Italy", cluster: "n_italy", est: 1876, lat: 45.66, lon: 8.20, blurb: "Silk and the finest wools since 1876 — cloth with quiet light in it.", guidePath: ["cloth_origins", "suiting", "italian", "botto_giuseppe"] },
-    { key: "zignone", short: "Zignone", name: "Zignone", place: "Strona valley, Biella", region: "Italy", cluster: "n_italy", lat: 45.70, lon: 8.12, blurb: "Classic looks engineered for modern movement — stretch, recovery, and travel-proof finishes.", guidePath: ["cloth_origins", "suiting", "italian", "zignone"] },
+    { key: "zignone", short: "Zignone", name: "Zignone", place: "Strona valley, Biella", region: "Italy", cluster: "n_italy", est: 1968, lat: 45.70, lon: 8.12, blurb: "Classic looks engineered for modern movement — stretch, recovery, and travel-proof finishes.", guidePath: ["cloth_origins", "suiting", "italian", "zignone"] },
     { key: "canclini", short: "Canclini", name: "Canclini", place: "Guanzate, Como", region: "Italy", cluster: "n_italy", est: 1925, lat: 45.72, lon: 9.00, blurb: "Como shirting since 1925 — the dependable backbone of a real shirt wardrobe.", guidePath: ["cloth_origins", "shirtings", "italian", "canclini"] },
-    { key: "monti", short: "Monti", name: "Monti", place: "Como", region: "Italy", cluster: "n_italy", lat: 45.79, lon: 9.10, blurb: "Crisp, finely finished Italian cottons — shirting that holds a collar all day.", guidePath: ["cloth_origins", "shirtings", "italian", "monti"] },
+    { key: "monti", short: "Monti", name: "Monti", place: "Como", region: "Italy", cluster: "n_italy", est: 1911, lat: 45.79, lon: 9.10, blurb: "Crisp, finely finished Italian cottons — shirting that holds a collar all day.", guidePath: ["cloth_origins", "shirtings", "italian", "monti"] },
     { key: "drapers", short: "Drapers", name: "Drapers", place: "Bologna", region: "Italy", est: 1956, lat: 44.49, lon: 11.34, blurb: "Cloth merchant to the world's bespoke tailors since 1956 — a house whose product is judgement.", guidePath: ["cloth_origins", "suiting", "italian", "drapers"] },
     { key: "ariston", short: "Ariston", labelDy: -13, name: "Ariston", place: "Naples", region: "Italy", est: 1920, lat: 40.87, lon: 14.29, blurb: "Neapolitan confidence in cloth form — bold checks and rich blends since 1920.", guidePath: ["cloth_origins", "suiting", "italian", "ariston"] },
     { key: "caccioppoli", short: "Caccioppoli", name: "Caccioppoli", place: "Naples", region: "Italy", est: 1920, lat: 40.82, lon: 14.23, blurb: "The Naples merchant every sartoria knows — southern lightness, colour, and pattern.", guidePath: ["cloth_origins", "suiting", "italian", "caccioppoli"] },
@@ -184,7 +188,7 @@ var MILL_MAP_PINS = [
     // Switzerland
     { key: "alumo", short: "Alumo", labelDy: -13, name: "Alumo", place: "Appenzell, Switzerland", region: "Switzerland", est: 1918, lat: 47.33, lon: 9.41, blurb: "The ceiling of cotton shirting — extra-long staple woven at very high counts in the Alps.", guidePath: ["cloth_origins", "shirtings", "swiss", "alumo"] },
     // Turkey
-    { key: "soktas", short: "Soktas", name: "Soktas", place: "Söke, Turkey", region: "Turkey", lat: 37.75, lon: 27.40, blurb: "Fine Turkish shirting cotton, grown and woven in the Aegean valley.", guidePath: ["cloth_origins", "shirtings", "turkish", "soktas"] },
+    { key: "soktas", short: "Soktas", name: "Soktas", place: "Söke, Turkey", region: "Turkey", est: 1971, lat: 37.75, lon: 27.40, blurb: "Fine Turkish shirting cotton, grown and woven in the Aegean valley.", guidePath: ["cloth_origins", "shirtings", "turkish", "soktas"] },
     // Egypt — a cotton origin, not a mill
     { key: "egyptian_shirting", short: "", name: "Egyptian Cotton", place: "The Nile Delta", region: "Egypt", type: "origin", lat: 30.95, lon: 31.10, blurb: "Where extra-long staple cotton begins — the delta soil behind the world's smoothest shirtings.", guidePath: ["cloth_origins", "shirtings", "egyptian", "egyptian_shirting"] },
     // Singapore — the home inset
@@ -1015,26 +1019,33 @@ function stopMillGlobe() {
 }
 
 // ============================================
-// GUIDED TOUR — "Take the Tour" flies the camera through 8 curated
-// houses in chronological order. Camera math is the placePins()
-// projection solved for x=0,y=0 (dead centre, facing the viewer):
-// phi = -(lonDeg*PI/180) - GLOBE_PHI_OFFSET, theta = latDeg*PI/180.
+// GUIDED TOUR — "Take the Tour" flies the camera through every house
+// with a verified founding year, oldest to newest. Camera math is the
+// placePins() projection solved for x=0,y=0 (dead centre, facing the
+// viewer): phi = -(lonDeg*PI/180) - GLOBE_PHI_OFFSET, theta = latDeg*PI/180.
 // Not a new calibration — the same numbers placePins() already uses.
+//
+// The stop list is computed, not hand-maintained: every MILL_MAP_PINS
+// entry carrying an `est` field, sorted oldest to newest. A house joins
+// the tour automatically the day its founding year is verified and
+// added — no second list to remember to update, and no risk of it
+// drifting stale the way the old hand-written tape-blade CSS did. Two
+// houses stay out on purpose: Huddersfield (a town, not a company — no
+// founding year applies) and Lovat Mill (verified sources only place its
+// own founding vaguely as "early 1900s"; see the comment on its pin).
 // ============================================
 
-var MILL_TOUR_STOPS = ["vbc", "fox", "holland_sherry", "solbiati", "loro_piana", "drago", "officine_paladino", "hellard"];
+function millTourStops() {
+    var houses = [];
+    for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+        var p = MILL_MAP_PINS[i];
+        if (p.type !== "origin" && typeof p.est === "number") houses.push(p);
+    }
+    houses.sort(function (a, b) { return a.est - b.est; });
+    return houses;
+}
 var MILL_TOUR_PAN_MS = 900;
 var MILL_TOUR_DWELL_MS = 4000;
-
-function millTourPins() {
-    var out = [];
-    for (var i = 0; i < MILL_TOUR_STOPS.length; i++) {
-        for (var j = 0; j < MILL_MAP_PINS.length; j++) {
-            if (MILL_MAP_PINS[j].key === MILL_TOUR_STOPS[i]) { out.push(MILL_MAP_PINS[j]); break; }
-        }
-    }
-    return out;
-}
 
 function millTourTarget(pin) {
     return {
@@ -1047,7 +1058,7 @@ function startMillTour() {
     if (!_globeHandle) return;
     var cv = document.getElementById("map-globe");
     var block = cv && cv.closest(".map-globe-block");
-    var stops = millTourPins();
+    var stops = millTourStops();
     if (!block || stops.length < 2) return;
 
     block.classList.add("mill-touring");
