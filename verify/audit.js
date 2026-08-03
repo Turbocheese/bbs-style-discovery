@@ -152,6 +152,37 @@ try {
     pinNoShort.push("could not parse MILL_MAP_PINS: " + e.message);
 }
 
+// ---- Script tag order ----
+//
+// index.html's script order is load-bearing (globals defined top-down)
+// and CLAUDE.md documents the exact sequence. The two have drifted out
+// of sync before with no error until something broke at runtime. This
+// pins CLAUDE.md's documented order as the source of truth and fails
+// loudly the moment index.html's actual <script src> order disagrees —
+// whether a tag moved, was added, or was removed.
+var EXPECTED_SCRIPT_ORDER = [
+    "data.js", "validator.js", "query.js", "discovery-ui.js",
+    "colour-direction.js", "lookbook.js", "wardrobe-templates.js",
+    "cloth-data.js", "heritage.js", "attract-shader.js", "weave-engine.js",
+    "garment-photo.js", "fabric-visualiser.js", "cloth-study.js",
+    "archetype-avatars.js", "vendor/cobe.js", "mill-map.js",
+    "vendor/html2canvas.min.js", "vendor/jspdf.umd.min.js", "app.js"
+];
+var indexSrc = require("fs").readFileSync(__dirname + "/../index.html", "utf8");
+var actualScriptOrder = [];
+var scriptTagRe = /<script src="([^"]+)"/g;
+var stm;
+while ((stm = scriptTagRe.exec(indexSrc))) {
+    actualScriptOrder.push(stm[1].replace(/\?.*$/, ""));
+}
+var scriptOrderMismatch = [];
+if (actualScriptOrder.join(",") !== EXPECTED_SCRIPT_ORDER.join(",")) {
+    scriptOrderMismatch.push(
+        "expected: " + EXPECTED_SCRIPT_ORDER.join(", ") +
+        " | actual: " + actualScriptOrder.join(", ")
+    );
+}
+
 function report(label, arr) {
     console.log((arr.length === 0 ? "  PASS  " : "  FAIL  ") + label + (arr.length ? " (" + arr.length + ")" : ""));
     arr.slice(0, 10).forEach(function (p) { console.log("          - " + p); });
@@ -177,10 +208,12 @@ report("every link target resolves to a topic, not a group", badLinkTarget);
 console.log("\nMill pins scanned: " + (typeof MILL_MAP_PINS !== "undefined" ? MILL_MAP_PINS.length : 0));
 report("every dated mill pin has a label for the tape", pinNoShort);
 report("every mill pin's guidePath resolves", pinNoGuide);
+console.log("\nindex.html script tags checked: " + actualScriptOrder.length);
+report("script tag order matches CLAUDE.md's documented load order", scriptOrderMismatch);
 
 var failed = missingMeta.length + missingCore.length + missingKind.length + invalidKind.length + (topics.length === 312 ? 0 : 1) +
     clothDupKeys.length + clothBadMill.length + clothBadGuide.length + clothBadWeave.length +
     clothUnverifiedSpec.length + clothVerifiedNoSource.length + badLinkTarget.length +
-    pinNoShort.length + pinNoGuide.length;
+    pinNoShort.length + pinNoGuide.length + scriptOrderMismatch.length;
 console.log(failed === 0 ? "\nAUDIT: ALL GREEN" : "\nAUDIT: FAILURES PRESENT");
 process.exit(failed === 0 ? 0 : 1);
