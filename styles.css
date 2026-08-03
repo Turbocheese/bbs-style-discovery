@@ -11020,7 +11020,7 @@ textarea:focus-visible,
        min-width: auto — it refuses to shrink below its content, so the
        long rail pushed this block to 840px inside a 680px parent and
        the whole PAGE scrolled sideways. Releasing that lets
-       .ptape-scroll do its job and keep the scrolling internal. */
+       .pmarq's own overflow: hidden keep the scrolling internal. */
     min-width: 0;
     width: 100%;
     align-self: stretch;
