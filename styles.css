@@ -10888,6 +10888,124 @@ textarea:focus-visible,
 }
 
 /* ============================================
+   MILL MAP GUIDED TOUR
+   "Take the Tour" flies the globe through 8 curated houses. The
+   reticle is fixed at the stage's visual centre — the camera always
+   lands each stop there by construction, so it needs no per-frame
+   positioning of its own.
+   ============================================ */
+
+.map-tour-reticle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 92px;
+    height: 92px;
+    margin: -46px 0 0 -46px;
+    border: 1px dashed var(--bronze);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mill-touring .map-tour-reticle {
+    opacity: 0.6;
+}
+
+.map-tour-card {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: min(340px, calc(100% - 32px));
+    padding: 14px 18px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    text-align: center;
+}
+
+.map-tour-card.is-visible {
+    display: block;
+}
+
+.map-tour-card > * {
+    animation: cardReveal 0.5s var(--ease-out) both;
+}
+.map-tour-card > *:nth-child(1) { animation-delay: 0s; }
+.map-tour-card > *:nth-child(2) { animation-delay: 0.08s; }
+.map-tour-card > *:nth-child(3) { animation-delay: 0.16s; }
+.map-tour-card > *:nth-child(4) { animation-delay: 0.24s; }
+.map-tour-card > *:nth-child(5) { animation-delay: 0.32s; }
+
+.map-tour-coord {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 4px;
+}
+
+.map-tour-name {
+    margin: 0 0 2px;
+    font-family: "EB Garamond", serif;
+    font-size: 1.15rem;
+    color: var(--text);
+}
+
+.map-tour-place {
+    margin: 0 0 6px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--soft);
+}
+
+.map-tour-blurb {
+    margin: 0 0 6px;
+    font-family: "EB Garamond", serif;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--text);
+}
+
+.map-tour-est {
+    display: inline-block;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.map-tour-est-num {
+    color: var(--bronze);
+    font-variant-numeric: tabular-nums;
+}
+
+.map-tour-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.map-tour-exit {
+    display: none;
+}
+
+.mill-touring .map-tour-start {
+    display: none;
+}
+
+.mill-touring .map-tour-exit {
+    display: inline-flex;
+}
+
+/* ============================================
    THE PROVENANCE TAPE
    29 houses founded between 1663 and 2021, drawn as a tape blade
    because the tape measure is already this app's signature. It
