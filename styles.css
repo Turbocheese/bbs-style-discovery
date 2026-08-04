@@ -7813,6 +7813,14 @@ button,
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes dsGarmentEnter {
+    from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+    to { opacity: 1; }
+}
+.ds-garment-enter {
+    animation: dsGarmentEnter 0.5s var(--ease-out) both;
+}
+
 .arch-card-wrap {
     animation: cardReveal 0.8s var(--ease-out) 0.35s both;
 }
