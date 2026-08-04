@@ -1638,9 +1638,10 @@ function getCompleteTheLookHTML(ens) {
 // until a cloth is picked (build-your-own: a piece stays blank until dressed).
 function getVisEnsPlaceholderBlock(garment, ens) {
     var activeClass = ens.activeGarment === garment ? " active" : "";
+    var enterClass = ens.justAdded === garment ? " ds-garment-enter" : "";
     var label = garment.charAt(0).toUpperCase() + garment.slice(1);
     return (
-        '<div class="ds-garment ds-garment--' + garment + " ds-garment--empty" + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
+        '<div class="ds-garment ds-garment--' + garment + " ds-garment--empty" + activeClass + enterClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
         '<div class="ds-garment-empty-inner">' +
         '<span class="ds-garment-empty-mark" aria-hidden="true"></span>' +
         '<span class="ds-garment-empty-hint">Choose a cloth</span>' +
@@ -1801,6 +1802,11 @@ function renderClothEnsemble(recommended, surpriseFlash) {
     if (ens.garments.indexOf("vest") !== -1) rightBlocks += getVisEnsGarmentBlock("vest", ens);
     if (ens.garments.indexOf("trousers") !== -1) rightBlocks += getVisEnsGarmentBlock("trousers", ens);
     if (rightBlocks) stageInner += '<div class="ds-stage-right">' + rightBlocks + "</div>";
+    // One-shot reveal flag: it has now been read by getVisEnsGarmentBlock ->
+    // getVisEnsPlaceholderBlock for this render pass, so clear it immediately —
+    // otherwise it would keep tagging the same garment as "just added" on every
+    // later render (style taps, other garment adds) until something overwrote it.
+    ens.justAdded = null;
 
     // The 117-cloth wall used to run straight on from the piece chips
     // with no break, and straight into the style menu after it with no
