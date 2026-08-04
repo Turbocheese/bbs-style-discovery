@@ -24,7 +24,7 @@
         // Warm cream drifting into a soft greige — a gentle, legible presence
         // behind the dark type, still low-key enough to read as ground.
         " vec3 base=vec3(0.957,0.937,0.897);",
-        " vec3 shade=vec3(0.836,0.793,0.716);",
+        " vec3 shade=vec3(0.847,0.775,0.678);",
         " vec3 col=mix(base, shade, smoothstep(0.28,0.98,f)*0.72);",
         " gl_FragColor=vec4(col,1.0);}"
     ].join("\n");
