@@ -3094,6 +3094,17 @@ textarea {
     overflow: hidden;
 }
 
+.arch-style-card::before,
+.map-tour-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+
 .arch-card-top {
     display: flex;
     justify-content: space-between;
@@ -10986,6 +10997,26 @@ textarea:focus-visible,
 .map-tour-est-num {
     color: var(--bronze);
     font-variant-numeric: tabular-nums;
+}
+
+.map-tour-start {
+    position: relative;
+    overflow: hidden;
+}
+.map-tour-start::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+    pointer-events: none;
+}
+.map-tour-start:hover::after {
+    left: 130%;
 }
 
 .map-tour-controls {
