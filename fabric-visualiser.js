@@ -1561,7 +1561,7 @@ var LOOK_SLOTS = {
     business: [
         { slot: "Tie", label: "Grenadine Silk", note: "Textured enough to sit against a plain worsted without going flat.", topic: ["accessories", "ties", "grenadine_tie"] },
         { slot: "Pocket Square", label: "White Linen", note: "The one square that never argues with anything.", topic: ["accessories", "pocket_squares", "white_pocket_square"] },
-        { slot: "Belt", label: "Dress Belt", note: "Slim, smooth leather, matched to the shoe.", topic: ["accessories", "belts", "dress_belt"] },
+        { slot: "Belt", label: "Dress Belt", note: "Narrow, smooth leather, matched to the shoe.", topic: ["accessories", "belts", "dress_belt"] },
         { slot: "Shoes", label: "Oxford", note: "Closed lacing is the formal end of the range.", topic: ["accessories", "shoes", "dress_shoes", "oxford_shoe"] }
     ],
     country: [

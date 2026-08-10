@@ -2509,12 +2509,12 @@ var archetypeQuestions = [
 var archetypeFitOptions = {
     "Everyday Essentials": [
         { text: "Relaxed and easy", val: "Relaxed Fit" },
-        { text: "Clean and close-cut", val: "Tapered Cut" },
+        { text: "Clean and close-cut", val: "Close Cut" },
         { text: "Open to guidance", val: "Adaptive Fit" },
     ],
     "Business Attire": [
         { text: "Classic tailored structure", val: "Classic Structure" },
-        { text: "Softer modern tailoring", val: "Slim Tailored" },
+        { text: "Softer modern tailoring", val: "Modern Tailored" },
         { text: "Guide me through it", val: "Studio Choice" },
     ],
     "Smart-Casual": [
@@ -2663,7 +2663,7 @@ function applyOnboardingArchetypeAdjustments(scores) {
         adjusted.w += 1;
     }
 
-    if (appState.selFit === "Slim Tailored") {
+    if (appState.selFit === "Modern Tailored") {
         adjusted.a += 1;
         adjusted.t += 1;
         adjusted.f += 1;
@@ -2684,7 +2684,7 @@ function applyOnboardingArchetypeAdjustments(scores) {
         adjusted.r += 1;
         adjusted.y += 1;
         adjusted.p += 1;
-    } else if (appState.selFit === "Tapered Cut") {
+    } else if (appState.selFit === "Close Cut") {
         adjusted.a += 1;
         adjusted.y += 1;
     }
@@ -4185,7 +4185,7 @@ function renderOnboarding() {
             for (var wf = 0; wf < fits.length; wf++) {
                 if (fits[wf].val === "Classic Structure") {
                     fits[wf].text = "Light, classic structure";
-                } else if (fits[wf].val === "Slim Tailored") {
+                } else if (fits[wf].val === "Modern Tailored") {
                     fits[wf].text = "Soft, modern tailoring";
                 } else if (fits[wf].val === "Sharp Custom") {
                     fits[wf].text = "Sharp, but still light";
@@ -4197,7 +4197,7 @@ function renderOnboarding() {
                     fits[wf].text = "Clean, easy tailoring";
                 } else if (fits[wf].val === "Relaxed Fit") {
                     fits[wf].text = "Relaxed and breathable";
-                } else if (fits[wf].val === "Tapered Cut") {
+                } else if (fits[wf].val === "Close Cut") {
                     fits[wf].text = "Clean and lightweight";
                 }
             }
@@ -4205,7 +4205,7 @@ function renderOnboarding() {
             for (var tf = 0; tf < fits.length; tf++) {
                 if (fits[tf].val === "Classic Structure") {
                     fits[tf].text = "Classic structure with presence";
-                } else if (fits[tf].val === "Slim Tailored") {
+                } else if (fits[tf].val === "Modern Tailored") {
                     fits[tf].text = "Modern tailored line";
                 } else if (fits[tf].val === "Sharp Custom") {
                     fits[tf].text = "Sharp and structured";
@@ -4217,8 +4217,8 @@ function renderOnboarding() {
                     fits[tf].text = "Clean layered tailoring";
                 } else if (fits[tf].val === "Relaxed Fit") {
                     fits[tf].text = "Relaxed with room to layer";
-                } else if (fits[tf].val === "Tapered Cut") {
-                    fits[tf].text = "Clean, tapered shape";
+                } else if (fits[tf].val === "Close Cut") {
+                    fits[tf].text = "Clean, close-cut shape";
                 }
             }
         }
