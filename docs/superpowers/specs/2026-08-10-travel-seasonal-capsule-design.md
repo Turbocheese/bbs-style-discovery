@@ -75,6 +75,14 @@ For each of the 24 archetypes:
    - `context`: one bespoke sentence per archetype connecting the capsule to
      travel/cooler climates in that archetype's tone.
 
+**Exception found during planning:** two archetypes (Utilitarian, Performance
+Casual) already have an existing refinement item that is conceptually
+identical to what every other archetype gets new ("Packable weather layers",
+"Travel-ready outerwear"). For those two only, the plan fixes that existing
+item's `climate` tag (it was wrongly scoped to a single climate, the same
+bug this spec's climate-tagging rule exists to prevent) and reuses it in the
+new outfit rather than authoring a near-duplicate second item.
+
 ## Why this shape
 
 - Reuses the worksheet's existing outfit-card rendering (`app.js`, the
