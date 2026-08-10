@@ -34,7 +34,21 @@ exist).
 For each of the 24 archetypes:
 
 1. **One new item**, added to that archetype's `refinements[]` array:
-   - `climate: ["temperate"]`
+   - `climate: ["all"]` — **not** `["temperate"]`. `wardrobe-templates.js`'s
+     `filterItemsByClimate()` (called from three places in `app.js`) hides
+     any item whose `climate` array doesn't contain the client's own
+     `selClimate` answer (mapped: Tropical→tropical, Warm & Dry→warm_climate,
+     Temperate→temperate, Indoor Climate→tropical) or `"all"`. Since BBS's
+     client base is overwhelmingly tropical/warm-climate, a `["temperate"]`
+     tag would hide this item from almost everyone it's meant for — it would
+     only surface for the rare client who selects "Temperate" as their own
+     climate, which is backwards for a "what to pack when you leave the
+     tropics" capsule. Worse, the outfit-card renderer
+     (`app.js:4901-4907`) silently drops any referenced item id that isn't in
+     the filtered array, so a wrongly-tagged item wouldn't error — it would
+     just quietly vanish from the capsule card for most clients. `["all"]`
+     is the same escape hatch nearly every other reusable item in this file
+     already uses.
    - `tier: "enhancement"` (worksheet displays this as "Upgrade")
    - `id` follows that archetype's existing numbering convention (e.g.
      `t_r3` if `t_r1`/`t_r2` already exist)
@@ -54,7 +68,7 @@ For each of the 24 archetypes:
      echoes the Outerwear topic's own framing, so the phrase becomes a
      recognizable thread running from guide content through to the
      worksheet.
-   - `items`: the new temperate-tagged item's id, plus two of that
+   - `items`: the new item's id, plus two of that
      archetype's existing `climate: ["all"]` item ids (typically a shirt and
      a trouser already defined in `foundation[]`) — reused by reference, not
      duplicated.
@@ -69,8 +83,9 @@ For each of the 24 archetypes:
   renderer draws from `wardrobeTemplates[archetype].outfits`.
 - Reuses existing guide topics (Overcoat, Layering in Warm Climates) — no new
   `data.js` topic, no topic-count change, no `audit.js` change.
-- `climate: ["temperate"]` matches vocabulary already in use elsewhere in the
-  file (e.g. `z_r1`, `z_r2`, and two other existing items) — no new
+- `climate: ["all"]` is the vocabulary the file already uses for "always
+  visible regardless of the client's climate answer" — the same value used
+  by the large majority of existing foundation/refinement items. No new
   vocabulary invented.
 - `tier: "enhancement"` (not foundation) — this is a situational, occasional
   piece, not core to daily tropical dressing. This matches how the one
