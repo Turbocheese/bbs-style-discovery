@@ -7003,6 +7003,7 @@ document.body.addEventListener("click", function (e) {
             ensAdd.garments = ordered;
         }
         ensAdd.activeGarment = addGarment;
+        ensAdd.justAdded = addGarment;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render({ animate: false });
     }
