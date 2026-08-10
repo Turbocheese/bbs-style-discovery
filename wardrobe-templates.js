@@ -22,6 +22,11 @@ var wardrobeTemplates = {
                 items: ["t_r1", "t_r2", "t_f5"],
                 context: "Comfortable air travel arriving ready for dinner.",
             },
+            {
+                name: "Beyond the Tropics",
+                items: ["t_r4", "t_f2", "t_f5"],
+                context: "Cooler-climate business trips — layer the overcoat over your existing shirt and trouser foundation.",
+            },
         ],
         foundation: [
             {
@@ -137,6 +142,18 @@ var wardrobeTemplates = {
                 why: "Quality leather goods anchor your entire look.",
                 guide: ["accessories"],
             },
+            {
+                id: "t_r4",
+                item: "Packable travel overcoat",
+                priority: 9,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#243B5A", note: "Navy — works with your entire capsule" },
+                },
+                why: "For business trips beyond the tropics, an unlined wool overcoat folds flat in a carry-on and unpacks crease-free.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -157,6 +174,11 @@ var wardrobeTemplates = {
                 name: "The Modern Gallery",
                 items: ["q_f2", "q_r2", "q_f4"],
                 context: "Crisp basics with impeccable fit.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["q_r3", "q_f3", "q_f2"],
+                context: "For travel beyond your tropical baseline — the topcoat over your existing white shirt and stone trouser.",
             },
         ],
         foundation: [
@@ -252,6 +274,18 @@ var wardrobeTemplates = {
                 why: "Your aesthetic is about flawless execution of simple pieces.",
                 guide: ["colour_wardrobe", "core_wardrobe_anchors"],
             },
+            {
+                id: "q_r3",
+                item: "Minimal wool topcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#4A4A4A", note: "Charcoal — no pattern, no distraction" },
+                },
+                why: "Restraint travels. A single unadorned topcoat covers every cooler-climate trip without adding a new colour to think about.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -272,6 +306,11 @@ var wardrobeTemplates = {
                 name: "The Layered Breeze",
                 items: ["w_f5", "w_f2", "w_r2"],
                 context: "Cooler evenings by the water.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["w_r3", "w_f3", "w_f2"],
+                context: "The cooler-climate exception to a coastal wardrobe — worn only away from home.",
             },
         ],
         foundation: [
@@ -366,6 +405,18 @@ var wardrobeTemplates = {
                 why: "Your coastal aesthetic extends to every detail. Avoid heavy leather.",
                 guide: ["accessories"],
             },
+            {
+                id: "w_r3",
+                item: "Unlined wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#687383", note: "Slate — the one cool tone in an otherwise warm wardrobe" },
+                },
+                why: "Your wardrobe is built for heat, so this is the one piece bought purely for the trips that take you elsewhere.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -386,6 +437,11 @@ var wardrobeTemplates = {
                 name: "The Structured Casual",
                 items: ["c_f2", "c_f3", "c_f5"],
                 context: "Smart-casual with architectural weight.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["c_r3", "c_f4", "c_f3"],
+                context: "Cooler-climate travel, dressed with the same weight and honesty as the rest of your wardrobe.",
             },
         ],
         foundation: [
@@ -488,6 +544,18 @@ var wardrobeTemplates = {
                 why: "Bridle leather belts and handcrafted accessories that patina over time.",
                 guide: ["accessories"],
             },
+            {
+                id: "c_r3",
+                item: "Waxed cotton field coat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#3B2A22", note: "Dark brown — ages like your leather goods" },
+                },
+                why: "Built to be worn hard and to develop character rather than be replaced — the same longevity logic as your shoes, applied to outerwear.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -508,6 +576,11 @@ var wardrobeTemplates = {
                 name: "The Seamless Transit",
                 items: ["m_r2", "m_f3", "m_f5"],
                 context: "Moving between flights and meetings.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["m_r3", "m_f3", "m_f2"],
+                context: "Cooler climates on the same trips your Seamless Transit outfit already covers.",
             },
         ],
         foundation: [
@@ -596,6 +669,18 @@ var wardrobeTemplates = {
                 why: "Hidden comfort features. Looks like a suit trouser, feels like a track pant.",
                 guide: ["tailoring", "trousers"],
             },
+            {
+                id: "m_r3",
+                item: "Unstructured wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#5D718A", note: "Soft blue-grey" },
+                },
+                why: "Unstructured construction means it packs like the rest of your travel pieces — no stiffness, no bulk.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -616,6 +701,11 @@ var wardrobeTemplates = {
                 name: "The Ceremony",
                 items: ["g_r1", "g_f3", "g_r2"],
                 context: "Weddings, galas, and milestones.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["g_r3", "g_f1", "g_f3"],
+                context: "For the business trips that take a traditionalist beyond the tropics — the Chesterfield over your suit.",
             },
         ],
         foundation: [
@@ -700,6 +790,18 @@ var wardrobeTemplates = {
                 paletteGuidance: { all: { color: "#F3F0EA", note: "Crisp white" } },
                 why: "The TV fold. A subtle nod to classical tailoring rules.",
                 guide: ["accessories"],
+            },
+            {
+                id: "g_r3",
+                item: "Chesterfield overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#243B5A", note: "Navy — the traditional choice" },
+                },
+                why: "The Chesterfield is the correct coat, not merely a warm one — velvet collar, fly front, exactly as tradition specifies.",
+                guide: ["outerwear", "overcoat"],
             },
         ],
     },
