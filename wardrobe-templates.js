@@ -1586,6 +1586,11 @@ var wardrobeTemplates = {
                 items: ["h_r1", "h_f3", "h_f4"],
                 context: "When construction and craft are the focus.",
             },
+            {
+                name: "Beyond the Tropics",
+                items: ["h_r3", "h_f1", "h_f4"],
+                context: "Familiar codes, cooler climate.",
+            },
         ],
         foundation: [
             {
@@ -1683,6 +1688,18 @@ var wardrobeTemplates = {
                 why: "Deploying historical colours (hunting greens, equestrian browns) in modern city cuts.",
                 guide: ["colour_wardrobe", "core_colours"],
             },
+            {
+                id: "h_r3",
+                item: "Modern-cut wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#243B5A", note: "Navy or charcoal" },
+                },
+                why: "Traditional coat, updated cut — the same formula as your suit.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -1703,6 +1720,11 @@ var wardrobeTemplates = {
                 name: "The Smart Separates",
                 items: ["l_f1", "l_f2", "l_f5"],
                 context: "Dynamic casual office environments.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["l_r3", "l_f4", "l_f2"],
+                context: "Where your layering system actually gets tested — somewhere cold enough to need every piece.",
             },
         ],
         foundation: [
@@ -1794,6 +1816,18 @@ var wardrobeTemplates = {
                 why: "The final layer. Needs to slip easily over a tailored jacket without bunching.",
                 guide: ["colour_wardrobe", "layering_in_warm_climates"],
             },
+            {
+                id: "l_r3",
+                item: "Wool overcoat, built to layer under",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#687383", note: "Slate — layers over everything in your knitwear collection" },
+                },
+                why: "Cut generously enough to sit over your existing knitwear collection rather than replacing it — one more layer, not a substitute for the others.",
+                guide: ["colour_wardrobe", "layering_in_warm_climates"],
+            },
         ],
     },
 
@@ -1814,6 +1848,11 @@ var wardrobeTemplates = {
                 name: "The Tonal Anchor",
                 items: ["x_r2", "x_f1", "x_f3"],
                 context: "Sleek evening engagements.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["x_r3", "x_f4", "x_f3"],
+                context: "Cooler-climate travel without introducing a single new colour.",
             },
         ],
         foundation: [
@@ -1910,6 +1949,18 @@ var wardrobeTemplates = {
                 why: "Pairing a charcoal flannel suit with a charcoal silk knit tie and a pale grey shirt. Masterful.",
                 guide: ["colour_wardrobe", "texture_vs_colour"],
             },
+            {
+                id: "x_r3",
+                item: "Textured wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#4A4A4A", note: "Charcoal or stone — texture, not colour, does the work" },
+                },
+                why: "Heavier cloth, same restraint — the coat reads through texture alone, exactly like the rest of your wardrobe.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -1930,6 +1981,11 @@ var wardrobeTemplates = {
                 name: "The Technical Weekend",
                 items: ["p_f4", "p_f2", "p_f5"],
                 context: "Errands and off-duty movement.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["p_r2", "p_f2", "p_f3"],
+                context: "Your existing travel-ready outerwear, formalized here as the anchor of a dedicated cooler-climate capsule.",
             },
         ],
         foundation: [
@@ -2047,6 +2103,11 @@ var wardrobeTemplates = {
                 items: ["k_r2", "k_f3", "k_f5"],
                 context: "Making an impact as a guest without overshadowing.",
             },
+            {
+                name: "Beyond the Tropics",
+                items: ["k_r3", "k_f3", "k_f1"],
+                context: "Cold-weather weddings and evening events beyond the tropics.",
+            },
         ],
         foundation: [
             {
@@ -2141,6 +2202,18 @@ var wardrobeTemplates = {
                 why: "A dedicated three-piece suit ensures you are perpetually ready for major milestones.",
                 guide: ["tailoring", "suits", "use_case", "wedding"],
             },
+            {
+                id: "k_r3",
+                item: "Formal wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#1E1E1E", note: "Black — works over your dinner suit too" },
+                },
+                why: "Winter galas and weddings call for a coat as considered as the suit underneath it — not just any coat.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2161,6 +2234,11 @@ var wardrobeTemplates = {
                 name: "The City Stride",
                 items: ["f_r1", "f_f3", "f_r2"],
                 context: "Moving forcefully through the financial district.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["f_r3", "f_f4", "f_f3"],
+                context: "The same control, exercised somewhere cold enough to need a coat.",
             },
         ],
         foundation: [
@@ -2249,6 +2327,18 @@ var wardrobeTemplates = {
                 },
                 why: "Sleek briefcases, minimal silver watches, discreet cufflinks. Everything must look precise.",
                 guide: ["accessories"],
+            },
+            {
+                id: "f_r3",
+                item: "Structured wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#1F3550", note: "Immaculate dark navy — matches your suiting" },
+                },
+                why: "Structured shoulders and a clean line, so the coat holds the same control as the suit underneath it.",
+                guide: ["outerwear", "overcoat"],
             },
         ],
     },
