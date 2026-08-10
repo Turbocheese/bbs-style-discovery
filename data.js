@@ -14613,7 +14613,7 @@ window.guideTree = {
                                         price_sensitivity: "high",
                                     },
                                     sections: [
-                                        { heading: "Intro", body: "E. Thomas is one of Biella's quieter names, better known inside the trade than outside it." },
+                                        { heading: "Intro", body: "E. Thomas weaves on the shore of Lake Lugano, just outside Biella itself, and is better known inside the trade than outside it." },
                                         { heading: "What It Is", body: "An Italian mill associated with refined jacketings and inventive wool, silk, linen and cashmere blends." },
                                         { heading: "Why It Matters", body: "Blend-led weaving is where modern Italian cloth gets interesting — texture and lightness engineered together." },
                                         { heading: "Best For", body: "Soft odd jackets with a luxurious, contemporary hand." },
