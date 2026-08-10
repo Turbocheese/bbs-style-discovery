@@ -8838,6 +8838,11 @@ button,
 
 .ds-garment-label { bottom: 1px; }
 
+/* Trousers' -14px margin-top (overlap look) eats 2px into the vest box
+   above it — enough to clip the vest's caption at bottom:1px. Give the
+   vest label extra clearance rather than reducing the overlap. */
+.ds-garment--vest .ds-garment-label { bottom: 16px; }
+
 /* ============================================================
    FLIP CARDS + TASTEFUL 3D
    Touch-first: no hover dependency, 44px+ targets, transform and
