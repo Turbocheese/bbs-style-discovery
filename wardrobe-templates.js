@@ -2891,7 +2891,7 @@ var wardrobeTemplates = {
             },
             {
                 name: "Beyond the Tropics",
-                items: ["v_r3", "v_f4", "v_f3"],
+                items: ["v_r3", "v_f5", "v_r2"],
                 context: "The rare cold-climate trip, dressed with the same minimalism as the Riviera.",
             },
         ],
