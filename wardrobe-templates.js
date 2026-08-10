@@ -833,7 +833,7 @@ var wardrobeTemplates = {
         foundation: [
             {
                 id: "a_f1",
-                item: "Slim-tailored monochromatic suit",
+                item: "Sharp-tailored monochromatic suit",
                 priority: 1,
                 tier: "foundation",
                 mills: "High-twist worsted",

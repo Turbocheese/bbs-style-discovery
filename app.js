@@ -2509,12 +2509,12 @@ var archetypeQuestions = [
 var archetypeFitOptions = {
     "Everyday Essentials": [
         { text: "Relaxed and easy", val: "Relaxed Fit" },
-        { text: "Clean and close-cut", val: "Tapered Cut" },
+        { text: "Clean and close-cut", val: "Close Cut" },
         { text: "Open to guidance", val: "Adaptive Fit" },
     ],
     "Business Attire": [
         { text: "Classic tailored structure", val: "Classic Structure" },
-        { text: "Softer modern tailoring", val: "Slim Tailored" },
+        { text: "Softer modern tailoring", val: "Modern Tailored" },
         { text: "Guide me through it", val: "Studio Choice" },
     ],
     "Smart-Casual": [
@@ -2663,7 +2663,7 @@ function applyOnboardingArchetypeAdjustments(scores) {
         adjusted.w += 1;
     }
 
-    if (appState.selFit === "Slim Tailored") {
+    if (appState.selFit === "Modern Tailored") {
         adjusted.a += 1;
         adjusted.t += 1;
         adjusted.f += 1;
@@ -2684,7 +2684,7 @@ function applyOnboardingArchetypeAdjustments(scores) {
         adjusted.r += 1;
         adjusted.y += 1;
         adjusted.p += 1;
-    } else if (appState.selFit === "Tapered Cut") {
+    } else if (appState.selFit === "Close Cut") {
         adjusted.a += 1;
         adjusted.y += 1;
     }
@@ -3773,6 +3773,11 @@ function renderHome() {
     var colourResult = appState.colourResultKey && typeof getColourDirectionProfileData === "function"
         ? getColourDirectionProfileData(appState.colourResultKey)
         : null;
+    // Scoped to a completed journey specifically (not just "both individual
+    // results happen to exist") — see navigateJourney()'s matching guard.
+    var journeyResult = (appState.inJourney && appState.journeyStage === "done" && styleResult && colourResult)
+        ? styleResult
+        : null;
 
     var footerActions = "";
     if (appState.clientName) {
@@ -3826,10 +3831,14 @@ function renderHome() {
         '<div class="home-section-label">Begin</div>' +
         '<div class="home-journey-cta" data-action="begin-journey" role="button" tabindex="0" aria-label="Begin your discovery">' +
         '<div class="home-journey-cta-copy">' +
-        '<div class="home-card-tag">The Full Journey</div>' +
+        '<div class="home-card-tag">' + (journeyResult ? "Your Style Discovery" : "The Full Journey") + "</div>" +
         '<h2 class="home-journey-cta-title">Your Style Discovery</h2>' +
-        '<p class="home-card-body">Colour first, then style — resolved into one complete picture of how you dress.</p>' +
-        '<div class="home-card-cta">Take the full journey &rarr;</div>' +
+        '<p class="home-card-body">' +
+        (journeyResult
+            ? journeyResult.name + " &mdash; " + journeyResult.sub + ". Saved for this visit."
+            : "Colour first, then style — resolved into one complete picture of how you dress.") +
+        "</p>" +
+        '<div class="home-card-cta">' + (journeyResult ? "See your result &rarr;" : "Take the full journey &rarr;") + "</div>" +
         "</div>" +
         "</div>" +
         // Individual quizzes below. Style Direction is a full-width hero
@@ -4176,7 +4185,7 @@ function renderOnboarding() {
             for (var wf = 0; wf < fits.length; wf++) {
                 if (fits[wf].val === "Classic Structure") {
                     fits[wf].text = "Light, classic structure";
-                } else if (fits[wf].val === "Slim Tailored") {
+                } else if (fits[wf].val === "Modern Tailored") {
                     fits[wf].text = "Soft, modern tailoring";
                 } else if (fits[wf].val === "Sharp Custom") {
                     fits[wf].text = "Sharp, but still light";
@@ -4188,7 +4197,7 @@ function renderOnboarding() {
                     fits[wf].text = "Clean, easy tailoring";
                 } else if (fits[wf].val === "Relaxed Fit") {
                     fits[wf].text = "Relaxed and breathable";
-                } else if (fits[wf].val === "Tapered Cut") {
+                } else if (fits[wf].val === "Close Cut") {
                     fits[wf].text = "Clean and lightweight";
                 }
             }
@@ -4196,7 +4205,7 @@ function renderOnboarding() {
             for (var tf = 0; tf < fits.length; tf++) {
                 if (fits[tf].val === "Classic Structure") {
                     fits[tf].text = "Classic structure with presence";
-                } else if (fits[tf].val === "Slim Tailored") {
+                } else if (fits[tf].val === "Modern Tailored") {
                     fits[tf].text = "Modern tailored line";
                 } else if (fits[tf].val === "Sharp Custom") {
                     fits[tf].text = "Sharp and structured";
@@ -4208,8 +4217,8 @@ function renderOnboarding() {
                     fits[tf].text = "Clean layered tailoring";
                 } else if (fits[tf].val === "Relaxed Fit") {
                     fits[tf].text = "Relaxed with room to layer";
-                } else if (fits[tf].val === "Tapered Cut") {
-                    fits[tf].text = "Clean, tapered shape";
+                } else if (fits[tf].val === "Close Cut") {
+                    fits[tf].text = "Clean, close-cut shape";
                 }
             }
         }
@@ -5601,7 +5610,12 @@ function renderTopic(node) {
         var iconSignature =
             '<svg class="topic-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
 
-        if (node.metadata.climate && node.metadata.climate.length) {
+        // Climate, Formality and Versatility describe how a wearable thing
+        // behaves on a body — meaningless for a mill/merchant (fabric_reference,
+        // a company) or an editorial essay (brand_philosophy). BBS Signature
+        // stays: "this mill/essay is core to BBS" reads fine for both kinds.
+        var showWearableMeta = node.topic_kind !== "fabric_reference" && node.topic_kind !== "brand_philosophy";
+        if (showWearableMeta && node.metadata.climate && node.metadata.climate.length) {
             var climateText = node.metadata.climate
                 .map(function (c) {
                     return c
@@ -5620,7 +5634,7 @@ function renderTopic(node) {
                 "</div></div>"
             );
         }
-        if (node.metadata.formality && node.metadata.formality.length) {
+        if (showWearableMeta && node.metadata.formality && node.metadata.formality.length) {
             var formalityText = node.metadata.formality
                 .map(function (f) {
                     return f
@@ -5639,7 +5653,7 @@ function renderTopic(node) {
                 "</div></div>"
             );
         }
-        if (node.metadata.versatility) {
+        if (showWearableMeta && node.metadata.versatility) {
             metaItems.push(
                 '<div class="topic-meta-card"><div class="topic-meta-card-header">' +
                 iconVersatility +
@@ -7406,14 +7420,53 @@ function renderColourDirectionResult() {
 // Both quizzes start fresh so the journey always runs Colour then Style in
 // full, regardless of any prior individual-quiz state on the session.
 function navigateJourney() {
+    // 1. The journey itself was already completed in this session — show the
+    //    existing unified result rather than wiping it. This was the bug:
+    //    the Home page's primary "Full Journey" CTA had no resume check
+    //    (unlike navigateDiscover and navigateColourDirection below), so
+    //    clicking it again after finishing silently discarded a client's
+    //    saved result. Scoped to inJourney + journeyStage "done" specifically
+    //    (not just "both results happen to exist") so two quizzes taken
+    //    standalone, without ever running the journey, still get a fresh
+    //    Colour-first run when the journey CTA is used for the first time —
+    //    that "always fresh relative to standalone quiz state" behavior is
+    //    intentional (see the fresh-start branch below).
+    if (appState.inJourney && appState.journeyStage === "done" && appState.archetypeKey && appState.colourResultKey) {
+        appState.view = "result";
+        render({ animate: true });
+        return;
+    }
+
+    // 2. Partway through a journey already in progress — resume, don't reset.
+    if (
+        appState.inJourney &&
+        appState.journeyStage === "colour" &&
+        appState.colourAnswersById &&
+        Object.keys(appState.colourAnswersById).length > 0
+    ) {
+        appState.view = "colour-direction";
+        render({ animate: true });
+        return;
+    }
+    if (
+        appState.inJourney &&
+        appState.journeyStage === "style" &&
+        appState.quizAnswersById &&
+        Object.keys(appState.quizAnswersById).length > 0
+    ) {
+        appState.view = "discover";
+        render({ animate: true });
+        return;
+    }
+
+    // 3. Otherwise, start fresh — both quizzes reset so the journey always
+    //    runs Colour then Style in full, regardless of any prior
+    //    individual-quiz state on the session.
     appState.inJourney = true;
     appState.journeyStage = "colour";
-    // Colour quiz fresh-start (mirror navigateColourDirection's fresh path).
     appState.colourStep = 0;
     appState.colourAnswersById = {};
     appState.colourResultKey = null;
-    // Style quiz fresh-start (mirror navigateDiscover's fresh path) so a
-    // returning session cannot skip the Style leg or resume it half-done.
     appState.quizStep = 0;
     appState.quizAnswers = [];
     appState.quizAnswersById = {};
