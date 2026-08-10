@@ -2362,6 +2362,11 @@ var wardrobeTemplates = {
                 context:
                     "Letting a subtle shirt pattern breathe against solid texture.",
             },
+            {
+                name: "Beyond the Tropics",
+                items: ["n_r3", "n_f2", "n_f3"],
+                context: "Cold-weather travel with the same pattern-mixing confidence as home.",
+            },
         ],
         foundation: [
             {
@@ -2453,6 +2458,18 @@ var wardrobeTemplates = {
                 why: "When you aren't wearing a printed pattern, you use the physical 3D weave of the cloth as your pattern.",
                 guide: ["fabrics", "suiting", "hopsack"],
             },
+            {
+                id: "n_r3",
+                item: "Textured wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#666A42", note: "Olive/brown check — one more pattern to mix" },
+                },
+                why: "A checked herringbone overcoat gives cold-weather travel the same pattern-mixing opportunity as the rest of your wardrobe.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2473,6 +2490,11 @@ var wardrobeTemplates = {
                 name: "The Climate Classic",
                 items: ["d_r1", "d_f3", "d_f4"],
                 context: "Looking historically correct in the sweltering heat.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["d_r3", "d_f4", "d_f3"],
+                context: "Cooler-climate travel, in the same updated classic style.",
             },
         ],
         foundation: [
@@ -2563,6 +2585,18 @@ var wardrobeTemplates = {
                 why: "Using high-twist open weaves to mimic the drape of heavy vintage wools.",
                 guide: ["fabrics", "suiting", "fresco"],
             },
+            {
+                id: "d_r3",
+                item: "Classic wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#243B5A", note: "Navy" },
+                },
+                why: "A traditional silhouette, cut clean rather than heritage-heavy — the same balance as the rest of your wardrobe.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2583,6 +2617,11 @@ var wardrobeTemplates = {
                 name: "The Quiet Wardrobe",
                 items: ["y_r1", "y_f3", "y_f4"],
                 context: "Effortless, repetitive daily elegance.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["y_r3", "y_f4", "y_f3"],
+                context: "Cooler-climate travel, kept as quiet as the rest of your wardrobe.",
             },
         ],
         foundation: [
@@ -2680,6 +2719,18 @@ var wardrobeTemplates = {
                 why: "Investing heavily in the 3 core colours that make up 90% of your wardrobe.",
                 guide: ["colour_wardrobe", "building_a_wardrobe"],
             },
+            {
+                id: "y_r3",
+                item: "Minimal wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#4A4A4A", note: "Charcoal" },
+                },
+                why: "One coat, no embellishment — quiet in exactly the way the rest of your wardrobe is quiet.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2700,6 +2751,11 @@ var wardrobeTemplates = {
                 name: "The Transitional Layer",
                 items: ["z_r1", "z_f2", "z_f3"],
                 context: "Autumn and Spring adaptability.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["z_r3", "z_f1", "z_f2"],
+                context: "Beyond your own seasonal rotation — travel to a climate colder than anything you dress for at home.",
             },
         ],
         foundation: [
@@ -2800,6 +2856,18 @@ var wardrobeTemplates = {
                 why: "When the weather is perfectly balanced, the classic medium-weight worsted wool reigns supreme.",
                 guide: ["fabrics", "suiting", "worsted_wool"],
             },
+            {
+                id: "z_r3",
+                item: "Travel overcoat for climates beyond your own",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#4A4A4A", note: "Charcoal — sits outside your seasonal palette by design" },
+                },
+                why: "Your wardrobe is already built for the genuine seasons at home. This is the one piece for seasons you visit but don't live in.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2820,6 +2888,11 @@ var wardrobeTemplates = {
                 name: "The Light Layer",
                 items: ["v_r1", "v_f4", "v_f3"],
                 context: "Cooler coastal evenings.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["v_r3", "v_f4", "v_f3"],
+                context: "The rare cold-climate trip, dressed with the same minimalism as the Riviera.",
             },
         ],
         foundation: [
@@ -2911,6 +2984,18 @@ var wardrobeTemplates = {
                 why: "The aesthetic extends to the luggage. Avoid harsh, structured briefcases.",
                 guide: ["accessories"],
             },
+            {
+                id: "v_r3",
+                item: "Unlined wool overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#687383", note: "Slate — a single cool note" },
+                },
+                why: "Everything else in your wardrobe is built for warmth and ease; this is the deliberate exception, bought only for the trips that call for it.",
+                guide: ["outerwear", "overcoat"],
+            },
         ],
     },
 
@@ -2931,6 +3016,11 @@ var wardrobeTemplates = {
                 name: "The Silk Blend",
                 items: ["o_r2", "o_f3", "o_f5"],
                 context: "Summer weddings requiring elevated fabric.",
+            },
+            {
+                name: "Beyond the Tropics",
+                items: ["o_r3", "o_f3", "o_f1"],
+                context: "Cold-climate galas and events beyond the tropics.",
             },
         ],
         foundation: [
@@ -3018,6 +3108,18 @@ var wardrobeTemplates = {
                 paletteGuidance: { all: { color: "#243B5A", note: "Navy silk-blend" } },
                 why: "The silk content gives the fabric a subtle, natural luster under evening lights.",
                 guide: ["fabrics", "suiting", "wool_silk_linen"],
+            },
+            {
+                id: "o_r3",
+                item: "Double-breasted overcoat",
+                priority: 8,
+                tier: "enhancement",
+                climate: ["all"],
+                paletteGuidance: {
+                    all: { color: "#1E1E1E", note: "Black — as formal as the suit underneath" },
+                },
+                why: "A double-breasted overcoat carries the same authoritative stance as your peak lapel into cold-weather evenings.",
+                guide: ["outerwear", "overcoat"],
             },
         ],
     },
