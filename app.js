@@ -3773,6 +3773,11 @@ function renderHome() {
     var colourResult = appState.colourResultKey && typeof getColourDirectionProfileData === "function"
         ? getColourDirectionProfileData(appState.colourResultKey)
         : null;
+    // Scoped to a completed journey specifically (not just "both individual
+    // results happen to exist") — see navigateJourney()'s matching guard.
+    var journeyResult = (appState.inJourney && appState.journeyStage === "done" && styleResult && colourResult)
+        ? styleResult
+        : null;
 
     var footerActions = "";
     if (appState.clientName) {
@@ -3826,10 +3831,14 @@ function renderHome() {
         '<div class="home-section-label">Begin</div>' +
         '<div class="home-journey-cta" data-action="begin-journey" role="button" tabindex="0" aria-label="Begin your discovery">' +
         '<div class="home-journey-cta-copy">' +
-        '<div class="home-card-tag">The Full Journey</div>' +
+        '<div class="home-card-tag">' + (journeyResult ? "Your Style Discovery" : "The Full Journey") + "</div>" +
         '<h2 class="home-journey-cta-title">Your Style Discovery</h2>' +
-        '<p class="home-card-body">Colour first, then style — resolved into one complete picture of how you dress.</p>' +
-        '<div class="home-card-cta">Take the full journey &rarr;</div>' +
+        '<p class="home-card-body">' +
+        (journeyResult
+            ? journeyResult.name + " &mdash; " + journeyResult.sub + ". Saved for this visit."
+            : "Colour first, then style — resolved into one complete picture of how you dress.") +
+        "</p>" +
+        '<div class="home-card-cta">' + (journeyResult ? "See your result &rarr;" : "Take the full journey &rarr;") + "</div>" +
         "</div>" +
         "</div>" +
         // Individual quizzes below. Style Direction is a full-width hero
@@ -7406,14 +7415,53 @@ function renderColourDirectionResult() {
 // Both quizzes start fresh so the journey always runs Colour then Style in
 // full, regardless of any prior individual-quiz state on the session.
 function navigateJourney() {
+    // 1. The journey itself was already completed in this session — show the
+    //    existing unified result rather than wiping it. This was the bug:
+    //    the Home page's primary "Full Journey" CTA had no resume check
+    //    (unlike navigateDiscover and navigateColourDirection below), so
+    //    clicking it again after finishing silently discarded a client's
+    //    saved result. Scoped to inJourney + journeyStage "done" specifically
+    //    (not just "both results happen to exist") so two quizzes taken
+    //    standalone, without ever running the journey, still get a fresh
+    //    Colour-first run when the journey CTA is used for the first time —
+    //    that "always fresh relative to standalone quiz state" behavior is
+    //    intentional (see the fresh-start branch below).
+    if (appState.inJourney && appState.journeyStage === "done" && appState.archetypeKey && appState.colourResultKey) {
+        appState.view = "result";
+        render({ animate: true });
+        return;
+    }
+
+    // 2. Partway through a journey already in progress — resume, don't reset.
+    if (
+        appState.inJourney &&
+        appState.journeyStage === "colour" &&
+        appState.colourAnswersById &&
+        Object.keys(appState.colourAnswersById).length > 0
+    ) {
+        appState.view = "colour-direction";
+        render({ animate: true });
+        return;
+    }
+    if (
+        appState.inJourney &&
+        appState.journeyStage === "style" &&
+        appState.quizAnswersById &&
+        Object.keys(appState.quizAnswersById).length > 0
+    ) {
+        appState.view = "discover";
+        render({ animate: true });
+        return;
+    }
+
+    // 3. Otherwise, start fresh — both quizzes reset so the journey always
+    //    runs Colour then Style in full, regardless of any prior
+    //    individual-quiz state on the session.
     appState.inJourney = true;
     appState.journeyStage = "colour";
-    // Colour quiz fresh-start (mirror navigateColourDirection's fresh path).
     appState.colourStep = 0;
     appState.colourAnswersById = {};
     appState.colourResultKey = null;
-    // Style quiz fresh-start (mirror navigateDiscover's fresh path) so a
-    // returning session cannot skip the Style leg or resume it half-done.
     appState.quizStep = 0;
     appState.quizAnswers = [];
     appState.quizAnswersById = {};
