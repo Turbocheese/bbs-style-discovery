@@ -582,7 +582,11 @@ function generateResultCardHTML(topic, filters) {
     html += "</div>";
 
     html += '<div class="result-badges">';
-    if (topic.metadata && topic.metadata.versatility) {
+    // Versatility describes how a wearable thing behaves on a body —
+    // meaningless for a mill/merchant (fabric_reference) or an editorial
+    // essay (brand_philosophy); see the matching guard in renderTopic().
+    var topicIsWearable = topic.topic_kind !== "fabric_reference" && topic.topic_kind !== "brand_philosophy";
+    if (topicIsWearable && topic.metadata && topic.metadata.versatility) {
         html +=
             '<span class="result-badge">Versatility ' +
             topic.metadata.versatility +

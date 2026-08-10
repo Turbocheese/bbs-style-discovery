@@ -5610,7 +5610,12 @@ function renderTopic(node) {
         var iconSignature =
             '<svg class="topic-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
 
-        if (node.metadata.climate && node.metadata.climate.length) {
+        // Climate, Formality and Versatility describe how a wearable thing
+        // behaves on a body — meaningless for a mill/merchant (fabric_reference,
+        // a company) or an editorial essay (brand_philosophy). BBS Signature
+        // stays: "this mill/essay is core to BBS" reads fine for both kinds.
+        var showWearableMeta = node.topic_kind !== "fabric_reference" && node.topic_kind !== "brand_philosophy";
+        if (showWearableMeta && node.metadata.climate && node.metadata.climate.length) {
             var climateText = node.metadata.climate
                 .map(function (c) {
                     return c
@@ -5629,7 +5634,7 @@ function renderTopic(node) {
                 "</div></div>"
             );
         }
-        if (node.metadata.formality && node.metadata.formality.length) {
+        if (showWearableMeta && node.metadata.formality && node.metadata.formality.length) {
             var formalityText = node.metadata.formality
                 .map(function (f) {
                     return f
@@ -5648,7 +5653,7 @@ function renderTopic(node) {
                 "</div></div>"
             );
         }
-        if (node.metadata.versatility) {
+        if (showWearableMeta && node.metadata.versatility) {
             metaItems.push(
                 '<div class="topic-meta-card"><div class="topic-meta-card-header">' +
                 iconVersatility +
