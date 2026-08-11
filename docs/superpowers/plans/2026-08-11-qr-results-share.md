@@ -66,13 +66,13 @@ wc -l vendor/qrcode.min.js
 ```
 Expected: non-empty minified JS starting with a UMD wrapper (e.g. `!function(t,e){...}` or a `/*! ... */` banner). The `@1` in the URL floats to the latest 1.x release — read any version string in the banner comment (if present) so it can go in the commit message. If the file is empty or curl errored, stop and re-run — do not proceed with an empty vendor file.
 
-- [ ] **Step 3: Sanity-check the library loads and exposes `QRCode`**
+- [ ] **Step 3: Sanity-check the library loads and exposes `QRCode.toCanvas`**
 
 Run:
 ```bash
-node -e "global.window = global; global.module = undefined; require('./vendor/qrcode.min.js'); console.log(typeof QRCode !== 'undefined' || typeof window.QRCode !== 'undefined' ? 'OK' : 'MISSING')"
+node -e "var QRCode = require('./vendor/qrcode.min.js'); console.log(typeof QRCode.toCanvas === 'function' ? 'OK' : 'MISSING')"
 ```
-Expected: prints `OK`. (The UMD build attaches to `module.exports` when `module` looks defined, or `window.QRCode` otherwise — this check exercises the browser-global path the app will actually use, by hiding `module`.) If it prints `MISSING`, inspect the file's UMD detection branch and adjust the check — do not skip verifying the global exists, since `share-qr.js` (Task 3) guards on `typeof QRCode === "undefined"`.
+Expected: prints `OK`. (Node's `require()` triggers the UMD build's CommonJS export branch, which is a reliable proxy for "this is a valid copy of the library exporting the right shape" — the browser `<script>` tag load path, which attaches `window.QRCode` instead, is exercised for real in Task 13's Playwright check.) If it prints `MISSING`, the downloaded file is not the expected library — re-check the URL in Step 1, do not proceed with a broken vendor file, since `share-qr.js` (Task 3) guards on `typeof QRCode === "undefined"`.
 
 - [ ] **Step 4: Commit**
 
@@ -479,7 +479,7 @@ Using `replace_all` (the addition is identical both times), change each occurren
 - [ ] **Step 2: Verify syntax**
 
 Run: `node --check app.js`
-Expected: no output (exit code 0). Also run `grep -c "initShareQR" app.js` — expected: `3` (one definition reference doesn't exist yet since it's in share-qr.js; expect `2` here, one per render() branch — if it's `1`, the `replace_all` only hit one branch and the other must be added manually).
+Expected: no output (exit code 0). Also run `grep -c "initShareQR" app.js` — expected: `2` (one call per `render()` branch). If it's `1`, the `replace_all` only hit one branch — add the line to the other branch manually.
 
 - [ ] **Step 3: Commit**
 
