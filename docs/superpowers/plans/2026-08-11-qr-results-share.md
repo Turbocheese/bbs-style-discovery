@@ -68,11 +68,20 @@ Expected: non-empty minified JS starting with a UMD wrapper (e.g. `!function(t,e
 
 - [ ] **Step 3: Sanity-check the library loads and exposes `QRCode.toCanvas`**
 
-Run:
+**Correction (verified 2026-08-12, superseding an earlier version of this
+step that used `require()`):** this build of the library is a plain
+browser-global script — it assigns `QRCode` as a bare global when loaded via
+a `<script>` tag, with no `module.exports`. That's exactly the loading path
+`index.html` will actually use (Task 11), so verify it the same way, in a
+sandboxed context rather than via `require()`:
+
 ```bash
-node -e "var QRCode = require('./vendor/qrcode.min.js'); console.log(typeof QRCode.toCanvas === 'function' ? 'OK' : 'MISSING')"
+node -e "var vm=require('vm');var fs=require('fs');var code=fs.readFileSync('./vendor/qrcode.min.js','utf8');var sandbox={};vm.createContext(sandbox);vm.runInContext(code,sandbox);console.log(typeof sandbox.QRCode!=='undefined' && typeof sandbox.QRCode.toCanvas==='function' ? 'OK' : 'MISSING');"
 ```
-Expected: prints `OK`. (Node's `require()` triggers the UMD build's CommonJS export branch, which is a reliable proxy for "this is a valid copy of the library exporting the right shape" — the browser `<script>` tag load path, which attaches `window.QRCode` instead, is exercised for real in Task 13's Playwright check.) If it prints `MISSING`, the downloaded file is not the expected library — re-check the URL in Step 1, do not proceed with a broken vendor file, since `share-qr.js` (Task 3) guards on `typeof QRCode === "undefined"`.
+Expected: prints `OK`. This has been run against the real downloaded file
+and confirmed to print `OK` — if it prints `MISSING` for you, something
+about the downloaded file differs from what was verified (re-check Step 1's
+download succeeded and is non-empty), not a problem with this check's logic.
 
 - [ ] **Step 4: Commit**
 
