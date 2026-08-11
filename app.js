@@ -3304,6 +3304,7 @@ function getFreshState() {
         lookbookFilter: "all",
         lookbookCategory: "all",
         openFilterDD: null,
+        showShareQR: false,
         wardrobeChecklist: {},
         visFabricKey: null,
         visFabricKeyB: null,
