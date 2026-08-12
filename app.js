@@ -4661,7 +4661,10 @@ function renderResult() {
     var unifiedTieHTML = "";
     var unifiedColourHTML = "";
     if (isUnified) {
-        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+        var cScores = cHasAnswers
+            ? scoreColourDirectionAnswers(appState.colourAnswersById)
+            : (CANONICAL_COLOUR_SCORES[appState.colourResultKey] || scoreColourDirectionAnswers(appState.colourAnswersById));
         var cProfile = getColourDirectionProfileData(appState.colourResultKey);
         var cDescriptor = getColourDescriptor(cScores);
         // archetype.name already begins with "The" (e.g. "The Tropical
