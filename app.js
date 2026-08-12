@@ -3335,6 +3335,28 @@ try {
     appState = getFreshState();
 }
 
+// A scanned share link always starts a brand-new browser session on the
+// client's own phone — savedSession above will be null there, so this
+// only ever overrides a genuinely fresh boot, never an in-progress kiosk
+// session. See docs/superpowers/specs/2026-08-11-qr-results-share-design.md.
+var shareParams = new URLSearchParams(location.search);
+var sharedStyleKey = shareParams.get("styleKey");
+var sharedColourKey = shareParams.get("colourKey");
+if (sharedStyleKey || sharedColourKey) {
+    appState = getFreshState();
+    if (sharedStyleKey) appState.archetypeKey = sharedStyleKey;
+    if (sharedColourKey) appState.colourResultKey = sharedColourKey;
+    if (sharedStyleKey && sharedColourKey) {
+        appState.inJourney = true;
+        appState.journeyStage = "done";
+        appState.view = "result";
+    } else if (sharedStyleKey) {
+        appState.view = "result";
+    } else {
+        appState.view = "colour-result";
+    }
+}
+
 // Compare/Ensemble are sub-modes of the Cloth Room, not places a client
 // meant to leave the app in — the tap-to-quit-mid-visit that "leaves"
 // the app there is far more likely than someone deliberately wanting to
