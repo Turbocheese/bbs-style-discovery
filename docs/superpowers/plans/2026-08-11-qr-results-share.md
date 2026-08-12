@@ -659,13 +659,61 @@ git commit -m "Wire share-qr.js and vendor/qrcode.min.js into load order, bump c
 
 ### Task 12: Confirm `data.js`/`verify/audit.js` are unaffected
 
-**Files:**
-- None modified — verification only.
+**Amendment (discovered running this task):** `verify/audit.js` does more
+than check `data.js` — it also pins `index.html`'s exact `<script src>`
+order against a hardcoded `EXPECTED_SCRIPT_ORDER` array, as a guard against
+the load-bearing order documented in `CLAUDE.md` silently drifting. Task 11
+correctly added `vendor/qrcode.min.js` and `share-qr.js` to `index.html`,
+but nothing in the plan updated this array to match — so the audit now
+correctly fails, exactly as it's designed to when the real order and the
+documented order disagree. This task now includes fixing that.
 
-- [ ] **Step 1: Run the data audit**
+**Files:**
+- Modify: `verify/audit.js` (the `EXPECTED_SCRIPT_ORDER` array)
+
+- [ ] **Step 1: Update the expected script order**
+
+Current (`verify/audit.js`, in the `EXPECTED_SCRIPT_ORDER` array):
+```javascript
+var EXPECTED_SCRIPT_ORDER = [
+    "data.js", "validator.js", "query.js", "discovery-ui.js",
+    "colour-direction.js", "lookbook.js", "wardrobe-templates.js",
+    "cloth-data.js", "heritage.js", "attract-shader.js", "weave-engine.js",
+    "garment-photo.js", "fabric-visualiser.js", "cloth-study.js",
+    "archetype-avatars.js", "vendor/cobe.js", "mill-map.js",
+    "vendor/html2canvas.min.js", "vendor/jspdf.umd.min.js", "app.js"
+];
+```
+
+Replace with (adds the two new entries in the exact positions Task 11 put
+them in `index.html` — `vendor/qrcode.min.js` alongside the other vendor
+libraries, `share-qr.js` after `app.js`):
+```javascript
+var EXPECTED_SCRIPT_ORDER = [
+    "data.js", "validator.js", "query.js", "discovery-ui.js",
+    "colour-direction.js", "lookbook.js", "wardrobe-templates.js",
+    "cloth-data.js", "heritage.js", "attract-shader.js", "weave-engine.js",
+    "garment-photo.js", "fabric-visualiser.js", "cloth-study.js",
+    "archetype-avatars.js", "vendor/cobe.js", "mill-map.js",
+    "vendor/html2canvas.min.js", "vendor/jspdf.umd.min.js",
+    "vendor/qrcode.min.js", "app.js", "share-qr.js"
+];
+```
+
+- [ ] **Step 2: Run the data audit**
 
 Run: `node verify/audit.js`
-Expected: exits clean (this feature touches no `data.js` content — this step confirms nothing was accidentally broken by the `app.js` edits, e.g. a stray syntax issue that only a full load would surface differently than `node --check`).
+Expected: exits clean, ending in `AUDIT: ALL CHECKS PASSED` (or equivalent
+all-PASS output) — in particular the "script tag order matches CLAUDE.md's
+documented load order" check must now read PASS, and the topic/cloth/mill
+checks (unaffected by this feature) must still all read PASS too.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add verify/audit.js
+git commit -m "Add vendor/qrcode.min.js and share-qr.js to audit's expected script order"
+```
 
 ---
 
