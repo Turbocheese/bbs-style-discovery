@@ -12953,3 +12953,44 @@ textarea:focus-visible,
     color: var(--soft);
     margin-bottom: 1rem;
 }
+
+/* ============================================
+   QR RESULTS SHARE
+   ============================================ */
+
+.qr-share-card {
+    background: #faf8f3;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    animation: qrShareReveal var(--dur-base) var(--ease-out);
+}
+
+.qr-share-canvas {
+    width: 220px;
+    height: 220px;
+}
+
+.qr-share-caption {
+    font-size: 0.85rem;
+    color: var(--taupe, #a4a19c);
+    max-width: 260px;
+    margin: 0;
+}
+
+@keyframes qrShareReveal {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qr-share-card {
+        animation: none;
+    }
+}
