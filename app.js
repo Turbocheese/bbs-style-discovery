@@ -3345,17 +3345,30 @@ try {
 var shareParams = new URLSearchParams(location.search);
 var sharedStyleKey = shareParams.get("styleKey");
 var sharedColourKey = shareParams.get("colourKey");
+// A key from the URL is untrusted input: a mistyped, truncated or
+// hand-crafted link can carry anything. Accept a key only if it is a real
+// profile (archetypeProfiles, app.js:15 / colourDirectionProfiles,
+// colour-direction.js:518 — both defined before this point in load order),
+// and derive the view from what was actually accepted, not from the raw
+// params, so a link with one good and one bad key still restores the good
+// half instead of landing on a broken, half-restored result.
+// hasOwnProperty is the membership test on purpose: it also rejects
+// inherited names like "toString".
 if (!savedSession && (sharedStyleKey || sharedColourKey)) {
     appState = getFreshState();
-    if (sharedStyleKey) appState.archetypeKey = sharedStyleKey;
-    if (sharedColourKey) appState.colourResultKey = sharedColourKey;
-    if (sharedStyleKey && sharedColourKey) {
+    if (sharedStyleKey && archetypeProfiles.hasOwnProperty(sharedStyleKey)) {
+        appState.archetypeKey = sharedStyleKey;
+    }
+    if (sharedColourKey && colourDirectionProfiles.hasOwnProperty(sharedColourKey)) {
+        appState.colourResultKey = sharedColourKey;
+    }
+    if (appState.archetypeKey && appState.colourResultKey) {
         appState.inJourney = true;
         appState.journeyStage = "done";
         appState.view = "result";
-    } else if (sharedStyleKey) {
+    } else if (appState.archetypeKey) {
         appState.view = "result";
-    } else {
+    } else if (appState.colourResultKey) {
         appState.view = "colour-result";
     }
 }
@@ -4662,11 +4675,12 @@ function renderResult() {
     var unifiedColourHTML = "";
     if (isUnified) {
         var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
-        var cScores = cHasAnswers
-            ? scoreColourDirectionAnswers(appState.colourAnswersById)
-            : (CANONICAL_COLOUR_SCORES[appState.colourResultKey] || scoreColourDirectionAnswers(appState.colourAnswersById));
+        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
         var cProfile = getColourDirectionProfileData(appState.colourResultKey);
-        var cDescriptor = getColourDescriptor(cScores);
+        // On a restore there are no answers behind the key, so cScores is the
+        // empty-answer result and is not read for display — the tie sentence
+        // uses the profile's own name instead of a fabricated descriptor.
+        var cDescriptor = cHasAnswers ? getColourDescriptor(cScores) : cProfile.name;
         // archetype.name already begins with "The" (e.g. "The Tropical
         // Traditionalist"), so it is used as-is here.
         unifiedTieHTML =
@@ -4674,7 +4688,7 @@ function renderResult() {
         unifiedColourHTML =
             '<div class="unified-colour-section">' +
             '<div class="unified-section-label">Your colours</div>' +
-            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile) +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile, cHasAnswers) +
             "</div>";
     }
 
@@ -7184,9 +7198,15 @@ function colourFirstSentence(text) {
 // type header, three plain reasons, palette split by role, how-to-wear-it
 // in three moves, two supporting cards, and the explore links. Reused by
 // the standalone colour-result view and the unified result (no duplication).
-function getColourResultContentHTML(resultKey, scores, profile) {
-    var descriptor = getColourDescriptor(scores);
-    var reasons = getColourReasons(scores);
+// hasRealAnswers is false when the result was restored from a share link:
+// only the profile key travelled in the URL, so there are no per-question
+// scores behind it. In that case show the profile's own real name and
+// description and nothing else — a per-axis "read" derived from absent
+// answers would be fabricated, and fabricated reads contradict the profile
+// (a restored Clean Cool Contrast card once read "Contrast: Soft").
+function getColourResultContentHTML(resultKey, scores, profile, hasRealAnswers) {
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : profile.name;
+    var reasons = hasRealAnswers ? getColourReasons(scores) : [];
     var neutrals = profile.strongNeutrals || [];
     var accents = profile.accentColours || [];
 
@@ -7220,7 +7240,9 @@ function getColourResultContentHTML(resultKey, scores, profile) {
         '<div class="colour-type-header">' +
         '<div class="colour-type-label">Your Colour Type</div>' +
         '<h2 class="colour-type-headline">' + descriptor + "</h2>" +
-        '<div class="colour-type-subtitle">' + profile.name + "</div>" +
+        // Without real answers the headline IS profile.name, so the subtitle
+        // would repeat it verbatim directly underneath.
+        (hasRealAnswers ? '<div class="colour-type-subtitle">' + profile.name + "</div>" : "") +
         '<p class="colour-type-desc">' + profile.desc + "</p>" +
         "</div>";
 
@@ -7370,8 +7392,11 @@ function getColourResultCrossPromptHTML() {
 // artifact for the PNG/PDF. Captured by the save-card / share-native actions
 // through the shared export helpers (renderElementToCanvas -> canvasToPDF /
 // shareCanvasAsPNG); no re-inlined html2canvas/jsPDF.
-function getColourShareCardHTML(resultKey, scores, profile) {
-    var descriptor = getColourDescriptor(scores);
+// hasRealAnswers: see getColourResultContentHTML. Without real answers the
+// card drops the descriptor headline entirely and leads on profile.name
+// (.colour-share-sub) rather than showing a blank or fabricated line.
+function getColourShareCardHTML(resultKey, scores, profile, hasRealAnswers) {
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : "";
     var neutrals = profile.strongNeutrals || [];
     var accents = profile.accentColours || [];
 
@@ -7395,7 +7420,7 @@ function getColourShareCardHTML(resultKey, scores, profile) {
         '<span class="colour-share-tag">Colour Direction</span>' +
         "</div>" +
         (appState.clientName ? '<div class="colour-share-client">Name: ' + appState.clientName + "</div>" : "") +
-        '<div class="colour-share-headline">' + descriptor + "</div>" +
+        (hasRealAnswers ? '<div class="colour-share-headline">' + descriptor + "</div>" : "") +
         '<div class="colour-share-sub">' + profile.name + "</div>" +
         '<div class="colour-share-rule"></div>' +
         '<div class="colour-share-pal-label">Neutrals &mdash; your foundation</div>' +
@@ -7424,8 +7449,11 @@ function renderColourDirectionResult() {
         resultKey = getColourDirectionProfileKey(scores);
         appState.colourResultKey = resultKey;
     } else {
+        // Restored key with no answers behind it: scores stays the empty-answer
+        // result and is never read for display (both helpers below ignore
+        // scores when hasAnswers is false).
         resultKey = appState.colourResultKey;
-        scores = CANONICAL_COLOUR_SCORES[resultKey] || scoreColourDirectionAnswers(appState.colourAnswersById);
+        scores = scoreColourDirectionAnswers(appState.colourAnswersById);
     }
     var profile = getColourDirectionProfileData(resultKey);
 
@@ -7441,7 +7469,7 @@ function renderColourDirectionResult() {
               "</div>"
             : "") +
         '<div class="arch-result-divider"></div>' +
-        getColourResultContentHTML(resultKey, scores, profile) +
+        getColourResultContentHTML(resultKey, scores, profile, hasAnswers) +
         // In the journey this screen is skipped in favour of the unified
         // result; reached standalone, offer to complete the Style quiz.
         (appState.inJourney ? "" : getColourResultCrossPromptHTML()) +
@@ -7467,7 +7495,7 @@ function renderColourDirectionResult() {
               '<p class="qr-share-caption">Scan with your phone\'s camera to save your results.</p>' +
               "</div>"
             : "") +
-        getColourShareCardHTML(resultKey, scores, profile) +
+        getColourShareCardHTML(resultKey, scores, profile, hasAnswers) +
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
         "</div>" +

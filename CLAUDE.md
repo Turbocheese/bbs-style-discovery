@@ -202,9 +202,14 @@ These are the current answers, and the founder revisits them. Do not silently ov
 - Score Style and Colour independently — keep the two diagnostics separate (fusing them loses each read). Combining their presentation into one result is fine and expected; combining the scoring is not.
 - Quiz branching is id/path-based (`quizAnswersById`), never positional array indexes.
 - Quiz advance is tap-answer → tap-Next. No auto-advance (founder decision).
-- Sharing is native device share (PNG) + PDF export. QR-code sharing was deferred
-  until hosting existed; hosting now exists (GitHub Pages) but QR remains
-  unbuilt — do not build it without the founder asking.
+- Sharing is native device share (PNG) + PDF export, plus a QR-code option
+  (August 2026) on the style and colour result screens — "Scan to Take With
+  You" encodes the client's result keys in a URL and restores the matching
+  result on their own phone via a boot-time check in app.js, no backend.
+  `FOUNDER_HANDOVER.md` records an earlier, different QR/URL attempt that
+  was rejected for complexity and state fragility — this one is
+  deliberately minimal (two short keys, no worksheet/cloth-room state) to
+  avoid that; if extending the payload, keep that history in mind.
 - No pricing in the worksheet. No digitized measurement flow.
 - The lookbook is **28 looks, all real BBS campaign photography vendored into
   `images/lookbook/`** (scraped from benjaminbarkerstudios.com's Shopify CDN via
