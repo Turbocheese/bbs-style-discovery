@@ -1003,6 +1003,25 @@ var colourDirectionProfiles = {
         },
     },
 };
+// Used only when restoring a colour-only result from a scanned share link
+// (see share-qr.js / the boot-time restore in app.js), where the real
+// per-question scores were never collected on this device — only the
+// resultKey travelled in the URL. Each vector below is a representative
+// score pattern for its profile, verified (via the real
+// getColourDirectionProfileKey / getColourDescriptor functions) to map
+// back to that exact profile and produce a sensible descriptor, standing
+// in for the client's real answers so the restored card reads correctly
+// instead of falling through to the all-zero-score default.
+var CANONICAL_COLOUR_SCORES = {
+    muted_olive_balance: { olive: 3 },
+    deep_controlled_colour: { warm: 3, deep: 3, clear: 3 },
+    light_warm_clarity: { warm: 3, light: 3, clear: 3 },
+    earth_led_balance: { warm: 3, medium: 3, clear: 3 },
+    soft_tonal_warmth: { warm: 3, medium: 3, muted: 3, softContrast: 3 },
+    clean_cool_contrast: { cool: 3, clear: 3 },
+    quiet_monochrome: { cool: 3, muted: 3, softContrast: 3 },
+    refined_neutral_contrast: { neutral: 3 }
+};
 
 function getSkinDepthSwatches() {
     return {

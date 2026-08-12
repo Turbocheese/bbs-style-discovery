@@ -7408,10 +7408,23 @@ function getColourShareCardHTML(resultKey, scores, profile) {
 }
 
 function renderColourDirectionResult() {
-    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
-    var resultKey = getColourDirectionProfileKey(scores);
+    // A colour-only shared link (see the boot-time restore in app.js)
+    // sets appState.colourResultKey directly, with no real answers behind
+    // it (colourAnswersById is empty on that fresh device) — recomputing
+    // from empty answers would silently overwrite the restored key with
+    // the all-zero-score default. Only recompute from answers when real
+    // answers exist, or when there's no restored key to fall back on.
+    var hasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+    var scores, resultKey;
+    if (hasAnswers || !appState.colourResultKey) {
+        scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        resultKey = getColourDirectionProfileKey(scores);
+        appState.colourResultKey = resultKey;
+    } else {
+        resultKey = appState.colourResultKey;
+        scores = CANONICAL_COLOUR_SCORES[resultKey] || scoreColourDirectionAnswers(appState.colourAnswersById);
+    }
     var profile = getColourDirectionProfileData(resultKey);
-    appState.colourResultKey = resultKey;
 
     return (
         '<div class="arch-result-shell colour-result-shell">' +
