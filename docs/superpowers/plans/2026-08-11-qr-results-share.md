@@ -1108,6 +1108,306 @@ Expected: both exit clean.
 
 ---
 
+### Task 16: Final-review fix wave — validate restored keys, stop fabricating colour reads, update CLAUDE.md
+
+**Discovered by the final whole-branch review**, dispatched as one combined
+fix per the project's final-review process (one fix wave, not one task per
+finding). Founder-approved direction for all three parts below.
+
+**Finding A — crash from an unvalidated key (Major/must-fix).** The boot
+restore (Task 4/app.js's boot sequence) writes `sharedStyleKey` /
+`sharedColourKey` straight from `URLSearchParams` into `appState` with no
+check that they're real keys. `?styleKey=NOPE` (any string not in
+`archetypeProfiles`) reaches `renderResult()`'s `archetypeProfiles[archetypeKey]`
+lookup, which IS null-guarded there, but a later consumer — the worksheet
+export path — is not, and throws `Cannot read properties of undefined
+(reading 'name')`, a real crash reachable from any hand-crafted or mangled
+link. Confirmed live by the final reviewer.
+
+**Finding B — fabricated colour reads (Major/must-fix, founder-approved
+direction: show less, don't fabricate).** Tasks 14/15 fixed the restored
+*profile* being wrong by introducing `CANONICAL_COLOUR_SCORES` — a
+representative score vector per profile, used to drive the descriptor
+headline and the four reason chips (Undertone/Depth/Clarity/Contrast) on a
+restored card. The final review found this still produces a wrong **read**
+within the right profile: `getColourReasons` computes each axis
+independently from `strong > soft` / `clear > muted` comparisons, and none
+of Task 14's 8 canonical vectors set `strongContrast`, so every restored
+card shows "Contrast: Soft" — including on `clean_cool_contrast`, where a
+real client sees "Contrast: Crisp." The fix is not to patch the vectors
+(that only narrows the gap, it doesn't close it for every axis on every
+profile) — it's to stop presenting fabricated per-axis reads at all on a
+restore. **This supersedes part of Tasks 14/15's approach**: the
+`hasAnswers`-gated `resultKey` logic they introduced is correct and stays;
+`CANONICAL_COLOUR_SCORES` — which existed only to fabricate a plausible
+`scores` object — is removed as dead code once nothing needs it, which also
+retires the deferred prototype-chain minor (`CANONICAL_COLOUR_SCORES["toString"]`
+etc.) for free, since there's no longer a lookup keyed directly off
+unvalidated input at all — Finding A's whitelist check closes the
+equivalent gap in `getColourDirectionProfileData`.
+
+**Finding C — `CLAUDE.md` still says this is unbuilt (Major/must-fix).**
+`CLAUDE.md`'s "Founder product decisions" section states QR sharing
+"remains unbuilt — do not build it without the founder asking." The founder
+asked (this session); it's now built. Update the line to reflect shipped
+reality, the same way this file tracks every other shipped-state fact
+(topic counts, cloth counts, etc.).
+
+**Files:**
+- Modify: `app.js` (boot restore validation; `renderColourDirectionResult()`;
+  `getColourResultContentHTML()`; `getColourShareCardHTML()`; `renderResult()`'s
+  `isUnified` block)
+- Modify: `colour-direction.js` (remove `CANONICAL_COLOUR_SCORES`)
+- Modify: `CLAUDE.md` (the QR sharing line)
+
+- [ ] **Step 1: Validate restored keys at the boot restore site**
+
+Find the boot restore branch added in Task 4 (search for `sharedStyleKey`
+in `app.js`'s boot sequence, near the top of the file). Change the key
+assignments to check membership first, and derive `view` from what's
+actually been accepted rather than from the raw URL params (so a link with
+one valid key and one garbage key still degrades to showing the valid one,
+not silently doing nothing):
+
+```javascript
+if (!savedSession && (sharedStyleKey || sharedColourKey)) {
+    appState = getFreshState();
+    if (sharedStyleKey && archetypeProfiles.hasOwnProperty(sharedStyleKey)) {
+        appState.archetypeKey = sharedStyleKey;
+    }
+    if (sharedColourKey && colourDirectionProfiles.hasOwnProperty(sharedColourKey)) {
+        appState.colourResultKey = sharedColourKey;
+    }
+    if (appState.archetypeKey && appState.colourResultKey) {
+        appState.inJourney = true;
+        appState.journeyStage = "done";
+        appState.view = "result";
+    } else if (appState.archetypeKey) {
+        appState.view = "result";
+    } else if (appState.colourResultKey) {
+        appState.view = "colour-result";
+    }
+    // If neither key validated, appState stays a fresh getFreshState() with
+    // its default view ("welcome") — same as if no share params were ever
+    // present, not a broken/half-restored state.
+}
+```
+`archetypeProfiles` (app.js:15) and `colourDirectionProfiles`
+(colour-direction.js:518) are both plain object literals already in scope
+at this point in boot (colour-direction.js loads before app.js in script
+order), so `.hasOwnProperty(key)` is a safe, direct membership check —
+this also closes the prototype-chain edge case at this call site (a key of
+`"toString"` etc. is correctly rejected, not treated as present).
+
+- [ ] **Step 2: Add a `hasRealAnswers` parameter to `getColourResultContentHTML`**
+
+Current signature (`function getColourResultContentHTML(resultKey, scores, profile)`):
+change to `function getColourResultContentHTML(resultKey, scores, profile, hasRealAnswers)`.
+
+Change:
+```javascript
+    var descriptor = getColourDescriptor(scores);
+    var reasons = getColourReasons(scores);
+```
+to:
+```javascript
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : profile.name;
+    var reasons = hasRealAnswers ? getColourReasons(scores) : [];
+```
+`reasons` already drives a loop building `reasonsHTML` — an empty array
+naturally produces an empty (but still well-formed, just content-less)
+`<div class="colour-reasons"></div>`, no other change needed there. Using
+`profile.name` for `descriptor` when there are no real answers means the
+header's `<h2>` headline and the `.colour-type-subtitle` line directly below
+it would show the same text twice — fix that specific redundancy in the
+same edit:
+
+Current:
+```javascript
+    var headerHTML =
+        '<div class="colour-type-header">' +
+        '<div class="colour-type-label">Your Colour Type</div>' +
+        '<h2 class="colour-type-headline">' + descriptor + "</h2>" +
+        '<div class="colour-type-subtitle">' + profile.name + "</div>" +
+        '<p class="colour-type-desc">' + profile.desc + "</p>" +
+        "</div>";
+```
+Replace with:
+```javascript
+    var headerHTML =
+        '<div class="colour-type-header">' +
+        '<div class="colour-type-label">Your Colour Type</div>' +
+        '<h2 class="colour-type-headline">' + descriptor + "</h2>" +
+        (hasRealAnswers ? '<div class="colour-type-subtitle">' + profile.name + "</div>" : "") +
+        '<p class="colour-type-desc">' + profile.desc + "</p>" +
+        "</div>";
+```
+
+- [ ] **Step 3: Add the same parameter to `getColourShareCardHTML`**
+
+Current signature (`function getColourShareCardHTML(resultKey, scores, profile)`):
+change to `function getColourShareCardHTML(resultKey, scores, profile, hasRealAnswers)`.
+
+Change:
+```javascript
+    var descriptor = getColourDescriptor(scores);
+```
+to:
+```javascript
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : "";
+```
+And change:
+```javascript
+        '<div class="colour-share-headline">' + descriptor + "</div>" +
+```
+to:
+```javascript
+        (hasRealAnswers ? '<div class="colour-share-headline">' + descriptor + "</div>" : "") +
+```
+so a restored share card shows only `.colour-share-sub` (`profile.name`),
+never a blank or fabricated headline row.
+
+- [ ] **Step 4: Update `renderColourDirectionResult()`'s call sites**
+
+Locate the two calls added/touched by Task 14 —
+`getColourResultContentHTML(resultKey, scores, profile)` and
+`getColourShareCardHTML(resultKey, scores, profile)` inside this function
+— and pass the `hasAnswers` variable Task 14 already computes as the new
+4th argument to both:
+```javascript
+getColourResultContentHTML(resultKey, scores, profile, hasAnswers)
+...
+getColourShareCardHTML(resultKey, scores, profile, hasAnswers)
+```
+Leave everything else in this function (the `hasAnswers`-gated `resultKey`
+logic itself) exactly as Task 14 left it — that part is correct and not
+being revised, only extended with the new parameter downstream.
+
+- [ ] **Step 5: Update `renderResult()`'s `isUnified` block**
+
+Current (as Task 15 left it):
+```javascript
+    if (isUnified) {
+        var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+        var cScores = cHasAnswers
+            ? scoreColourDirectionAnswers(appState.colourAnswersById)
+            : (CANONICAL_COLOUR_SCORES[appState.colourResultKey] || scoreColourDirectionAnswers(appState.colourAnswersById));
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = getColourDescriptor(cScores);
+        // archetype.name already begins with "The" (e.g. "The Tropical
+        // Traditionalist"), so it is used as-is here.
+        unifiedTieHTML =
+            '<p class="unified-tie">' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
+        unifiedColourHTML =
+            '<div class="unified-colour-section">' +
+            '<div class="unified-section-label">Your colours</div>' +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile) +
+            "</div>";
+    }
+```
+Replace with:
+```javascript
+    if (isUnified) {
+        var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = cHasAnswers ? getColourDescriptor(cScores) : cProfile.name;
+        // archetype.name already begins with "The" (e.g. "The Tropical
+        // Traditionalist"), so it is used as-is here.
+        unifiedTieHTML =
+            '<p class="unified-tie">' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
+        unifiedColourHTML =
+            '<div class="unified-colour-section">' +
+            '<div class="unified-section-label">Your colours</div>' +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile, cHasAnswers) +
+            "</div>";
+    }
+```
+Note `cScores` is now computed unconditionally the plain way — when
+`cHasAnswers` is false it's `{}`, but nothing reads it in that case
+(`getColourResultContentHTML` ignores `scores` when `hasRealAnswers` is
+false), so the old canonical-lookup fallback is no longer needed here
+either. The tie sentence now reads e.g. "The Tropical Traditionalist,
+dressed in your Clean Cool Contrast palette" on a restore — the profile's
+own real name, not a fabricated two-word descriptor.
+
+- [ ] **Step 6: Remove `CANONICAL_COLOUR_SCORES`**
+
+Delete the `CANONICAL_COLOUR_SCORES` object and its comment block from
+`colour-direction.js` (added in Task 14, immediately after
+`colourDirectionProfiles`'s closing `};`) — nothing references it after
+Steps 4–5. Confirm with `grep -n "CANONICAL_COLOUR_SCORES" app.js
+colour-direction.js` returning no matches before committing.
+
+- [ ] **Step 7: Update `CLAUDE.md`**
+
+Current line (in the "Founder product decisions" section):
+```
+- Sharing is native device share (PNG) + PDF export. QR-code sharing was deferred
+  until hosting existed; hosting now exists (GitHub Pages) but QR remains
+  unbuilt — do not build it without the founder asking.
+```
+Replace with:
+```
+- Sharing is native device share (PNG) + PDF export, plus a QR-code option
+  (August 2026) on the style and colour result screens — "Scan to Take With
+  You" encodes the client's result keys in a URL and restores the matching
+  result on their own phone via a boot-time check in app.js, no backend.
+  `FOUNDER_HANDOVER.md` records an earlier, different QR/URL attempt that
+  was rejected for complexity and state fragility — this one is
+  deliberately minimal (two short keys, no worksheet/cloth-room state) to
+  avoid that; if extending the payload, keep that history in mind.
+```
+This keeps the historical record in `FOUNDER_HANDOVER.md` untouched (it's a
+decision log, not something to rewrite) while making `CLAUDE.md` — the
+actively-maintained, authoritative doc — reflect what's actually shipped
+and why the earlier concern doesn't straightforwardly apply here.
+
+- [ ] **Step 8: Verify**
+
+Run: `node --check app.js` and `node --check colour-direction.js` (both
+should print nothing). Then:
+```bash
+grep -n "CANONICAL_COLOUR_SCORES" app.js colour-direction.js
+```
+Expected: no output (fully removed).
+
+Simulate three scenarios and confirm the results:
+1. `?styleKey=NOPE` (invalid) — app boots to the default view, no crash;
+   confirm by also driving the worksheet/export path that previously
+   crashed (the exact repro the final reviewer used) and confirming it no
+   longer throws.
+2. Colour-only restore of `clean_cool_contrast` — card shows profile name
+   "Clean Cool Contrast" as the headline, no reason chips section content,
+   no "Contrast: Soft" (or any fabricated per-axis read) anywhere on the
+   page.
+3. A normal, real quiz completion (real answers present, `hasAnswers` /
+   `cHasAnswers` true in both functions) — confirm the full descriptor and
+   all four reason chips still render exactly as before this task, for
+   both the standalone colour result and the unified result.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add app.js colour-direction.js CLAUDE.md
+git commit -m "Validate restored share keys, stop fabricating colour reads on restore, update CLAUDE.md"
+```
+
+- [ ] **Step 10: Re-run the full verification suite**
+
+Run: `node verify/audit.js` and `node verify/smoke.js`
+Expected: both exit clean.
+
+**Non-goals for this task:** the reviewer's remaining Minor findings
+(`showShareQR` not resetting on "Back Home", the `file://`/localhost QR
+usefulness edge case, extracting a shared `hasAnswers`-style helper instead
+of the pattern appearing at two call sites, adding permanent smoke coverage
+for this feature, and the `share-qr.js` load-order robustness suggestion)
+are deliberately deferred — founder-scoped this fix wave to Findings A/B/C
+only.
+
+---
+
 ## Self-Review Notes
 
 **Spec coverage:** Task 1 covers "New file + dependency" (vendoring). Task 3
