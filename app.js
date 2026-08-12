@@ -6665,6 +6665,10 @@ document.body.addEventListener("click", function (e) {
         newPath.push(childKey);
         navigateGuide(newPath);
     }
+    else if (action === "share-qr") {
+        appState.showShareQR = !appState.showShareQR;
+        render();
+    }
     else if (action === "save-card") {
   // The colour result exports a light card (#colour-share-card); the style /
   // unified result exports the dark archetype card (#arch-style-card).
