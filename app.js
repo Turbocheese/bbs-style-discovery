@@ -6277,6 +6277,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
@@ -6310,6 +6311,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
