@@ -230,13 +230,16 @@ try {
 Add immediately after that block (before the `visCompare`/`visEnsemble` reset comment that follows it):
 ```javascript
 // A scanned share link always starts a brand-new browser session on the
-// client's own phone — savedSession above will be null there, so this
-// only ever overrides a genuinely fresh boot, never an in-progress kiosk
-// session. See docs/superpowers/specs/2026-08-11-qr-results-share-design.md.
+// client's own phone — savedSession is null there. Gate structurally on
+// !savedSession (not just "URL params happen to be present") so this can
+// never fire against a real in-progress kiosk session — e.g. a staff
+// member reopening a previously-shared link on the store's own iPad, which
+// already has a client's session in localStorage, must NOT wipe it.
+// See docs/superpowers/specs/2026-08-11-qr-results-share-design.md.
 var shareParams = new URLSearchParams(location.search);
 var sharedStyleKey = shareParams.get("styleKey");
 var sharedColourKey = shareParams.get("colourKey");
-if (sharedStyleKey || sharedColourKey) {
+if (!savedSession && (sharedStyleKey || sharedColourKey)) {
     appState = getFreshState();
     if (sharedStyleKey) appState.archetypeKey = sharedStyleKey;
     if (sharedColourKey) appState.colourResultKey = sharedColourKey;
@@ -251,6 +254,13 @@ if (sharedStyleKey || sharedColourKey) {
     }
 }
 ```
+**Note on the `!savedSession` guard:** `savedSession` here is the *raw JSON
+string* read from `localStorage` two blocks above (`app.js:3319-3316`
+region), not the parsed `appState` — it is `null` only when nothing was
+ever saved in this browser, which is exactly the "genuinely fresh device"
+condition this branch requires. This makes the safety property structural
+(the branch is unreachable whenever a prior session exists) rather than an
+assumption asserted only in a comment.
 
 - [ ] **Step 2: Verify syntax**
 
