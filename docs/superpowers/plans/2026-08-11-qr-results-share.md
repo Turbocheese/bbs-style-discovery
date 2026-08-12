@@ -1010,6 +1010,104 @@ Expected: both exit clean.
 
 ---
 
+### Task 15: Fix the same bug in the unified restore path
+
+**Discovered by Task 14's task review.** `renderResult()`'s unified branch
+(`app.js`, immediately after the `isUnified` check — currently around
+line 4664) has the exact same bug Task 14 just fixed, in a second
+location:
+```javascript
+    if (isUnified) {
+        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = getColourDescriptor(cScores);
+        // archetype.name already begins with "The" (e.g. "The Tropical
+        // Traditionalist"), so it is used as-is here.
+        unifiedTieHTML =
+            '<p class="unified-tie">' + archetype.name + ", dressed in your " + cDescriptor + " palette.</p>";
+        unifiedColourHTML =
+            '<div class="unified-colour-section">' +
+            '<div class="unified-section-label">Your colours</div>' +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile) +
+            "</div>";
+    }
+```
+On a scanned **both-keys** shared link, `appState.colourAnswersById` is
+`{}` (no real answers on that device), so `cScores` is all-zero — exactly
+Task 14's bug, just feeding a different pair of call sites: the "…dressed
+in your **Balanced** palette" tie sentence, and (via
+`getColourResultContentHTML(appState.colourResultKey, cScores, cProfile)`)
+the folded-in colour section's own headline and reason rows. The result:
+a unified shared link renders "Balanced" and generic reasons directly
+above the *correct* profile name, description and swatches — visibly
+self-contradictory on the same card.
+
+**The fix** reuses `CANONICAL_COLOUR_SCORES` (added in Task 14) with the
+identical `hasAnswers` pattern already proven there — no new score vectors
+to design or verify, just applying the same guard a second time.
+
+**Files:**
+- Modify: `app.js` (the `isUnified` block in `renderResult()`)
+
+- [ ] **Step 1: Apply the same guard**
+
+Current:
+```javascript
+    if (isUnified) {
+        var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = getColourDescriptor(cScores);
+```
+
+Replace with:
+```javascript
+    if (isUnified) {
+        var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+        var cScores = cHasAnswers
+            ? scoreColourDirectionAnswers(appState.colourAnswersById)
+            : (CANONICAL_COLOUR_SCORES[appState.colourResultKey] || scoreColourDirectionAnswers(appState.colourAnswersById));
+        var cProfile = getColourDirectionProfileData(appState.colourResultKey);
+        var cDescriptor = getColourDescriptor(cScores);
+```
+Everything below this (the `unifiedTieHTML`/`unifiedColourHTML` assignments)
+is unchanged — they already consume `cScores`, `cProfile`, `cDescriptor`,
+whichever branch produced them.
+
+- [ ] **Step 2: Verify syntax**
+
+Run: `node --check app.js`
+Expected: no output (exit code 0).
+
+- [ ] **Step 3: Verify the fix**
+
+Simulate a unified restored session (`appState.journeyStage = "done"`,
+`archetypeKey` and `colourResultKey` both set to non-default values, e.g.
+`colourResultKey: "clean_cool_contrast"`, `colourAnswersById: {}`) and
+confirm the rendered unified tie sentence reads "…dressed in your **Cool**
+…" (or whatever `clean_cool_contrast`'s real descriptor is — "Cool &
+Medium" per Task 14's verified table, so the tie sentence's adjective
+should reflect Cool, not "Balanced"), and that the folded-in colour section
+matches the same profile, not the default.
+
+Also confirm the **normal** unified flow (both quizzes actually taken in
+this session, `colourAnswersById` populated with real answers) is
+unaffected — `cHasAnswers` is true, so it takes the exact original
+`scoreColourDirectionAnswers(appState.colourAnswersById)` line, unchanged.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add app.js
+git commit -m "Fix unified shared results showing a mismatched colour descriptor"
+```
+
+- [ ] **Step 5: Re-run the full verification suite**
+
+Run: `node verify/audit.js` and `node verify/smoke.js`
+Expected: both exit clean.
+
+---
+
 ## Self-Review Notes
 
 **Spec coverage:** Task 1 covers "New file + dependency" (vendoring). Task 3
