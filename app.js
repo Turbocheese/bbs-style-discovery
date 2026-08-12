@@ -7434,8 +7434,15 @@ function renderColourDirectionResult() {
         '<div class="arch-staff-label">Save &amp; share</div>' +
         '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-qr">Scan to Take With You</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="colour-restart">Start Again</button>' +
         "</div>" +
+        (appState.showShareQR
+            ? '<div class="qr-share-card">' +
+              '<canvas class="qr-share-canvas"></canvas>' +
+              '<p class="qr-share-caption">Scan with your phone\'s camera to save your results.</p>' +
+              "</div>"
+            : "") +
         getColourShareCardHTML(resultKey, scores, profile) +
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
