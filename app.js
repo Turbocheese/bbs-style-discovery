@@ -4790,8 +4790,15 @@ function renderResult() {
         '<div class="arch-staff-label">Save &amp; share</div>' +
         '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-qr">Scan to Take With You</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="export-dossier">Export Client Dossier</button>' +
         "</div>" +
+        (appState.showShareQR
+            ? '<div class="qr-share-card">' +
+              '<canvas class="qr-share-canvas"></canvas>' +
+              '<p class="qr-share-caption">Scan with your phone\'s camera to save your results.</p>' +
+              "</div>"
+            : "") +
         (links.length > 0
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
