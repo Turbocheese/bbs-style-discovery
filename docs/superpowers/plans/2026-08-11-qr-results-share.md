@@ -827,11 +827,186 @@ Expected: exits clean, no new console errors or 4xx/5xx responses.
 
 - [ ] **Step 6: Final commit (if Steps 3-5 required any fixes)**
 
-If any fixes were needed to pass verification:
-```bash
-git add -A
-git commit -m "Fix issues found during QR share end-to-end verification"
+If Task 13's verification found no fixable-in-place issues (e.g. it found a
+real bug requiring its own task, as it did — see Task 14 below), skip this
+step; do not commit anything from Task 13 itself.
+
+---
+
+### Task 14: Fix colour-only share showing the wrong profile
+
+**Discovered by Task 13's end-to-end verification.** `renderColourDirectionResult()`
+(app.js:7410-7414, pre-existing code untouched by any earlier task in this
+feature) unconditionally recomputes `appState.colourResultKey` from
+`appState.colourAnswersById` on every render:
+```javascript
+function renderColourDirectionResult() {
+    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+    var resultKey = getColourDirectionProfileKey(scores);
+    var profile = getColourDirectionProfileData(resultKey);
+    appState.colourResultKey = resultKey;
 ```
+A colour-only shared link restores `appState.colourResultKey` correctly
+(Task 4), but `appState.colourAnswersById` is `{}` on a fresh device (no
+real quiz was taken there) — so `scoreColourDirectionAnswers({})` returns
+all-zero scores, which `getColourDirectionProfileKey` maps to the default
+fallback profile `refined_neutral_contrast`, **silently overwriting the
+correct restored key**. A client scanning a colour-only QR code sees a
+different, wrong colour profile than the one shown in-store. Confirmed
+reproducibly by Task 13. Style-only and unified (both-keys) restores are
+unaffected — this is specific to the colour-only path, because
+`renderResult()` (the style result) does not recompute `archetypeKey` the
+same way.
+
+Beyond `resultKey`, the all-zero `scores` object also breaks
+`getColourResultContentHTML`'s headline: it calls `getColourDescriptor(scores)`
+(colour-direction.js:1117) for the card's actual hero headline text
+(`.colour-type-headline`), which would show a generic "Balanced" reading
+regardless of the client's real profile — the descriptor problem is
+broader than just the key.
+
+**The fix — verified, not just designed:** every one of the 8 colour
+profile keys can be mapped to a hand-picked "canonical" score vector that
+(a) round-trips back to that exact key through the real
+`getColourDirectionProfileKey` function, and (b) produces a sensible,
+non-generic descriptor through the real `getColourDescriptor` function.
+This was verified empirically against this repo's actual
+`colour-direction.js` (not just reasoned about), via a Node `vm` sandbox —
+every vector below has been run through both real functions and confirmed
+correct:
+
+| profileKey | canonical vector | verified round-trip key | verified descriptor |
+|---|---|---|---|
+| `muted_olive_balance` | `{ olive: 3 }` | `muted_olive_balance` | "Olive & Medium" |
+| `deep_controlled_colour` | `{ warm: 3, deep: 3, clear: 3 }` | `deep_controlled_colour` | "Warm & Deep" |
+| `light_warm_clarity` | `{ warm: 3, light: 3, clear: 3 }` | `light_warm_clarity` | "Warm & Light" |
+| `earth_led_balance` | `{ warm: 3, medium: 3, clear: 3 }` | `earth_led_balance` | "Warm & Medium" |
+| `soft_tonal_warmth` | `{ warm: 3, medium: 3, muted: 3, softContrast: 3 }` | `soft_tonal_warmth` | "Warm & Medium" |
+| `clean_cool_contrast` | `{ cool: 3, clear: 3 }` | `clean_cool_contrast` | "Cool & Medium" |
+| `quiet_monochrome` | `{ cool: 3, muted: 3, softContrast: 3 }` | `quiet_monochrome` | "Cool & Medium" |
+| `refined_neutral_contrast` | `{ neutral: 3 }` | `refined_neutral_contrast` | "Balanced" |
+
+**Files:**
+- Modify: `colour-direction.js` (add the lookup table)
+- Modify: `app.js:7410-7414` (`renderColourDirectionResult()`)
+
+- [ ] **Step 1: Add the canonical scores lookup to `colour-direction.js`**
+
+Add near the other colour-profile data (immediately after the closing of
+`colourDirectionProfiles`, i.e. after its final `};`):
+```javascript
+// Used only when restoring a colour-only result from a scanned share link
+// (see share-qr.js / the boot-time restore in app.js), where the real
+// per-question scores were never collected on this device — only the
+// resultKey travelled in the URL. Each vector below is a representative
+// score pattern for its profile, verified (via the real
+// getColourDirectionProfileKey / getColourDescriptor functions) to map
+// back to that exact profile and produce a sensible descriptor, standing
+// in for the client's real answers so the restored card reads correctly
+// instead of falling through to the all-zero-score default.
+var CANONICAL_COLOUR_SCORES = {
+    muted_olive_balance: { olive: 3 },
+    deep_controlled_colour: { warm: 3, deep: 3, clear: 3 },
+    light_warm_clarity: { warm: 3, light: 3, clear: 3 },
+    earth_led_balance: { warm: 3, medium: 3, clear: 3 },
+    soft_tonal_warmth: { warm: 3, medium: 3, muted: 3, softContrast: 3 },
+    clean_cool_contrast: { cool: 3, clear: 3 },
+    quiet_monochrome: { cool: 3, muted: 3, softContrast: 3 },
+    refined_neutral_contrast: { neutral: 3 }
+};
+```
+
+- [ ] **Step 2: Use it in `renderColourDirectionResult()`**
+
+Current (`app.js:7410-7414`):
+```javascript
+function renderColourDirectionResult() {
+    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+    var resultKey = getColourDirectionProfileKey(scores);
+    var profile = getColourDirectionProfileData(resultKey);
+    appState.colourResultKey = resultKey;
+```
+
+Replace with:
+```javascript
+function renderColourDirectionResult() {
+    // A colour-only shared link (see the boot-time restore in app.js)
+    // sets appState.colourResultKey directly, with no real answers behind
+    // it (colourAnswersById is empty on that fresh device) — recomputing
+    // from empty answers would silently overwrite the restored key with
+    // the all-zero-score default. Only recompute from answers when real
+    // answers exist, or when there's no restored key to fall back on.
+    var hasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+    var scores, resultKey;
+    if (hasAnswers || !appState.colourResultKey) {
+        scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        resultKey = getColourDirectionProfileKey(scores);
+        appState.colourResultKey = resultKey;
+    } else {
+        resultKey = appState.colourResultKey;
+        scores = CANONICAL_COLOUR_SCORES[resultKey] || scoreColourDirectionAnswers(appState.colourAnswersById);
+    }
+    var profile = getColourDirectionProfileData(resultKey);
+```
+
+This preserves the existing quiz flow exactly (any time real answers exist,
+behavior is byte-for-byte unchanged) and only takes the new branch when
+`colourAnswersById` is empty AND a `colourResultKey` already exists — a
+combination that, under normal navigation, restart, or fresh-boot flows,
+never otherwise occurs (restart clears both together; a genuinely fresh
+boot has neither set), so this is safe to key off precisely.
+
+- [ ] **Step 3: Verify syntax**
+
+Run: `node --check colour-direction.js` and `node --check app.js`
+Expected: no output (exit code 0) from both.
+
+- [ ] **Step 4: Verify the fix empirically, the same way it was designed**
+
+Run (adjust the path if `colour-direction.js` isn't at the repo root):
+```bash
+node -e "
+var vm=require('vm');var fs=require('fs');
+var code=fs.readFileSync('./colour-direction.js','utf8');
+var sandbox={};
+vm.createContext(sandbox);
+vm.runInContext(code,sandbox);
+var keys = Object.keys(sandbox.CANONICAL_COLOUR_SCORES);
+var allPass = true;
+for (var i=0;i<keys.length;i++){
+  var k = keys[i];
+  var got = sandbox.getColourDirectionProfileKey(sandbox.CANONICAL_COLOUR_SCORES[k]);
+  var ok = got === k;
+  if(!ok) allPass = false;
+  console.log((ok?'OK  ':'FAIL')+'  '+k+'  -> '+got);
+}
+console.log(allPass ? 'ALL PASS' : 'SOME FAILED');
+"
+```
+Expected: all 8 lines print `OK`, final line `ALL PASS`.
+
+- [ ] **Step 5: Re-verify the colour-only restore path end-to-end**
+
+Repeat the specific check from Task 13 that failed: simulate a colour-only
+restored session (`appState` with `colourResultKey` set to some profile key
+and `colourAnswersById: {}`, no `archetypeKey`), load the app, and confirm
+`renderColourDirectionResult()` shows that SAME profile — not
+`refined_neutral_contrast` — regardless of which profile was restored. Test
+at least one non-default profile (e.g. `clean_cool_contrast`) to prove the
+fix, since `refined_neutral_contrast` being shown could otherwise coincidentally
+look correct even if broken.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add colour-direction.js app.js
+git commit -m "Fix colour-only shared results showing the default profile instead of the restored one"
+```
+
+- [ ] **Step 7: Re-run the full verification suite**
+
+Run: `node verify/audit.js` and `node verify/smoke.js`
+Expected: both exit clean.
 
 ---
 
