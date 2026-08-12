@@ -6637,6 +6637,7 @@ document.body.addEventListener("click", function (e) {
         appState.colourStep = 0;
         appState.colourAnswersById = {};
         appState.colourResultKey = null;
+        appState.showShareQR = false;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         navigateColourDirection();
     }
@@ -6650,6 +6651,7 @@ document.body.addEventListener("click", function (e) {
         appState.selColourUse = "";
         appState.selClimate = "";
         appState.archetypeKey = null;
+        appState.showShareQR = false;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         navigateDiscover();
     }
