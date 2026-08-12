@@ -3304,6 +3304,7 @@ function getFreshState() {
         lookbookFilter: "all",
         lookbookCategory: "all",
         openFilterDD: null,
+        showShareQR: false,
         wardrobeChecklist: {},
         visFabricKey: null,
         visFabricKeyB: null,
@@ -3332,6 +3333,44 @@ try {
         localStorage.removeItem("bbs_session");
     } catch (e2) {}
     appState = getFreshState();
+}
+
+// A scanned share link always starts a brand-new browser session on the
+// client's own phone — savedSession is null there. Gate structurally on
+// !savedSession (not just "URL params happen to be present") so this can
+// never fire against a real in-progress kiosk session — e.g. a staff
+// member reopening a previously-shared link on the store's own iPad, which
+// already has a client's session in localStorage, must NOT wipe it.
+// See docs/superpowers/specs/2026-08-11-qr-results-share-design.md.
+var shareParams = new URLSearchParams(location.search);
+var sharedStyleKey = shareParams.get("styleKey");
+var sharedColourKey = shareParams.get("colourKey");
+// A key from the URL is untrusted input: a mistyped, truncated or
+// hand-crafted link can carry anything. Accept a key only if it is a real
+// profile (archetypeProfiles, app.js:15 / colourDirectionProfiles,
+// colour-direction.js:518 — both defined before this point in load order),
+// and derive the view from what was actually accepted, not from the raw
+// params, so a link with one good and one bad key still restores the good
+// half instead of landing on a broken, half-restored result.
+// hasOwnProperty is the membership test on purpose: it also rejects
+// inherited names like "toString".
+if (!savedSession && (sharedStyleKey || sharedColourKey)) {
+    appState = getFreshState();
+    if (sharedStyleKey && archetypeProfiles.hasOwnProperty(sharedStyleKey)) {
+        appState.archetypeKey = sharedStyleKey;
+    }
+    if (sharedColourKey && colourDirectionProfiles.hasOwnProperty(sharedColourKey)) {
+        appState.colourResultKey = sharedColourKey;
+    }
+    if (appState.archetypeKey && appState.colourResultKey) {
+        appState.inJourney = true;
+        appState.journeyStage = "done";
+        appState.view = "result";
+    } else if (appState.archetypeKey) {
+        appState.view = "result";
+    } else if (appState.colourResultKey) {
+        appState.view = "colour-result";
+    }
 }
 
 // Compare/Ensemble are sub-modes of the Cloth Room, not places a client
@@ -4635,9 +4674,13 @@ function renderResult() {
     var unifiedTieHTML = "";
     var unifiedColourHTML = "";
     if (isUnified) {
+        var cHasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
         var cScores = scoreColourDirectionAnswers(appState.colourAnswersById);
         var cProfile = getColourDirectionProfileData(appState.colourResultKey);
-        var cDescriptor = getColourDescriptor(cScores);
+        // On a restore there are no answers behind the key, so cScores is the
+        // empty-answer result and is not read for display — the tie sentence
+        // uses the profile's own name instead of a fabricated descriptor.
+        var cDescriptor = cHasAnswers ? getColourDescriptor(cScores) : cProfile.name;
         // archetype.name already begins with "The" (e.g. "The Tropical
         // Traditionalist"), so it is used as-is here.
         unifiedTieHTML =
@@ -4645,7 +4688,7 @@ function renderResult() {
         unifiedColourHTML =
             '<div class="unified-colour-section">' +
             '<div class="unified-section-label">Your colours</div>' +
-            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile) +
+            getColourResultContentHTML(appState.colourResultKey, cScores, cProfile, cHasAnswers) +
             "</div>";
     }
 
@@ -4764,8 +4807,15 @@ function renderResult() {
         '<div class="arch-staff-label">Save &amp; share</div>' +
         '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-qr">Scan to Take With You</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="export-dossier">Export Client Dossier</button>' +
         "</div>" +
+        (appState.showShareQR
+            ? '<div class="qr-share-card">' +
+              '<canvas class="qr-share-canvas"></canvas>' +
+              '<p class="qr-share-caption">Scan with your phone\'s camera to save your results.</p>' +
+              "</div>"
+            : "") +
         (links.length > 0
             ? '<div class="arch-explore-section">' +
             '<div class="arch-explore-heading">Explore the BBS Guide</div>' +
@@ -6244,6 +6294,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
@@ -6277,6 +6328,7 @@ function render(options) {
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof startVisCoverflow === "function") startVisCoverflow();
         if (typeof initHeritageStrips === "function") initHeritageStrips();
+        if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
         if (appState.view === "welcome") {
@@ -6604,6 +6656,7 @@ document.body.addEventListener("click", function (e) {
         appState.colourStep = 0;
         appState.colourAnswersById = {};
         appState.colourResultKey = null;
+        appState.showShareQR = false;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         navigateColourDirection();
     }
@@ -6617,6 +6670,7 @@ document.body.addEventListener("click", function (e) {
         appState.selColourUse = "";
         appState.selClimate = "";
         appState.archetypeKey = null;
+        appState.showShareQR = false;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         navigateDiscover();
     }
@@ -6629,6 +6683,10 @@ document.body.addEventListener("click", function (e) {
         var newPath = appState.guidePath.slice();
         newPath.push(childKey);
         navigateGuide(newPath);
+    }
+    else if (action === "share-qr") {
+        appState.showShareQR = !appState.showShareQR;
+        render();
     }
     else if (action === "save-card") {
   // The colour result exports a light card (#colour-share-card); the style /
@@ -7140,9 +7198,15 @@ function colourFirstSentence(text) {
 // type header, three plain reasons, palette split by role, how-to-wear-it
 // in three moves, two supporting cards, and the explore links. Reused by
 // the standalone colour-result view and the unified result (no duplication).
-function getColourResultContentHTML(resultKey, scores, profile) {
-    var descriptor = getColourDescriptor(scores);
-    var reasons = getColourReasons(scores);
+// hasRealAnswers is false when the result was restored from a share link:
+// only the profile key travelled in the URL, so there are no per-question
+// scores behind it. In that case show the profile's own real name and
+// description and nothing else — a per-axis "read" derived from absent
+// answers would be fabricated, and fabricated reads contradict the profile
+// (a restored Clean Cool Contrast card once read "Contrast: Soft").
+function getColourResultContentHTML(resultKey, scores, profile, hasRealAnswers) {
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : profile.name;
+    var reasons = hasRealAnswers ? getColourReasons(scores) : [];
     var neutrals = profile.strongNeutrals || [];
     var accents = profile.accentColours || [];
 
@@ -7176,7 +7240,9 @@ function getColourResultContentHTML(resultKey, scores, profile) {
         '<div class="colour-type-header">' +
         '<div class="colour-type-label">Your Colour Type</div>' +
         '<h2 class="colour-type-headline">' + descriptor + "</h2>" +
-        '<div class="colour-type-subtitle">' + profile.name + "</div>" +
+        // Without real answers the headline IS profile.name, so the subtitle
+        // would repeat it verbatim directly underneath.
+        (hasRealAnswers ? '<div class="colour-type-subtitle">' + profile.name + "</div>" : "") +
         '<p class="colour-type-desc">' + profile.desc + "</p>" +
         "</div>";
 
@@ -7326,8 +7392,11 @@ function getColourResultCrossPromptHTML() {
 // artifact for the PNG/PDF. Captured by the save-card / share-native actions
 // through the shared export helpers (renderElementToCanvas -> canvasToPDF /
 // shareCanvasAsPNG); no re-inlined html2canvas/jsPDF.
-function getColourShareCardHTML(resultKey, scores, profile) {
-    var descriptor = getColourDescriptor(scores);
+// hasRealAnswers: see getColourResultContentHTML. Without real answers the
+// card drops the descriptor headline entirely and leads on profile.name
+// (.colour-share-sub) rather than showing a blank or fabricated line.
+function getColourShareCardHTML(resultKey, scores, profile, hasRealAnswers) {
+    var descriptor = hasRealAnswers ? getColourDescriptor(scores) : "";
     var neutrals = profile.strongNeutrals || [];
     var accents = profile.accentColours || [];
 
@@ -7351,7 +7420,7 @@ function getColourShareCardHTML(resultKey, scores, profile) {
         '<span class="colour-share-tag">Colour Direction</span>' +
         "</div>" +
         (appState.clientName ? '<div class="colour-share-client">Name: ' + appState.clientName + "</div>" : "") +
-        '<div class="colour-share-headline">' + descriptor + "</div>" +
+        (hasRealAnswers ? '<div class="colour-share-headline">' + descriptor + "</div>" : "") +
         '<div class="colour-share-sub">' + profile.name + "</div>" +
         '<div class="colour-share-rule"></div>' +
         '<div class="colour-share-pal-label">Neutrals &mdash; your foundation</div>' +
@@ -7367,10 +7436,26 @@ function getColourShareCardHTML(resultKey, scores, profile) {
 }
 
 function renderColourDirectionResult() {
-    var scores = scoreColourDirectionAnswers(appState.colourAnswersById);
-    var resultKey = getColourDirectionProfileKey(scores);
+    // A colour-only shared link (see the boot-time restore in app.js)
+    // sets appState.colourResultKey directly, with no real answers behind
+    // it (colourAnswersById is empty on that fresh device) — recomputing
+    // from empty answers would silently overwrite the restored key with
+    // the all-zero-score default. Only recompute from answers when real
+    // answers exist, or when there's no restored key to fall back on.
+    var hasAnswers = Object.keys(appState.colourAnswersById || {}).length > 0;
+    var scores, resultKey;
+    if (hasAnswers || !appState.colourResultKey) {
+        scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+        resultKey = getColourDirectionProfileKey(scores);
+        appState.colourResultKey = resultKey;
+    } else {
+        // Restored key with no answers behind it: scores stays the empty-answer
+        // result and is never read for display (both helpers below ignore
+        // scores when hasAnswers is false).
+        resultKey = appState.colourResultKey;
+        scores = scoreColourDirectionAnswers(appState.colourAnswersById);
+    }
     var profile = getColourDirectionProfileData(resultKey);
-    appState.colourResultKey = resultKey;
 
     return (
         '<div class="arch-result-shell colour-result-shell">' +
@@ -7384,7 +7469,7 @@ function renderColourDirectionResult() {
               "</div>"
             : "") +
         '<div class="arch-result-divider"></div>' +
-        getColourResultContentHTML(resultKey, scores, profile) +
+        getColourResultContentHTML(resultKey, scores, profile, hasAnswers) +
         // In the journey this screen is skipped in favour of the unified
         // result; reached standalone, offer to complete the Style quiz.
         (appState.inJourney ? "" : getColourResultCrossPromptHTML()) +
@@ -7401,9 +7486,16 @@ function renderColourDirectionResult() {
         '<div class="arch-staff-label">Save &amp; share</div>' +
         '<button class="arch-btn-quiet btn-bare" data-action="save-card">Save Card</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="share-native">Share to Phone</button>' +
+        '<button class="arch-btn-quiet btn-bare" data-action="share-qr">Scan to Take With You</button>' +
         '<button class="arch-btn-quiet btn-bare" data-action="colour-restart">Start Again</button>' +
         "</div>" +
-        getColourShareCardHTML(resultKey, scores, profile) +
+        (appState.showShareQR
+            ? '<div class="qr-share-card">' +
+              '<canvas class="qr-share-canvas"></canvas>' +
+              '<p class="qr-share-caption">Scan with your phone\'s camera to save your results.</p>' +
+              "</div>"
+            : "") +
+        getColourShareCardHTML(resultKey, scores, profile, hasAnswers) +
         '<div class="arch-result-footer">' +
         '<button class="arch-restart" data-action="home">Back to Home</button>' +
         "</div>" +
