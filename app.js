@@ -3444,6 +3444,7 @@ function navigateHome() {
 function navigateDiscover() {
     // 2. If they already completed the quiz, go to Result
     if (appState.selPalette && appState.selFocus && appState.archetypeKey) {
+        appState.showShareQR = false;
         appState.view = "result";
         render({ animate: true });
         return;
@@ -6602,6 +6603,7 @@ document.body.addEventListener("click", function (e) {
             if (appState.inJourney && appState.journeyStage === "style") {
                 appState.journeyStage = "done";
             }
+            appState.showShareQR = false;
             appState.view = "result";
             render({ animate: true });
         });
@@ -6643,6 +6645,7 @@ document.body.addEventListener("click", function (e) {
                     navigateDiscover();
                     return;
                 }
+                appState.showShareQR = false;
                 appState.view = "colour-result";
                 render({ animate: true });
             });
@@ -7246,17 +7249,22 @@ function getColourResultContentHTML(resultKey, scores, profile, hasRealAnswers) 
         '<p class="colour-type-desc">' + profile.desc + "</p>" +
         "</div>";
 
-    // 2. Three reasons.
-    var reasonsHTML = '<div class="colour-reasons">';
-    for (var r = 0; r < reasons.length; r++) {
-        reasonsHTML +=
-            '<div class="colour-reason">' +
-            '<div class="colour-reason-k">' + reasons[r].k + "</div>" +
-            '<div class="colour-reason-v">' + reasons[r].v + "</div>" +
-            '<p class="colour-reason-d">' + reasons[r].d + "</p>" +
-            "</div>";
+    // 2. Three reasons. Skipped entirely (not just empty) when there are no
+    // real answers — an empty wrapper still carries its own margin, leaving
+    // a gap where the chips used to be on a restored card.
+    var reasonsHTML = "";
+    if (hasRealAnswers) {
+        reasonsHTML = '<div class="colour-reasons">';
+        for (var r = 0; r < reasons.length; r++) {
+            reasonsHTML +=
+                '<div class="colour-reason">' +
+                '<div class="colour-reason-k">' + reasons[r].k + "</div>" +
+                '<div class="colour-reason-v">' + reasons[r].v + "</div>" +
+                '<p class="colour-reason-d">' + reasons[r].d + "</p>" +
+                "</div>";
+        }
+        reasonsHTML += "</div>";
     }
-    reasonsHTML += "</div>";
 
     // 3. Palette split by role.
     var paletteHTML =
@@ -7524,6 +7532,7 @@ function navigateJourney() {
     //    that "always fresh relative to standalone quiz state" behavior is
     //    intentional (see the fresh-start branch below).
     if (appState.inJourney && appState.journeyStage === "done" && appState.archetypeKey && appState.colourResultKey) {
+        appState.showShareQR = false;
         appState.view = "result";
         render({ animate: true });
         return;
@@ -7575,6 +7584,7 @@ function navigateJourney() {
 function navigateColourDirection() {
     // 1. If they already completed the quiz, take them to the Result
     if (appState.colourResultKey) {
+        appState.showShareQR = false;
         appState.view = "colour-result";
         render({ animate: true });
         return;
