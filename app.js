@@ -5805,6 +5805,71 @@ function isLightHex(hex) {
     return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2] > 0.35;
 }
 
+// ============================================
+// ARCHETYPE GALLERY GUIDED TOUR — "Take the Tour" cycles through all 24
+// archetypes as a paced flythrough, mirroring the Mill Map's globe tour
+// (mill-map.js, startMillTour()). Entirely transient: state lives only
+// in this module-scope var, never appState, so browsing away and back
+// never finds a tour "resuming" and normal listing/detail navigation is
+// unaffected. Pacing is a plain setTimeout rather than the globe's
+// rAF-driven dwell — the Gallery has no continuous rendering loop to
+// hang a timer off, so nothing here needs one just to pace four seconds.
+// ============================================
+var _archTourState = null;
+var ARCH_TOUR_DWELL_MS = 4000;
+
+function startArchTour() {
+    var overlay = document.getElementById("arch-tour-overlay");
+    var slide = document.getElementById("arch-tour-slide");
+    if (!overlay || !slide) return;
+    _archTourState = {
+        active: true,
+        order: Object.keys(archetypeProfiles),
+        index: -1,
+        timeoutId: null
+    };
+    overlay.classList.add("active");
+    slide.addEventListener("pointerup", archTourSlideTap);
+    advanceArchTour();
+}
+
+function stopArchTour() {
+    var overlay = document.getElementById("arch-tour-overlay");
+    var slide = document.getElementById("arch-tour-slide");
+    if (_archTourState && _archTourState.timeoutId) clearTimeout(_archTourState.timeoutId);
+    if (overlay) overlay.classList.remove("active");
+    if (slide) slide.removeEventListener("pointerup", archTourSlideTap);
+    _archTourState = null;
+}
+
+function archTourSlideTap() {
+    advanceArchTour();
+}
+
+// Called by the dwell timeout and by tap-to-skip alike. Always clears
+// any pending timeout first, so a tap immediately before the timer was
+// due cannot cause a double-advance.
+function advanceArchTour() {
+    if (!_archTourState) return;
+    if (_archTourState.timeoutId) clearTimeout(_archTourState.timeoutId);
+    _archTourState.index++;
+    if (_archTourState.index >= _archTourState.order.length) {
+        stopArchTour();
+        return;
+    }
+    var slide = document.getElementById("arch-tour-slide");
+    if (!slide) { stopArchTour(); return; }
+    var key = _archTourState.order[_archTourState.index];
+    var archetype = archetypeProfiles[key];
+    var counter = ("0" + (_archTourState.index + 1)).slice(-2) + " / " + _archTourState.order.length;
+    slide.innerHTML =
+        '<span class="arch-tour-counter">' + counter + "</span>" +
+        getGalleryMarkHTML(archetype, _archTourState.index, true) +
+        '<h2 class="arch-tour-name">' + archetype.name + "</h2>" +
+        '<p class="arch-tour-sub">' + archetype.sub + "</p>";
+    _archTourState.timeoutId = setTimeout(advanceArchTour, ARCH_TOUR_DWELL_MS);
+}
+
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
@@ -5847,6 +5912,8 @@ function renderArchetypeGallery() {
     html += '<button class="gallery-view-btn' + (stacked ? " sel" : "") + '" data-action="gallery-view" data-view="stack" aria-pressed="' + stacked + '">Stacked</button>';
     html += "</div>";
 
+    html += '<button class="gallery-tour-btn" type="button" data-action="arch-tour-start">Take the Tour</button>';
+
     html += '<div class="' + (stacked ? "gallery-stack" : "gallery-grid") + '">';
     for (var i = 0; i < keys.length; i++) {
         var a = archetypeProfiles[keys[i]];
@@ -5877,6 +5944,12 @@ function renderArchetypeGallery() {
         html += "</div>";
     }
     html += "</div></div>";
+
+    html += '<div class="arch-tour-overlay" id="arch-tour-overlay">' +
+        '<div class="arch-tour-slide" id="arch-tour-slide"></div>' +
+        '<div class="arch-tour-controls">' +
+        '<button class="arch-tour-exit" type="button" data-action="arch-tour-exit">Exit Tour</button>' +
+        "</div></div>";
 
     html += "</div>";
     return html;
@@ -6957,6 +7030,12 @@ document.body.addEventListener("click", function (e) {
         appState.galleryStacked = target.dataset.view === "stack";
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render({ animate: false });
+    }
+    else if (action === "arch-tour-start") {
+        startArchTour();
+    }
+    else if (action === "arch-tour-exit") {
+        stopArchTour();
     }
     else if (action === "dd-toggle") {
         // Open/close a filter dropdown in place — no re-render. The state is
