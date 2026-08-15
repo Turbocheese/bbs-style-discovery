@@ -5819,6 +5819,7 @@ var _archTourState = null;
 var ARCH_TOUR_DWELL_MS = 4000;
 
 function startArchTour() {
+    if (_archTourState && _archTourState.active) return;
     var overlay = document.getElementById("arch-tour-overlay");
     var slide = document.getElementById("arch-tour-slide");
     if (!overlay || !slide) return;
