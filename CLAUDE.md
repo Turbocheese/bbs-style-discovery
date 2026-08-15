@@ -54,6 +54,8 @@ Script order in `index.html` is load-bearing (globals defined top-down). **`inde
 - `mill-map.js` — the Mill Map ("Provenance Chart"). Coastlines in `MAP_COASTS` are **generated**, not hand-drawn: Natural Earth 50m land polygons (public domain), clipped to the chart bbox and Douglas-Peucker simplified. Regenerate with `tools/make-coasts.js` (see its header) if the bbox changes — do not hand-edit the coordinate arrays.
 - `vendor/html2canvas.min.js` (vendored, was cdnjs)
 - `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
+- `vendor/qrcode.min.js` (vendored, soldair/node-qrcode browser build)
+- `share-qr.js?v=N` — builds the share URL and draws the "Scan to Take With You" QR code. Only defines functions at load time (`appState` is read inside them at call time, not at parse time), but sits before `app.js` anyway to match the load-order convention every other optional-feature file here follows.
 - `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
 - inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 

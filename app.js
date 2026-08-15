@@ -3444,6 +3444,7 @@ function navigateHome() {
 function navigateDiscover() {
     // 2. If they already completed the quiz, go to Result
     if (appState.selPalette && appState.selFocus && appState.archetypeKey) {
+        appState.showShareQR = false;
         appState.view = "result";
         render({ animate: true });
         return;
@@ -5804,6 +5805,71 @@ function isLightHex(hex) {
     return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2] > 0.35;
 }
 
+// ============================================
+// ARCHETYPE GALLERY GUIDED TOUR — "Take the Tour" cycles through all 24
+// archetypes as a paced flythrough, mirroring the Mill Map's globe tour
+// (mill-map.js, startMillTour()). Entirely transient: state lives only
+// in this module-scope var, never appState, so browsing away and back
+// never finds a tour "resuming" and normal listing/detail navigation is
+// unaffected. Pacing is a plain setTimeout rather than the globe's
+// rAF-driven dwell — the Gallery has no continuous rendering loop to
+// hang a timer off, so nothing here needs one just to pace four seconds.
+// ============================================
+var _archTourState = null;
+var ARCH_TOUR_DWELL_MS = 4000;
+
+function startArchTour() {
+    var overlay = document.getElementById("arch-tour-overlay");
+    var slide = document.getElementById("arch-tour-slide");
+    if (!overlay || !slide) return;
+    _archTourState = {
+        active: true,
+        order: Object.keys(archetypeProfiles),
+        index: -1,
+        timeoutId: null
+    };
+    overlay.classList.add("active");
+    slide.addEventListener("pointerup", archTourSlideTap);
+    advanceArchTour();
+}
+
+function stopArchTour() {
+    var overlay = document.getElementById("arch-tour-overlay");
+    var slide = document.getElementById("arch-tour-slide");
+    if (_archTourState && _archTourState.timeoutId) clearTimeout(_archTourState.timeoutId);
+    if (overlay) overlay.classList.remove("active");
+    if (slide) slide.removeEventListener("pointerup", archTourSlideTap);
+    _archTourState = null;
+}
+
+function archTourSlideTap() {
+    advanceArchTour();
+}
+
+// Called by the dwell timeout and by tap-to-skip alike. Always clears
+// any pending timeout first, so a tap immediately before the timer was
+// due cannot cause a double-advance.
+function advanceArchTour() {
+    if (!_archTourState) return;
+    if (_archTourState.timeoutId) clearTimeout(_archTourState.timeoutId);
+    _archTourState.index++;
+    if (_archTourState.index >= _archTourState.order.length) {
+        stopArchTour();
+        return;
+    }
+    var slide = document.getElementById("arch-tour-slide");
+    if (!slide) { stopArchTour(); return; }
+    var key = _archTourState.order[_archTourState.index];
+    var archetype = archetypeProfiles[key];
+    var counter = ("0" + (_archTourState.index + 1)).slice(-2) + " / " + _archTourState.order.length;
+    slide.innerHTML =
+        '<span class="arch-tour-counter">' + counter + "</span>" +
+        getGalleryMarkHTML(archetype, _archTourState.index, true) +
+        '<h2 class="arch-tour-name">' + archetype.name + "</h2>" +
+        '<p class="arch-tour-sub">' + archetype.sub + "</p>";
+    _archTourState.timeoutId = setTimeout(advanceArchTour, ARCH_TOUR_DWELL_MS);
+}
+
 function getGalleryMarkHTML(archetype, index, large) {
     var cls = "gallery-mark" + (large ? " gallery-mark--large" : "");
     if (archetype.galleryImage) {
@@ -5846,6 +5912,8 @@ function renderArchetypeGallery() {
     html += '<button class="gallery-view-btn' + (stacked ? " sel" : "") + '" data-action="gallery-view" data-view="stack" aria-pressed="' + stacked + '">Stacked</button>';
     html += "</div>";
 
+    html += '<button class="gallery-tour-btn" type="button" data-action="arch-tour-start">Take the Tour</button>';
+
     html += '<div class="' + (stacked ? "gallery-stack" : "gallery-grid") + '">';
     for (var i = 0; i < keys.length; i++) {
         var a = archetypeProfiles[keys[i]];
@@ -5876,6 +5944,12 @@ function renderArchetypeGallery() {
         html += "</div>";
     }
     html += "</div></div>";
+
+    html += '<div class="arch-tour-overlay" id="arch-tour-overlay">' +
+        '<div class="arch-tour-slide" id="arch-tour-slide"></div>' +
+        '<div class="arch-tour-controls">' +
+        '<button class="arch-tour-exit" type="button" data-action="arch-tour-exit">Exit Tour</button>' +
+        "</div></div>";
 
     html += "</div>";
     return html;
@@ -6602,6 +6676,7 @@ document.body.addEventListener("click", function (e) {
             if (appState.inJourney && appState.journeyStage === "style") {
                 appState.journeyStage = "done";
             }
+            appState.showShareQR = false;
             appState.view = "result";
             render({ animate: true });
         });
@@ -6643,6 +6718,7 @@ document.body.addEventListener("click", function (e) {
                     navigateDiscover();
                     return;
                 }
+                appState.showShareQR = false;
                 appState.view = "colour-result";
                 render({ animate: true });
             });
@@ -6955,6 +7031,12 @@ document.body.addEventListener("click", function (e) {
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render({ animate: false });
     }
+    else if (action === "arch-tour-start") {
+        startArchTour();
+    }
+    else if (action === "arch-tour-exit") {
+        stopArchTour();
+    }
     else if (action === "dd-toggle") {
         // Open/close a filter dropdown in place — no re-render. The state is
         // kept so a subsequent filter change (which does re-render) can leave
@@ -7246,17 +7328,22 @@ function getColourResultContentHTML(resultKey, scores, profile, hasRealAnswers) 
         '<p class="colour-type-desc">' + profile.desc + "</p>" +
         "</div>";
 
-    // 2. Three reasons.
-    var reasonsHTML = '<div class="colour-reasons">';
-    for (var r = 0; r < reasons.length; r++) {
-        reasonsHTML +=
-            '<div class="colour-reason">' +
-            '<div class="colour-reason-k">' + reasons[r].k + "</div>" +
-            '<div class="colour-reason-v">' + reasons[r].v + "</div>" +
-            '<p class="colour-reason-d">' + reasons[r].d + "</p>" +
-            "</div>";
+    // 2. Three reasons. Skipped entirely (not just empty) when there are no
+    // real answers — an empty wrapper still carries its own margin, leaving
+    // a gap where the chips used to be on a restored card.
+    var reasonsHTML = "";
+    if (hasRealAnswers) {
+        reasonsHTML = '<div class="colour-reasons">';
+        for (var r = 0; r < reasons.length; r++) {
+            reasonsHTML +=
+                '<div class="colour-reason">' +
+                '<div class="colour-reason-k">' + reasons[r].k + "</div>" +
+                '<div class="colour-reason-v">' + reasons[r].v + "</div>" +
+                '<p class="colour-reason-d">' + reasons[r].d + "</p>" +
+                "</div>";
+        }
+        reasonsHTML += "</div>";
     }
-    reasonsHTML += "</div>";
 
     // 3. Palette split by role.
     var paletteHTML =
@@ -7524,6 +7611,7 @@ function navigateJourney() {
     //    that "always fresh relative to standalone quiz state" behavior is
     //    intentional (see the fresh-start branch below).
     if (appState.inJourney && appState.journeyStage === "done" && appState.archetypeKey && appState.colourResultKey) {
+        appState.showShareQR = false;
         appState.view = "result";
         render({ animate: true });
         return;
@@ -7575,6 +7663,7 @@ function navigateJourney() {
 function navigateColourDirection() {
     // 1. If they already completed the quiz, take them to the Result
     if (appState.colourResultKey) {
+        appState.showShareQR = false;
         appState.view = "colour-result";
         render({ animate: true });
         return;

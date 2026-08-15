@@ -167,7 +167,7 @@ var EXPECTED_SCRIPT_ORDER = [
     "garment-photo.js", "fabric-visualiser.js", "cloth-study.js",
     "archetype-avatars.js", "vendor/cobe.js", "mill-map.js",
     "vendor/html2canvas.min.js", "vendor/jspdf.umd.min.js",
-    "vendor/qrcode.min.js", "app.js", "share-qr.js"
+    "vendor/qrcode.min.js", "share-qr.js", "app.js"
 ];
 var indexSrc = require("fs").readFileSync(__dirname + "/../index.html", "utf8");
 var actualScriptOrder = [];

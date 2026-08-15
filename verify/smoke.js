@@ -85,6 +85,20 @@ function check(name, ok) {
     await page.waitForTimeout(1900); // measure moment
     check("style quiz reaches result", (await page.locator('[data-action="worksheet"]').count()) > 0);
 
+    // --- QR share reveal draws a real (non-blank) code ---
+    await page.locator('[data-action="share-qr"]').first().click();
+    await page.waitForTimeout(300);
+    var styleQrDrawn = await page.evaluate(function () {
+        var c = document.querySelector(".qr-share-canvas");
+        if (!c || !c.width) return false;
+        var data = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (var i = 0; i < data.length; i += 4) {
+            if (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255) return true;
+        }
+        return false;
+    });
+    check("style result QR draws a non-blank code", styleQrDrawn);
+
     // --- Dossier export produces a real download ---
     var download = null;
     page.on("download", function (d) { download = d; });
@@ -121,6 +135,65 @@ function check(name, ok) {
         (await page.locator(".colour-result-shell .colour-type-headline").count()) === 1 &&
             (await page.locator(".colour-result-shell .arch-result-persona").count()) === 0
     );
+
+    // --- QR share reveal on the colour result draws a real code too ---
+    await page.locator('[data-action="share-qr"]').first().click();
+    await page.waitForTimeout(300);
+    var colourQrDrawn = await page.evaluate(function () {
+        var c = document.querySelector(".qr-share-canvas");
+        if (!c || !c.width) return false;
+        var data = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+        for (var i = 0; i < data.length; i += 4) {
+            if (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255) return true;
+        }
+        return false;
+    });
+    check("colour result QR draws a non-blank code", colourQrDrawn);
+
+    // --- QR restore-on-boot: a scanned link lands on the right result,
+    //     with no answers behind it, and no console/page errors. Each check
+    //     below uses a genuinely fresh browser context (not just a new tab —
+    //     a new tab in `context` still shares this session's localStorage,
+    //     which would make `!savedSession` correctly, but unhelpfully for
+    //     this test, block the restore branch entirely) to simulate the
+    //     real scenario: a client's own phone, which has never saved a
+    //     session here. ---
+    var shareUrl = await page.evaluate(function () {
+        return buildShareURL(appState.archetypeKey, appState.colourResultKey);
+    });
+
+    var restoreContext = await browser.newContext({ viewport: { width: 800, height: 1000 } });
+    var restorePage = await restoreContext.newPage();
+    var restoreErrors = [];
+    restorePage.on("pageerror", function (e) { restoreErrors.push("PAGEERROR: " + e.message); });
+    restorePage.on("console", function (m) { if (m.type() === "error") restoreErrors.push("CONSOLE: " + m.text()); });
+    await restorePage.goto(shareUrl.replace(/^https?:\/\/[^/]+/, BASE), { waitUntil: "networkidle" });
+    await restorePage.waitForTimeout(600);
+    var restored = await restorePage.evaluate(function () {
+        return { view: appState.view, journeyStage: appState.journeyStage };
+    });
+    check(
+        "QR restore-on-boot lands on the unified result with no real answers",
+        restored.view === "result" && restored.journeyStage === "done" && restoreErrors.length === 0
+    );
+    await restoreContext.close();
+
+    // Invalid keys in the URL must degrade to the default view, never crash.
+    // A second fresh context — the first one's restore already saved a
+    // session to its own localStorage, which would block this check too.
+    var invalidContext = await browser.newContext({ viewport: { width: 800, height: 1000 } });
+    var invalidPage = await invalidContext.newPage();
+    var invalidErrors = [];
+    invalidPage.on("pageerror", function (e) { invalidErrors.push("PAGEERROR: " + e.message); });
+    invalidPage.on("console", function (m) { if (m.type() === "error") invalidErrors.push("CONSOLE: " + m.text()); });
+    await invalidPage.goto(BASE + "/?styleKey=NOPE&colourKey=NOPE", { waitUntil: "networkidle" });
+    await invalidPage.waitForTimeout(600);
+    var invalidRestoreView = await invalidPage.evaluate(function () { return appState.view; });
+    check(
+        "QR restore rejects an invalid key without crashing",
+        invalidRestoreView !== "result" && invalidRestoreView !== "colour-result" && invalidErrors.length === 0
+    );
+    await invalidContext.close();
 
     // --- Guided journey ordering (colour-combined-journey branch):
     //     begin-journey -> Colour quiz FIRST -> auto-advances into Style ->
