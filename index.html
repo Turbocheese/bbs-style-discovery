@@ -348,9 +348,13 @@
     <script src="vendor/jspdf.umd.min.js"></script>
     <script src="vendor/qrcode.min.js"></script>
     <script src="share-qr.js?v=2"></script>
-    <script src="vendor/firebase-app-compat.js"></script>
-    <script src="vendor/firebase-firestore-compat.js"></script>
-    <script src="firebase-init.js?v=1"></script>
+    <!-- Deferred so the 579KB vendored SDK doesn't parser-block: these three
+         run after app.js (a documented exception to this file's normal
+         top-down load order) because nothing in app.js calls getFirestoreDb()
+         or references firebase.* yet — see CLAUDE.md's load-order section. -->
+    <script src="vendor/firebase-app-compat.js" defer></script>
+    <script src="vendor/firebase-firestore-compat.js" defer></script>
+    <script src="firebase-init.js?v=2" defer></script>
     <script src="app.js?v=95"></script>
 
     <script>
