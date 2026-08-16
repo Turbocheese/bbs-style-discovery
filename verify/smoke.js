@@ -81,8 +81,15 @@ function check(name, ok) {
         await page.locator(sel).first().click();
         await page.waitForTimeout(250);
         var moment = (await page.locator(".measure-moment").count()) > 0;
-        await page.waitForTimeout(900);
-        var landed = (await page.locator(expectSel).count()) > 0;
+        // Poll for the destination instead of a fixed sleep: heavier
+        // views (Cloth Room renders weave/garment canvases) can slip
+        // past a blind timeout under system load, which is what made
+        // this specific check flaky historically. waitForSelector
+        // resolves as soon as the element appears, so the fast case is
+        // no slower and the slow case no longer false-fails.
+        var landed = await page.waitForSelector(expectSel, { timeout: 5000 })
+            .then(function () { return true; })
+            .catch(function () { return false; });
         check(name + " (moment + lands)", moment && landed);
         await page.evaluate(function () { navigateHome(); });
         await page.waitForTimeout(400);
