@@ -2,10 +2,10 @@
 
 In-store iPad app for Benjamin Barker Studios: style/colour quizzes, a 313-topic
 menswear guide, wardrobe worksheet, and PDF/PNG exports. Vanilla JS/HTML/CSS,
-no framework, no build step, no backend, no runtime dependencies (everything is
+no framework, no build step, no runtime dependencies (everything is
 vendored). It runs by opening `index.html` (or any static file server), and is
 deployed via GitHub Pages at https://turbocheese.github.io/bbs-style-discovery/
-(serves `master`, HTTPS, service worker active). This is deliberately vanilla / no-build / offline / no-backend — that is what makes it "open index.html" and run on a kiosk offline. A framework, bundler, or backend trades that away, so it is the wrong default. If the founder is weighing one, show the real cost rather than just agreeing or refusing.
+(serves `master`, HTTPS, service worker active). This is deliberately vanilla / no-build / offline-first — that is what makes it "open index.html" and run on a kiosk offline. A framework or bundler trades that away, so it is the wrong default. If the founder is weighing one, show the real cost rather than just agreeing or refusing. There is now a Firebase connection (August 2026, see the load-order entry below), but it is opportunistic groundwork only, never a required backend — every quiz/worksheet/export flow works identically with Firebase absent, blocked, or offline, and nothing in the app currently depends on it for anything user-visible.
 
 **Product framing (founder direction, July 2026):** the quizzes are a fun,
 "wow"-factor experience for customers — NOT a consultation. Prefer playful,
@@ -56,6 +56,7 @@ Script order in `index.html` is load-bearing (globals defined top-down). **`inde
 - `vendor/jspdf.umd.min.js` (vendored, was cdnjs)
 - `vendor/qrcode.min.js` (vendored, soldair/node-qrcode browser build)
 - `share-qr.js?v=N` — builds the share URL and draws the "Scan to Take With You" QR code. Only defines functions at load time (`appState` is read inside them at call time, not at parse time), but sits before `app.js` anyway to match the load-order convention every other optional-feature file here follows.
+- `vendor/firebase-app-compat.js`, `vendor/firebase-firestore-compat.js`, `firebase-init.js?v=N` — the Firebase connection (August 2026), all three marked `defer` in `index.html`. This is a **deliberate, documented exception** to the top-down load order this section otherwise enforces: `defer` scripts run after the document parses, so these three actually execute *after* `app.js` even though they sit before it in markup — safe only because nothing in `app.js` (or the inline validator/service-worker script at the bottom of `index.html`) references `firebase.*` or `getFirestoreDb()`. Re-check that grep before removing `defer` or moving these files. Exactly **one file may call `firebase.*` directly: `firebase-init.js`** — everything else must go through its `getFirestoreDb()` accessor, which is lazy (does not call `firebase.firestore()` until something actually asks for it, so a normal page load never pays that cost). `firebase-init.js`'s health-check write deliberately uses a raw REST `fetch()` PATCH instead of the Firestore SDK's own write methods (e.g. `db.collection(...).add(...)`): calling the SDK's write path opens a persistent Firestore long-polling "Write channel" that never closes on its own, which hung Playwright's `networkidle` wait outright in `verify/*.js` and, offline, retried indefinitely with console-spammed `net::ERR_*` lines a `.catch()` cannot suppress (browser-logged network failures, not JS exceptions). Do not revert the health check to the SDK without re-solving that.
 - `app.js?v=N` — views, both quizzes, worksheet, exports, navigation
 - inline `<script>` in index.html that calls `runValidation()` and registers `sw.js` — runs **after** app.js
 
