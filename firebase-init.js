@@ -14,48 +14,57 @@
 // one-shot fetch to the Firestore REST API instead) so a normal page
 // load never opens that channel at all.
 
-var _firebaseInitialized = false;
-var _firestoreDb = null;
+(function (global) {
+    var _firebaseInitialized = false;
+    var _firestoreDb = null;
 
-(function initFirebase() {
-    if (typeof firebase === "undefined") return;
-    try {
-        var firebaseConfig = {
-            apiKey: "AIzaSyD9IUD84Ps5oj79_VwPOQzWCw8ukcIt4jc",
-            authDomain: "bbs-style-discovery.firebaseapp.com",
-            projectId: "bbs-style-discovery",
-            storageBucket: "bbs-style-discovery.firebasestorage.app",
-            messagingSenderId: "220798978767",
-            appId: "1:220798978767:web:8b0954e1cb619933fc85ba"
-        };
-        firebase.initializeApp(firebaseConfig);
-        _firebaseInitialized = true;
-    } catch (e) {
-        _firebaseInitialized = false;
-    }
-})();
-
-function getFirestoreDb() {
-    if (!_firebaseInitialized) return null;
-    if (!_firestoreDb) {
+    (function initFirebase() {
+        if (typeof firebase === "undefined") return;
         try {
-            _firestoreDb = firebase.firestore();
+            var firebaseConfig = {
+                apiKey: "AIzaSyD9IUD84Ps5oj79_VwPOQzWCw8ukcIt4jc",
+                authDomain: "bbs-style-discovery.firebaseapp.com",
+                projectId: "bbs-style-discovery",
+                storageBucket: "bbs-style-discovery.firebasestorage.app",
+                messagingSenderId: "220798978767",
+                appId: "1:220798978767:web:8b0954e1cb619933fc85ba"
+            };
+            firebase.initializeApp(firebaseConfig);
+            _firebaseInitialized = true;
         } catch (e) {
-            _firestoreDb = null;
+            _firebaseInitialized = false;
         }
-    }
-    return _firestoreDb;
-}
+    })();
 
-(function reportHealthCheck() {
-    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
-    try {
-        fetch("https://firestore.googleapis.com/v1/projects/bbs-style-discovery/databases/(default)/documents/_health", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fields: { ts: { stringValue: new Date().toISOString() } } })
-        }).catch(function () {});
-    } catch (e) {
-        // Connectivity is opportunistic and never user-visible — swallow.
+    function getFirestoreDb() {
+        if (!_firebaseInitialized) return null;
+        if (!_firestoreDb) {
+            try {
+                _firestoreDb = firebase.firestore();
+            } catch (e) {
+                _firestoreDb = null;
+            }
+        }
+        return _firestoreDb;
     }
-})();
+
+    (function reportHealthCheck() {
+        if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+        try {
+            // PATCH to a fixed document path ("create or update this exact
+            // ID") rather than POST to the collection — a POST would mint a
+            // brand-new auto-ID document on every page load forever; the
+            // firestore.rules for _health/kiosk only allow writes to this
+            // one document, so this must match.
+            fetch("https://firestore.googleapis.com/v1/projects/bbs-style-discovery/databases/(default)/documents/_health/kiosk", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fields: { ts: { stringValue: new Date().toISOString() } } })
+            }).catch(function () {});
+        } catch (e) {
+            // Connectivity is opportunistic and never user-visible — swallow.
+        }
+    })();
+
+    global.getFirestoreDb = getFirestoreDb;
+})(typeof window !== "undefined" ? window : this);

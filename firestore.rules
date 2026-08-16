@@ -1,9 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /_health/{doc} {
-      allow write: if true;
+    match /_health/kiosk {
       allow read: if false;
+      allow write: if request.resource.data.keys().hasOnly(['ts']) &&
+        request.resource.data.ts is string &&
+        request.resource.data.ts.size() < 40;
     }
     match /{document=**} {
       allow read, write: if false;
