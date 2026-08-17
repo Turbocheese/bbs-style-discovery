@@ -65,6 +65,57 @@
         return c;
     }
 
+    // ---- The Atelier Lighting Rig ----
+    // A room-wide setting (persisted on appState, not per-cloth) discovered
+    // here but consumed by fabric-visualiser.js's photographed garment
+    // canvas via garment-photo.js's applyLightingRig — see that file's
+    // header comment for the compositing technique. "daylight" is the
+    // untouched baseline render, so a session saved before this feature
+    // existed (appState.visLighting undefined) degrades to it for free.
+    var CSTUDY_LIGHTING_MODES = [
+        { id: "daylight", label: "Daylight", caption: "Atelier Daylight" },
+        { id: "warm", label: "Warm Spotlight", caption: "Warm Showroom Spotlight" },
+        { id: "sunlight", label: "Direct Sun", caption: "Direct Sunlight" }
+    ];
+
+    function getCstudyLightingHTML() {
+        var active = (typeof appState !== "undefined" && appState.visLighting) || "daylight";
+        var html = '<div class="cstudy-lighting" role="group" aria-label="Lighting">';
+        for (var i = 0; i < CSTUDY_LIGHTING_MODES.length; i++) {
+            var m = CSTUDY_LIGHTING_MODES[i], on = m.id === active;
+            html += '<button class="cstudy-light-btn btn-bare' + (on ? " sel" : "") +
+                '" type="button" data-action="cstudy-lighting" data-mode="' + m.id +
+                '" aria-pressed="' + (on ? "true" : "false") + '">' + m.label + "</button>";
+        }
+        html += "</div>" +
+            '<p class="cstudy-lighting-cap" id="cstudy-lighting-cap">' +
+            (CSTUDY_LIGHTING_MODES.filter(function (m) { return m.id === active; })[0] || CSTUDY_LIGHTING_MODES[0]).caption +
+            "</p>";
+        return html;
+    }
+
+    // Partial DOM update after a lighting button is tapped — same pattern as
+    // visApplyFabric's swatch swap: touch only what changed, no full render().
+    function updateCstudyLightingUI(mode) {
+        var group = document.querySelector(".cstudy-lighting");
+        if (group) {
+            var btns = group.querySelectorAll(".cstudy-light-btn");
+            for (var i = 0; i < btns.length; i++) {
+                var on = btns[i].getAttribute("data-mode") === mode;
+                btns[i].classList.toggle("sel", on);
+                btns[i].setAttribute("aria-pressed", on ? "true" : "false");
+            }
+        }
+        var cap = document.getElementById("cstudy-lighting-cap");
+        if (cap) {
+            var found = null;
+            for (var j = 0; j < CSTUDY_LIGHTING_MODES.length; j++) {
+                if (CSTUDY_LIGHTING_MODES[j].id === mode) { found = CSTUDY_LIGHTING_MODES[j]; break; }
+            }
+            cap.textContent = found ? found.caption : "";
+        }
+    }
+
     // ---- Markup ----
     function getClothStudyHTML(cloth) {
         if (!cloth) return "";
@@ -72,6 +123,7 @@
         return (
             '<div class="cstudy" id="cstudy" data-cloth="' + key + '">' +
             '<div class="cstudy-eyebrow">Study the cloth</div>' +
+            getCstudyLightingHTML() +
             '<div class="cstudy-grid">' +
             '<figure class="cstudy-cell">' +
             '<canvas class="cstudy-canvas" id="cstudy-drape" height="220" data-cloth="' + key + '"></canvas>' +
@@ -435,4 +487,5 @@
 
     window.getClothStudyHTML = getClothStudyHTML;
     window.initClothStudy = initClothStudy;
+    window.updateCstudyLightingUI = updateCstudyLightingUI;
 })();

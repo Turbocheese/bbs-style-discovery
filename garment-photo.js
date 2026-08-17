@@ -381,10 +381,65 @@ function clothTileScale(canvas) {
     return Math.max(1, Math.round(canvas.width / TILE_REFERENCE_WIDTH));
 }
 
-function renderGarmentPhoto(canvas, garmentKey, clothKey) {
+// ---- The Atelier Lighting Rig ----
+// Optional colour-temperature / ambient-shadow overlays for the composited
+// garment canvas, selected in the "Study the Cloth" panel (cloth-study.js)
+// and passed in here by fabric-visualiser.js. Every fill is confined to the
+// garment's own already-painted pixels via "source-atop" — the same
+// technique cloth-study.js's drape uses for its top-light/bottom-shadow
+// vignette (see its draw(), step 3) — rather than a rectangular clip or a
+// getImageData/putImageData pass, so a rotated/displaced pattern under the
+// lapel or sleeve regions gets lit too, without per-pixel cost. "daylight"
+// (absent from this map) is the untouched baseline render.
+var LIGHTING_RIGS = {
+    warm: function (ctx, W, H) {
+        // Warm Showroom Spotlight: an amber colour-temperature wash (reads
+        // as a cool photograph lit warm) plus a soft centred brightening
+        // that falls off toward the frame edges, like a single tungsten
+        // spot overhead.
+        var wash = ctx.createLinearGradient(0, 0, 0, H);
+        wash.addColorStop(0, "rgba(255,214,158,0.18)");
+        wash.addColorStop(1, "rgba(120,80,40,0.14)");
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, 0, W, H);
+        var spot = ctx.createRadialGradient(W * 0.5, H * 0.30, 0, W * 0.5, H * 0.30, Math.max(W, H) * 0.68);
+        spot.addColorStop(0, "rgba(255,238,205,0.20)");
+        spot.addColorStop(1, "rgba(255,238,205,0)");
+        ctx.fillStyle = spot;
+        ctx.fillRect(0, 0, W, H);
+    },
+    sunlight: function (ctx, W, H) {
+        // Direct Sunlight: a hard directional highlight from the upper left
+        // and a correspondingly deeper shadow toward the lower right — real
+        // contrast rather than a flat brightness bump — with a faint
+        // cool-white cast instead of warm.
+        var hi = ctx.createLinearGradient(0, 0, W * 0.75, H * 0.55);
+        hi.addColorStop(0, "rgba(255,255,250,0.32)");
+        hi.addColorStop(0.45, "rgba(255,255,250,0.09)");
+        hi.addColorStop(1, "rgba(255,255,250,0)");
+        ctx.fillStyle = hi;
+        ctx.fillRect(0, 0, W, H);
+        var sh = ctx.createLinearGradient(W * 0.35, H * 0.4, W, H);
+        sh.addColorStop(0, "rgba(22,24,30,0)");
+        sh.addColorStop(1, "rgba(22,24,30,0.34)");
+        ctx.fillStyle = sh;
+        ctx.fillRect(0, 0, W, H);
+    }
+};
+
+function applyLightingRig(ctx, canvas, mode) {
+    var rig = LIGHTING_RIGS[mode];
+    if (!rig) return;
+    ctx.save();
+    ctx.globalCompositeOperation = "source-atop";
+    rig(ctx, canvas.width, canvas.height);
+    ctx.restore();
+}
+
+function renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode) {
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
-        renderGarmentPhoto(canvas, garmentKey, clothKey);
+        renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode);
     }); return false; }
 
     var ctx = canvas.getContext("2d");
@@ -422,6 +477,10 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey) {
 
     // Buttons and linings are both part of the photograph now and composite
     // with the cloth — no separate drawn passes.
+
+    // 4. The Atelier Lighting Rig, applied last so it reads over the
+    //    displaced/bent pattern too, not just the flat tile from step 1.
+    applyLightingRig(ctx, canvas, lightingMode);
 
     return true;
 }

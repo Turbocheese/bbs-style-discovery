@@ -903,7 +903,7 @@ function visApplyFabric(key) {
     var canvas = document.getElementById("vis-jacket-canvas");
     if (canvas && typeof renderGarmentPhoto === "function") {
         canvas.setAttribute("data-cloth", key);
-        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key, appState.visLighting || "daylight");
     }
     var info = document.getElementById("vis-info");
     if (info) info.innerHTML = getFabricInfoHTML(getFabricByKey(key));
@@ -929,7 +929,7 @@ function visApplyCompareFabric(side, key) {
     var canvas = document.getElementById("vis-split-canvas-" + side);
     if (canvas && typeof renderGarmentPhoto === "function") {
         canvas.setAttribute("data-cloth", key);
-        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), key, appState.visLighting || "daylight");
     }
     // The info card follows the side being dressed, and the side button
     // carries the cloth's name so both halves stay labelled.
@@ -1726,7 +1726,7 @@ function startVisEnsPhotos() {
         var c = canvases[i];
         var key = c.getAttribute("data-garment-key");
         var cloth = c.getAttribute("data-cloth");
-        if (key && cloth) renderGarmentPhoto(c, key, cloth);
+        if (key && cloth) renderGarmentPhoto(c, key, cloth, appState.visLighting || "daylight");
     }
 }
 window.startVisEnsPhotos = startVisEnsPhotos;
@@ -1933,7 +1933,7 @@ function visEnsApplyFabric(fabricKey) {
     var canvas = document.getElementById("vis-ens-canvas-" + ens.activeGarment);
     if (canvas && typeof renderGarmentPhoto === "function") {
         canvas.setAttribute("data-cloth", fabricKey);
-        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), fabricKey);
+        renderGarmentPhoto(canvas, canvas.getAttribute("data-garment-key"), fabricKey, appState.visLighting || "daylight");
     } else {
         var layer = document.getElementById("vis-ens-fabric-" + ens.activeGarment);
         if (layer) layer.style.backgroundImage = "url(" + getFabricTile(fabricKey) + ")";

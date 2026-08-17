@@ -3316,6 +3316,7 @@ function getFreshState() {
         clientId: null,
         staffLookupError: null,
         staffLookupResult: null,
+        visLighting: "daylight",
     };
 }
 
@@ -7101,6 +7102,14 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "arch-tour-exit") {
         stopArchTour();
+    }
+    else if (action === "cstudy-lighting") {
+        var lightMode = target.getAttribute("data-mode");
+        if (!lightMode || lightMode === (appState.visLighting || "daylight")) return;
+        appState.visLighting = lightMode;
+        if (typeof updateCstudyLightingUI === "function") updateCstudyLightingUI(lightMode);
+        if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
     }
     else if (action === "staff-lookup") {
         appState.staffLookupError = null;

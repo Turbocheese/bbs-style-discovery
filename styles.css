@@ -11915,6 +11915,40 @@ textarea:focus-visible,
     color: #f4f0e8 !important;
     border-color: var(--accent) !important;
 }
+.cstudy-lighting {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.cstudy-light-btn {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    padding: 6px 13px !important;
+    min-height: 0 !important;
+    cursor: pointer;
+}
+.cstudy-light-btn.sel {
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+    border-color: var(--accent) !important;
+}
+.cstudy-lighting-cap {
+    text-align: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    margin: 0 0 1.1rem;
+}
 .cstudy-pair { margin-top: 1.5rem; }
 .cstudy-pair-head {
     text-align: center;
