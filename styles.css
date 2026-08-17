@@ -12096,12 +12096,14 @@ textarea:focus-visible,
 .gallery-card,
 .home-card,
 .home-hero-card,
-.home-cloth-room { position: relative; }
+.home-cloth-room,
+.ds-bespoke-spec-card { position: relative; }
 
 .gallery-card::after,
 .home-card::after,
 .home-hero-card::after,
-.home-cloth-room::after {
+.home-cloth-room::after,
+.ds-bespoke-spec-card::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -12120,13 +12122,15 @@ textarea:focus-visible,
 .gallery-card.spotlight-lit::after,
 .home-card.spotlight-lit::after,
 .home-hero-card.spotlight-lit::after,
-.home-cloth-room.spotlight-lit::after { opacity: 1; }
+.home-cloth-room.spotlight-lit::after,
+.ds-bespoke-spec-card.spotlight-lit::after { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
     .gallery-card::after,
     .home-card::after,
     .home-hero-card::after,
-    .home-cloth-room::after { transition: none; }
+    .home-cloth-room::after,
+    .ds-bespoke-spec-card::after { transition: none; }
 }
 
 /* ============================================================
@@ -13227,4 +13231,229 @@ textarea:focus-visible,
     line-height: 1.6;
     color: var(--soft);
     margin: 0;
+}
+
+/* ============================================================
+   BESPOKE SPEC CONFIGURATOR (2026-08-17)
+   A sliding drawer of order-form detail (lapel width, pocket style,
+   trouser pleat, waistband) that deliberately does NOT touch the
+   rendered photo — see BESPOKE_SPEC_OPTIONS's header comment in
+   fabric-visualiser.js. Buttons carry .btn-bare + !important overrides
+   for the same button-reset/hover-trap reasons documented in CLAUDE.md.
+   ============================================================ */
+.ds-bespoke-toggle {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px !important;
+    min-height: 44px !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    cursor: pointer;
+}
+.ds-bespoke-toggle-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+.ds-bespoke-toggle-hint {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--muted);
+}
+.ds-bespoke-toggle-chevron {
+    width: 8px;
+    height: 8px;
+    margin-top: 2px;
+    border-right: 1.5px solid var(--muted);
+    border-bottom: 1.5px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 0.25s ease;
+}
+.ds-bespoke-toggle[aria-expanded="true"] .ds-bespoke-toggle-chevron {
+    transform: rotate(-135deg);
+}
+
+/* Height-animated via grid-template-rows (0fr -> 1fr) rather than
+   max-height, so it never needs a guessed-too-tall max-height value and
+   settles at the content's real height instead of stopping short or
+   leaving dead space. */
+.ds-bespoke-drawer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+.ds-bespoke-drawer.open {
+    grid-template-rows: 1fr;
+}
+.ds-bespoke-drawer-inner {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .ds-bespoke-drawer { transition: none; }
+}
+
+.ds-bespoke-group-label {
+    text-align: center;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    margin-bottom: 6px;
+}
+.ds-bespoke-opts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.ds-bespoke-opt {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 8px 14px !important;
+    min-height: 44px !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: none !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--line) !important;
+    cursor: pointer;
+}
+.ds-bespoke-opt.sel {
+    background: var(--accent) !important;
+    color: #f4f0e8 !important;
+    border-color: var(--accent) !important;
+}
+.ds-bespoke-opt-label {
+    font-family: "Manrope", sans-serif;
+    font-weight: 600;
+}
+.ds-bespoke-opt-detail {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+    opacity: 0.72;
+}
+
+/* ============================================================
+   BESPOKE SPEC CARD
+   The showroom-floor summary: what got configured, and whether it has
+   synced to Firestore. .spotlight-lit brass edge-glow is the existing
+   Spotlight Cards technique (see that section) — .ds-bespoke-spec-card
+   was added to its selector list, not duplicated here. The paper-grain
+   background reuses #app's own feTurbulence noise trick (search this
+   file for "fractalNoise") at a stronger opacity — 0.07 vs #app's global
+   0.045 — so the card itself reads as a distinct paper spec sheet rather
+   than a slab of flat colour, without introducing a second texture
+   technique into the codebase.
+   ============================================================ */
+.ds-bespoke-spec-card {
+    margin-top: 1.4rem;
+    padding: 1.3rem 1.4rem 1.2rem;
+    background-color: var(--surface, #fff);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    box-shadow: var(--shadow-warm, 0 12px 30px -10px rgba(17, 17, 16, 0.2));
+}
+.ds-bespoke-spec-eyebrow {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 0.8rem;
+}
+.ds-bespoke-spec-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ds-bespoke-spec-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+}
+.ds-bespoke-spec-row-label {
+    flex: 0 0 auto;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bronze);
+}
+.ds-bespoke-spec-row-value {
+    flex: 1 1 auto;
+    text-align: right;
+    color: var(--text);
+}
+
+.ds-bespoke-spec-sync {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+.ds-bespoke-spec-sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex: 0 0 auto;
+}
+.ds-bespoke-spec-sync-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.ds-bespoke-spec-sync-id {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    opacity: 0.7;
+}
+/* Pending: a warm amber pulse — the write is queued or in flight. */
+.ds-bespoke-spec-sync--pending .ds-bespoke-spec-sync-dot {
+    background: #c98a2e;
+    color: #c98a2e;
+    animation: dsSyncPulse 1.4s ease-in-out infinite;
+}
+.ds-bespoke-spec-sync--pending .ds-bespoke-spec-sync-label { color: #a8701f; }
+/* Synced: a confirmed green pulse — the write landed in Firestore. */
+.ds-bespoke-spec-sync--synced .ds-bespoke-spec-sync-dot {
+    background: #3f8a52;
+    color: #3f8a52;
+    animation: dsSyncPulse 2.2s ease-in-out infinite;
+}
+.ds-bespoke-spec-sync--synced .ds-bespoke-spec-sync-label { color: #2f6b3f; }
+@keyframes dsSyncPulse {
+    0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+    50% { box-shadow: 0 0 0 4px transparent; opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ds-bespoke-spec-sync-dot { animation: none !important; }
 }

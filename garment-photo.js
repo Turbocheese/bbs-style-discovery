@@ -502,13 +502,47 @@ var GARMENT_ASSET_KEYS = [
     "trousers-flat", "trousers-double", "trousers-belt"
 ];
 
-// Every remaining option drives the photograph directly — there are no
-// cosmetic-only options left after Task 8's reduction.
-function resolveGarmentKey(garment, style) {
-    if (garment === "jacket") return "jacket-" + style.closure;
-    if (garment === "vest") return "vest-" + style.closure + "-" + style.lapel;
-    if (garment === "trousers") return "trousers-" + style.style;
-    return null;
+// Every remaining STYLE option drives the photograph directly — there are
+// no cosmetic-only options left in VIS_ENS_STYLE_OPTIONS after Task 8's
+// reduction. The Bespoke Spec Configurator (August 2026) is a second,
+// separate axis: order-form detail (lapel width, pocket style, waistband)
+// that intentionally does NOT drive the photo today, because no
+// photograph exists for those variants — see fabric-visualiser.js's
+// BESPOKE_SPEC_OPTIONS header comment for why that's a deliberate,
+// temporary limitation rather than an oversight.
+//
+// `spec` is optional so every existing caller (which only ever passed
+// `style`) keeps working unchanged. When present, this checks for a
+// spec-driven variant photo FIRST, falling back to the plain style-only
+// key when that variant doesn't exist yet — the same self-healing
+// pattern GARMENT_ASSET_KEYS already uses everywhere else in this file.
+// A future photo shoot only has to land the asset and add its key to
+// GARMENT_ASSET_KEYS below; nothing else here needs to change.
+function resolveGarmentKey(garment, style, spec) {
+    var base = null;
+    if (garment === "jacket") base = "jacket-" + style.closure;
+    else if (garment === "vest") base = "vest-" + style.closure + "-" + style.lapel;
+    else if (garment === "trousers") base = "trousers-" + style.style;
+    if (!base) return null;
+
+    if (spec) {
+        var variant = null;
+        // Both jacket spec axes are entirely new (no existing photo
+        // varies with either), so a full combination is the natural
+        // asset name: jacket-sb-peak-patch, jacket-db-notch-flap, etc.
+        if (garment === "jacket" && spec.lapelStyle && spec.pockets) {
+            variant = base + "-" + spec.lapelStyle + "-" + spec.pockets;
+        // Trouser PLEAT is already expressed by `style.style` (flat/
+        // double/belt each have their own stock photo); only WAISTBAND
+        // is a new axis, so only it extends the key — trying to also
+        // fold spec.pleat in here would just contradict style.style's
+        // own pleat choice.
+        } else if (garment === "trousers" && spec.waistband) {
+            variant = base + "-" + spec.waistband;
+        }
+        if (variant && GARMENT_ASSET_KEYS.indexOf(variant) !== -1) return variant;
+    }
+    return base;
 }
 
 window.resolveGarmentKey = resolveGarmentKey;

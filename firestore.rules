@@ -22,6 +22,21 @@ service cloud.firestore {
         request.resource.data.createdAt is string &&
         request.resource.data.createdAt.size() < 40;
     }
+    match /custom_configurations/{configId} {
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(
+          ['configId', 'timestamp', 'selections', 'archetype', 'clientPalette']) &&
+        request.resource.data.configId is string &&
+        request.resource.data.configId.size() < 20 &&
+        request.resource.data.timestamp is string &&
+        request.resource.data.timestamp.size() < 40 &&
+        request.resource.data.selections is map &&
+        request.resource.data.archetype is string &&
+        request.resource.data.archetype.size() < 60 &&
+        request.resource.data.clientPalette is string &&
+        request.resource.data.clientPalette.size() < 60;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

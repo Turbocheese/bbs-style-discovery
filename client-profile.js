@@ -239,3 +239,147 @@ function staffLookupClient(clientId, onDone) {
         onDone(null, "Could not reach the server.");
     });
 }
+
+// ---- Bespoke Spec Configurator: custom_configurations save (2026-08-17) ----
+//
+// Same REST-only, no-SDK approach as saveClientProfile above and for the
+// same reason (see this file's header comment / firebase-init.js). One
+// real constraint this introduces: a true Firestore ServerTimestamp is a
+// write-transform sentinel only expressible via the SDK's write path or
+// the more complex `:commit` API with `updateTransforms` — neither of
+// which this app uses. `timestamp` here is therefore a client-set ISO
+// string, same as `clients/{clientId}`'s own `createdAt` field, not a
+// server-authoritative value. Good enough for "when was this configured
+// on this kiosk" — not something to build billing or ordering off.
+
+var CONFIG_ID_ALPHABET = CLIENT_ID_ALPHABET;
+var PENDING_CONFIG_SAVES_KEY = "bbs_pending_config_saves";
+
+// configId -> callback, so a save that had to queue offline can still
+// notify the Spec Card once retryPendingConfigSaves() actually lands it,
+// even if that happens well after the call that queued it returned.
+var _pendingConfigSyncCallbacks = {};
+
+function generateConfigId() {
+    var randomValues = null;
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        randomValues = new Uint8Array(6);
+        crypto.getRandomValues(randomValues);
+    }
+    var chars = "";
+    for (var i = 0; i < 6; i++) {
+        var idx = randomValues
+            ? randomValues[i] % CONFIG_ID_ALPHABET.length
+            : Math.floor(Math.random() * CONFIG_ID_ALPHABET.length);
+        chars += CONFIG_ID_ALPHABET.charAt(idx);
+    }
+    return "CFG-" + chars;
+}
+
+function readPendingConfigSaves() {
+    try {
+        var raw = localStorage.getItem(PENDING_CONFIG_SAVES_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function writePendingConfigSaves(queue) {
+    try {
+        localStorage.setItem(PENDING_CONFIG_SAVES_KEY, JSON.stringify(queue));
+    } catch (e) {
+        // Storage unavailable — the pending save is simply lost.
+    }
+}
+
+function queuePendingConfigSave(configId, payload) {
+    var queue = readPendingConfigSaves().filter(function (entry) {
+        return entry.configId !== configId;
+    });
+    queue.push({ configId: configId, payload: payload });
+    writePendingConfigSaves(queue);
+}
+
+function removePendingConfigSave(configId) {
+    var queue = readPendingConfigSaves().filter(function (entry) {
+        return entry.configId !== configId;
+    });
+    writePendingConfigSaves(queue);
+}
+
+function customConfigDocUrl(config, configId) {
+    return "https://firestore.googleapis.com/v1/projects/" + config.projectId +
+        "/databases/(default)/documents/custom_configurations/" + configId;
+}
+
+// selections: { jacket: {lapelStyle, pockets}, trousers: {pleat, waistband} }
+// (whatever subset of garments the outfit actually includes). Returns the
+// generated configId synchronously — same "always available immediately,
+// online or not" contract as generateClientId()/saveClientProfile — and
+// calls onSynced(true) once a 200 is actually confirmed, whether that
+// happens on this call or later via retryPendingConfigSaves(), or
+// onSynced(false) if the write is still only queued when this call returns.
+function saveCustomConfiguration(selections, onSynced) {
+    var configId = generateConfigId();
+    var payload = {
+        configId: configId,
+        timestamp: new Date().toISOString(),
+        selections: selections,
+        archetype: (typeof appState !== "undefined" && appState.archetypeKey) || "",
+        clientPalette: (typeof appState !== "undefined" && appState.colourResultKey) || ""
+    };
+
+    if (onSynced) _pendingConfigSyncCallbacks[configId] = onSynced;
+
+    function queueAndReport() {
+        queuePendingConfigSave(configId, payload);
+        if (onSynced) onSynced(false, configId);
+    }
+
+    if (typeof navigator !== "undefined" && navigator.onLine === false) { queueAndReport(); return configId; }
+    var config = (typeof getFirebaseConfig === "function") ? getFirebaseConfig() : null;
+    if (!config) { queueAndReport(); return configId; }
+    try {
+        fetch(customConfigDocUrl(config, configId), {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: toFirestoreFields(payload) })
+        }).then(function (res) {
+            if (res.ok) {
+                delete _pendingConfigSyncCallbacks[configId];
+                if (onSynced) onSynced(true, configId);
+            } else {
+                queueAndReport();
+            }
+        }).catch(queueAndReport);
+    } catch (e) {
+        queueAndReport();
+    }
+    return configId;
+}
+
+function retryPendingConfigSaves() {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+    var config = (typeof getFirebaseConfig === "function") ? getFirebaseConfig() : null;
+    if (!config) return;
+    var queue = readPendingConfigSaves();
+    queue.forEach(function (entry) {
+        fetch(customConfigDocUrl(config, entry.configId), {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: toFirestoreFields(entry.payload) })
+        }).then(function (res) {
+            if (res.ok) {
+                removePendingConfigSave(entry.configId);
+                var cb = _pendingConfigSyncCallbacks[entry.configId];
+                if (cb) { delete _pendingConfigSyncCallbacks[entry.configId]; cb(true, entry.configId); }
+            }
+        }).catch(function () {});
+    });
+}
+
+if (typeof window !== "undefined") {
+    window.addEventListener("online", retryPendingConfigSaves);
+    window.addEventListener("load", retryPendingConfigSaves);
+}

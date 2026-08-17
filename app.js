@@ -3317,6 +3317,7 @@ function getFreshState() {
         staffLookupError: null,
         staffLookupResult: null,
         visLighting: "daylight",
+        bespokeDrawerOpen: false,
     };
 }
 
@@ -6254,7 +6255,7 @@ window.getDropdownOptHTML = getDropdownOptHTML;
 // follows the finger across the menu and gallery cards. The read/write is
 // rAF-throttled; the glow itself is pure CSS on .spotlight-lit.
 (function () {
-    var SPOT_SEL = ".gallery-card, .home-card, .home-hero-card, .home-cloth-room";
+    var SPOT_SEL = ".gallery-card, .home-card, .home-hero-card, .home-cloth-room, .ds-bespoke-spec-card";
     var current = null, pending = false, px = 0, py = 0;
     function clear() { if (current) { current.classList.remove("spotlight-lit"); current = null; } }
     document.addEventListener("pointermove", function (e) {
@@ -7325,6 +7326,39 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "vis-ens-share") {
         shareEnsemble(target.closest("button"));
+    }
+    else if (action === "bespoke-drawer-toggle") {
+        appState.bespokeDrawerOpen = !appState.bespokeDrawerOpen;
+        var drawerEl = document.getElementById("ds-bespoke-drawer");
+        if (drawerEl) drawerEl.classList.toggle("open", appState.bespokeDrawerOpen);
+        target.setAttribute("aria-expanded", appState.bespokeDrawerOpen ? "true" : "false");
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+    }
+    else if (action === "bespoke-spec-select") {
+        var bsGarment = target.getAttribute("data-garment");
+        var bsGroup = target.getAttribute("data-group");
+        var bsValue = target.getAttribute("data-value");
+        if (!bsGarment || !bsGroup || !bsValue) return;
+        var bsEns = getVisEnsembleState();
+        if (!bsEns.spec[bsGarment]) bsEns.spec[bsGarment] = {};
+        if (bsEns.spec[bsGarment][bsGroup] === bsValue) return;
+        bsEns.spec[bsGarment][bsGroup] = bsValue;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        // Partial update only, per this feature's own requirement: just
+        // this group's buttons, a photo repaint (a spec-driven photo
+        // variant may now exist — see resolveGarmentKey), and the spec
+        // card summary. No render().
+        var bsGroupEl = target.closest(".ds-bespoke-group");
+        if (bsGroupEl) {
+            var bsBtns = bsGroupEl.querySelectorAll(".ds-bespoke-opt");
+            for (var bi = 0; bi < bsBtns.length; bi++) {
+                var bsOn = bsBtns[bi].getAttribute("data-value") === bsValue;
+                bsBtns[bi].classList.toggle("sel", bsOn);
+                bsBtns[bi].setAttribute("aria-pressed", bsOn ? "true" : "false");
+            }
+        }
+        if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
+        if (typeof updateBespokeSpecCard === "function") updateBespokeSpecCard();
     }
 });
 

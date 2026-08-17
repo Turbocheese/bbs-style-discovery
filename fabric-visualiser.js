@@ -1419,6 +1419,206 @@ var VIS_ENS_STYLE_DEFAULTS = {
     trousers: { style: "flat" }
 };
 
+// ---- Bespoke Spec Configurator (2026-08-17) ----
+// Deliberately separate from VIS_ENS_STYLE_OPTIONS/VIS_ENS_STYLE_DEFAULTS
+// above, not folded into them. Task 8 (21 July) removed jacket lapel/
+// pocket and trouser waistband from that menu specifically because no
+// garment photograph varies with them — see that block's own comment.
+// That is still true: choosing "Wide Peak" here does not change the
+// rendered photo (only one stock photo exists per jacket/trouser make).
+// This is a bespoke ORDER SPEC, not a visual preview control — a real
+// tailor's fitting form captures exactly this kind of construction detail
+// in writing, independent of what a generic stock photo shows. The photo
+// resolution in garment-photo.js/resolveGarmentKey does check for a
+// spec-driven photo variant first and falls back to the base photo when
+// one doesn't exist yet (see resolveGarmentKey's header), so real
+// photography can slot in later with no further code changes here.
+var BESPOKE_SPEC_OPTIONS = {
+    jacket: {
+        lapelStyle: [
+            { key: "notch", label: "Standard Notch", detail: "8.5cm lapel width", topic: ["tailoring", "jackets", "details", "lapels", "notch_lapel"] },
+            { key: "peak", label: "Wide Peak", detail: "9.5cm lapel width", topic: ["tailoring", "jackets", "details", "lapels", "peak_lapel"] }
+        ],
+        pockets: [
+            { key: "patch", label: "Neapolitan Patch", detail: "Casual", topic: ["tailoring", "jackets", "details", "pocket_styles", "patch_pockets"] },
+            { key: "flap", label: "Classic Flap", detail: "Corporate", topic: ["tailoring", "jackets", "details", "pocket_styles", "flap_pockets"] }
+        ]
+    },
+    trousers: {
+        pleat: [
+            { key: "flat", label: "Flat Front", detail: "", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] },
+            { key: "single", label: "Single Forward Pleat", detail: "", topic: ["tailoring", "trousers", "configuration", "pleats", "single_pleats"] },
+            { key: "double", label: "Double Forward Pleat", detail: "", topic: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"] }
+        ],
+        waistband: [
+            { key: "beltLoops", label: "Standard Belt Loops", detail: "", topic: ["tailoring", "trousers", "configuration", "waistbands", "belt_loops"] },
+            { key: "sideAdjusters", label: "Extended Waistband", detail: "Side adjusters", topic: ["tailoring", "trousers", "configuration", "waistbands", "side_adjusters"] }
+        ]
+    }
+};
+
+var BESPOKE_SPEC_DEFAULTS = {
+    jacket: { lapelStyle: "notch", pockets: "flap" },
+    trousers: { pleat: "flat", waistband: "beltLoops" }
+};
+
+function ensSpecValueAllowed(garment, group, value) {
+    var groups = BESPOKE_SPEC_OPTIONS[garment];
+    if (!groups || !groups[group]) return false;
+    var opts = groups[group];
+    for (var i = 0; i < opts.length; i++) {
+        if (opts[i].key === value) return true;
+    }
+    return false;
+}
+
+// Same lookup-the-label-back approach as visEnsStyleNote, for the Spec
+// Card and the Design Spec PDF/Firestore payload.
+function bespokeSpecOptionFor(garment, group, value) {
+    var groups = BESPOKE_SPEC_OPTIONS[garment];
+    if (!groups || !groups[group]) return null;
+    var opts = groups[group];
+    for (var i = 0; i < opts.length; i++) {
+        if (opts[i].key === value) return opts[i];
+    }
+    return null;
+}
+
+// ---- Bespoke Spec Configurator: drawer markup ----
+// Global to the outfit (not scoped to ens.activeGarment the way "Style
+// It" is) — this is one order form covering every included garment that
+// has spec options, not a per-piece control.
+function getBespokeSpecGroupHTML(garment, groupKey, groupLabel, current) {
+    var opts = BESPOKE_SPEC_OPTIONS[garment][groupKey];
+    var html =
+        '<div class="ds-bespoke-group">' +
+        '<div class="ds-bespoke-group-label">' + groupLabel + "</div>" +
+        '<div class="ds-bespoke-opts">';
+    for (var i = 0; i < opts.length; i++) {
+        var sel = opts[i].key === current;
+        html +=
+            '<button class="ds-bespoke-opt btn-bare' + (sel ? " sel" : "") +
+            '" type="button" data-action="bespoke-spec-select" data-garment="' + garment +
+            '" data-group="' + groupKey + '" data-value="' + opts[i].key +
+            '" aria-pressed="' + (sel ? "true" : "false") + '">' +
+            '<span class="ds-bespoke-opt-label">' + opts[i].label + "</span>" +
+            (opts[i].detail ? '<span class="ds-bespoke-opt-detail">' + opts[i].detail + "</span>" : "") +
+            "</button>";
+    }
+    html += "</div></div>";
+    return html;
+}
+
+function getBespokeSpecDrawerHTML(ens) {
+    var hasJacket = ens.garments.indexOf("jacket") !== -1;
+    var hasTrousers = ens.garments.indexOf("trousers") !== -1;
+    if (!hasJacket && !hasTrousers) return "";
+
+    var open = !!appState.bespokeDrawerOpen;
+    var groupsHTML = "";
+    if (hasJacket) {
+        groupsHTML += getBespokeSpecGroupHTML("jacket", "lapelStyle", "Jacket — Lapel", ens.spec.jacket.lapelStyle);
+        groupsHTML += getBespokeSpecGroupHTML("jacket", "pockets", "Jacket — Pockets", ens.spec.jacket.pockets);
+    }
+    if (hasTrousers) {
+        groupsHTML += getBespokeSpecGroupHTML("trousers", "pleat", "Trousers — Pleat", ens.spec.trousers.pleat);
+        groupsHTML += getBespokeSpecGroupHTML("trousers", "waistband", "Trousers — Waistband", ens.spec.trousers.waistband);
+    }
+
+    return (
+        '<div class="ds-section ds-bespoke-section">' +
+        '<button class="ds-bespoke-toggle btn-bare" type="button" data-action="bespoke-drawer-toggle" aria-expanded="' + (open ? "true" : "false") + '" aria-controls="ds-bespoke-drawer">' +
+        '<span class="ds-bespoke-toggle-label">Bespoke Spec</span>' +
+        '<span class="ds-bespoke-toggle-hint">Construction details for the tailor — does not change the preview</span>' +
+        '<span class="ds-bespoke-toggle-chevron" aria-hidden="true"></span>' +
+        "</button>" +
+        '<div class="ds-bespoke-drawer' + (open ? " open" : "") + '" id="ds-bespoke-drawer">' +
+        '<div class="ds-bespoke-drawer-inner">' + groupsHTML + "</div>" +
+        "</div>" +
+        "</div>"
+    );
+}
+
+// ---- Bespoke Spec Card: the showroom-floor summary ----
+// Lives next to Export Design Spec / Share to Phone in the Ensemble's own
+// results area — see the design conversation this was scoped from: the
+// quiz result screens and this Ensemble/Outfit Builder are two currently-
+// unconnected flows, so a card that depends on Bespoke Spec state belongs
+// where that state actually lives, not bolted onto an unrelated screen.
+function bespokeSpecCardRow(label, garment, spec, groupKeys) {
+    var parts = [];
+    for (var i = 0; i < groupKeys.length; i++) {
+        var opt = bespokeSpecOptionFor(garment, groupKeys[i], spec[groupKeys[i]]);
+        if (opt) parts.push(opt.label + (opt.detail ? " (" + opt.detail + ")" : ""));
+    }
+    return (
+        '<div class="ds-bespoke-spec-row">' +
+        '<span class="ds-bespoke-spec-row-label">' + label + "</span>" +
+        '<span class="ds-bespoke-spec-row-value">' + parts.join(", ") + "</span>" +
+        "</div>"
+    );
+}
+
+function getBespokeSpecCardHTML(ens) {
+    var hasJacket = ens.garments.indexOf("jacket") !== -1;
+    var hasTrousers = ens.garments.indexOf("trousers") !== -1;
+    if (!hasJacket && !hasTrousers) return "";
+
+    var rows = "";
+    if (hasJacket) rows += bespokeSpecCardRow("Jacket", "jacket", ens.spec.jacket, ["lapelStyle", "pockets"]);
+    if (hasTrousers) rows += bespokeSpecCardRow("Trousers", "trousers", ens.spec.trousers, ["pleat", "waistband"]);
+
+    // idle: no save attempted yet this session. pending: a save is in
+    // flight or queued offline. synced: the write is confirmed live in
+    // Firestore (see saveCustomConfiguration's onSynced in client-profile.js).
+    var syncState = ens.lastConfigSynced === true ? "synced" : ens.lastConfigId ? "pending" : "idle";
+    var syncLabel = syncState === "synced" ? "Configuration Synced" : syncState === "pending" ? "Syncing…" : "Not yet saved";
+
+    return (
+        '<div class="ds-bespoke-spec-card" id="ds-bespoke-spec-card">' +
+        '<div class="ds-bespoke-spec-eyebrow">Bespoke Spec</div>' +
+        '<div class="ds-bespoke-spec-rows">' + rows + "</div>" +
+        '<div class="ds-bespoke-spec-sync ds-bespoke-spec-sync--' + syncState + '" id="ds-bespoke-spec-sync">' +
+        '<span class="ds-bespoke-spec-sync-dot" aria-hidden="true"></span>' +
+        '<span class="ds-bespoke-spec-sync-label">' + syncLabel + "</span>" +
+        (ens.lastConfigId ? '<span class="ds-bespoke-spec-sync-id">' + ens.lastConfigId + "</span>" : "") +
+        "</div>" +
+        "</div>"
+    );
+}
+
+// Partial update after a save's onSynced fires, or after a spec option
+// changes — swaps just this card, not a full render(). A no-op if the
+// client has since left the ensemble view (card no longer mounted).
+function updateBespokeSpecCard() {
+    var existing = document.getElementById("ds-bespoke-spec-card");
+    if (!existing) return;
+    existing.outerHTML = getBespokeSpecCardHTML(getVisEnsembleState());
+}
+
+// Called from exportEnsembleSpec()/shareEnsemble() — both count as "the
+// client is taking this design away" for the purposes of the brief's
+// "when the client saves their outfit" trigger. Fire-and-forget: never
+// blocks the actual PDF/share path, and a client with no jacket or
+// trousers in the outfit (nothing Bespoke Spec covers) triggers nothing.
+function triggerCustomConfigSave() {
+    if (typeof saveCustomConfiguration !== "function") return;
+    var ens = getVisEnsembleState();
+    var selections = {};
+    if (ens.garments.indexOf("jacket") !== -1) selections.jacket = ens.spec.jacket;
+    if (ens.garments.indexOf("trousers") !== -1) selections.trousers = ens.spec.trousers;
+    if (!selections.jacket && !selections.trousers) return;
+
+    ens.lastConfigId = saveCustomConfiguration(selections, function (ok) {
+        ens.lastConfigSynced = ok;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        updateBespokeSpecCard();
+    });
+    ens.lastConfigSynced = false;
+    localStorage.setItem("bbs_session", JSON.stringify(appState));
+    updateBespokeSpecCard();
+}
+
 function getVisEnsembleState() {
     // Build-your-own outfit: a fresh session starts EMPTY. The client adds
     // garments (jacket / vest / trousers) one at a time and dresses each. The
@@ -1463,6 +1663,21 @@ function getVisEnsembleState() {
             var menu = VIS_ENS_STYLE_OPTIONS[garment] && VIS_ENS_STYLE_OPTIONS[garment][opt];
             var valid = cur && (!menu || ensStyleValueAllowed(garment, opt, cur));
             if (!valid) ens.style[garment][opt] = VIS_ENS_STYLE_DEFAULTS[garment][opt];
+        }
+    }
+
+    // Same backfill shape as style above, for the Bespoke Spec
+    // Configurator's own (photo-independent) selections.
+    if (!ens.spec || typeof ens.spec !== "object") ens.spec = {};
+    for (var specGarment in BESPOKE_SPEC_DEFAULTS) {
+        if (!BESPOKE_SPEC_DEFAULTS.hasOwnProperty(specGarment)) continue;
+        if (!ens.spec[specGarment] || typeof ens.spec[specGarment] !== "object") ens.spec[specGarment] = {};
+        for (var specOpt in BESPOKE_SPEC_DEFAULTS[specGarment]) {
+            if (!BESPOKE_SPEC_DEFAULTS[specGarment].hasOwnProperty(specOpt)) continue;
+            var specCur = ens.spec[specGarment][specOpt];
+            if (!specCur || !ensSpecValueAllowed(specGarment, specOpt, specCur)) {
+                ens.spec[specGarment][specOpt] = BESPOKE_SPEC_DEFAULTS[specGarment][specOpt];
+            }
         }
     }
 
@@ -1656,13 +1871,16 @@ function getVisEnsGarmentBlock(garment, ens) {
     // Blank slot until a cloth is chosen for this piece.
     if (!fabricResolves(fabricKey)) return getVisEnsPlaceholderBlock(garment, ens);
     var style = ens.style[garment] || {};
+    var spec = ens.spec && ens.spec[garment];
     var activeClass = ens.activeGarment === garment ? " active" : "";
     var label = garment.charAt(0).toUpperCase() + garment.slice(1);
 
     // Photo path: the garment is drawn by compositing the selected cloth
     // into a photographed grey mockup (garment-photo.js). The actual pixels
-    // are painted after the DOM lands, by startVisEnsPhotos().
-    var photoKey = typeof resolveGarmentKey === "function" ? resolveGarmentKey(garment, style) : null;
+    // are painted after the DOM lands, by startVisEnsPhotos(). `spec` lets
+    // resolveGarmentKey prefer a Bespoke Spec photo variant when one
+    // exists, falling back to the plain style-only key otherwise.
+    var photoKey = typeof resolveGarmentKey === "function" ? resolveGarmentKey(garment, style, spec) : null;
     var hasPhoto = photoKey && typeof GARMENT_ASSET_KEYS !== "undefined" &&
         GARMENT_ASSET_KEYS.indexOf(photoKey) !== -1;
 
@@ -2010,6 +2228,8 @@ function renderClothEnsemble(recommended, surpriseFlash) {
         getVisRecoStripHTML(recommended) +
         '<div class="ds-selected-cloth" id="vis-ens-selected">' + getVisEnsSelectedHTML(activeFabric) + "</div>" +
         getCompleteTheLookHTML(ens) +
+        getBespokeSpecDrawerHTML(ens) +
+        getBespokeSpecCardHTML(ens) +
         (dressed
             ? '<div class="ds-actions">' +
               '<button class="arch-btn-fill" data-action="vis-ens-export">Export Design Spec</button>' +
@@ -2062,6 +2282,7 @@ function visEnsApplyFabric(fabricKey) {
 // ============================================
 
 function exportEnsembleSpec() {
+    if (typeof triggerCustomConfigSave === "function") triggerCustomConfigSave();
     if (typeof html2canvas === "undefined" || typeof window.jspdf === "undefined") {
         alert("Export libraries not loaded. Please refresh and try again.");
         return;
@@ -2158,6 +2379,7 @@ function exportEnsembleSpec() {
 }
 
 function shareEnsemble(btn) {
+    if (typeof triggerCustomConfigSave === "function") triggerCustomConfigSave();
     var stage = document.getElementById("vis-ens-stage");
     if (!stage) return;
     if (!navigator.share || !navigator.canShare) {
