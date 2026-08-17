@@ -1,5 +1,5 @@
 # ==============================================================================
-# NotebookLM Memory Sync Automation
+# NotebookLM Memory Sync Automation (macOS Compatible)
 # ==============================================================================
 
 Write-Host "========================================" -ForegroundColor Cyan
@@ -17,20 +17,27 @@ if (-not (Test-Path $scriptPath)) {
     exit 1
 }
 
-# 3. Check if Python is installed/available
-$pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+# 3. Check if Python 3 or Python is installed/available on macOS
+$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
+$executable = "python3"
+
 if (-not $pythonCmd) {
-    Write-Host "[ERROR] Python is not found in your PATH." -ForegroundColor Red
+    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+    $executable = "python"
+}
+
+if (-not $pythonCmd) {
+    Write-Host "[ERROR] Python (python3 or python) is not found in your PATH." -ForegroundColor Red
     Write-Host "Please install Python or ensure it is added to your environment variables." -ForegroundColor Yellow
     exit 1
 }
 
 # 4. Execute the Python sync script
-Write-Host "[INFO] Executing Python refresh script..." -ForegroundColor Green
+Write-Host "[INFO] Executing Python refresh script using $executable..." -ForegroundColor Green
 Write-Host ""
 
 try {
-    python $scriptPath
+    & $executable $scriptPath
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
