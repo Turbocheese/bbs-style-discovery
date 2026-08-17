@@ -7103,6 +7103,13 @@ document.body.addEventListener("click", function (e) {
     else if (action === "arch-tour-exit") {
         stopArchTour();
     }
+    else if (action === "vis-ens-hotspot") {
+        var hsId = target.getAttribute("data-hotspot");
+        if (hsId && typeof showEnsHotspot === "function") showEnsHotspot(hsId);
+    }
+    else if (action === "vis-ens-hotspot-close") {
+        if (typeof hideEnsHotspot === "function") hideEnsHotspot();
+    }
     else if (action === "cstudy-lighting") {
         var lightMode = target.getAttribute("data-mode");
         if (!lightMode || lightMode === (appState.visLighting || "daylight")) return;

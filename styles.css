@@ -13114,3 +13114,117 @@ textarea:focus-visible,
     border: none;
     padding: 8px;
 }
+
+/* ============================================================
+   NEAPOLITAN DETAIL HOTSPOTS (2026-08-17)
+   Three fixed points on the Ensemble flat-lay (jacket shoulder, jacket
+   lapel, trouser waistband) — a small glowing brass pin (same bronze the
+   Spotlight Cards' edge-glow above uses) that opens a shared micro-card.
+   Positions are percentages of the garment's own frame, matching the
+   fractional coordinate convention garment-photo.js's DISPLACEMENT_REGIONS
+   uses for the same photographs.
+   ============================================================ */
+/* The blanket `button { padding: 15px 28px !important; border: 1px solid
+   ... !important }` reset (see CLAUDE.md's cascade-trap note) beats an
+   unqualified declaration regardless of specificity, so every property it
+   touches has to be re-declared !important here too, same as every other
+   non-chrome button in this file. */
+.ds-hotspot {
+    position: absolute;
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 0 !important;
+    margin: -20px 0 0 -20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    z-index: 4;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.ds-hotspot--shoulder { top: 11%; left: 76%; }
+.ds-hotspot--lapel { top: 24%; left: 38%; }
+.ds-hotspot--waistband { top: 8%; left: 50%; }
+
+.ds-hotspot-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e8c98a, var(--bronze, #9a7b4f) 70%);
+    box-shadow: 0 0 0 3px rgba(154, 122, 79, 0.22), 0 0 10px 2px rgba(138, 109, 67, 0.55);
+    animation: dsHotspotPulse 2.2s ease-in-out infinite;
+}
+@keyframes dsHotspotPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(154, 122, 79, 0.22), 0 0 8px 1px rgba(138, 109, 67, 0.45); }
+    50% { box-shadow: 0 0 0 6px rgba(154, 122, 79, 0.12), 0 0 14px 4px rgba(138, 109, 67, 0.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ds-hotspot-dot { animation: none; }
+}
+
+.ds-hotspot-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 16, 0.32);
+    z-index: 40;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+.ds-hotspot-backdrop.show { opacity: 1; }
+
+.ds-hotspot-card {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -46%);
+    width: min(90vw, 22rem);
+    background: var(--surface, #fff);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    box-shadow: var(--shadow-warm, 0 12px 30px -10px rgba(17, 17, 16, 0.35));
+    padding: 1.4rem 1.5rem 1.6rem;
+    z-index: 41;
+    opacity: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.ds-hotspot-card.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+.ds-hotspot-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    color: var(--muted);
+    font-size: 1.3rem !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    line-height: 1;
+    cursor: pointer;
+}
+.ds-hotspot-card-title {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--text);
+    margin: 0 1.4rem 0.5rem 0;
+}
+.ds-hotspot-card-body {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--soft);
+    margin: 0;
+}

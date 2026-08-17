@@ -1684,6 +1684,7 @@ function getVisEnsGarmentBlock(garment, ens) {
             '<div class="ds-garment ds-garment--' + garment + " has-photo" + activeClass + '" data-action="vis-ens-garment" data-garment="' + garment + '">' +
             '<canvas class="ds-garment-canvas" id="vis-ens-canvas-' + garment + '" width="' + w + '" height="1600"' +
             ' data-garment-key="' + photoKey + '" data-cloth="' + fabricKey + '"></canvas>' +
+            getEnsHotspotsHTML(garment) +
             '<div class="ds-garment-label">' + label + "</div>" +
             "</div>"
         );
@@ -1714,12 +1715,125 @@ function getVisEnsGarmentBlock(garment, ens) {
     );
 }
 
+// ---- Neapolitan Detail Hotspots ----
+// Three fixed points (fractions of the garment's own photographed frame,
+// same coordinate convention DISPLACEMENT_REGIONS uses in garment-photo.js)
+// calling out construction details that don't change with the cloth or the
+// closure/style chosen, so the positions are constants rather than derived
+// from the active style. Content lives here rather than in a topic page —
+// this is about how BBS makes the garment, not a guide entry a client
+// would search for on their own.
+var ENS_HOTSPOTS = {
+    "jacket-shoulder": {
+        title: "Spalla Camicia",
+        body: "The shoulder is set the way a shirtsleeve is — no wadding, no roped crown, just the cloth gathered soft onto the armhole. It ripples slightly rather than sitting flat: the hallmark of a hand-set sleeve, not a machine one."
+    },
+    "jacket-lapel": {
+        title: "3-Roll-2 Lapel",
+        body: "Cut for three buttons but rolled to the second, so the top button sits hidden under the roll rather than fastened. The lapel line reads longer and softer than a true two-button cut, without losing the third button's balance."
+    },
+    "trouser-waistband": {
+        title: "Side Adjusters",
+        body: "No belt — a strap and buckle at each hip take up the waist instead, so nothing interrupts the line at the front. An extended waistband tab and a balanced rise keep the trouser sitting clean without one."
+    }
+};
+
+function getEnsHotspotsHTML(garment) {
+    if (garment === "jacket") {
+        return (
+            '<button class="ds-hotspot ds-hotspot--shoulder btn-bare" type="button" data-action="vis-ens-hotspot" data-hotspot="jacket-shoulder" aria-label="Spalla Camicia shoulder detail"><span class="ds-hotspot-dot" aria-hidden="true"></span></button>' +
+            '<button class="ds-hotspot ds-hotspot--lapel btn-bare" type="button" data-action="vis-ens-hotspot" data-hotspot="jacket-lapel" aria-label="3-roll-2 lapel detail"><span class="ds-hotspot-dot" aria-hidden="true"></span></button>'
+        );
+    }
+    if (garment === "trousers") {
+        return '<button class="ds-hotspot ds-hotspot--waistband btn-bare" type="button" data-action="vis-ens-hotspot" data-hotspot="trouser-waistband" aria-label="Side adjuster waistband detail"><span class="ds-hotspot-dot" aria-hidden="true"></span></button>';
+    }
+    return "";
+}
+
+// Card + backdrop are created once, imperatively, and appended straight to
+// document.body — the one deliberate exception to this app's render()
+// string-concatenation-into-#app.innerHTML convention, for a genuine reason:
+// #app itself carries a `both`-fill view-transition animation
+// (#app:not(.is-transitioning) { animation: viewFadeIn ... both }, see
+// styles.css) whose final keyframe still sets `transform: translateY(0)`.
+// CSS makes ANY element with a non-none computed transform — including that
+// identity one — the containing block for its position:fixed descendants,
+// so a card living anywhere inside #app's own HTML can never be genuinely
+// centred on the viewport; it renders relative to #app's (often much
+// taller, scrolled-off-screen) box instead. Living on document.body, which
+// carries no such animation, sidesteps that entirely.
+var _ensHotspotEls = null;
+
+function ensureEnsHotspotCard() {
+    if (_ensHotspotEls) return _ensHotspotEls;
+    var backdrop = document.createElement("div");
+    backdrop.className = "ds-hotspot-backdrop";
+    backdrop.id = "ds-hotspot-backdrop";
+    backdrop.setAttribute("data-action", "vis-ens-hotspot-close");
+    backdrop.hidden = true;
+
+    var card = document.createElement("div");
+    card.className = "ds-hotspot-card";
+    card.id = "ds-hotspot-card";
+    card.hidden = true;
+    card.innerHTML =
+        '<button class="ds-hotspot-close btn-bare" type="button" data-action="vis-ens-hotspot-close" aria-label="Close">&times;</button>' +
+        '<div class="ds-hotspot-card-title" id="ds-hotspot-card-title"></div>' +
+        '<p class="ds-hotspot-card-body" id="ds-hotspot-card-body"></p>';
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(card);
+    _ensHotspotEls = { backdrop: backdrop, card: card };
+    return _ensHotspotEls;
+}
+
+function showEnsHotspot(id) {
+    var info = ENS_HOTSPOTS[id];
+    if (!info) return;
+    var els = ensureEnsHotspotCard();
+    document.getElementById("ds-hotspot-card-title").textContent = info.title;
+    document.getElementById("ds-hotspot-card-body").textContent = info.body;
+    els.backdrop.hidden = false;
+    els.card.hidden = false;
+    // Force a layout flush before adding the class that starts the fade,
+    // or hidden->visible and the opacity transition both land in the same
+    // frame and it just snaps in instead of fading.
+    requestAnimationFrame(function () {
+        els.backdrop.classList.add("show");
+        els.card.classList.add("show");
+    });
+}
+window.showEnsHotspot = showEnsHotspot;
+
+function hideEnsHotspot() {
+    if (!_ensHotspotEls) return;
+    var els = _ensHotspotEls;
+    els.card.classList.remove("show");
+    els.backdrop.classList.remove("show");
+    setTimeout(function () {
+        if (!els.card.classList.contains("show")) { els.card.hidden = true; els.backdrop.hidden = true; }
+    }, 220);
+}
+window.hideEnsHotspot = hideEnsHotspot;
+
 // Paints every photographed garment canvas currently in the DOM — the
 // ensemble stage, the single-cloth view, and both sides of the Split all
 // use the same [data-garment-key] canvas contract. Called from the app
 // render hook after innerHTML is set. renderGarmentPhoto self-retries
 // while its asset loads, so a cold first paint fills in a frame or two later.
 function startVisEnsPhotos() {
+    // The hotspot modal lives on document.body (see ensureEnsHotspotCard's
+    // header comment), outside the innerHTML this render just replaced, so
+    // nothing else clears it when the client leaves the ensemble view —
+    // this hook already runs after every render regardless of view, so it
+    // is where that cleanup belongs.
+    if (_ensHotspotEls && !document.getElementById("vis-ens-stage")) {
+        _ensHotspotEls.backdrop.classList.remove("show");
+        _ensHotspotEls.backdrop.hidden = true;
+        _ensHotspotEls.card.classList.remove("show");
+        _ensHotspotEls.card.hidden = true;
+    }
     if (typeof renderGarmentPhoto !== "function") return;
     var canvases = document.querySelectorAll("canvas[data-garment-key]");
     for (var i = 0; i < canvases.length; i++) {
