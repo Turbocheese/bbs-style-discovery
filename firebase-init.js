@@ -17,19 +17,19 @@
 (function (global) {
     var _firebaseInitialized = false;
     var _firestoreDb = null;
+    var _firebaseConfig = {
+        apiKey: "AIzaSyD9IUD84Ps5oj79_VwPOQzWCw8ukcIt4jc",
+        authDomain: "bbs-style-discovery.firebaseapp.com",
+        projectId: "bbs-style-discovery",
+        storageBucket: "bbs-style-discovery.firebasestorage.app",
+        messagingSenderId: "220798978767",
+        appId: "1:220798978767:web:8b0954e1cb619933fc85ba"
+    };
 
     (function initFirebase() {
         if (typeof firebase === "undefined") return;
         try {
-            var firebaseConfig = {
-                apiKey: "AIzaSyD9IUD84Ps5oj79_VwPOQzWCw8ukcIt4jc",
-                authDomain: "bbs-style-discovery.firebaseapp.com",
-                projectId: "bbs-style-discovery",
-                storageBucket: "bbs-style-discovery.firebasestorage.app",
-                messagingSenderId: "220798978767",
-                appId: "1:220798978767:web:8b0954e1cb619933fc85ba"
-            };
-            firebase.initializeApp(firebaseConfig);
+            firebase.initializeApp(_firebaseConfig);
             _firebaseInitialized = true;
         } catch (e) {
             _firebaseInitialized = false;
@@ -66,5 +66,11 @@
         }
     })();
 
+    function getFirebaseConfig() {
+        if (!_firebaseInitialized) return null;
+        return { projectId: _firebaseConfig.projectId, apiKey: _firebaseConfig.apiKey };
+    }
+
     global.getFirestoreDb = getFirestoreDb;
+    global.getFirebaseConfig = getFirebaseConfig;
 })(typeof window !== "undefined" ? window : this);
