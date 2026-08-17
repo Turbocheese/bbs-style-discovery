@@ -2035,6 +2035,25 @@ function hideEnsHotspot() {
 }
 window.hideEnsHotspot = hideEnsHotspot;
 
+// Recomputes and re-sets a garment canvas's data-garment-key from current
+// style+spec state. startVisEnsPhotos() below only REPAINTS using
+// whatever key is already sitting on the canvas — it does not re-derive
+// it — so a partial update that changes which photo SHOULD show (a
+// Bespoke Spec option, in particular) has to call this first, or the
+// repaint just redraws the same photo the spec change was supposed to
+// replace. Full renders don't need this: getVisEnsGarmentBlock already
+// computes a fresh key into the HTML string every time.
+function refreshEnsGarmentPhotoKey(garment) {
+    var canvas = document.getElementById("vis-ens-canvas-" + garment);
+    if (!canvas || typeof resolveGarmentKey !== "function") return;
+    var ens = getVisEnsembleState();
+    var style = ens.style[garment] || {};
+    var spec = ens.spec && ens.spec[garment];
+    var key = resolveGarmentKey(garment, style, spec);
+    if (key) canvas.setAttribute("data-garment-key", key);
+}
+window.refreshEnsGarmentPhotoKey = refreshEnsGarmentPhotoKey;
+
 // Paints every photographed garment canvas currently in the DOM — the
 // ensemble stage, the single-cloth view, and both sides of the Split all
 // use the same [data-garment-key] canvas contract. Called from the app

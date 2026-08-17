@@ -496,8 +496,15 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 // (vest-db-none, vest-db-shawl) and the Gurkha trouser are real makes but
 // have no photograph yet, so they are absent here and hidden from the
 // configurator until their image lands — add the key the moment it does.
+//
+// jacket-sb-peak-patch and jacket-sb-peak-flap are Bespoke Spec Configurator
+// variants (2026-08-17) — resolveGarmentKey above picks either up
+// automatically when the client's lapel/pocket spec matches, falling back
+// to plain "jacket-sb" otherwise. No jacket-db variant yet: the one
+// generated alongside these had a ticket pocket (house style doesn't do
+// them) and was deliberately left out of tools/build-garment-assets.js.
 var GARMENT_ASSET_KEYS = [
-    "jacket-sb", "jacket-db",
+    "jacket-sb", "jacket-sb-peak-patch", "jacket-sb-peak-flap", "jacket-db",
     "vest-sb-none", "vest-sb-shawl",
     "trousers-flat", "trousers-double", "trousers-belt"
 ];

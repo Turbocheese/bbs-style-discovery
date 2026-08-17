@@ -7357,6 +7357,7 @@ document.body.addEventListener("click", function (e) {
                 bsBtns[bi].setAttribute("aria-pressed", bsOn ? "true" : "false");
             }
         }
+        if (typeof refreshEnsGarmentPhotoKey === "function") refreshEnsGarmentPhotoKey(bsGarment);
         if (typeof startVisEnsPhotos === "function") startVisEnsPhotos();
         if (typeof updateBespokeSpecCard === "function") updateBespokeSpecCard();
     }

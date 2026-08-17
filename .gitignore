@@ -387,3 +387,7 @@ claude_logs/*.png
 # Session continuation dumps written by the agent harness at the repo root.
 # Machine-local and large (700K each).
 *-this-session-is-being-continued-from-a-previous-c.txt
+
+# macOS Finder folder-view metadata — reappears any time someone drags
+# files in via Finder, never useful in git.
+.DS_Store

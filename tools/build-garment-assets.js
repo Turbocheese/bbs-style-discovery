@@ -319,7 +319,25 @@ if (require.main === module) {
     // products but have no photograph yet, so they are intentionally absent
     // here and hidden from the configurator until their image lands.
     var SOURCES = {
-        "jacket-sb": "replicate-prediction-z3qrb03brdrmw0czgja8mnrmp4.jpeg",
+        // Bespoke Spec Configurator photos (2026-08-17, Nano Banana Pro).
+        // "jacket-sb" was repointed at a fresh notch+flap generation —
+        // the ORIGINAL replicate-prediction-z3qrb03... source stays on
+        // disk untouched (git history intact per the comment above), it
+        // is just no longer what this key builds from. The two
+        // *-peak-* keys are new spec-driven variants picked up
+        // automatically by resolveGarmentKey's self-healing lookup in
+        // garment-photo.js the moment their key is added to
+        // GARMENT_ASSET_KEYS below — see that function's own comment.
+        //
+        // jacket-db-peak-flap.png (also generated this session) is
+        // deliberately NOT wired in here — house style doesn't do ticket
+        // pockets, and that generation put one on the right hip (a
+        // second, smaller flap stacked above the main hip flap). The
+        // file is left on disk for reference; regenerate without a
+        // ticket pocket before adding a "jacket-db" + flap-pocket entry.
+        "jacket-sb": "jacket-sb-notch-flap-v2.png",
+        "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",
+        "jacket-sb-peak-flap": "jacket-sb-peak-flap.png",
         "jacket-db": "replicate-prediction-fwrcgcn33xrmy0czgjavmrrfxg.jpeg",
         "vest-sb-none": "replicate-prediction-teg047kh8nrmr0czgjbtqq820w.jpeg",
         "vest-sb-shawl": "replicate-prediction-dxnwnqk7enrmt0czgjca61ysrw.jpeg",
