@@ -59,6 +59,19 @@ out with a ticket pocket (a small extra pocket above the main hip
 pocket) that house style doesn't do. #6 below is the corrected retry.
 #4/#5 (trousers) still not attempted — see the note on #4.
 
+**#7 (pinstripe calibration reference) done** — used it to trace
+`JACKET_SB_PEAK_LAPELS` in `garment-photo.js` (peak lapel now bends
+patterned cloth correctly, same as the notch lapel already did) — see
+commit history after `1db12a4`. This was estimated by eye from the
+reference image, not click-traced like the original notch/DB outlines
+(no interactive tracing tool available this pass), then verified by
+rendering a real striped cloth (`fox_flannel_chalkstripe`) on the peak
+lapel in the running app and comparing it side by side against the
+same cloth on the notch lapel — both read as a comparable, convincing
+bend with no seam artifact. Treat it as a solid first pass rather than
+founder-precision; worth a second look if a client-facing check ever
+finds it visibly off.
+
 ## Priority list
 
 Ordered by how much visual difference each one actually buys. The

@@ -84,6 +84,31 @@ var JACKET_SB_LAPELS = [
     }
 ];
 
+// Peak lapel (jacket-sb-peak-*): a FIRST-PASS estimate, not a founder
+// hand-trace like JACKET_SB_LAPELS/JACKET_DB_LAPELS above — those were
+// built from a flood-filled, Douglas-Peucker-simplified outline drawn
+// over the exact photo; this one is read off a bold-chalk-stripe
+// calibration render (same pose/box as the notch photo, same generation
+// batch) rather than click-traced, since no such tool was available this
+// pass. Same box envelope as JACKET_SB_LAPELS (same photo shoot
+// proportions, only the lapel's own outline differs) with the notch's
+// inward V-cut (points 7-8 in that trace) replaced by a single outward
+// peak tip. Verified empirically against a real striped cloth
+// (fox_flannel_chalkstripe) rendered on jacket-sb-peak-flap.webp in the
+// running app — see the commit this landed in for that check — but
+// treat this as approximate; retrace properly if a client-facing check
+// finds it visibly off.
+var JACKET_SB_PEAK_LAPELS = [
+    {
+        x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.18, strength: 0.82,
+        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.34, y: 0.30 }, { x: 0.195, y: 0.115 }, { x: 0.245, y: 0.135 }, { x: 0.30, y: 0.09 }, { x: 0.4052, y: 0.088 }, { x: 0.413, y: 0.0693 }, { x: 0.5051, y: 0.0611 }]
+    },
+    {
+        x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.18, strength: 0.82,
+        clip: [{ x: 0.8152, y: 0.115 }, { x: 0.7652, y: 0.135 }, { x: 0.71, y: 0.09 }, { x: 0.605, y: 0.088 }, { x: 0.5972, y: 0.0693 }, { x: 0.5051, y: 0.0611 }, { x: 0.5051, y: 0.5343 }, { x: 0.5171, y: 0.53 }, { x: 0.5356, y: 0.4873 }, { x: 0.5803, y: 0.4405 }, { x: 0.6088, y: 0.3875 }, { x: 0.6702, y: 0.30 }]
+    }
+];
+
 // Peak lapel (jacket-db): traced the same way as JACKET_SB_LAPELS — a
 // founder-drawn outline (green) on a real DB peak-lapel photo, flood-filled,
 // ray-cast from the enclosed area's centroid into a boundary polygon,
@@ -145,6 +170,8 @@ var TROUSER_WAISTBAND = [
 
 var DISPLACEMENT_REGIONS = {
     "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SLEEVES),
+    "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SLEEVES),
+    "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
