@@ -49,6 +49,16 @@ Checked `images/garments/jacket-sb.webp`, `jacket-db.webp`, and
   breaks that mask cleanly (two of the seven existing sources needed a
   manual white-normalisation pass to fix exactly this).
 
+## Status (2026-08-17)
+
+Prompts #1, #2, #3 generated and shipped — see commit `c0e6ece`. #2
+(notch+flap) became the new `jacket-sb` base photo itself (it matches
+the app's coded default exactly); #1 and #3 are wired in as
+spec-driven variants. #6 (DB) was generated but **rejected** — it came
+out with a ticket pocket (a small extra pocket above the main hip
+pocket) that house style doesn't do. #6 below is the corrected retry.
+#4/#5 (trousers) still not attempted — see the note on #4.
+
 ## Priority list
 
 Ordered by how much visual difference each one actually buys. The
@@ -169,13 +179,17 @@ into a single crease pressed down the centre of each leg below the
 knee
 ```
 
-### 6. (Lower priority) Double-breasted, flap pockets — `jacket-db-peak-flap`
+### 6. RETRY — Double-breasted, flap pockets, no ticket pocket — `jacket-db-peak-flap`
 
 Real double-breasted jackets are conventionally always peak-lapelled —
 a DB with a notch lapel reads as an unusual, non-standard combination,
-so this brief doesn't include a `jacket-db-notch-*` prompt at all. Skip
-this one unless flap pockets on the DB specifically matter to you; the
+so this brief doesn't include a `jacket-db-notch-*` prompt at all; the
 existing `jacket-db.webp` already covers peak lapel + patch pockets.
+
+The first attempt at this one added an unrequested ticket pocket (a
+second, smaller flap stacked above the right hip pocket) — the prompt
+below adds an explicit negative instruction to head that off, since the
+first prompt didn't think to rule it out.
 
 ```
 Ghost-mannequin product photograph of a men's double-breasted sport
@@ -183,17 +197,58 @@ coat, front view, centred and symmetric, camera at chest height. Light
 heather-grey wool flannel with visible cloth grain, no pattern. Peak
 lapels, standard double-breasted width. Six-button front in a 2x3
 arrangement, two buttons functional at the wrap, buttons dark
-horn-effect. Two FLAP POCKETS at the hips — a rectangular flap of the
-same cloth covers the pocket opening, edges pressed flat, no visible
-pocket bag beneath. One welt breast pocket, no pocket square. Black
-lining visible through the open front. The garment is shaped with
-realistic chest, shoulder and sleeve volume as if worn by an invisible
-body — NOT laid flat, NOT on a hanger, NOT on a visible mannequin or
-dress form, no person visible. Pure flat white background, RGB 255 255
-255, no shadow, no gradient, no visible horizon line. Soft even studio
-lighting, no hard highlights. Portrait orientation, aspect ratio 4:5,
-sharp focus edge to edge, commercial e-commerce product photography
-style.
+horn-effect. Two FLAP POCKETS at the hips ONLY — a rectangular flap of
+the same cloth covers each pocket opening, edges pressed flat, no
+visible pocket bag beneath. Exactly two hip pockets total, one per
+side. DO NOT add a ticket pocket (no second, smaller flap or pocket
+above either hip pocket) — house style never uses one. One welt breast
+pocket, no pocket square. Black lining visible through the open front.
+The garment is shaped with realistic chest, shoulder and sleeve volume
+as if worn by an invisible body — NOT laid flat, NOT on a hanger, NOT
+on a visible mannequin or dress form, no person visible. Pure flat
+white background, RGB 255 255 255, no shadow, no gradient, no visible
+horizon line. Soft even studio lighting, no hard highlights. Portrait
+orientation, aspect ratio 4:5, sharp focus edge to edge, commercial
+e-commerce product photography style.
+```
+
+### 7. Calibration reference — pinstripe on Wide Peak, NOT a shipped asset
+
+This one doesn't go through `tools/build-garment-assets.js` and never
+becomes a `GARMENT_ASSET_KEYS` entry — it's a one-off reference image
+for retracing the lapel/sleeve bend regions (see the pipeline section
+below: `JACKET_SB_LAPELS` in `garment-photo.js` is a hand-traced
+outline, and it was traced against the OLD notch-lapel photo, so it no
+longer lines up with the new peak-lapel one). A bold, real pinstripe
+printed on the actual peak-lapel cut shows exactly how a straight line
+bends at this specific lapel roll and sleeve head — the same kind of
+reference the original notch lapel was traced from (see that file's
+comment on the founder's hand-drawn trace).
+
+Send me the result directly rather than dropping it in the photos
+folder — I'll use it to eyeball new trace coordinates, not build an
+asset from it.
+
+```
+Ghost-mannequin product photograph of a men's single-breasted sport
+coat, front view, centred and symmetric, camera at chest height. Bold
+charcoal-grey chalk-stripe flannel — wide, high-contrast white
+pinstripes spaced about 2cm apart, running perfectly vertical on a flat
+plane, so their bend is clearly visible wherever the cloth curves.
+WIDE PEAK LAPELS (not notch) — the lapel's outer edge points upward and
+outward toward the shoulder in a sharp peak, roughly 9.5cm at its
+widest — the stripes must visibly bend and compress along the lapel's
+roll line and again at the peak's point, not run straight through it.
+Two-button front, buttons dark horn-effect. Two FLAP POCKETS at the
+hips. One welt breast pocket. Black lining visible through the open
+front. The garment is shaped with realistic chest, shoulder and sleeve
+volume as if worn by an invisible body — the stripes should also show
+their bend wrapping around the sleeve head at the shoulder seam. NOT
+laid flat, NOT on a hanger, no person visible. Pure flat white
+background, RGB 255 255 255, no shadow, no gradient. Soft even studio
+lighting, no hard highlights, sharp enough focus that individual
+stripes are crisp even where they bend. Portrait orientation, aspect
+ratio 4:5.
 ```
 
 ## After generating: the pipeline these need to go through

@@ -3318,6 +3318,7 @@ function getFreshState() {
         staffLookupResult: null,
         visLighting: "daylight",
         bespokeDrawerOpen: false,
+        bespokeCompareKey: null,
     };
 }
 
@@ -7334,6 +7335,19 @@ document.body.addEventListener("click", function (e) {
         target.setAttribute("aria-expanded", appState.bespokeDrawerOpen ? "true" : "false");
         localStorage.setItem("bbs_session", JSON.stringify(appState));
     }
+    else if (action === "bespoke-compare-toggle") {
+        var cmpGarment = target.getAttribute("data-garment");
+        var cmpGroup = target.getAttribute("data-group");
+        if (!cmpGarment || !cmpGroup) return;
+        var cmpKey = cmpGarment + ":" + cmpGroup;
+        appState.bespokeCompareKey = appState.bespokeCompareKey === cmpKey ? null : cmpKey;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        // Full render: opening/closing a comparison strip changes which
+        // canvases exist in the DOM (new ones appear/disappear), unlike a
+        // plain spec-value pick which only ever repaints canvases already
+        // there — a partial update has nothing stable to patch here.
+        render({ animate: false });
+    }
     else if (action === "bespoke-spec-select") {
         var bsGarment = target.getAttribute("data-garment");
         var bsGroup = target.getAttribute("data-group");
@@ -7343,6 +7357,18 @@ document.body.addEventListener("click", function (e) {
         if (!bsEns.spec[bsGarment]) bsEns.spec[bsGarment] = {};
         if (bsEns.spec[bsGarment][bsGroup] === bsValue) return;
         bsEns.spec[bsGarment][bsGroup] = bsValue;
+        // Picking from an open compare strip closes it and does a full
+        // re-render — simplest correct way to keep the strip's own
+        // "Selected" highlight and the main stage canvas all in sync at
+        // once, and closing the strip right after a decision is the
+        // right UX moment for it anyway. A plain option-button tap (no
+        // compare strip open) stays on the fast partial-update path below.
+        if (appState.bespokeCompareKey === bsGarment + ":" + bsGroup) {
+            appState.bespokeCompareKey = null;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            render({ animate: false });
+            return;
+        }
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         // Partial update only, per this feature's own requirement: just
         // this group's buttons, a photo repaint (a spec-driven photo

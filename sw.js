@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v127";
+var CACHE_VERSION = "bbs-v128";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=98",
+    "./styles.css?v=99",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -24,7 +24,7 @@ var PRECACHE = [
     "./attract-shader.js?v=3",
     "./weave-engine.js?v=3",
     "./garment-photo.js?v=21",
-    "./fabric-visualiser.js?v=31",
+    "./fabric-visualiser.js?v=32",
     "./cloth-study.js?v=5",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",
@@ -37,7 +37,7 @@ var PRECACHE = [
     "./vendor/firebase-app-compat.js",
     "./vendor/firebase-firestore-compat.js",
     "./firebase-init.js?v=3",
-    "./app.js?v=101",
+    "./app.js?v=102",
     "./fonts/eb-garamond-latin.woff2",
     "./fonts/eb-garamond-italic-latin.woff2",
     "./fonts/manrope-latin.woff2",

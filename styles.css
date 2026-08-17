@@ -13305,6 +13305,13 @@ textarea:focus-visible,
     .ds-bespoke-drawer { transition: none; }
 }
 
+.ds-bespoke-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
 .ds-bespoke-group-label {
     text-align: center;
     font-family: "Manrope", sans-serif;
@@ -13312,7 +13319,71 @@ textarea:focus-visible,
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--bronze);
-    margin-bottom: 6px;
+}
+.ds-bespoke-compare-toggle {
+    font-size: 0.56rem !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase;
+    padding: 3px 10px !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    border: 1px solid var(--line-strong, rgba(17, 17, 16, 0.18)) !important;
+    border-radius: 999px !important;
+    color: var(--muted);
+    cursor: pointer;
+}
+.ds-bespoke-compare-toggle.sel {
+    background: var(--bronze) !important;
+    border-color: var(--bronze) !important;
+    color: #f4f0e8 !important;
+}
+
+/* Two (or more) small photographed previews side by side, cloth held
+   fixed, only the group's own option varying between them — the point
+   is that the difference on screen IS the choice being made. */
+.ds-bespoke-compare-strip {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+}
+.ds-bespoke-compare-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 120px;
+}
+.ds-bespoke-compare-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--surface);
+}
+.ds-bespoke-compare-panel.sel .ds-bespoke-compare-canvas {
+    border-color: var(--bronze);
+    border-width: 2px;
+}
+.ds-bespoke-compare-pick {
+    font-size: 0.56rem !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+    text-align: center;
+    padding: 4px 6px !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--muted);
+    cursor: pointer;
+}
+.ds-bespoke-compare-panel.sel .ds-bespoke-compare-pick {
+    color: var(--bronze);
+    font-weight: 700;
 }
 .ds-bespoke-opts {
     display: flex;

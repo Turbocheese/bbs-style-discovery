@@ -1423,16 +1423,17 @@ var VIS_ENS_STYLE_DEFAULTS = {
 // Deliberately separate from VIS_ENS_STYLE_OPTIONS/VIS_ENS_STYLE_DEFAULTS
 // above, not folded into them. Task 8 (21 July) removed jacket lapel/
 // pocket and trouser waistband from that menu specifically because no
-// garment photograph varies with them — see that block's own comment.
-// That is still true: choosing "Wide Peak" here does not change the
-// rendered photo (only one stock photo exists per jacket/trouser make).
-// This is a bespoke ORDER SPEC, not a visual preview control — a real
+// garment photograph varied with them at the time — see that block's own
+// comment. This is fundamentally still an ORDER SPEC first (a real
 // tailor's fitting form captures exactly this kind of construction detail
-// in writing, independent of what a generic stock photo shows. The photo
-// resolution in garment-photo.js/resolveGarmentKey does check for a
-// spec-driven photo variant first and falls back to the base photo when
-// one doesn't exist yet (see resolveGarmentKey's header), so real
-// photography can slot in later with no further code changes here.
+// in writing, independent of what a stock photo shows), not a guarantee
+// of a visual change — but as of the photography added this session,
+// jacket lapelStyle and pockets DO now have real photo variants for some
+// combinations (see resolveGarmentKey in garment-photo.js), and the
+// Compare toggle on each group (getBespokeCompareStripHTML below) shows
+// exactly which combinations currently have a distinct photo vs. which
+// still fall back to the base look. Trouser pleat/waistband have no
+// variant photos yet — see docs/2026-08-17-bespoke-spec-image-prompts.md.
 var BESPOKE_SPEC_OPTIONS = {
     jacket: {
         lapelStyle: [
@@ -1488,11 +1489,22 @@ function bespokeSpecOptionFor(garment, group, value) {
 // Global to the outfit (not scoped to ens.activeGarment the way "Style
 // It" is) — this is one order form covering every included garment that
 // has spec options, not a per-piece control.
-function getBespokeSpecGroupHTML(garment, groupKey, groupLabel, current) {
+function getBespokeSpecGroupHTML(garment, groupKey, groupLabel, current, ens) {
     var opts = BESPOKE_SPEC_OPTIONS[garment][groupKey];
+    var compareKey = garment + ":" + groupKey;
+    var comparing = appState.bespokeCompareKey === compareKey;
+    var canCompare = fabricResolves(ens.fabrics[garment]) && opts.length > 1;
     var html =
         '<div class="ds-bespoke-group">' +
+        '<div class="ds-bespoke-group-head">' +
         '<div class="ds-bespoke-group-label">' + groupLabel + "</div>" +
+        (canCompare
+            ? '<button class="ds-bespoke-compare-toggle btn-bare' + (comparing ? " sel" : "") +
+              '" type="button" data-action="bespoke-compare-toggle" data-garment="' + garment +
+              '" data-group="' + groupKey + '" aria-pressed="' + (comparing ? "true" : "false") + '">' +
+              (comparing ? "Hide compare" : "Compare") + "</button>"
+            : "") +
+        "</div>" +
         '<div class="ds-bespoke-opts">';
     for (var i = 0; i < opts.length; i++) {
         var sel = opts[i].key === current;
@@ -1505,7 +1517,44 @@ function getBespokeSpecGroupHTML(garment, groupKey, groupLabel, current) {
             (opts[i].detail ? '<span class="ds-bespoke-opt-detail">' + opts[i].detail + "</span>" : "") +
             "</button>";
     }
-    html += "</div></div>";
+    html += "</div>";
+    if (comparing) html += getBespokeCompareStripHTML(garment, groupKey, ens);
+    html += "</div>";
+    return html;
+}
+
+// The side-by-side comparison strip: one small canvas per option in this
+// group, cloth held fixed, every OTHER spec field held at its current
+// value — only groupKey varies between panels, so what changes on screen
+// is exactly what the client is choosing between. Each canvas carries the
+// same [data-garment-key][data-cloth] contract as every other photographed
+// garment canvas in this app, so startVisEnsPhotos() paints these for
+// free — no separate paint call needed here.
+function getBespokeCompareStripHTML(garment, groupKey, ens) {
+    var opts = BESPOKE_SPEC_OPTIONS[garment][groupKey];
+    var clothKey = ens.fabrics[garment];
+    var baseStyle = ens.style[garment] || {};
+    var baseSpec = ens.spec[garment] || {};
+    var w = garment === "trousers" ? 1073 : 1289;
+    var html = '<div class="ds-bespoke-compare-strip">';
+    for (var i = 0; i < opts.length; i++) {
+        var panelSpec = {};
+        for (var k in baseSpec) { if (baseSpec.hasOwnProperty(k)) panelSpec[k] = baseSpec[k]; }
+        panelSpec[groupKey] = opts[i].key;
+        var key = typeof resolveGarmentKey === "function" ? resolveGarmentKey(garment, baseStyle, panelSpec) : null;
+        if (!key) continue;
+        var sel = opts[i].key === baseSpec[groupKey];
+        html +=
+            '<div class="ds-bespoke-compare-panel' + (sel ? " sel" : "") + '">' +
+            '<canvas class="ds-bespoke-compare-canvas" width="' + w + '" height="1600"' +
+            ' data-garment-key="' + key + '" data-cloth="' + clothKey + '"></canvas>' +
+            '<button class="ds-bespoke-compare-pick btn-bare" type="button" data-action="bespoke-spec-select"' +
+            ' data-garment="' + garment + '" data-group="' + groupKey + '" data-value="' + opts[i].key + '">' +
+            (sel ? "Selected — " : "Use ") + opts[i].label +
+            "</button>" +
+            "</div>";
+    }
+    html += "</div>";
     return html;
 }
 
@@ -1517,19 +1566,19 @@ function getBespokeSpecDrawerHTML(ens) {
     var open = !!appState.bespokeDrawerOpen;
     var groupsHTML = "";
     if (hasJacket) {
-        groupsHTML += getBespokeSpecGroupHTML("jacket", "lapelStyle", "Jacket — Lapel", ens.spec.jacket.lapelStyle);
-        groupsHTML += getBespokeSpecGroupHTML("jacket", "pockets", "Jacket — Pockets", ens.spec.jacket.pockets);
+        groupsHTML += getBespokeSpecGroupHTML("jacket", "lapelStyle", "Jacket — Lapel", ens.spec.jacket.lapelStyle, ens);
+        groupsHTML += getBespokeSpecGroupHTML("jacket", "pockets", "Jacket — Pockets", ens.spec.jacket.pockets, ens);
     }
     if (hasTrousers) {
-        groupsHTML += getBespokeSpecGroupHTML("trousers", "pleat", "Trousers — Pleat", ens.spec.trousers.pleat);
-        groupsHTML += getBespokeSpecGroupHTML("trousers", "waistband", "Trousers — Waistband", ens.spec.trousers.waistband);
+        groupsHTML += getBespokeSpecGroupHTML("trousers", "pleat", "Trousers — Pleat", ens.spec.trousers.pleat, ens);
+        groupsHTML += getBespokeSpecGroupHTML("trousers", "waistband", "Trousers — Waistband", ens.spec.trousers.waistband, ens);
     }
 
     return (
         '<div class="ds-section ds-bespoke-section">' +
         '<button class="ds-bespoke-toggle btn-bare" type="button" data-action="bespoke-drawer-toggle" aria-expanded="' + (open ? "true" : "false") + '" aria-controls="ds-bespoke-drawer">' +
         '<span class="ds-bespoke-toggle-label">Bespoke Spec</span>' +
-        '<span class="ds-bespoke-toggle-hint">Construction details for the tailor — does not change the preview</span>' +
+        '<span class="ds-bespoke-toggle-hint">Construction details for the tailor — tap Compare to see a choice on the garment</span>' +
         '<span class="ds-bespoke-toggle-chevron" aria-hidden="true"></span>' +
         "</button>" +
         '<div class="ds-bespoke-drawer' + (open ? " open" : "") + '" id="ds-bespoke-drawer">' +
