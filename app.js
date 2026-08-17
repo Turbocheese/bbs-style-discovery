@@ -3313,6 +3313,7 @@ function getFreshState() {
         visEnsemble: false,
         visEnsembleState: null,
         galleryKey: null,
+        clientId: null,
     };
 }
 
@@ -4701,6 +4702,7 @@ function renderResult() {
         getRevealNameHTML(archetype.name, "arch-result-persona") +
         "</div>" +
         '<div class="arch-result-divider"></div>' +
+        getClientIdLineHTML() +
         '<p class="arch-result-desc">' + resultDesc + "</p>" +
         (secondaryArchetype
             ? '<p class="arch-result-secondary">Secondary influence: ' + secondaryArchetype.name + "</p>"
@@ -6294,6 +6296,8 @@ function applyScrollReveals() {
 }
 
 function render(options) {
+    if (typeof maybeSaveClientProfile === "function") maybeSaveClientProfile();
+
     // 🌟 AUTO-SAVE TO IPAD MEMORY ON EVERY SCREEN CHANGE
     localStorage.setItem("bbs_session", JSON.stringify(appState));
 
@@ -7557,6 +7561,7 @@ function renderColourDirectionResult() {
               "</div>"
             : "") +
         '<div class="arch-result-divider"></div>' +
+        getClientIdLineHTML() +
         getColourResultContentHTML(resultKey, scores, profile, hasAnswers) +
         // In the journey this screen is skipped in favour of the unified
         // result; reached standalone, offer to complete the Style quiz.
