@@ -191,3 +191,51 @@ function getClientIdLineHTML() {
     if (!appState.clientId) return "";
     return '<p class="arch-result-secondary">Client ID: ' + appState.clientId + "</p>";
 }
+
+// ---- Staff auth & lookup ----
+
+var STAFF_EMAIL = "staff@bbs-style-discovery.internal";
+var _staffIdToken = null;
+
+function staffSignIn(password, onDone) {
+    var config = (typeof getFirebaseConfig === "function") ? getFirebaseConfig() : null;
+    if (!config) { onDone(false, "Not connected."); return; }
+    var url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + config.apiKey;
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: STAFF_EMAIL, password: password, returnSecureToken: true })
+    }).then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    }).then(function (result) {
+        if (result.ok && result.data.idToken) {
+            _staffIdToken = result.data.idToken;
+            onDone(true, null);
+        } else {
+            onDone(false, "Incorrect password.");
+        }
+    }).catch(function () {
+        onDone(false, "Could not reach the server.");
+    });
+}
+
+function staffIsSignedIn() {
+    return !!_staffIdToken;
+}
+
+function staffLookupClient(clientId, onDone) {
+    if (!_staffIdToken) { onDone(null, "Not signed in."); return; }
+    var config = (typeof getFirebaseConfig === "function") ? getFirebaseConfig() : null;
+    if (!config) { onDone(null, "Not connected."); return; }
+    fetch(firestoreDocUrl(config, clientId), {
+        headers: { "Authorization": "Bearer " + _staffIdToken }
+    }).then(function (res) {
+        if (res.status === 404) { onDone(null, "No profile found for that ID."); return; }
+        if (!res.ok) { onDone(null, "Could not reach the server."); return; }
+        return res.json().then(function (doc) {
+            onDone(fromFirestoreDocument(doc), null);
+        });
+    }).catch(function () {
+        onDone(null, "Could not reach the server.");
+    });
+}

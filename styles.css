@@ -13067,3 +13067,16 @@ textarea:focus-visible,
         animation: none;
     }
 }
+
+/* Client Profile Saving — staff entry link (2026-08-17) */
+.welcome-staff-link {
+    display: block;
+    margin: 24px auto 0;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--taupe, #a4a19c);
+    background: transparent;
+    border: none;
+    padding: 8px;
+}

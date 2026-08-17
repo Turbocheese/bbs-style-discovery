@@ -3314,6 +3314,8 @@ function getFreshState() {
         visEnsembleState: null,
         galleryKey: null,
         clientId: null,
+        staffLookupError: null,
+        staffLookupResult: null,
     };
 }
 
@@ -3757,6 +3759,61 @@ function renderWelcome() {
         '<button class="button-primary" data-action="save-name">Begin the Discovery</button>' +
         "</div>" +
         "</div>" +
+        '<button class="welcome-staff-link btn-bare" data-action="staff-lookup">Staff</button>' +
+        "</div>" +
+        "</div>"
+    );
+}
+
+function renderStaffLookup() {
+    var signedIn = typeof staffIsSignedIn === "function" && staffIsSignedIn();
+    var errorHTML = appState.staffLookupError
+        ? '<p class="arch-result-secondary">' + appState.staffLookupError + "</p>"
+        : "";
+    var body = signedIn
+        ? '<div class="welcome-form-card">' +
+          '<div class="welcome-form">' +
+          '<label class="welcome-label" for="staff-lookup-id">Client ID</label>' +
+          '<input id="staff-lookup-id" class="welcome-input" type="text" placeholder="BBS-XXXXXX" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false">' +
+          "</div>" +
+          '<div class="welcome-actions">' +
+          '<button class="button-primary" data-action="staff-lookup-submit">Look up</button>' +
+          "</div>" +
+          errorHTML +
+          (appState.staffLookupResult ? renderStaffLookupResult(appState.staffLookupResult) : "") +
+          "</div>"
+        : '<div class="welcome-form-card">' +
+          '<div class="welcome-form">' +
+          '<label class="welcome-label" for="staff-password-input">Staff password</label>' +
+          '<input id="staff-password-input" class="welcome-input" type="password" autocomplete="off">' +
+          "</div>" +
+          '<div class="welcome-actions">' +
+          '<button class="button-primary" data-action="staff-sign-in">Sign in</button>' +
+          "</div>" +
+          errorHTML +
+          "</div>";
+    return (
+        '<div class="arch-result-shell">' +
+        '<div class="arch-result-label">Staff</div>' +
+        body +
+        '<div class="arch-secondary-actions">' +
+        '<button class="arch-btn-stroke" data-action="home">Back</button>' +
+        "</div>" +
+        "</div>"
+    );
+}
+
+function renderStaffLookupResult(profile) {
+    var checklist = profile.wardrobeChecklist || {};
+    var checkedCount = Object.keys(checklist).filter(function (k) {
+        return checklist[k] && checklist[k].checked;
+    }).length;
+    return (
+        '<div class="arch-card-wrap">' +
+        '<div class="arch-style-card">' +
+        '<div class="arch-card-persona">' + (profile.clientName || "Client") + "</div>" +
+        '<div class="arch-card-persona-sub">' + (profile.styleArchetype || "") + " &middot; " + (profile.colourSeason || "") + "</div>" +
+        '<p class="arch-result-secondary">' + checkedCount + " worksheet item(s) selected</p>" +
         "</div>" +
         "</div>"
     );
@@ -6350,6 +6407,9 @@ function render(options) {
         case "mill-map":
             content = renderMillMap();
             break;
+        case "staffLookup":
+            content = renderStaffLookup();
+            break;
         default:
             content = appState.clientName ? renderHome() : renderWelcome();
     }
@@ -7041,6 +7101,35 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "arch-tour-exit") {
         stopArchTour();
+    }
+    else if (action === "staff-lookup") {
+        appState.staffLookupError = null;
+        appState.staffLookupResult = null;
+        appState.view = "staffLookup";
+        render({ animate: true });
+    }
+    else if (action === "staff-sign-in") {
+        var staffPwEl = document.getElementById("staff-password-input");
+        var staffPw = staffPwEl ? staffPwEl.value : "";
+        if (!staffPw) return;
+        target.disabled = true;
+        staffSignIn(staffPw, function (ok, err) {
+            target.disabled = false;
+            appState.staffLookupError = ok ? null : err;
+            render({ animate: false });
+        });
+    }
+    else if (action === "staff-lookup-submit") {
+        var lookupIdEl = document.getElementById("staff-lookup-id");
+        var lookupId = lookupIdEl ? lookupIdEl.value.trim().toUpperCase() : "";
+        if (!lookupId) return;
+        target.disabled = true;
+        staffLookupClient(lookupId, function (profile, err) {
+            target.disabled = false;
+            appState.staffLookupResult = profile;
+            appState.staffLookupError = err;
+            render({ animate: false });
+        });
     }
     else if (action === "dd-toggle") {
         // Open/close a filter dropdown in place — no re-render. The state is
