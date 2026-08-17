@@ -7,6 +7,21 @@ service cloud.firestore {
         request.resource.data.ts is string &&
         request.resource.data.ts.size() < 40;
     }
+    match /clients/{clientId} {
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(
+          ['clientName', 'styleArchetype', 'colourSeason', 'wardrobeChecklist', 'createdAt']) &&
+        request.resource.data.clientName is string &&
+        request.resource.data.clientName.size() < 80 &&
+        request.resource.data.styleArchetype is string &&
+        request.resource.data.styleArchetype.size() < 60 &&
+        request.resource.data.colourSeason is string &&
+        request.resource.data.colourSeason.size() < 60 &&
+        request.resource.data.wardrobeChecklist is map &&
+        request.resource.data.createdAt is string &&
+        request.resource.data.createdAt.size() < 40;
+    }
     match /{document=**} {
       allow read, write: if false;
     }
