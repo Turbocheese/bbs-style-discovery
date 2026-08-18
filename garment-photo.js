@@ -84,28 +84,39 @@ var JACKET_SB_LAPELS = [
     }
 ];
 
-// Peak lapel (jacket-sb-peak-*): a FIRST-PASS estimate, not a founder
-// hand-trace like JACKET_SB_LAPELS/JACKET_DB_LAPELS above — those were
-// built from a flood-filled, Douglas-Peucker-simplified outline drawn
-// over the exact photo; this one is read off a bold-chalk-stripe
-// calibration render (same pose/box as the notch photo, same generation
-// batch) rather than click-traced, since no such tool was available this
-// pass. Same box envelope as JACKET_SB_LAPELS (same photo shoot
-// proportions, only the lapel's own outline differs) with the notch's
-// inward V-cut (points 7-8 in that trace) replaced by a single outward
-// peak tip. Verified empirically against a real striped cloth
-// (fox_flannel_chalkstripe) rendered on jacket-sb-peak-flap.webp in the
-// running app — see the commit this landed in for that check — but
-// treat this as approximate; retrace properly if a client-facing check
-// finds it visibly off.
+// Peak lapel (jacket-sb-peak-*): the first-pass version of this trace
+// (read blind off a grid, no verification) had the peak tip and collar
+// corner roughly 0.22 too far outboard on both sides — visibly wrong
+// pattern bending, caught August 2026 when a real pinstripe render
+// (dropped in as a calibration reference, same generation batch as
+// jacket-sb-notch-flap-v2/jacket-sb-peak-flap but NOT pixel-identical —
+// its collar sits ~0.03 lower in frame) was analysed programmatically
+// instead of eyeballed: the garment silhouette (background-threshold scan)
+// pins the peak tip and collar-corner points (both sit right at the
+// outer edge — a peak that doesn't break the shoulder line on this cut),
+// and per-stripe kink detection (local slope before/after each pinstripe,
+// the angle discontinuity is the roll line) pins two points on the
+// front/roll edge. Both signal sources agreed with each other and with
+// the photo's own left/right symmetry (collar-corner y matched to
+// 0.002, roll-line kink y matched exactly) to well under a pixel-percent,
+// then were mapped from the reference photo's frame onto this jacket's
+// own frame with a fitted affine (slope ~1, so effectively just the
+// ~0.03/~0.02 y/x offset between the two shoots) before replacing the
+// old peak-tip/collar-corner points below. The lower roll-line points
+// (button up to the last kink) are unchanged from the original
+// notch-derived guess — the new kink2 point landed within 0.02 of the
+// existing curve there, so that portion was already fine. Right lapel's
+// roll-line-to-button run is still mirrored from the left rather than
+// independently measured. Retrace properly if a client-facing check
+// still finds it visibly off.
 var JACKET_SB_PEAK_LAPELS = [
     {
         x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.18, strength: 0.82,
-        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.34, y: 0.30 }, { x: 0.195, y: 0.115 }, { x: 0.245, y: 0.135 }, { x: 0.30, y: 0.09 }, { x: 0.4052, y: 0.088 }, { x: 0.413, y: 0.0693 }, { x: 0.5051, y: 0.0611 }]
+        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.34, y: 0.30 }, { x: 0.280, y: 0.146 }, { x: 0.415, y: 0.057 }, { x: 0.448, y: 0.050 }, { x: 0.5051, y: 0.0611 }]
     },
     {
         x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.18, strength: 0.82,
-        clip: [{ x: 0.8152, y: 0.115 }, { x: 0.7652, y: 0.135 }, { x: 0.71, y: 0.09 }, { x: 0.605, y: 0.088 }, { x: 0.5972, y: 0.0693 }, { x: 0.5051, y: 0.0611 }, { x: 0.5051, y: 0.5343 }, { x: 0.5171, y: 0.53 }, { x: 0.5356, y: 0.4873 }, { x: 0.5803, y: 0.4405 }, { x: 0.6088, y: 0.3875 }, { x: 0.6702, y: 0.30 }]
+        clip: [{ x: 0.595, y: 0.063 }, { x: 0.563, y: 0.050 }, { x: 0.5051, y: 0.0611 }, { x: 0.5051, y: 0.5343 }, { x: 0.5171, y: 0.53 }, { x: 0.5356, y: 0.4873 }, { x: 0.5803, y: 0.4405 }, { x: 0.6088, y: 0.3875 }, { x: 0.6702, y: 0.30 }, { x: 0.721, y: 0.146 }]
     }
 ];
 
