@@ -84,39 +84,72 @@ var JACKET_SB_LAPELS = [
     }
 ];
 
-// Peak lapel (jacket-sb-peak-*): the first-pass version of this trace
-// (read blind off a grid, no verification) had the peak tip and collar
-// corner roughly 0.22 too far outboard on both sides — visibly wrong
-// pattern bending, caught August 2026 when a real pinstripe render
-// (dropped in as a calibration reference, same generation batch as
-// jacket-sb-notch-flap-v2/jacket-sb-peak-flap but NOT pixel-identical —
-// its collar sits ~0.03 lower in frame) was analysed programmatically
-// instead of eyeballed: the garment silhouette (background-threshold scan)
-// pins the peak tip and collar-corner points (both sit right at the
-// outer edge — a peak that doesn't break the shoulder line on this cut),
-// and per-stripe kink detection (local slope before/after each pinstripe,
-// the angle discontinuity is the roll line) pins two points on the
-// front/roll edge. Both signal sources agreed with each other and with
-// the photo's own left/right symmetry (collar-corner y matched to
-// 0.002, roll-line kink y matched exactly) to well under a pixel-percent,
-// then were mapped from the reference photo's frame onto this jacket's
-// own frame with a fitted affine (slope ~1, so effectively just the
-// ~0.03/~0.02 y/x offset between the two shoots) before replacing the
-// old peak-tip/collar-corner points below. The lower roll-line points
-// (button up to the last kink) are unchanged from the original
-// notch-derived guess — the new kink2 point landed within 0.02 of the
-// existing curve there, so that portion was already fine. Right lapel's
-// roll-line-to-button run is still mirrored from the left rather than
-// independently measured. Retrace properly if a client-facing check
-// still finds it visibly off.
+// Peak lapel (jacket-sb-peak-*): two prior passes at this trace both
+// mis-shaped it — a blind grid-eyeball guess, then a pinstripe-kink
+// analysis (August 2026) that fixed the worst of it but still
+// misidentified WHICH point was the peak tip, assuming it sat flush
+// with the shoulder silhouette when it actually sits well inboard of
+// it. Fixed properly (August 2026) with a flat-colour panel edit: the
+// left lapel recoloured solid red, the right solid blue, everything
+// else pixel-unchanged (Qwen-Image-Edit-Plus, editing the actual
+// jacket-sb-peak-flap.png rather than generating a fresh pose — this
+// is the part the stripe method got wrong). That makes the seam an
+// exact colour-vs-fabric pixel boundary instead of something inferred
+// from where a printed line happens to bend, extracted by thresholding
+// red/blue against the grey body per row and Douglas-Peucker-simplifying
+// the resulting curve. The edit's own pose match to the real photo was
+// verified before trusting it: fitting its garment silhouette against
+// jacket-sb-peak-flap.png's gave a sub-half-pixel-percent residual
+// (vs. ~3-5% for the old pinstripe reference, which was a different
+// generation entirely), so these coordinates needed only that tiny
+// fitted correction, not a real reconstruction. The result: the peak
+// tip is NOT flush with the shoulder line on this cut — it's the sharp
+// corner partway down where the colour boundary suddenly pulls ~0.06
+// inboard of the true silhouette, at roughly (0.27, 0.15) on the left.
+// Right lapel is independently measured here too, not mirrored.
+// Angle nudged from 0.18 to 0.14 rad (August 2026): tracking the collar
+// band's own stripe on the reference photo separately from the main
+// lapel gave ~-6 degrees for the collar vs. the -10.3 degrees this
+// region was using — a real difference, but a ~4-degree one, not a
+// distinct seam. Splitting it (rather than adding a third clip zone
+// for a 4-degree gap the feathering already absorbs) is the
+// proportionate fix.
 var JACKET_SB_PEAK_LAPELS = [
     {
-        x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.18, strength: 0.82,
-        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.34, y: 0.30 }, { x: 0.280, y: 0.146 }, { x: 0.415, y: 0.057 }, { x: 0.448, y: 0.050 }, { x: 0.5051, y: 0.0611 }]
+        x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.14, strength: 0.82,
+        clip: [{ x: 0.4866, y: 0.5449 }, { x: 0.4952, y: 0.4982 }, { x: 0.3678, y: 0.3287 }, { x: 0.2673, y: 0.1567 }, { x: 0.2684, y: 0.1493 }, { x: 0.3073, y: 0.1469 }, { x: 0.3440, y: 0.1051 }, { x: 0.4131, y: 0.0559 }, { x: 0.4499, y: 0.0510 }]
     },
     {
-        x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.18, strength: 0.82,
-        clip: [{ x: 0.595, y: 0.063 }, { x: 0.563, y: 0.050 }, { x: 0.5051, y: 0.0611 }, { x: 0.5051, y: 0.5343 }, { x: 0.5171, y: 0.53 }, { x: 0.5356, y: 0.4873 }, { x: 0.5803, y: 0.4405 }, { x: 0.6088, y: 0.3875 }, { x: 0.6702, y: 0.30 }, { x: 0.721, y: 0.146 }]
+        x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.14, strength: 0.82,
+        clip: [{ x: 0.7318, y: 0.1542 }, { x: 0.6929, y: 0.1493 }, { x: 0.6529, y: 0.1026 }, { x: 0.5946, y: 0.0609 }, { x: 0.5503, y: 0.0510 }, { x: 0.4866, y: 0.5449 }, { x: 0.5039, y: 0.5056 }, { x: 0.6518, y: 0.3041 }]
+    }
+];
+
+// The peak tip itself is a real corner in the cut, not a smooth fold —
+// tracking one stripe across it in the reference photo shows a local
+// angle swing from about -22 degrees to +34 degrees in the space of
+// about 15 pixels, sharper than the ~10-degree bend the main lapel
+// region above uses across its whole span. A single shared rotation
+// can't carry both — so this is a second, small region layered on top
+// of the tip corner only (same pattern JACKET_SLEEVES already uses:
+// more than one region per garment key, each with its own angle),
+// giving just that corner a steeper turn while the rest of the lapel
+// keeps the gentler, already-verified rotation underneath. Angle
+// magnitude here is double the main lapel's rather than matching the
+// raw measurement — that measurement's own window was noisy (a few
+// pixels either side of an actual vertex) and the photo's chest
+// panel isn't perfectly vertical to begin with (ghost-mannequin
+// volume alone reads ~24 degrees off vertical lower down, nothing to
+// do with the lapel), so it's a starting point tuned against the
+// rendered result, not a value taken verbatim off the pixel count.
+var JACKET_SB_PEAK_TIPS = [
+    {
+        x: 0.24, y: 0.09, w: 0.14, h: 0.14, angle: -0.36, strength: 0.78,
+        clip: [{ x: 0.322, y: 0.128 }, { x: 0.3073, y: 0.1469 }, { x: 0.2684, y: 0.1493 }, { x: 0.2673, y: 0.1567 }, { x: 0.30, y: 0.20 }]
+    },
+    {
+        x: 0.60, y: 0.07, w: 0.16, h: 0.16, angle: 0.36, strength: 0.78,
+        clip: [{ x: 0.624, y: 0.082 }, { x: 0.6529, y: 0.1026 }, { x: 0.6929, y: 0.1493 }, { x: 0.7318, y: 0.1542 }, { x: 0.70, y: 0.20 }]
     }
 ];
 
@@ -181,8 +214,8 @@ var TROUSER_WAISTBAND = [
 
 var DISPLACEMENT_REGIONS = {
     "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SLEEVES),
-    "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SLEEVES),
-    "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SLEEVES),
+    "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
+    "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
@@ -200,12 +233,14 @@ window.DISPLACEMENT_REGIONS = DISPLACEMENT_REGIONS;
 // Feather width as a fraction of a region's smaller dimension. A hard
 // rectangular clip (the original implementation) produces a visible
 // straight-line seam where the pattern angle changes abruptly — real
-// cloth has no such discontinuity except at an actual seam. 20% softens
-// that into a gradual transition without eating so much of the region
-// that the bend itself washes out to nothing. Picked from the brief's
-// 15-25% guidance; not tuned per-region since all four regions are
-// comparable in scale.
-var DISPLACEMENT_FEATHER_FRACTION = 0.20;
+// cloth has no such discontinuity except at an actual seam. Some
+// softening avoids that, but on a fine pattern (pinstripe, chalkstripe)
+// too wide a feather reads as the stripes losing definition before the
+// bend itself — tightened from 0.20 to 0.15 (August 2026, still inside
+// the brief's original 15-25% guidance, just at the crisp end) so the
+// pattern stays sharp closer to the bend. Not tuned per-region since
+// all four regions are comparable in scale.
+var DISPLACEMENT_FEATHER_FRACTION = 0.15;
 
 // Builds an alpha mask the size of an offscreen region canvas: fully
 // opaque across the interior, falling off linearly to transparent over
@@ -474,13 +509,44 @@ function applyLightingRig(ctx, canvas, mode) {
     ctx.restore();
 }
 
+// Real-3D dispatch (garment-mesh.js, loaded after this file). Checked
+// FIRST and before any canvas.getContext("2d") call below — a canvas's
+// context type is fixed for its lifetime, so the mesh path must claim a
+// "webgl" context before the 2D path ever claims "2d" on the same element.
+// Every canvas is rebuilt fresh on each render() (fabric-visualiser.js's
+// HTML-string templates), so which context type a given element ends up
+// with is decided fresh each time, per garmentKey — not a conflict.
+// GARMENT_MESH_KEYS/renderGarmentMesh3D are read here at CALL time, not
+// parse time, so garment-mesh.js loading after this file is safe (same
+// pattern as share-qr.js/client-profile.js's load-order exception).
 function renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode) {
+    if (typeof GARMENT_MESH_KEYS !== "undefined" && GARMENT_MESH_KEYS.indexOf(garmentKey) !== -1 &&
+        typeof renderGarmentMesh3D === "function") {
+        var meshOk = false;
+        try { meshOk = renderGarmentMesh3D(canvas, garmentKey, clothKey, lightingMode); }
+        catch (e) { console.error("garment-photo: 3D mesh render threw, falling back to photo path", e); meshOk = false; }
+        if (meshOk) return true;
+        // Any failure (WebGL unavailable, context loss, render error) falls
+        // through to the photo-compositing path below rather than showing
+        // a blank canvas — kiosk reliability over purity.
+    }
+
     var img = garmentImages[garmentKey];
     if (!img) { loadGarmentImage(garmentKey, function () {
         renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode);
     }); return false; }
 
     var ctx = canvas.getContext("2d");
+    if (!ctx) {
+        // A canvas's context type is permanent once claimed — this only
+        // happens if the mesh path above got as far as constructing a
+        // WebGLRenderer (claiming "webgl" on this element) and then failed
+        // on a later step. Nothing more can be drawn to this canvas
+        // instance; the next render() rebuilds it fresh. Fail quietly
+        // rather than throw on ctx.clearRect below.
+        console.error("garment-photo: canvas already claimed by a WebGL context, cannot fall back to 2D on this element");
+        return false;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // 1. Cloth, tiled across the whole frame. drawClothTile paints a

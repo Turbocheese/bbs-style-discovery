@@ -59,18 +59,26 @@ out with a ticket pocket (a small extra pocket above the main hip
 pocket) that house style doesn't do. #6 below is the corrected retry.
 #4/#5 (trousers) still not attempted — see the note on #4.
 
-**#7 (pinstripe calibration reference) done** — used it to trace
-`JACKET_SB_PEAK_LAPELS` in `garment-photo.js` (peak lapel now bends
-patterned cloth correctly, same as the notch lapel already did) — see
-commit history after `1db12a4`. This was estimated by eye from the
-reference image, not click-traced like the original notch/DB outlines
-(no interactive tracing tool available this pass), then verified by
-rendering a real striped cloth (`fox_flannel_chalkstripe`) on the peak
-lapel in the running app and comparing it side by side against the
-same cloth on the notch lapel — both read as a comparable, convincing
-bend with no seam artifact. Treat it as a solid first pass rather than
-founder-precision; worth a second look if a client-facing check ever
-finds it visibly off.
+**#7 (pinstripe calibration reference) superseded — see #8.** It fixed
+the worst of the peak lapel's bend but the founder still called it
+visibly wrong after landing (commit `f003895`); a stripe-kink is an
+indirect signal and had misidentified which point was even the peak
+tip. Left here for the method-comparison, not as current guidance.
+
+**#8 (flat-colour panel edit) done and current** — the founder generated
+it via Qwen-Image-Edit-Plus (not Nano Banana Pro — the founder's own
+call after #7 kept coming back wrong; Qwen's image-editing mode turned
+out to preserve pose far better: fitting its silhouette against the
+real `jacket-sb-peak-flap.png` gave well under a 1%-of-frame residual,
+against ~3-5% for #7's fresh-generation reference). `JACKET_SB_PEAK_LAPELS`
+in `garment-photo.js` is now traced from the exact red/blue-vs-grey
+pixel boundary (thresholded, Douglas-Peucker simplified) rather than
+inferred from where a printed stripe happens to bend — this is now the
+most precise trace in the file, more so than the original hand-traced
+notch/DB outlines. Verified in-app against `fox_flannel_chalkstripe`
+on the peak lapel — clean chevron bend, no seam artifact. If the notch
+or DB traces ever need revisiting, redo them the same way (prompt in
+#8) rather than falling back to #7's method.
 
 ## Priority list
 
@@ -263,6 +271,113 @@ lighting, no hard highlights, sharp enough focus that individual
 stripes are crisp even where they bend. Portrait orientation, aspect
 ratio 4:5.
 ```
+
+### 8. Panel-colour calibration — NOT a shipped asset, replaces #7's approach
+
+The pinstripe method (#7) required finding where a stripe bends, then
+inferring a polygon from that — even done programmatically (automated
+kink-detection plus a fitted affine, commit `f003895`) it still read
+wrong in the running app. A flat colour fill per pattern piece removes
+the inference entirely: the seam becomes an exact pixel boundary
+between two colours, so the trace can be extracted by direct
+thresholding instead of estimated from indirect signals.
+
+**Critical: this must be an EDIT of the exact existing photo, not a
+fresh generation.** A new text-to-image pass gives a different pose
+every time (this is what made #7 need a calibration transform between
+two non-identical photos). Feed the actual file
+(`images/styleBuilder/jacket-sb-peak-flap.png`, or whichever variant)
+into Nano Banana Pro as the base image and ask it to edit that image,
+not describe a new one — same pose, same crop, same proportions,
+pixel-identical except the two recoloured panels.
+
+```
+Edit this exact photograph. Keep everything pixel-identical — same
+pose, same crop, same proportions, same garment shape — except for two
+changes: fill the LEFT lapel (the fabric piece bounded by the front
+roll line and the gorge seam where it meets the collar, on the
+image-left side) with a single flat, matte, solid RED (#FF0000) — no
+shading, no texture, no gradient, a hard clean-edged fill that stops
+exactly at the seam line. Fill the RIGHT lapel (the mirror piece,
+image-right side) with a single flat, matte, solid BLUE (#0000FF), same
+hard clean edge at its seam. Do not recolour the collar, body, sleeves,
+pockets, buttons, or lining — leave those as the original cloth texture
+and colour. Background stays pure white. Do not alter pose, crop, or
+any other detail.
+```
+
+Run this once per jacket photo that needs its lapel trace verified —
+`jacket-sb-peak-flap.png` is the priority (currently wrong in the app),
+but the same prompt against `jacket-sb-notch-flap-v2.png` and
+`jacket-db-peak-flap.png`/`jacket-db.png` would let the notch and DB
+traces get the same exact-boundary treatment instead of staying on the
+older hand-trace-by-eye method — worth doing for consistency even
+though those aren't reported as visibly wrong today.
+
+Optional bonus, same photo, additional instruction if you want the
+sleeve regions upgraded from plain rotated boxes to a real traced clip
+too: *"Also fill the left sleeve with flat solid ORANGE (#FF8800) and
+the right sleeve with flat solid GREEN (#00CC00), same hard-edge rule,
+same exclusions."* Not required — sleeves haven't been reported as
+visibly wrong.
+
+Send the result directly rather than dropping it in
+`images/styleBuilder/incoming/` — same as #7, this is a reference for
+retracing, never a shipped asset.
+
+### 9. Collar panel-colour — third colour, adds the gorge seam boundary #8 didn't capture
+
+#8 only asked for two colours (the two lapels) and told the model to
+stop at "the gorge seam where it meets the collar" — but nothing
+marked where that seam actually is, so the model extended the lapel
+colour straight up through the collar too. The trace built from that
+(committed) is accurate for the lapel's outer edge, but has no real
+data on where the collar itself starts — the founder's own eye is
+catching a seam that might genuinely be there and isn't represented in
+the code at all.
+
+**Edit the already-generated red/blue file, don't start over.** Feed
+in the successful result from #8
+(`replicate-prediction-5j4267qpwxrp60d02dnaebgv3c.png`, the one
+already used to trace the current lapel clip) as the base image and
+ask for one additional change on top of it — this keeps the lapel
+boundaries exactly as already measured and verified, and only adds the
+missing third colour, rather than risking a fresh generation drifting
+the pose or the lapel edges from what's already committed.
+
+```
+Edit this exact photograph — it already has the left lapel filled
+solid red and the right lapel filled solid blue with hard clean edges.
+Keep those two fills and the pose exactly as they are. Add one more
+change: this jacket has a genuine separate piece of cloth for the
+collar — the upper collar, the piece that wraps around the back of the
+neck, physically cut and sewn on as its own pattern piece, distinct
+from the lapel/front panel. It is stitched to the lapel at the gorge
+seam: a real diagonal seam line running from near the back-of-neck
+notch out to the corner where each lapel's peak point begins. Fill
+ONLY that collar piece — the part wrapping the neck, on BOTH sides,
+not the lapels below it — with a single flat, matte, solid YELLOW
+(#FFFF00), hard clean edges, no shading, no gradient, no texture. The
+yellow must stop exactly at the gorge seam on both sides and must NOT
+extend down into the red or blue lapel fill below it — the collar and
+each lapel are three separate pieces of cloth stitched together at
+real seams, not one continuous surface, and the fill boundaries must
+show exactly where those seams are. If you are not confident exactly
+where the gorge seam sits, follow the actual weave/stitching detail
+visible in the photograph rather than guessing a generic line. Do not
+change the red, the blue, the body, sleeves, pockets, buttons, lining,
+pose, or background in any way.
+```
+
+If the model still bleeds yellow into the lapels or vice versa, that
+result is itself useful information (it may mean this cut genuinely
+doesn't have a strong visible seam there, same conclusion the pixel-diff
+experiment already pointed toward) — send whatever comes back rather
+than re-prompting blind; a clean fail is data too.
+
+Same rule as #7/#8: send the result directly, don't drop it in
+`images/styleBuilder/incoming/` — this is a trace reference, never a
+shipped asset.
 
 ## After generating: the pipeline these need to go through
 

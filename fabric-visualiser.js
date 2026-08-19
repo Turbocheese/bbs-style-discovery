@@ -2431,7 +2431,36 @@ function exportEnsembleSpec() {
     container.appendChild(page);
     document.body.appendChild(container);
 
-    renderElementToCanvas(page, { backgroundColor: "#faf8f3" })
+    // cloneNode (both mine above, and html2canvas's own internal clone that
+    // it renders from) copies markup, never a canvas's drawn pixels — the
+    // drawing buffer lives outside the DOM, on whatever context the
+    // ORIGINAL element claimed (2d or webgl). First attempt at this fix
+    // pre-painted the canvases in MY clone above, which measurably worked
+    // right up until html2canvas cloned the tree AGAIN internally and threw
+    // that away — the PDF still came out with a blank jacket card. The
+    // actual fix has to run inside html2canvas's own onclone hook, which
+    // fires on ITS clone (the one it actually rasterizes), after that
+    // clone exists — this is exactly what onclone is for, and
+    // renderElementToCanvas already threads an onclone option through to
+    // html2canvas, it just wasn't being used anywhere yet. Matched by
+    // position (both queries walk the DOM in the same order), same as the
+    // first attempt — this works for both the WebGL mesh and the ordinary
+    // photo path, confirmed both were affected.
+    renderElementToCanvas(page, {
+        backgroundColor: "#faf8f3",
+        onclone: function (clonedDoc) {
+            var liveCanvases = document.querySelectorAll("#vis-ens-stage canvas");
+            var cloneCanvases = clonedDoc.querySelectorAll(".ds-spec-stage-slot canvas");
+            for (var ci = 0; ci < cloneCanvases.length && ci < liveCanvases.length; ci++) {
+                try {
+                    var cctx = cloneCanvases[ci].getContext("2d");
+                    if (cctx) cctx.drawImage(liveCanvases[ci], 0, 0, cloneCanvases[ci].width, cloneCanvases[ci].height);
+                } catch (e) {
+                    console.error("Design spec export: could not copy a garment canvas into html2canvas's clone", e);
+                }
+            }
+        }
+    })
         .then(function (canvas) {
             canvasToPDF(canvas, {
                 orientation: "portrait",
