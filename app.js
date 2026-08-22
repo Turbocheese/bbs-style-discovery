@@ -6761,7 +6761,16 @@ document.body.addEventListener("click", function (e) {
         if (clickedOption) clickedOption.classList.add("sel");
 
         var nextBtn = document.querySelector(".arch-btn-next");
-        if (nextBtn) nextBtn.disabled = false;
+        if (nextBtn) {
+            nextBtn.disabled = false;
+            // On an optional question (hair_depth today) the button reads
+            // "Skip →" until an answer is picked — this DOM patch skips
+            // the full render() a tap-answer normally gets (no-auto-advance:
+            // tap-answer, then tap-Next), so without this the label was
+            // stuck on "Skip" even after a real answer was selected, which
+            // read as the quiz refusing to continue.
+            if (colourQuestion.optional) nextBtn.textContent = "Next \u2192";
+        }
 
         localStorage.setItem("bbs_session", JSON.stringify(appState));
     }
