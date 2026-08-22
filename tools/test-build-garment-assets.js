@@ -284,3 +284,46 @@ assert.strictEqual(norm3[2], b.LUMA_CEIL, "lightest cloth pixel maps to the ceil
 assert.strictEqual(norm3[3], 0, "background is zeroed");
 
 console.log("PASS: normaliseLuminance (black lining maps near-black)");
+
+// --- normaliseLuminanceTwoTone: fixed absolute bands, not a per-photo stretch --
+//
+// Two synthetic "photos" of the same pattern, shot at different exposures
+// (one darker overall, one brighter) -- a plausible generation-to-generation
+// drift for an AI-produced photo. If this function just stretched each
+// photo's own range to fill a shared band (what normaliseLuminance does),
+// the ground/overlay split point would land somewhere different in each
+// photo. garment-photo.js's recolourPatternPhoto reads one FIXED midpoint
+// (both files agree it is 177 -- PATTERN_GROUND_REF 138 / PATTERN_OVERLAY_REF
+// 216 average) for every photo, so both must land their ground pixels near
+// PATTERN_GROUND_BAND and overlay pixels near PATTERN_OVERLAY_BAND regardless
+// of the source's own exposure.
+function twoToneFixture(groundLuma, overlayLuma) {
+    var w = 6, h = 1, px = new Uint8Array(w * h * 4);
+    // 4 ground pixels (with a little shading spread), 2 overlay pixels.
+    var vals = [groundLuma - 6, groundLuma - 2, groundLuma + 2, groundLuma + 6, overlayLuma - 4, overlayLuma + 4];
+    for (var i = 0; i < 6; i++) {
+        px[i * 4] = vals[i]; px[i * 4 + 1] = vals[i]; px[i * 4 + 2] = vals[i]; px[i * 4 + 3] = 255;
+    }
+    var mask = new Uint8Array([255, 255, 255, 255, 255, 255]);
+    return { px: px, mask: mask, w: w, h: h };
+}
+
+var dark = twoToneFixture(100, 170); // a darker-exposed generation
+var bright = twoToneFixture(140, 210); // a brighter-exposed generation
+
+var normDark = b.normaliseLuminanceTwoTone(dark.px, dark.mask, dark.w, dark.h);
+var normBright = b.normaliseLuminanceTwoTone(bright.px, bright.mask, bright.w, bright.h);
+
+function inBand(v, band) { return v >= band[0] - 1 && v <= band[1] + 1; }
+
+for (var gi = 0; gi < 4; gi++) {
+    assert.ok(inBand(normDark[gi], b.PATTERN_GROUND_BAND), "dark photo: ground pixel " + gi + " (" + normDark[gi] + ") lands in the ground band");
+    assert.ok(inBand(normBright[gi], b.PATTERN_GROUND_BAND), "bright photo: ground pixel " + gi + " (" + normBright[gi] + ") lands in the SAME ground band despite different source exposure");
+}
+for (var oi = 4; oi < 6; oi++) {
+    assert.ok(inBand(normDark[oi], b.PATTERN_OVERLAY_BAND), "dark photo: overlay pixel " + oi + " (" + normDark[oi] + ") lands in the overlay band");
+    assert.ok(inBand(normBright[oi], b.PATTERN_OVERLAY_BAND), "bright photo: overlay pixel " + oi + " (" + normBright[oi] + ") lands in the SAME overlay band despite different source exposure");
+}
+assert.ok(b.PATTERN_GROUND_BAND[1] < b.PATTERN_OVERLAY_BAND[0], "ground and overlay bands do not overlap");
+
+console.log("PASS: normaliseLuminanceTwoTone (fixed absolute bands survive exposure drift between photos)");

@@ -509,6 +509,204 @@ function applyLightingRig(ctx, canvas, mode) {
     ctx.restore();
 }
 
+// ---- Real-photo pattern rendering (Phase 1, August 2026) ----
+// The lapel/collar bend problem (see the long history in the comments
+// above and in docs/2026-08-*-*.md) was ultimately solved by photographing
+// the garment for real instead of procedurally displacing a flat tile —
+// but only once per PATTERN TYPE, not once per cloth: the founder's own
+// insight was to shoot every (weave, overlay) combination in one neutral
+// grey, then recolour it per-cloth at runtime. Checked against the actual
+// 117-cloth library, there are only 20 distinct combinations, against
+// WEAVE_GROUNDS x WEAVE_OVERLAYS's larger nominal grid.
+//
+// PATTERN_PHOTO_KEYS[garmentKey][weave + "-" + pattern] = true marks a
+// combination that has a real reference photo at
+// images/garments/<garmentKey>__<weave>-<pattern>.webp. Absent/false means
+// "no photo yet" — renderGarmentPhoto falls through to the existing
+// tile-composite path below, so adding entries here is the only step
+// needed to bring a pattern online once its asset lands (same self-healing
+// convention resolveGarmentKey/GARMENT_ASSET_KEYS already use).
+//
+// CLOSED (August 2026), left empty on purpose. Five genuinely different
+// classification approaches were tried and each failed for its own,
+// verified reason — this is a real signal-processing ceiling for a fine
+// pinstripe on a plain weave, not a bug worth chasing further:
+//   1. Global threshold on the photo's own luminance -- bisects light-side-
+//      of-a-fold from dark-side-of-a-fold, erasing the pattern (shading
+//      spans a far wider range than the actual ground/overlay gap).
+//   2. Local-contrast threshold on the photo -- fires on the photo's own
+//      fabric-grain noise instead of the pattern (confirmed by directly
+//      visualising the delta signal: pure blob noise, no periodic
+//      structure at any radius tried).
+//   3. Global threshold on the WebGL grey SEED the photo was generated
+//      from instead (tools/build-garment-assets.js's classifyFromSeed) --
+//      the seed is noise-free by construction, but a real 3D fold catches
+//      the mesh's key light at a different angle than the flat chest,
+//      swinging luma across a wide range there too; the lapel came out a
+//      flat, misclassified band.
+//   4/5. High-pass, then band-pass (high-pass + a second smoothing blur),
+//      on the seed -- correctly removes the fold's shading field, but even
+//      weave-engine's "plain" ground carries its own procedural grain at a
+//      spatial frequency close to the actual stripe pitch. No blur radius
+//      threads that needle: wide enough to suppress the grain also
+//      suppresses the real stripe (confirmed directly -- a binary
+//      majority-filter at radius 6-10 didn't clean up into stripes, it
+//      collapsed into one flat colour per garment region, the pattern
+//      erased along with the noise; radius 3 was still visibly noisy).
+// Any future attempt at this needs either a much bolder/higher-contrast
+// reference pattern (a new AI generation, not a code fix) or a
+// fundamentally different technique (real image registration between
+// seed and photo, or per-column period-matched extraction rather than a
+// spatial blur) -- not another threshold/radius tweak on this same
+// approach.
+var PATTERN_PHOTO_KEYS = {
+    "jacket-sb-peak-flap": {}
+};
+window.PATTERN_PHOTO_KEYS = PATTERN_PHOTO_KEYS;
+
+function patternPhotoKey(cloth) {
+    return cloth.weave + "-" + cloth.pattern;
+}
+
+function hasPatternPhoto(garmentKey, cloth) {
+    var set = PATTERN_PHOTO_KEYS[garmentKey];
+    return !!(set && set[patternPhotoKey(cloth)]);
+}
+
+// The reference photos are shot/rendered against two fixed neutral greys
+// (see garment-mesh.js's pilot render seeding and the asset-generation
+// brief) — ground #8a8a8a (138), overlay #d8d8d8 (216). Every other tone in
+// the photo is real shading (fold, AO, highlight) riding on one of those
+// two bands, not a third colour.
+var PATTERN_GROUND_REF = 138;
+var PATTERN_OVERLAY_REF = 216;
+
+var patternPhotoSources = {}; // raw reference photos, keyed by "<garmentKey>__<weave>-<pattern>"
+var patternPhotoRecoloured = {}; // recoloured results, keyed by "<garmentKey>::<clothKey>"
+
+function loadPatternPhoto(garmentKey, patternKey, onReady) {
+    var srcKey = garmentKey + "__" + patternKey;
+    if (patternPhotoSources[srcKey]) { onReady(patternPhotoSources[srcKey]); return; }
+    if ((garmentImageFailures[srcKey] || 0) >= GARMENT_LOAD_MAX_ATTEMPTS) return;
+    var src = "images/garments/" + srcKey + ".webp";
+    var img = new Image();
+    img.onload = function () { patternPhotoSources[srcKey] = img; onReady(img); };
+    img.onerror = function () {
+        garmentImageFailures[srcKey] = (garmentImageFailures[srcKey] || 0) + 1;
+        if (garmentImageFailures[srcKey] >= GARMENT_LOAD_MAX_ATTEMPTS) {
+            console.error("garment-photo: giving up on pattern photo after " + garmentImageFailures[srcKey] + " failed attempts: " + src);
+        }
+    };
+    img.src = src;
+}
+
+function hexToRgb(hex) {
+    var n = parseInt(hex.replace("#", ""), 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+// Recolours a neutral-grey reference photo into one cloth's actual ground/
+// overlay colours. Each pixel's luminance says which of the two bands it
+// belongs to (nearer PATTERN_GROUND_REF or PATTERN_OVERLAY_REF) and how far
+// real shading has pushed it off that band's flat value; the output scales
+// that band's target colour by the same ratio, so a fold or a highlight
+// stays a fold or a highlight under any cloth, not just the grey it was
+// shot in. This is a direct getImageData/putImageData map rather than a
+// composite-operation blend (this file's header notes the same "photograph's
+// luminance is the artwork" principle for the drape photos) because a
+// single multiply pass can't route two independent target colours off one
+// luminance channel — a duotone needs two reference points, not one.
+// A photographed (or, for pilot testing, procedurally rendered) cloth
+// carries THREE luminance signals at once: the coarse ground/overlay
+// duotone this function wants, real shading (fold, AO, highlight), and
+// fine weave-grain texture. An earlier version of this function classified
+// off a heavily downsampled-then-upsampled (box-blur) copy of the image to
+// separate the pattern from grain noise — necessary when it was tested
+// directly against a raw, unprocessed WebGL pilot render, where ground and
+// overlay were NOT yet cleanly separated. That's no longer the shape of
+// the input: tools/build-garment-assets.js's classifyFromSeed already does
+// the hard classification work once, at build time, using the noise-free
+// WebGL seed rather than the noisy photo (see that function's own history
+// for why) — the .webp this function loads has every pixel already pushed
+// into one of two well-separated bands (118-158 or 196-236, a wide empty
+// gap either side of PATTERN_GROUND_REF/PATTERN_OVERLAY_REF's midpoint).
+// Re-blurring an already-classified, already-bimodal image before
+// classifying again just smears real stripe edges across that gap and
+// re-introduces the same speckle it was meant to fix — confirmed visually
+// against the first real generation: removing the blur fixed a chest full
+// of salt-and-pepper misclassification. Classify directly off the loaded
+// image's own per-pixel luminance instead.
+function recolourPatternPhoto(img, cloth) {
+    var groundRgb = hexToRgb(cloth.ground);
+    var overlayRgb = cloth.overlay ? hexToRgb(cloth.overlay.colour) : groundRgb;
+    var mid = (PATTERN_GROUND_REF + PATTERN_OVERLAY_REF) / 2;
+
+    var out = document.createElement("canvas");
+    out.width = img.naturalWidth || img.width;
+    out.height = img.naturalHeight || img.height;
+    var octx = out.getContext("2d");
+    octx.drawImage(img, 0, 0);
+    var frame = octx.getImageData(0, 0, out.width, out.height);
+    var px = frame.data;
+
+    for (var i = 0; i < px.length; i += 4) {
+        if (px[i + 3] === 0) continue;
+        var lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+        var isOverlay = lum > mid;
+        var ref = isOverlay ? PATTERN_OVERLAY_REF : PATTERN_GROUND_REF;
+        var target = isOverlay ? overlayRgb : groundRgb;
+        var ratio = lum / ref;
+        px[i] = Math.max(0, Math.min(255, target.r * ratio));
+        px[i + 1] = Math.max(0, Math.min(255, target.g * ratio));
+        px[i + 2] = Math.max(0, Math.min(255, target.b * ratio));
+    }
+
+    octx.putImageData(frame, 0, 0);
+    return out;
+}
+
+function getRecolouredPatternPhoto(garmentKey, cloth) {
+    var cacheKey = garmentKey + "::" + cloth.key;
+    var cached = patternPhotoRecoloured[cacheKey];
+    if (cached) return cached;
+    var srcKey = garmentKey + "__" + patternPhotoKey(cloth);
+    var src = patternPhotoSources[srcKey];
+    if (!src) return null;
+    var result = recolourPatternPhoto(src, cloth);
+    patternPhotoRecoloured[cacheKey] = result;
+    return result;
+}
+
+// Loads (if needed) and draws the recoloured pattern photo, applying the
+// same lighting rig as the tile-composite path so the two remain visually
+// consistent under the "Study the Cloth" lighting options. Mirrors
+// loadGarmentImage's retry-then-re-render pattern: a cache miss kicks off
+// a load and returns false, and the caller (fabric-visualiser.js, already
+// written for the existing async photo path) re-renders when it's ready.
+function renderPatternPhoto(canvas, garmentKey, cloth, clothKey, lightingMode) {
+    var patternKey = patternPhotoKey(cloth);
+    var srcKey = garmentKey + "__" + patternKey;
+    if (!patternPhotoSources[srcKey]) {
+        loadPatternPhoto(garmentKey, patternKey, function () {
+            renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode);
+        });
+        return false;
+    }
+
+    var ctx = canvas.getContext("2d");
+    if (!ctx) {
+        console.error("garment-photo: canvas already claimed by a WebGL context, cannot fall back to 2D on this element");
+        return false;
+    }
+    var recoloured = getRecolouredPatternPhoto(garmentKey, cloth);
+    if (!recoloured) return false;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(recoloured, 0, 0, canvas.width, canvas.height);
+    applyLightingRig(ctx, canvas, lightingMode);
+    return true;
+}
+
 // Real-3D dispatch (garment-mesh.js, loaded after this file). Checked
 // FIRST and before any canvas.getContext("2d") call below — a canvas's
 // context type is fixed for its lifetime, so the mesh path must claim a
@@ -529,6 +727,18 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode) {
         // Any failure (WebGL unavailable, context loss, render error) falls
         // through to the photo-compositing path below rather than showing
         // a blank canvas — kiosk reliability over purity.
+    }
+
+    var cloth = findCloth(clothKey);
+    if (!cloth) return false;
+
+    // Real-photo pattern dispatch (Phase 1, August 2026) — checked before
+    // the tile-composite path below. Empty/absent entries in
+    // PATTERN_PHOTO_KEYS make this a no-op for every garment/pattern until
+    // a real photo actually lands, so this is safe to ship ahead of the
+    // assets themselves.
+    if (hasPatternPhoto(garmentKey, cloth)) {
+        return renderPatternPhoto(canvas, garmentKey, cloth, clothKey, lightingMode);
     }
 
     var img = garmentImages[garmentKey];
@@ -552,8 +762,6 @@ function renderGarmentPhoto(canvas, garmentKey, clothKey, lightingMode) {
     // 1. Cloth, tiled across the whole frame. drawClothTile paints a
     //    96x96 tile into a context; we build that tile once per cloth
     //    and repeat it as a pattern.
-    var cloth = findCloth(clothKey);
-    if (!cloth) return false;
     var tile = document.createElement("canvas");
     var s = clothTileScale(canvas);
     tile.width = 96 * s; tile.height = 96 * s;
