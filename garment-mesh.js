@@ -15,6 +15,18 @@
 // other garment keeps rendering exactly as it did before. See
 // renderGarmentPhoto's dispatch in garment-photo.js.
 //
+// DISABLED (August 2026): after several rounds of tuning this still read
+// as visibly synthetic ("flat piece") rather than photographic, and the
+// real-photo pattern approach explored afterward hit its own hard wall
+// (see docs/2026-08-22-pattern-photo-realism-prompts.md and
+// garment-photo.js's PATTERN_PHOTO_KEYS comment). The founder asked to
+// revert to the known-good 2D DISPLACEMENT_REGIONS path rather than keep
+// iterating. This file and vendor/three.min.js are no longer loaded
+// (removed from index.html/sw.js) — GARMENT_MESH_KEYS below is dead code
+// while that's true, kept only as a record of what was tried. Re-add the
+// two `<script>` tags to bring this back if a future attempt picks the
+// mesh approach back up.
+//
 // Load order: this file loads AFTER garment-photo.js (needs
 // JACKET_SB_PEAK_LAPELS / JACKET_SB_PEAK_TIPS as already-defined globals —
 // reusing the exact boundary data traced from the founder's flat-colour
@@ -140,13 +152,20 @@ function smoothedClip(poly) {
 // toward the interior of the lapel (the roll pushing the fabric toward the
 // viewer), rising further inside the peak-tip sub-zone (the sharp corner
 // this session spent so long on). Not a physics simulation and not claimed
-// to be metrically exact — informed by the angle differences already
-// measured this session (main lapel ~8 degrees, peak tip ~36 degrees
-// effective) converted to a plausible z-offset via basic trig, then
-// checked qualitatively against the founder's three-quarter reference
-// photo (see this session's plan doc) rather than guessed blind.
-var LAPEL_FOLD_DEPTH = 0.052;   // roughly canvas-width-fraction units
-var TIP_FOLD_DEPTH = 0.030;     // additional depth inside the peak-tip zone
+// to be metrically exact.
+//
+// Raised sharply from the original 0.052/0.030 (informed by trig off the
+// measured angle differences, ~2.5% of the frame height) after the
+// founder looked at the actual live render and called it correctly: it
+// read as flat regardless of how much shading/AO/lighting sat on top of
+// it, because the underlying geometry barely had any depth to shade.
+// Lighting and occlusion can sell a fold that's really there; they can't
+// invent volume that isn't. This is now a deliberately stylized depth for
+// visual conviction on an in-store demo, not a metrically accurate one —
+// consistent with this app's own stated framing of the visualiser as a
+// "wow"-factor experience, not a measurement tool.
+var LAPEL_FOLD_DEPTH = 0.15;    // roughly canvas-width-fraction units — was 0.052
+var TIP_FOLD_DEPTH = 0.09;      // additional depth inside the peak-tip zone — was 0.030
 // Tightened from 0.045 — the wider value let the pattern read as softened/
 // blurred well before it actually reached the roll line, since the fold's
 // z-depth (and so the texture's apparent compression) was ramping up too
@@ -222,7 +241,7 @@ function openingDepthT(fx, fy) {
     var distIn = half - Math.abs(fx - mid); // >0 inside, <0 outside
     return smoothstep(-OPENING_EDGE_MARGIN, OPENING_EDGE_MARGIN, distIn);
 }
-var OPENING_RECESS = 0.05;
+var OPENING_RECESS = 0.09; // raised alongside the lapel depth above, same reasoning
 var LINING_COLOR = [0.05, 0.05, 0.06];
 var FABRIC_COLOR = [1, 1, 1];
 
@@ -529,17 +548,39 @@ function buildButtons() {
     return group;
 }
 
-var _meshRendererCache = {}; // keyed by canvas, so repeated calls reuse the WebGL context
+// Tracks the single most recent renderer + the canvas it's bound to — NOT
+// a plain-object cache keyed by the canvas element. A plain object coerces
+// an object key to a string (every HTMLCanvasElement stringifies to the
+// same "[object HTMLCanvasElement]"), so `{}[canvas]` collides for every
+// canvas regardless of which one it actually is. That bug shipped in the
+// first version of this file: fabric-visualiser.js rebuilds the DOM (and
+// so the canvas element) on every render(), so the SECOND cloth a client
+// picked would silently reuse the FIRST render's renderer — still bound to
+// the first, now-detached canvas — and the visible (new) canvas never got
+// drawn to at all. Confirmed directly: switching cloths 3 times in one
+// session left the jacket blank from the second switch on, with no error,
+// no lost-context flag, nothing — `renderer.render()` was succeeding, just
+// against the wrong element. Fix: compare canvas identity directly (a
+// simple `===`, which plain-object string coercion can't do), and dispose
+// the old renderer when the canvas has actually changed — this also
+// closes a second, related problem the caching was trying (and failing)
+// to solve: without disposal, every cloth switch would have created a
+// brand new WebGL context and never freed the old one, eventually hitting
+// the browser's per-page context limit.
+var _meshRenderer = null;
+var _meshRendererCanvas = null;
 
 function renderGarmentMesh3D(canvas, garmentKey, clothKey, lightingMode) {
     if (typeof THREE === "undefined") return false;
     var cloth = (typeof findCloth === "function") ? findCloth(clothKey) : null;
     if (!cloth) return false;
 
-    var renderer = _meshRendererCache[canvas];
     try {
-        if (!renderer) {
-            renderer = new THREE.WebGLRenderer({
+        if (_meshRendererCanvas !== canvas) {
+            if (_meshRenderer) {
+                try { _meshRenderer.dispose(); } catch (disposeErr) { /* best effort */ }
+            }
+            _meshRenderer = new THREE.WebGLRenderer({
                 canvas: canvas,
                 alpha: true,
                 antialias: true,
@@ -549,12 +590,15 @@ function renderGarmentMesh3D(canvas, garmentKey, clothKey, lightingMode) {
                 // it, and the export comes out blank.
                 preserveDrawingBuffer: true
             });
-            _meshRendererCache[canvas] = renderer;
+            _meshRendererCanvas = canvas;
         }
     } catch (e) {
         console.error("garment-mesh: WebGL context creation failed, falling back to photo path", e);
+        _meshRenderer = null;
+        _meshRendererCanvas = null;
         return false;
     }
+    var renderer = _meshRenderer;
 
     try {
         renderer.setSize(canvas.width, canvas.height, false);
