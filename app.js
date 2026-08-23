@@ -3635,6 +3635,38 @@ function runMeasureMoment(label, done, ms) {
         "</span></div></div>";
     setTimeout(done, ms);
 }
+
+// A single reusable toast, appended to document.body rather than #app —
+// #app's innerHTML is fully replaced on every render() (see render()
+// itself), which would kill an in-flight toast if it lived inside that
+// tree, same reasoning the hotspot modal in fabric-visualiser.js
+// documents for its own body-level placement. Currently used only for
+// the Client ID confirmation (maybeSaveClientProfile's call site in
+// render()) but written generically since a second use is likely.
+var TOAST_DEFAULT_MS = 6000;
+var _toastTimer = null;
+
+function showToast(message, ms) {
+    var el = document.getElementById("bbs-toast");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "bbs-toast";
+        el.className = "bbs-toast";
+        el.setAttribute("role", "status");
+        el.setAttribute("aria-live", "polite");
+        el.setAttribute("data-action", "dismiss-toast");
+        document.body.appendChild(el);
+    }
+    el.textContent = message;
+    el.classList.remove("show");
+    void el.offsetWidth; // force reflow so re-adding .show retriggers the transition
+    el.classList.add("show");
+
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function () {
+        el.classList.remove("show");
+    }, ms || TOAST_DEFAULT_MS);
+}
 // ============================================
 // RENDER WELCOME
 // ============================================
@@ -5086,6 +5118,19 @@ function renderWorksheet() {
     html += '<h1>Your Personal Worksheet</h1>';
     html += '<p class="worksheet-intro">A considered checklist tailored to your <strong>' + archetype.name + '</strong> profile.</p></div>';
 
+    // A Client ID is generated the moment the first item is checked
+    // (maybeSaveClientProfile, called from render()) — this is the only
+    // place that ID stays visible on the screen where it was actually
+    // created, rather than only on the result screens it was originally
+    // wired to (getClientIdLineHTML). Absent until then, by design.
+    if (appState.clientId) {
+        html += '<div class="worksheet-client-id">' +
+            '<span class="worksheet-client-id-label">Your Client ID</span>' +
+            '<span class="worksheet-client-id-value">' + appState.clientId + '</span>' +
+            '<span class="worksheet-client-id-note">Keep this to pick up where you left off, or ask a stylist to look you up.</span>' +
+            '</div>';
+    }
+
     html += rulesHTML;
 
     html += '<div class="worksheet-progress-wrap">';
@@ -6355,7 +6400,16 @@ function applyScrollReveals() {
 }
 
 function render(options) {
+    var hadClientId = !!appState.clientId;
     if (typeof maybeSaveClientProfile === "function") maybeSaveClientProfile();
+    // maybeSaveClientProfile is silent by design (it only decides WHETHER
+    // to save) — this is the one place that transition from unset to set
+    // is visible, regardless of which screen or action triggered it, so
+    // it's the right place to confirm it to the client rather than
+    // threading a callback through every caller.
+    if (!hadClientId && appState.clientId && typeof showToast === "function") {
+        showToast("Client ID saved — " + appState.clientId);
+    }
 
     // 🌟 AUTO-SAVE TO IPAD MEMORY ON EVERY SCREEN CHANGE
     localStorage.setItem("bbs_session", JSON.stringify(appState));
@@ -6799,6 +6853,10 @@ document.body.addEventListener("click", function (e) {
                 render({ animate: true });
             });
         }
+    }
+    else if (action === "dismiss-toast") {
+        clearTimeout(_toastTimer);
+        target.classList.remove("show");
     }
     else if (action === "colour-back") {
         if (appState.colourStep > 0) { appState.colourStep--; render({ animate: false }); }

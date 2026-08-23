@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v143";
+var CACHE_VERSION = "bbs-v144";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=100",
+    "./styles.css?v=101",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -37,7 +37,7 @@ var PRECACHE = [
     "./vendor/firebase-app-compat.js",
     "./vendor/firebase-firestore-compat.js",
     "./firebase-init.js?v=3",
-    "./app.js?v=104",
+    "./app.js?v=105",
     "./fonts/eb-garamond-latin.woff2",
     "./fonts/eb-garamond-italic-latin.woff2",
     "./fonts/manrope-latin.woff2",

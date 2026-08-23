@@ -13555,3 +13555,89 @@ textarea:focus-visible,
 @media (prefers-reduced-motion: reduce) {
     .ds-bespoke-spec-sync-dot { animation: none !important; }
 }
+
+/* ============================================
+   CLIENT ID SURFACING — worksheet chip + a generic toast
+   ============================================
+   A Client ID used to be generated silently (maybeSaveClientProfile,
+   app.js) with no on-screen confirmation, and only ever displayed later
+   on a result screen the client might never revisit. These two pieces
+   fix that together: the chip is the persistent record on the worksheet
+   screen where the ID is actually created, the toast is the one-time
+   confirmation at the moment it happens. Touch-first: the toast itself
+   is tap-to-dismiss (data-action="dismiss-toast" in app.js), min 44px
+   effective hit area via its own padding.
+   ============================================ */
+
+.worksheet-client-id {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--bronze);
+    border-radius: 4px;
+    padding: 0.95rem 1.15rem;
+    margin: 0 0 1.6rem;
+}
+
+.worksheet-client-id-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bronze);
+}
+
+.worksheet-client-id-value {
+    font-family: "Manrope", sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.worksheet-client-id-note {
+    font-family: "EB Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.bbs-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translate(-50%, 12px);
+    max-width: min(90vw, 380px);
+    background: var(--text);
+    color: #f4f0e8;
+    border-left: 3px solid var(--bronze);
+    padding: 0.9rem 1.2rem;
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgba(17, 17, 16, 0.32);
+    font-family: "Manrope", sans-serif;
+    font-size: 0.86rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1500;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.bbs-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bbs-toast { transition: opacity 0.01ms linear; }
+}
