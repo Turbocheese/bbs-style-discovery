@@ -3499,6 +3499,51 @@ function navigateGuide(path) {
 function navigateWorksheet() {
     navigate("worksheet");
 }
+
+// Shared by both Staff Lookup restore paths -- a manual ID lookup
+// (staff-restore-session) and picking a name off the same-day list
+// (staff-today-restore, listTodaysClientProfiles in client-profile.js).
+// `profile` is the plain object shape both paths already produce:
+// clientId/clientName/styleArchetype/colourSeason/wardrobeChecklist/
+// selPalette/selClimate/savedEnsemble.
+function restoreClientSession(profile) {
+    appState.clientId = profile.clientId || "";
+    appState.clientName = profile.clientName || "";
+    appState.archetypeKey = profile.styleArchetype || null;
+    appState.colourResultKey = profile.colourSeason || null;
+    appState.wardrobeChecklist = profile.wardrobeChecklist || {};
+    appState.selPalette = profile.selPalette || "";
+    appState.selClimate = profile.selClimate || "";
+    if (profile.savedEnsemble) {
+        appState.visEnsembleState = profile.savedEnsemble;
+    }
+    appState.staffLookupResult = null;
+    appState.staffLookupError = null;
+    appState.showShareQR = false;
+
+    // Priority: an in-progress Worksheet is the most actionable thing to
+    // land on; failing that, a saved ensemble design is worth seeing over
+    // a bare result screen; failing that, the result itself is still a
+    // real destination (styleArchetype/colourSeason are always present for
+    // any client who ever got an ID at all).
+    var restoredHasChecked = Object.keys(appState.wardrobeChecklist).some(function (k) {
+        return appState.wardrobeChecklist[k] && appState.wardrobeChecklist[k].checked;
+    });
+    if (restoredHasChecked) {
+        navigateWorksheet();
+    } else if (profile.savedEnsemble) {
+        appState.visEnsemble = true;
+        appState.visCompare = false;
+        runMeasureMoment("Bringing back your design…", function () { navigate("fabric-visualiser"); }, 650);
+    } else {
+        // "result" has its own hard-coded back target (onboarding, see
+        // navigateBack()), not the history stack -- matching the same
+        // direct-assignment convention navigateDiscover() already uses to
+        // land on a completed result, rather than navigate().
+        appState.view = "result";
+        render({ animate: true });
+    }
+}
 function saveClientName(name) {
     var cleaned = (name || "").trim();
     if (!cleaned) return;
@@ -3815,6 +3860,7 @@ function renderStaffLookup() {
           "</div>" +
           errorHTML +
           (appState.staffLookupResult ? renderStaffLookupResult(appState.staffLookupResult) : "") +
+          renderStaffTodaysSaves() +
           "</div>"
         : '<div class="welcome-form-card">' +
           '<div class="welcome-form">' +
@@ -3837,17 +3883,55 @@ function renderStaffLookup() {
     );
 }
 
+// Scrolls to and briefly highlights the current session's own archetype
+// card rather than always landing on card 1 -- fires for ANY session with
+// an archetypeKey (a normal completed quiz, or one restored via Staff
+// Lookup), not gated to the restore flow specifically, since it's useful
+// either way. Called from both render() branches (animate/no-animate),
+// same pattern as initClothStudy() etc.
+function initArchetypeGallery() {
+    if (!appState.archetypeKey) return;
+    var card = document.querySelector('.gallery-card[data-key="' + appState.archetypeKey + '"]');
+    if (!card) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    card.classList.add("gallery-card--own");
+    setTimeout(function () { card.classList.remove("gallery-card--own"); }, 2200);
+}
+
+function renderStaffTodaysSaves() {
+    var list = appState.staffTodaysSaves;
+    if (!list || !list.length) return "";
+    var html = '<div class="staff-today-list">' +
+        '<div class="staff-today-label">Today’s clients</div>';
+    for (var i = 0; i < list.length; i++) {
+        var p = list[i];
+        html += '<button class="staff-today-row btn-bare" type="button" data-action="staff-today-restore" data-client-id="' +
+            (p.clientId || "") + '">' +
+            '<span class="staff-today-name">' + (p.clientName || "Client") + "</span>" +
+            '<span class="staff-today-meta">' + (p.styleArchetype || "") + "</span>" +
+            "</button>";
+    }
+    html += "</div>";
+    return html;
+}
+
 function renderStaffLookupResult(profile) {
     var checklist = profile.wardrobeChecklist || {};
     var checkedCount = Object.keys(checklist).filter(function (k) {
         return checklist[k] && checklist[k].checked;
     }).length;
+    var ensembleNote = profile.savedEnsemble ? '<p class="arch-result-secondary">A saved Cloth Room ensemble will also be restored.</p>' : "";
     return (
         '<div class="arch-card-wrap">' +
         '<div class="arch-style-card">' +
         '<div class="arch-card-persona">' + (profile.clientName || "Client") + "</div>" +
         '<div class="arch-card-persona-sub">' + (profile.styleArchetype || "") + " &middot; " + (profile.colourSeason || "") + "</div>" +
         '<p class="arch-result-secondary">' + checkedCount + " worksheet item(s) selected</p>" +
+        ensembleNote +
+        "</div>" +
+        '<div class="arch-secondary-actions">' +
+        '<button class="button-primary" data-action="staff-restore-session">Restore this session \u2192</button>' +
         "</div>" +
         "</div>"
     );
@@ -5847,6 +5931,18 @@ function renderTopic(node) {
         topicKindLabel = kindMap2[node.topic_kind] || node.topic_kind;
     }
 
+    // Every Mill Map pin carries the exact guidePath of its own guide
+    // topic (mill-map.js) -- a mill/merchant topic whose path matches one
+    // gets a direct link to its pin. No new tagging needed: the guidePath
+    // match IS the signal that this is a mill topic with a chart entry.
+    var millPin = typeof getMillPinByGuidePath === "function"
+        ? getMillPinByGuidePath(appState.guidePath)
+        : null;
+    var millMapLinkHTML = millPin
+        ? '<button class="topic-mill-map-link btn-bare" type="button" data-action="mill-map-focus" data-key="' +
+          millPin.key + '">See on the Provenance Chart \u2192</button>'
+        : "";
+
     return (
         '<div class="topic-shell">' +
         '<div class="breadcrumb" style="margin-bottom: 1.5rem;">' +
@@ -5860,7 +5956,9 @@ function renderTopic(node) {
         node.title +
         '</h1><p class="topic-intro-app">' +
         node.intro +
-        "</p></div>" +
+        "</p>" +
+        millMapLinkHTML +
+        "</div>" +
         metadataHTML +
         imageHTML +
         sectionsHTML +
@@ -6492,6 +6590,7 @@ function render(options) {
         if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
+        if (appState.view === "archetype-gallery" && typeof initArchetypeGallery === "function") initArchetypeGallery();
         if (appState.view === "welcome") {
             var immediateInput = document.getElementById("client-name-input");
             if (immediateInput) {
@@ -6526,6 +6625,7 @@ function render(options) {
         if (typeof initShareQR === "function") initShareQR();
         if (typeof initKineticTitles === "function") initKineticTitles();
         if (typeof initClothStudy === "function") initClothStudy();
+        if (appState.view === "archetype-gallery" && typeof initArchetypeGallery === "function") initArchetypeGallery();
         if (appState.view === "welcome") {
             var nameInput = document.getElementById("client-name-input");
             if (nameInput) {
@@ -7063,6 +7163,17 @@ document.body.addEventListener("click", function (e) {
         appState.visEnsemble = false;
         runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
     }
+    else if (action === "lookbook-explore-cloths") {
+        var exploreFacet = target.dataset.facet;
+        var exploreValue = target.dataset.value;
+        if (exploreFacet && exploreValue && typeof clearVisFilters === "function" && typeof toggleVisFilter === "function") {
+            clearVisFilters();
+            toggleVisFilter(exploreFacet, exploreValue);
+        }
+        appState.visCompare = false;
+        appState.visEnsemble = false;
+        runMeasureMoment("Unrolling the cloth…", function () { navigate("fabric-visualiser"); }, 650);
+    }
     else if (action === "archetype-gallery") {
         runMeasureMoment("Unfolding the archetypes…", function () {
             appState.galleryKey = null;
@@ -7074,7 +7185,12 @@ document.body.addEventListener("click", function (e) {
         runMeasureMoment("Charting the mills…", function () { navigate("mill-map"); }, 650);
     }
     else if (action === "mill-map-focus") {
-        var focusPin = getMillPinByName(target.dataset.mill);
+        // data-key (a pin's own key, e.g. from a guidePath match) is
+        // preferred over the older data-mill name lookup -- a key can't
+        // drift if a topic's title and a pin's display name ever diverge.
+        var focusPin = target.dataset.key
+            ? getMillPin(target.dataset.key)
+            : getMillPinByName(target.dataset.mill);
         mapResetState();
         if (focusPin) {
             _mapSelected = focusPin.key;
@@ -7200,6 +7316,12 @@ document.body.addEventListener("click", function (e) {
         staffSignIn(staffPw, function (ok, err) {
             target.disabled = false;
             appState.staffLookupError = ok ? null : err;
+            if (ok && typeof listTodaysClientProfiles === "function") {
+                listTodaysClientProfiles(function (list) {
+                    appState.staffTodaysSaves = list;
+                    render({ animate: false });
+                });
+            }
             render({ animate: false });
         });
     }
@@ -7210,10 +7332,25 @@ document.body.addEventListener("click", function (e) {
         target.disabled = true;
         staffLookupClient(lookupId, function (profile, err) {
             target.disabled = false;
+            // The Firestore document body doesn't carry its own document ID
+            // as a field -- stash it on the profile object so the restore
+            // action (staff-restore-session) knows which ID to hand back to
+            // the client, without threading a second piece of state.
+            if (profile) profile.clientId = lookupId;
             appState.staffLookupResult = profile;
             appState.staffLookupError = err;
             render({ animate: false });
         });
+    }
+    else if (action === "staff-restore-session") {
+        if (appState.staffLookupResult) restoreClientSession(appState.staffLookupResult);
+    }
+    else if (action === "staff-today-restore") {
+        var todayId = target.dataset.clientId;
+        var todaysList = appState.staffTodaysSaves || [];
+        for (var td = 0; td < todaysList.length; td++) {
+            if (todaysList[td].clientId === todayId) { restoreClientSession(todaysList[td]); break; }
+        }
     }
     else if (action === "dd-toggle") {
         // Open/close a filter dropdown in place — no re-render. The state is
@@ -7393,6 +7530,33 @@ document.body.addEventListener("click", function (e) {
     }
     else if (action === "vis-ens-share") {
         shareEnsemble(target.closest("button"));
+    }
+    else if (action === "vis-ens-save-profile") {
+        // The one path where a Client ID can be created from the Cloth
+        // Room rather than the Worksheet (maybeSaveClientProfile,
+        // client-profile.js) -- same generateClientId(), same
+        // saveClientProfile() PATCH (open write, offline-queued
+        // automatically). Note: this resends the whole profile document
+        // (Firestore's PATCH without an updateMask replaces it wholesale),
+        // so createdAt refreshes to now on every save rather than staying
+        // pinned to the client's very first save. Acceptable: it only
+        // drifts within the same visit, and preserving the original would
+        // need a read-before-write -- unauthenticated reads are blocked by
+        // the current Firestore rules (verified directly: GET on a client
+        // doc returns 403 PERMISSION_DENIED), so the client side has no
+        // way to fetch its own prior value back.
+        if (!appState.clientId && typeof generateClientId === "function") {
+            appState.clientId = generateClientId();
+        }
+        if (appState.clientId && typeof buildClientProfilePayload === "function" && typeof saveClientProfile === "function") {
+            var ensPayload = buildClientProfilePayload();
+            ensPayload.savedEnsemble = appState.visEnsembleState || {};
+            saveClientProfile(appState.clientId, ensPayload);
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            if (typeof showToast === "function") {
+                showToast("Ensemble saved to profile — " + appState.clientId);
+            }
+        }
     }
     else if (action === "bespoke-drawer-toggle") {
         appState.bespokeDrawerOpen = !appState.bespokeDrawerOpen;

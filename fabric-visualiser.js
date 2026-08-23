@@ -290,6 +290,28 @@ var PATTERN_TOPICS = {
     glen: ["fabrics", "suiting", "pattern_and_texture", "glen_check"]
 };
 
+// Reverse of WEAVE_TOPICS/PATTERN_TOPICS: given a guidePath (e.g. a
+// Lookbook look's own guidePath), find which Cloth Room facet+value it
+// names, if any. Derived from the same two maps, not new data -- a look
+// whose guidePath points at a garment-style topic ("safari",
+// "double_breasted", etc, the majority of them) simply has no match,
+// which is the correct "no guessing at fabric identity" behaviour.
+function getFacetForGuidePath(path) {
+    if (!path || !path.length) return null;
+    var joined = path.join("/");
+    for (var w in WEAVE_TOPICS) {
+        if (WEAVE_TOPICS.hasOwnProperty(w) && WEAVE_TOPICS[w].join("/") === joined) {
+            return { facet: "weave", value: w };
+        }
+    }
+    for (var p in PATTERN_TOPICS) {
+        if (PATTERN_TOPICS.hasOwnProperty(p) && PATTERN_TOPICS[p].join("/") === joined) {
+            return { facet: "pattern", value: p };
+        }
+    }
+    return null;
+}
+
 var WEAVE_TOPIC_LABELS = {
     plain: "Plain Weave", twill: "Twill", hopsack: "Hopsack",
     flannel: "Flannel", birdseye: "Birdseye", herringbone: "Herringbone"
@@ -391,6 +413,32 @@ function getFilteredCloths() {
     return out;
 }
 
+// How many cloths would be visible if this one value were selected on
+// this facet, given whatever's already active on every OTHER facet
+// (this facet's own current selection doesn't gate itself — the point is
+// "what would picking this option get you", not "what does it get you
+// combined with siblings in the same group", which OR-within-a-facet
+// already makes redundant). Reuses the same OR-within/AND-across logic
+// getFilteredCloths() already applies, just scoped to one candidate value.
+function countClothsForFacetValue(facetKey, value) {
+    var filters = getVisFilters();
+    var n = 0;
+    for (var i = 0; i < FABRIC_LIBRARY.length; i++) {
+        var cloth = FABRIC_LIBRARY[i];
+        if (getClothFacetValue(cloth, facetKey) !== value) continue;
+        var keep = true;
+        for (var f = 0; f < VIS_FACETS.length; f++) {
+            var otherFacet = VIS_FACETS[f].key;
+            if (otherFacet === facetKey) continue;
+            var chosen = filters[otherFacet];
+            if (!chosen.length) continue;
+            if (chosen.indexOf(getClothFacetValue(cloth, otherFacet)) === -1) { keep = false; break; }
+        }
+        if (keep) n++;
+    }
+    return n;
+}
+
 // Cloth Room — Surprise Me. Picks `count` distinct cloths from `cloths`,
 // preferring ones not in `excludeKeys` so a tap always changes what's
 // showing. Falls back to the full pool if excluding leaves too few to
@@ -465,9 +513,10 @@ function getVisFilterBarHTML() {
             chosen.length === 0, "Any " + facet.label.toLowerCase());
         for (var c = 0; c < values.length; c++) {
             var on = chosen.indexOf(values[c]) !== -1;
+            var optCount = countClothsForFacetValue(facet.key, values[c]);
             opts += getDropdownOptHTML("vis-filter",
                 'data-facet="' + facet.key + '" data-value="' + values[c] + '"',
-                on, facetValueLabel(facet.key, values[c]));
+                on, facetValueLabel(facet.key, values[c]) + " (" + optCount + ")");
         }
         var valText = chosen.length === 0 ? "Any" :
             (chosen.length === 1 ? facetValueLabel(facet.key, chosen[0]) : chosen.length + " chosen");
@@ -2302,6 +2351,7 @@ function renderClothEnsemble(recommended, surpriseFlash) {
             ? '<div class="ds-actions">' +
               '<button class="arch-btn-fill" data-action="vis-ens-export">Export Design Spec</button>' +
               '<button class="arch-btn-stroke" data-action="vis-ens-share">Share to Phone</button>' +
+              '<button class="arch-btn-stroke" data-action="vis-ens-save-profile">Save to My Profile</button>' +
               "</div>"
             : "") +
         "</div>"

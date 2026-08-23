@@ -449,13 +449,24 @@
     }
     function startWeb(cv, cloth, nameEl) {
         var d = fit(cv, 200), ctx = d.ctx, W = d.w, H = d.h;
-        var pairs = pairsFor(cloth), anim = 0, raf = 0;
+        var pairs = pairsFor(cloth), anim = 0, raf = 0, hoverIndex = -1;
+        var HIT_RADIUS = 18; // shared by pointerdown's tap-to-select and pointermove's hover ring
         function layout() { d = fit(cv, 200); ctx = d.ctx; W = d.w; H = d.h; var cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.34; for (var i = 0; i < pairs.length; i++) { var a = -Math.PI / 2 + (pairs.length === 1 ? 0.6 : i / Math.max(1, pairs.length - 1) - 0.5) * 2.2; pairs[i]._x = cx + Math.cos(a) * R; pairs[i]._y = cy + Math.sin(Math.abs(a) * 0.9) * R * 0.62 + R * 0.15; } window.__cwCx = cx; window.__cwCy = cy; }
         function draw() {
             ctx.clearRect(0, 0, W, H);
             var cx = window.__cwCx, cy = window.__cwCy;
             for (var k = 0; k < pairs.length; k++) { var o = pairs[k], mx = cx + (o._x - cx) * anim, my = cy + (o._y - cy) * anim; ctx.strokeStyle = "rgba(154,122,62," + (0.25 + 0.35 * anim) + ")"; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(mx, my); ctx.stroke(); }
-            for (var i = 0; i < pairs.length; i++) { var p = pairs[i], mx2 = cx + (p._x - cx) * anim, my2 = cy + (p._y - cy) * anim; ctx.globalAlpha = 0.35 + 0.65 * anim; ctx.beginPath(); ctx.arc(mx2, my2, 16, 0, 7); ctx.fillStyle = p.ground || "#888"; ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = "rgba(154,122,62,0.55)"; ctx.stroke(); ctx.globalAlpha = 1; }
+            for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i], mx2 = cx + (p._x - cx) * anim, my2 = cy + (p._y - cy) * anim;
+                // A faint ring around whichever node the pointer is nearest,
+                // so the tap-to-jump interaction (pointerdown below) reads as
+                // intentional rather than a hidden easter egg.
+                if (i === hoverIndex) {
+                    ctx.beginPath(); ctx.arc(mx2, my2, 21, 0, 7);
+                    ctx.lineWidth = 2; ctx.strokeStyle = "rgba(154,122,62,0.9)"; ctx.stroke();
+                }
+                ctx.globalAlpha = 0.35 + 0.65 * anim; ctx.beginPath(); ctx.arc(mx2, my2, 16, 0, 7); ctx.fillStyle = p.ground || "#888"; ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = "rgba(154,122,62,0.55)"; ctx.stroke(); ctx.globalAlpha = 1;
+            }
             ctx.beginPath(); ctx.arc(cx, cy, 24, 0, 7); ctx.fillStyle = cloth.ground || "#555"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = "#715825"; ctx.stroke();
             if (nameEl) nameEl.textContent = pairs.length ? pairs[0].name : cloth.name;
         }
@@ -463,9 +474,26 @@
         layout();
         function run() { anim = reduce ? 1 : 0; cancelAnimationFrame(raf); (function step() { anim = Math.min(1, anim + 0.08); draw(); if (anim < 1 && !reduce) raf = requestAnimationFrame(step); })(); }
         run();
+        function nearestPairIndex(gx, gy) {
+            for (var i = 0; i < pairs.length; i++) {
+                if (Math.hypot(pairs[i]._x - gx, pairs[i]._y - gy) < HIT_RADIUS) return i;
+            }
+            return -1;
+        }
         cv.addEventListener("pointerdown", function (e) {
             var r = cv.getBoundingClientRect(), gx = e.clientX - r.left, gy = e.clientY - r.top;
-            for (var i = 0; i < pairs.length; i++) { if (Math.hypot(pairs[i]._x - gx, pairs[i]._y - gy) < 18) { appState.visFabricKey = pairs[i].key; if (typeof render === "function") render(); break; } }
+            var hit = nearestPairIndex(gx, gy);
+            if (hit !== -1) { appState.visFabricKey = pairs[hit].key; if (typeof render === "function") render(); }
+        });
+        cv.addEventListener("pointermove", function (e) {
+            var r = cv.getBoundingClientRect(), gx = e.clientX - r.left, gy = e.clientY - r.top;
+            var hit = nearestPairIndex(gx, gy);
+            cv.style.cursor = hit !== -1 ? "pointer" : "default";
+            if (hit !== hoverIndex) { hoverIndex = hit; draw(); }
+        });
+        cv.addEventListener("pointerleave", function () {
+            cv.style.cursor = "default";
+            if (hoverIndex !== -1) { hoverIndex = -1; draw(); }
         });
     }
 

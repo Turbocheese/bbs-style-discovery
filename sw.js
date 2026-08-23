@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v144";
+var CACHE_VERSION = "bbs-v145";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=101",
+    "./styles.css?v=102",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -24,20 +24,20 @@ var PRECACHE = [
     "./attract-shader.js?v=3",
     "./weave-engine.js?v=3",
     "./garment-photo.js?v=30",
-    "./fabric-visualiser.js?v=34",
-    "./cloth-study.js?v=6",
+    "./fabric-visualiser.js?v=35",
+    "./cloth-study.js?v=7",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",
-    "./mill-map.js?v=8",
+    "./mill-map.js?v=9",
     "./vendor/html2canvas.min.js",
     "./vendor/jspdf.umd.min.js",
     "./vendor/qrcode.min.js",
     "./share-qr.js?v=2",
-    "./client-profile.js?v=3",
+    "./client-profile.js?v=4",
     "./vendor/firebase-app-compat.js",
     "./vendor/firebase-firestore-compat.js",
     "./firebase-init.js?v=3",
-    "./app.js?v=105",
+    "./app.js?v=106",
     "./fonts/eb-garamond-latin.woff2",
     "./fonts/eb-garamond-italic-latin.woff2",
     "./fonts/manrope-latin.woff2",

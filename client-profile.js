@@ -168,6 +168,14 @@ function buildClientProfilePayload() {
         styleArchetype: appState.archetypeKey || "",
         colourSeason: appState.colourResultKey || "",
         wardrobeChecklist: appState.wardrobeChecklist || {},
+        // selPalette/selClimate: not needed to identify the client, but the
+        // Worksheet reads both when rendering (the "your neutrals" cue and
+        // per-item colour chips) -- without them a restored session's
+        // worksheet loses that cosmetic detail. Additive field: an older
+        // saved doc without them just restores blank, which the worksheet
+        // already tolerates.
+        selPalette: appState.selPalette || "",
+        selClimate: appState.selClimate || "",
         createdAt: new Date().toISOString()
     };
 }
@@ -237,6 +245,49 @@ function staffLookupClient(clientId, onDone) {
         });
     }).catch(function () {
         onDone(null, "Could not reach the server.");
+    });
+}
+
+// Lists today's saved clients for the Staff view -- a plain collection GET,
+// filtered and sorted client-side, rather than a Firestore structured
+// query (:runQuery). A boutique's daily client count is small enough that
+// pageSize=300 comfortably covers a single day without pagination, and
+// this avoids the composite-index requirement a WHERE+ORDER BY structured
+// query would need. Same auth (staff Bearer token) as staffLookupClient --
+// listing is exactly the "browse without knowing an ID" case the sign-in
+// gate exists for.
+function listTodaysClientProfiles(onDone) {
+    if (!_staffIdToken) { onDone([], "Not signed in."); return; }
+    var config = (typeof getFirebaseConfig === "function") ? getFirebaseConfig() : null;
+    if (!config) { onDone([], "Not connected."); return; }
+    var url = "https://firestore.googleapis.com/v1/projects/" + config.projectId +
+        "/databases/(default)/documents/clients?pageSize=300";
+    fetch(url, {
+        headers: { "Authorization": "Bearer " + _staffIdToken }
+    }).then(function (res) {
+        if (!res.ok) { onDone([], "Could not reach the server."); return; }
+        return res.json().then(function (data) {
+            var docs = data.documents || [];
+            var todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            var todays = [];
+            for (var i = 0; i < docs.length; i++) {
+                var doc = docs[i];
+                var profile = fromFirestoreDocument(doc);
+                if (typeof profile.createdAt !== "string" || profile.createdAt.slice(0, 10) !== todayStr) continue;
+                // doc.name is the full resource path
+                // (projects/.../documents/clients/BBS-XXXXXX) -- the
+                // document body itself carries no ID field, same reasoning
+                // app.js's staff-lookup-submit handler stashes lookupId
+                // onto the profile object.
+                var parts = (doc.name || "").split("/");
+                profile.clientId = parts[parts.length - 1] || "";
+                todays.push(profile);
+            }
+            todays.sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
+            onDone(todays, null);
+        });
+    }).catch(function () {
+        onDone([], "Could not reach the server.");
     });
 }
 

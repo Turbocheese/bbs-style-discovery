@@ -220,6 +220,22 @@ function getMillPinByName(name) {
     return null;
 }
 
+// Every pin already carries the exact guidePath of its own guide topic
+// (e.g. ["cloth_origins", "suiting", "english", "huddersfield"]) -- a more
+// reliable match for "does this topic have a pin" than name-matching
+// (getMillPinByName), since it can't drift if a topic's title and a pin's
+// display name ever diverge. Used by discovery-ui.js to decide whether a
+// mill/merchant guide topic gets a "See on the Provenance Chart" link.
+function getMillPinByGuidePath(path) {
+    if (!path || !path.length) return null;
+    var joined = path.join("/");
+    for (var i = 0; i < MILL_MAP_PINS.length; i++) {
+        var p = MILL_MAP_PINS[i];
+        if (p.guidePath && p.guidePath.join("/") === joined) return p;
+    }
+    return null;
+}
+
 // ---- SVG builders ----
 
 function mapCoastPath(poly) {

@@ -789,6 +789,20 @@ function getLookbookCategoryFilter() {
     return c && c !== "all" ? c : "all";
 }
 
+// A look whose guidePath happens to name a specific weave/pattern (not
+// every look does -- most point at a garment-style topic instead) gets a
+// direct handoff into the Cloth Room, pre-filtered to that one facet.
+// getFacetForGuidePath (fabric-visualiser.js) is the reverse of the same
+// WEAVE_TOPICS/PATTERN_TOPICS maps the Cloth Room already uses to link a
+// cloth card back to its own weave/pattern guide topic -- no new data.
+function getLookExploreClothsHTML(item) {
+    if (typeof getFacetForGuidePath !== "function") return "";
+    var facetMatch = getFacetForGuidePath(item.guidePath);
+    if (!facetMatch) return "";
+    return '<button class="flip-back-link flip-back-link--cloths" data-action="lookbook-explore-cloths" data-facet="' +
+        facetMatch.facet + '" data-value="' + facetMatch.value + '">Explore similar cloths \u2192</button>';
+}
+
 function renderLookbook() {
     var filter = getLookbookFilter();
     var categoryFilter = getLookbookCategoryFilter();
@@ -870,6 +884,7 @@ function renderLookbook() {
             '<p class="flip-back-note">' + item.note + "</p>" +
             '<button class="flip-back-link" data-action="result-link" data-path=\'' +
             JSON.stringify(item.guidePath) + "'>" + item.guideLabel + " &rarr;</button>" +
+            getLookExploreClothsHTML(item) +
             '<div class="flip-hint" aria-hidden="true">Turn back</div>' +
             "</div>" +
             "</div>" +
