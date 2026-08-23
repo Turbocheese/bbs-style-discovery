@@ -347,6 +347,17 @@ button:disabled {
     align-items: flex-start;
     gap: 4px;
     margin-bottom: 3.5rem;
+    /* This is the staff double-tap reset target (app.js's delegated
+       click handler counts taps here to wipe the session between
+       clients). A real double-tap on visible text is vulnerable to the
+       browser's native text-selection gesture intercepting the second
+       tap before it reaches the click handler — verified directly: a
+       realistic double-click 100ms apart failed to register as two taps
+       without this, even though a synthetic double dispatchEvent worked
+       fine. user-select: none removes that race. */
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
 }
 
 .bbs-logo-image {
@@ -363,6 +374,8 @@ button:disabled {
     text-transform: uppercase;
     color: var(--muted);
     display: block;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* ============================================
@@ -11245,10 +11258,24 @@ textarea:focus-visible,
     color: var(--text);
 }
 
-/* Same specificity trap as the look cards, the tape and the globe:
-   a bare button:hover sets a dark background and outranks a class. */
+/* Same specificity trap as the look cards, the tape and the globe --
+   button:hover:not(.btn-bare) (specificity 0,2,1) sets a dark background
+   and outranked this class-only override (0,2,0) on plain mouse hover;
+   these buttons were missing the .btn-bare class entirely (now added in
+   fabric-visualiser.js), which is what actually disqualifies the trap,
+   not this block. On a touch device the equivalent trap is
+   `@media(hover:none) button:active` (0,1,1, no .btn-bare guard) --
+   :hover/:focus alone don't cover a tap, so a real touch left this card
+   permanently black (no unpress event un-sticks it the way a mouse's
+   hover-then-leave does), text unreadable since .sel only recolors the
+   tag to var(--text), never to something visible on this dark trap. This
+   block's :active clause is what beats that one on specificity (0,2,0 >
+   0,1,1) -- .btn-bare alone doesn't cover :active, so both pieces (the
+   class in the markup and this override) are needed together, matching
+   this file's own established .btn-bare + explicit-override pattern. */
 .vis-split-side:hover,
-.vis-split-side:focus {
+.vis-split-side:focus,
+.vis-split-side:active {
     background: var(--surface) !important;
     border-color: var(--line-strong) !important;
 }

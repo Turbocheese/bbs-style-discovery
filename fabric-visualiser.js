@@ -721,11 +721,11 @@ function renderClothCompare(aKey, recommended, surpriseFlash) {
 
         // Which side the next swatch tap dresses.
         '<div class="vis-split-sides">' +
-        '<button class="vis-split-side' + (side === "a" ? " sel" : "") + '" data-action="vis-side" data-side="a">' +
+        '<button class="vis-split-side btn-bare' + (side === "a" ? " sel" : "") + '" data-action="vis-side" data-side="a">' +
         '<span class="vis-split-side-tag">Left</span>' +
         '<span class="vis-split-side-name">' + a.name + "</span>" +
         "</button>" +
-        '<button class="vis-split-side' + (side === "b" ? " sel" : "") + '" data-action="vis-side" data-side="b">' +
+        '<button class="vis-split-side btn-bare' + (side === "b" ? " sel" : "") + '" data-action="vis-side" data-side="b">' +
         '<span class="vis-split-side-tag">Right</span>' +
         '<span class="vis-split-side-name">' + b.name + "</span>" +
         "</button>" +

@@ -457,7 +457,7 @@
             for (var k = 0; k < pairs.length; k++) { var o = pairs[k], mx = cx + (o._x - cx) * anim, my = cy + (o._y - cy) * anim; ctx.strokeStyle = "rgba(154,122,62," + (0.25 + 0.35 * anim) + ")"; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(mx, my); ctx.stroke(); }
             for (var i = 0; i < pairs.length; i++) { var p = pairs[i], mx2 = cx + (p._x - cx) * anim, my2 = cy + (p._y - cy) * anim; ctx.globalAlpha = 0.35 + 0.65 * anim; ctx.beginPath(); ctx.arc(mx2, my2, 16, 0, 7); ctx.fillStyle = p.ground || "#888"; ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = "rgba(154,122,62,0.55)"; ctx.stroke(); ctx.globalAlpha = 1; }
             ctx.beginPath(); ctx.arc(cx, cy, 24, 0, 7); ctx.fillStyle = cloth.ground || "#555"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = "#715825"; ctx.stroke();
-            if (nameEl) nameEl.textContent = cloth.name;
+            if (nameEl) nameEl.textContent = pairs.length ? pairs[0].name : cloth.name;
         }
         var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         layout();

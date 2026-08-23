@@ -3497,8 +3497,7 @@ function navigateGuide(path) {
     navigate("guide", { guidePath: path });
 }
 function navigateWorksheet() {
-    appState.view = "worksheet";
-    render({ animate: true });
+    navigate("worksheet");
 }
 function saveClientName(name) {
     var cleaned = (name || "").trim();
