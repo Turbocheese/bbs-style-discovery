@@ -692,14 +692,29 @@ var VIS_SINGLE_GARMENTS = [
     { key: "jacket", garment: "jacket", label: "Jacket", dressesLead: "The jacket dresses itself the moment you choose.", compareLead: "One jacket", style: { closure: "sb" } },
     { key: "vest", garment: "vest", label: "Waistcoat", dressesLead: "The waistcoat dresses itself the moment you choose.", compareLead: "One waistcoat", style: { closure: "sb", lapel: "none" } },
     { key: "trousers", garment: "trousers", label: "Trousers", dressesLead: "The trousers dress themselves the moment you choose.", compareLead: "A pair of trousers", style: { style: "flat" } },
-    // Casual jackets (23 Aug 2026) — photos not generated yet, so these
-    // resolve to a key absent from GARMENT_ASSET_KEYS today. getVisGarmentHasPhoto
-    // gates the stage on that and shows a "coming soon" card instead of a
-    // broken canvas; self-heals the moment each photo lands and joins
-    // GARMENT_ASSET_KEYS, same as every other self-healing key in this file.
-    { key: "safari", garment: "jacket", label: "Safari Jacket", dressesLead: "The safari jacket dresses itself the moment you choose.", compareLead: "One safari jacket", style: { closure: "safari" } },
-    { key: "chore", garment: "jacket", label: "Chore Jacket", dressesLead: "The chore jacket dresses itself the moment you choose.", compareLead: "One chore jacket", style: { closure: "chore" } }
+    // Casual jackets (23-24 Aug 2026) — `casual: true` pulls these out of
+    // the top-level row into a second-tier picker under a single "Casual
+    // Jacket" chip (see getVisGarmentPickerHTML). A photo not yet
+    // generated resolves to a key absent from GARMENT_ASSET_KEYS;
+    // getVisGarmentHasPhoto gates the stage on that and shows a "coming
+    // soon" card instead of a broken canvas — self-heals the moment each
+    // photo lands and joins GARMENT_ASSET_KEYS, same as every other
+    // self-healing key in this file.
+    { key: "safari", garment: "jacket", casual: true, label: "Safari Jacket", dressesLead: "The safari jacket dresses itself the moment you choose.", compareLead: "One safari jacket", style: { closure: "safari" } },
+    { key: "chore", garment: "jacket", casual: true, label: "Chore Jacket", dressesLead: "The chore jacket dresses itself the moment you choose.", compareLead: "One chore jacket", style: { closure: "chore" } },
+    { key: "a2", garment: "jacket", casual: true, label: "A2 Flight Jacket", dressesLead: "The A2 flight jacket dresses itself the moment you choose.", compareLead: "One A2 flight jacket", style: { closure: "a2" } },
+    { key: "trucker", garment: "jacket", casual: true, label: "Trucker Jacket", dressesLead: "The trucker jacket dresses itself the moment you choose.", compareLead: "One trucker jacket", style: { closure: "trucker" } },
+    { key: "teba", garment: "jacket", casual: true, label: "Teba Jacket", dressesLead: "The teba jacket dresses itself the moment you choose.", compareLead: "One teba jacket", style: { closure: "teba" } }
 ];
+
+// Everything with casual:true, in menu order.
+function getVisCasualGarments() {
+    var out = [];
+    for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
+        if (VIS_SINGLE_GARMENTS[i].casual) out.push(VIS_SINGLE_GARMENTS[i]);
+    }
+    return out;
+}
 
 function getVisGarmentEntry(garmentKey) {
     for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
@@ -718,10 +733,100 @@ function getVisGarmentKey() {
     return "jacket";
 }
 
+// Lapel/pocket (jacket) and make/waistband (trousers) customisation for
+// the Cloth Room's own single-cloth screen (23 Aug 2026) — previously
+// these choices only existed inside the Ensemble builder's Bespoke Spec
+// drawer, so a client browsing one garment at a time could never reach
+// jacket-sb-notch-patch, jacket-sb-peak-*, or a double-pleat/side-adjuster
+// trouser at all. Reuses BESPOKE_SPEC_OPTIONS/VIS_ENS_STYLE_OPTIONS
+// directly rather than a parallel data set, and only offers a panel for
+// jacket/trousers — vest/safari/chore have no spec options defined, so
+// getVisCustomizeHTML returns "" for them, matching "related garments
+// only". Trousers deliberately exposes "make" (VIS_ENS_STYLE_OPTIONS'
+// flat/double/belt, which is what actually selects the base photo) rather
+// than BESPOKE_SPEC_OPTIONS.trousers.pleat — that field is real order-form
+// detail but doesn't drive resolveGarmentKey at all (see that function's
+// own comment), so surfacing it here as a live, tappable control would
+// silently do nothing, which is fine buried in the Ensemble drawer but
+// would read as broken on a screen that re-renders on every tap.
+function getVisCustomState() {
+    if (!appState.visCustom || typeof appState.visCustom !== "object") appState.visCustom = {};
+    var c = appState.visCustom;
+    if (!c.jacket || typeof c.jacket !== "object") c.jacket = { lapelStyle: "notch", pockets: "flap" };
+    if (!c.trousers || typeof c.trousers !== "object") c.trousers = { make: "flat", waistband: "beltLoops" };
+    // Scrub any persisted value that no longer matches an offered option.
+    if (!ensSpecValueAllowed("jacket", "lapelStyle", c.jacket.lapelStyle)) c.jacket.lapelStyle = "notch";
+    if (!ensSpecValueAllowed("jacket", "pockets", c.jacket.pockets)) c.jacket.pockets = "flap";
+    if (!ensStyleValueAllowed("trousers", "style", c.trousers.make)) c.trousers.make = "flat";
+    if (!ensSpecValueAllowed("trousers", "waistband", c.trousers.waistband)) c.trousers.waistband = "beltLoops";
+    return c;
+}
+
+function getVisGarmentStyleSpec(garmentKey) {
+    var entry = getVisGarmentEntry(garmentKey);
+    if (garmentKey === "jacket") {
+        var cj = getVisCustomState().jacket;
+        return { style: entry.style, spec: { lapelStyle: cj.lapelStyle, pockets: cj.pockets } };
+    }
+    if (garmentKey === "trousers") {
+        var ct = getVisCustomState().trousers;
+        // A side-adjuster waistband only has a photo on top of the flat/
+        // double bases — belt-loop trousers already have loops, a
+        // waistband spec on that base wouldn't mean anything.
+        var spec = (ct.make === "flat" || ct.make === "double") ? { waistband: ct.waistband } : null;
+        return { style: { style: ct.make }, spec: spec };
+    }
+    return { style: entry.style, spec: null };
+}
+
 function getVisSingleGarmentPhotoKey(garmentKey) {
     var entry = getVisGarmentEntry(garmentKey);
-    var key = typeof resolveGarmentKey === "function" ? resolveGarmentKey(entry.garment, entry.style) : null;
+    var ss = getVisGarmentStyleSpec(garmentKey);
+    var key = typeof resolveGarmentKey === "function" ? resolveGarmentKey(entry.garment, ss.style, ss.spec) : null;
     return key || "jacket-sb";
+}
+
+function getVisCustomGroupHTML(garment, groupKey, groupLabel, opts, current) {
+    var html =
+        '<div class="ds-bespoke-group vis-bespoke-group">' +
+        '<div class="ds-bespoke-group-head"><div class="ds-bespoke-group-label">' + groupLabel + "</div></div>" +
+        '<div class="ds-bespoke-opts">';
+    for (var i = 0; i < opts.length; i++) {
+        var sel = opts[i].key === current;
+        html +=
+            '<button class="ds-bespoke-opt btn-bare' + (sel ? " sel" : "") +
+            '" type="button" data-action="vis-custom-select" data-garment="' + garment +
+            '" data-group="' + groupKey + '" data-value="' + opts[i].key +
+            '" aria-pressed="' + (sel ? "true" : "false") + '">' +
+            '<span class="ds-bespoke-opt-label">' + opts[i].label + "</span>" +
+            (opts[i].detail ? '<span class="ds-bespoke-opt-detail">' + opts[i].detail + "</span>" : "") +
+            "</button>";
+    }
+    html += "</div></div>";
+    return html;
+}
+
+function getVisCustomizeHTML(garmentKey) {
+    if (garmentKey === "jacket") {
+        var cj = getVisCustomState().jacket;
+        return (
+            '<div class="vis-customize">' +
+            getVisCustomGroupHTML("jacket", "lapelStyle", "Lapel", BESPOKE_SPEC_OPTIONS.jacket.lapelStyle, cj.lapelStyle) +
+            getVisCustomGroupHTML("jacket", "pockets", "Pockets", BESPOKE_SPEC_OPTIONS.jacket.pockets, cj.pockets) +
+            "</div>"
+        );
+    }
+    if (garmentKey === "trousers") {
+        var ct = getVisCustomState().trousers;
+        var html = '<div class="vis-customize">' +
+            getVisCustomGroupHTML("trousers", "make", "Make", VIS_ENS_STYLE_OPTIONS.trousers.style, ct.make);
+        if (ct.make === "flat" || ct.make === "double") {
+            html += getVisCustomGroupHTML("trousers", "waistband", "Waistband", BESPOKE_SPEC_OPTIONS.trousers.waistband, ct.waistband);
+        }
+        html += "</div>";
+        return html;
+    }
+    return "";
 }
 
 // False until the photo actually lands in GARMENT_ASSET_KEYS — lets the
@@ -747,15 +852,39 @@ function getVisGarmentCanvasWidth(garmentKey) {
     return garmentKey === "trousers" ? 1073 : 1289;
 }
 
+// Two-tier picker (24 Aug 2026): Jacket / Casual Jacket / Waistcoat /
+// Trousers at the top, then — only once "Casual Jacket" is active — a
+// second row for which casual style (Safari/Chore/A2/Trucker/Teba).
+// Casual jacket count was going to keep growing past a flat row of
+// chips fitting comfortably, so it gets its own level rather than
+// competing with Jacket/Waistcoat/Trousers for top-row space.
 function getVisGarmentPickerHTML() {
     var active = getVisGarmentKey();
+    var activeEntry = getVisGarmentEntry(active);
+    var activeIsCasual = !!activeEntry.casual;
+    var casualGarments = getVisCasualGarments();
+    var casualTarget = activeIsCasual ? active : (casualGarments.length ? casualGarments[0].key : "safari");
+
     var html = '<div class="vis-garment-picker">';
-    for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
-        var g = VIS_SINGLE_GARMENTS[i];
-        html += '<button class="vis-garment-chip' + (g.key === active ? " sel" : "") + '" type="button"' +
-            ' data-action="vis-garment-pick" data-garment="' + g.key + '">' + g.label + "</button>";
-    }
+    html += '<button class="vis-garment-chip' + (!activeIsCasual && active === "jacket" ? " sel" : "") + '" type="button"' +
+        ' data-action="vis-garment-pick" data-garment="jacket">Jacket</button>';
+    html += '<button class="vis-garment-chip' + (activeIsCasual ? " sel" : "") + '" type="button"' +
+        ' data-action="vis-garment-pick" data-garment="' + casualTarget + '">Casual Jacket</button>';
+    html += '<button class="vis-garment-chip' + (active === "vest" ? " sel" : "") + '" type="button"' +
+        ' data-action="vis-garment-pick" data-garment="vest">Waistcoat</button>';
+    html += '<button class="vis-garment-chip' + (active === "trousers" ? " sel" : "") + '" type="button"' +
+        ' data-action="vis-garment-pick" data-garment="trousers">Trousers</button>';
     html += "</div>";
+
+    if (activeIsCasual) {
+        html += '<div class="vis-garment-picker vis-garment-picker--sub">';
+        for (var i = 0; i < casualGarments.length; i++) {
+            var g = casualGarments[i];
+            html += '<button class="vis-garment-chip vis-garment-chip--sub' + (g.key === active ? " sel" : "") + '" type="button"' +
+                ' data-action="vis-garment-pick" data-garment="' + g.key + '">' + g.label + "</button>";
+        }
+        html += "</div>";
+    }
     return html;
 }
 
@@ -784,6 +913,7 @@ function renderFabricVisualiser() {
         '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
         '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. " + garmentEntry.dressesLead) + "</p>" +
         getVisGarmentPickerHTML() +
+        getVisCustomizeHTML(garmentKey) +
         '<div class="vis-stage vis-stage--photo' + (hasSelection && garmentHasPhoto ? "" : " vis-stage--empty") + '">' +
         // Fully blank until a cloth is chosen: no garment is rendered on entry
         // (no ghost silhouette), just the invitation. The canvas is inserted on
@@ -855,6 +985,7 @@ function renderClothCompare(aKey, recommended, surpriseFlash) {
         "<h1 class=\"vis-title\">Two Cloths, One Decision</h1>" +
         '<p class="vis-lead">' + garmentEntry.compareLead + ', two cloths. Drag the chalk line across to see where each one takes it.</p>' +
         getVisGarmentPickerHTML() +
+        getVisCustomizeHTML(garmentKey) +
 
         (!garmentHasPhoto
             ? '<div class="vis-stage vis-stage--photo">' + getVisGarmentComingSoonHTML(garmentEntry) + "</div>"

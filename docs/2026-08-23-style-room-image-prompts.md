@@ -7,6 +7,24 @@ forward unchanged, adds the new gaps found while auditing what the
 Bespoke Spec Configurator and Ensemble builder currently hide because no
 photo exists, and adds the notch-lapel width correction.
 
+**24 Aug 2026 — customisation moved to the Cloth Room's own single-cloth
+screen, not just the Ensemble builder.** Every jacket/trousers spec
+variant this doc produces (notch/peak lapel, patch/flap pocket, flat/
+double/belt make, belt-loop/side-adjuster waistband) was previously
+reachable only by opening the Ensemble builder's Bespoke Spec drawer —
+a client browsing one garment at a time on the main Cloth Room screen
+could never actually see `jacket-sb-notch-patch`, `jacket-db-peak-flap`,
+or `trousers-double-sideAdjusters` regardless of how many of these
+prompts got generated. `getVisCustomizeHTML()` in fabric-visualiser.js
+now renders a Lapel/Pockets panel for the Jacket chip and a Make/
+Waistband panel for the Trousers chip, directly on that screen (single
+and compare mode both) — reusing `BESPOKE_SPEC_OPTIONS`/
+`VIS_ENS_STYLE_OPTIONS` and `resolveGarmentKey` as-is, no new data. Vest/
+Safari/Chore have no spec options defined, so they correctly show no
+panel. This is why every asset below is worth generating even before a
+matching Ensemble feature exists for it — the single-cloth screen alone
+now makes it selectable.
+
 ## Output specs (same as the 08-17 doc, repeated for convenience)
 
 - **Jackets & vests**: portrait, aspect ratio 4:5, ≥1600px long edge
@@ -20,7 +38,10 @@ photo exists, and adds the notch-lapel width correction.
   mannequin, no hanger visible.
 - Dark horn-effect buttons, black lining where the front opens (the
   compositor's multiply-blend trick relies on a near-black lining staying
-  near-black under any cloth).
+  near-black under any cloth) — **tailored garments only.** Every casual
+  jacket (Safari, Chore, A2, Trucker, Teba) is UNLINED instead, same
+  tropical-climate reasoning as the unlined trousers — see each of
+  their prompts (#9–13) for the exact wording.
 
 ## Priority order
 
@@ -35,11 +56,17 @@ photo exists, and adds the notch-lapel width correction.
    from-scratch generation.
 6. **Trouser waistband: side adjusters (flat + double-pleat)** — also
    now an edit of a real BBS photo (#7/#8, v3).
-7. **Safari and Chore jackets** — the "casual jackets" category (23 Aug
-   2026 direction), genuinely new garment silhouettes, not lapel/pocket
-   variants of the existing tailored jacket. See #9/#10. The Style Room
-   picker already offers both as chips and shows a "coming soon" card
-   until each photo lands — no further code needed once it does.
+7. **Casual jackets** — Safari and Chore SHIPPED 24 Aug; A2, Trucker,
+   and Teba are next (#11–13), genuinely new garment silhouettes, not
+   lapel/pocket variants of the tailored jacket. The Style Room picker
+   (24 Aug 2026) now has its own two-tier structure for this reason —
+   Jacket / Casual Jacket / Waistcoat / Trousers at the top, and once
+   "Casual Jacket" is active a second row picks which one (Safari /
+   Chore / A2 / Trucker / Teba). All five are already registered in
+   `VIS_SINGLE_GARMENTS` (fabric-visualiser.js) with `casual: true` —
+   any without a photo yet shows a "coming soon" card and self-heals
+   the moment its key joins `GARMENT_ASSET_KEYS`, no further picker
+   code needed once each photo lands.
 
 ---
 
@@ -393,6 +420,10 @@ into a single crease pressed down the centre of each leg below the knee
 
 ### 9. Safari jacket — `jacket-safari`
 
+**SHIPPED 24 Aug 2026** — the v2 generation below was clean and is now
+in `GARMENT_ASSET_KEYS`/`SOURCES`, selectable from the Cloth Room's
+"Safari Jacket" chip.
+
 **v2, corrected against a real generation (founder feedback, 23 Aug
 2026).** v1 (first version below this note) worked well overall — clean
 ghost-mannequin, correct collar/pockets, correctly unlined per the
@@ -529,8 +560,12 @@ as any garment area with no traced displacement region).
 
 ### 10. Chore jacket — `jacket-chore`
 
-**New 23 Aug 2026 — second "casual jacket," same picker treatment as
-Safari (#9), already wired and waiting.** Founder-supplied reference:
+**SHIPPED 24 Aug 2026** — first-attempt generation matched the brief
+exactly, no correction round needed. In `GARMENT_ASSET_KEYS`/`SOURCES`,
+selectable from the "Chore Jacket" chip.
+
+**Second "casual jacket," same picker treatment as Safari (#9).**
+Founder-supplied reference:
 a camp collar (flatter, wider open collar than safari's, still no
 tailored lapel roll), a SINGLE patch chest pocket (not two), two plain
 patch pockets at the hip with no flap and no button, five-button
@@ -575,6 +610,181 @@ CHANGE:
 
 Do not alter the collar shape, pocket count/construction, button
 placement, cuffs, or silhouette beyond what's listed above. Portrait
+orientation, aspect ratio 4:5, sharp focus edge to edge, commercial
+e-commerce product photography style.
+```
+
+### 11. A2 flight jacket (blouson) — `jacket-a2`
+
+**New 24 Aug 2026 — third "casual jacket."** Founder-supplied reference:
+a real BBS flat lay, cream linen. Notched shirt-style collar (no lapel
+roll), raglan sleeves (a diagonal seam runs from the collar straight to
+the underarm, not a set-in shoulder seam), two chest-level flap pockets
+each closed by its own small buttoned strap on the flap, concealed
+button-front placket, and the two things that make this an A2/blouson
+rather than a chore or safari cut: an ELASTICATED, GATHERED WAIST HEM
+(the bottom band is ruched, not a plain straight hem) and elasticated
+cuffs with their own adjustable buttoned strap tab. Cropped length,
+ends at the waist. Same edit-a-real-photo approach as the rest of this
+doc — the source is already a flat lay, not worn, so this edit is
+simpler than Safari/Chore's (no person or shirt to strip out).
+
+**Unlined — house style, all casual jackets (founder direction, 24 Aug
+2026: tropical climate).**
+
+```
+Edit this exact photograph. This is a real A2-style flight jacket
+(blouson), currently shown as a flat lay in cream linen. Turn it into a
+ghost-mannequin product photograph for the catalogue — change only
+what's listed below, keep the jacket's own construction exactly as
+shown.
+
+KEEP EXACTLY AS SHOWN, unchanged: the notched shirt-style collar (flat,
+no tailored lapel roll or gorge seam), the RAGLAN SLEEVES (a diagonal
+seam running from the collar straight down to the underarm on each
+side — not a set-in shoulder seam, the sleeve and shoulder are one
+continuous panel), the two chest-level flap pockets each with their own
+small buttoned strap closing the flap, the concealed button-front
+placket and button spacing, the ELASTICATED GATHERED HEM at the waist
+(the bottom edge is visibly ruched/gathered, not a flat straight hem),
+the elasticated cuffs each with their own small adjustable buttoned
+strap tab, the cropped length ending at the waist.
+
+CHANGE:
+1. Reshape into a GHOST-MANNEQUIN pose — the jacket filled with
+   realistic chest, shoulder and sleeve volume as if worn by an
+   invisible body, front view, centred and symmetric, camera at chest
+   height, standing straight, arms hanging naturally at the sides. Not
+   laid flat, no mannequin or hanger visible. The gathered waist hem
+   and cuffs should still read as gathered/elasticated on the
+   dimensional body, not smoothed flat.
+2. Recolour the cloth from its current cream linen colour to a LIGHT
+   HEATHER-GREY WOOL FLANNEL, visible cloth grain, no pattern (matching
+   the house's other product photography) — the pocket straps,
+   gathered seams, and stitching detail should still read clearly
+   through the new colour and texture.
+3. UNLINED — wherever the front opens even slightly, the inside should
+   read as the same outer cloth, not a contrasting lining. Tropical-
+   climate house style doesn't line its casual jackets.
+4. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the collar shape, raglan seam, pocket construction,
+elasticated hem/cuffs, button placement, or silhouette beyond what's
+listed above. Portrait orientation, aspect ratio 4:5, sharp focus edge
+to edge, commercial e-commerce product photography style.
+```
+
+### 12. Trucker jacket — `jacket-trucker`
+
+**New 24 Aug 2026 — fourth "casual jacket."** Founder-supplied
+reference: a real BBS flat lay, khaki twill. Classic Western trucker
+construction: pointed shirt-style collar, a YOKE SEAM across the chest
+(a V-shaped seam running from each shoulder down to the centre front,
+the panel above it is a separate piece from the body below), two chest
+flap pockets each closed by a single button (no strap, the button goes
+straight through the flap), a full button-front placket (many small
+buttons closely spaced down the front), SIDE-TAB WAIST ADJUSTERS (a
+short tab with buttonholes at each side seam near the hem, used to
+cinch the waist), and button cuffs. Cropped, fitted length ending at
+the hip.
+
+**Unlined — house style, all casual jackets.**
+
+```
+Edit this exact photograph. This is a real trucker jacket, currently
+shown as a flat lay in khaki twill. Turn it into a ghost-mannequin
+product photograph for the catalogue — change only what's listed below,
+keep the jacket's own construction exactly as shown.
+
+KEEP EXACTLY AS SHOWN, unchanged: the pointed shirt-style collar, the
+YOKE SEAM across the chest (a V-shaped seam running from each shoulder
+down to the centre front — a distinct upper chest panel stitched to the
+body below it, the classic Western/trucker construction), the two chest
+flap pockets each closed by a single button straight through the flap
+(no strap), the full button-front placket with its close button
+spacing, the SIDE-TAB WAIST ADJUSTERS (a short tab with buttonholes at
+each side seam near the hem, used to cinch the waist), the button
+cuffs, the cropped fitted length ending at the hip.
+
+CHANGE:
+1. Reshape into a GHOST-MANNEQUIN pose — the jacket filled with
+   realistic chest, shoulder and sleeve volume as if worn by an
+   invisible body, front view, centred and symmetric, camera at chest
+   height, standing straight, arms hanging naturally at the sides. Not
+   laid flat, no mannequin or hanger visible.
+2. Recolour the cloth from its current khaki colour to a LIGHT
+   HEATHER-GREY WOOL FLANNEL, visible cloth grain, no pattern (matching
+   the house's other product photography) — the yoke seam, pocket
+   flaps, and stitching detail should still read clearly through the
+   new colour and texture.
+3. UNLINED — wherever the front opens even slightly, the inside should
+   read as the same outer cloth, not a contrasting lining. Tropical-
+   climate house style doesn't line its casual jackets.
+4. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the collar shape, yoke seam, pocket construction, side-tab
+adjusters, button placement, or silhouette beyond what's listed above.
+Portrait orientation, aspect ratio 4:5, sharp focus edge to edge,
+commercial e-commerce product photography style.
+```
+
+### 13. Teba jacket — `jacket-teba`
+
+**New 24 Aug 2026 — fifth "casual jacket."** Founder-supplied reference
+(the house's own Teba, not the generic silhouette the name usually
+implies — checked the actual photo rather than assuming): off-white
+cotton, flat lay. A STAND/BAND COLLAR (a short upright mandarin-style
+collar with no lapel or roll at all, closing with one button right at
+the throat) — this is the detail most worth double-checking against the
+generation, since it's the unusual one. Raglan sleeves (same diagonal
+seam as the A2, not a set shoulder). Four patch pockets: two smaller
+ones at the chest each with a single-button flap, two larger ones at
+the hip each with a flap but no visible button. A four-button front
+placket. Button cuffs.
+
+**Unlined — house style, all casual jackets.**
+
+```
+Edit this exact photograph. This is a real Teba-style jacket, currently
+shown as a flat lay in off-white cotton. Turn it into a ghost-mannequin
+product photograph for the catalogue — change only what's listed below,
+keep the jacket's own construction exactly as shown.
+
+KEEP EXACTLY AS SHOWN, unchanged: the STAND/BAND COLLAR — a short
+upright mandarin-style collar with NO lapel, NO roll, NO notch, closing
+with a single button right at the throat (this is not a shirt collar or
+a lapel — it stands straight up, does not fold open) — the RAGLAN
+SLEEVES (a diagonal seam running from the collar straight down to the
+underarm on each side, not a set-in shoulder seam), the four patch
+pockets — two smaller pockets at the chest each with a single-button
+flap, two larger pockets at the hip each with a flap but NO button —
+the four-button front placket and its spacing, the button cuffs.
+
+CHANGE:
+1. Reshape into a GHOST-MANNEQUIN pose — the jacket filled with
+   realistic chest, shoulder and sleeve volume as if worn by an
+   invisible body, front view, centred and symmetric, camera at chest
+   height, standing straight, arms hanging naturally at the sides. Not
+   laid flat, no mannequin or hanger visible.
+2. Recolour the cloth from its current off-white colour to a LIGHT
+   HEATHER-GREY WOOL FLANNEL, visible cloth grain, no pattern (matching
+   the house's other product photography) — the collar stand, raglan
+   seams, pocket flaps, and stitching detail should still read clearly
+   through the new colour and texture.
+3. UNLINED — wherever the front opens even slightly, the inside should
+   read as the same outer cloth, not a contrasting lining. Tropical-
+   climate house style doesn't line its casual jackets.
+4. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the collar shape (it must stay a stand collar, not become
+a lapel or shirt collar), raglan seams, pocket construction, button
+placement, or silhouette beyond what's listed above. Portrait
 orientation, aspect ratio 4:5, sharp focus edge to edge, commercial
 e-commerce product photography style.
 ```

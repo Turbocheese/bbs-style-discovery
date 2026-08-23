@@ -595,7 +595,15 @@ if (require.main === module) {
         // real BBS photo. The flat-front sibling (trousers-flat-side
         // Adjusters) was not generated this round — add it the same way
         // once it lands.
-        "trousers-double-sideAdjusters": "replicate-prediction-6a380h7qssrmr0d05wwss6jgag.png"
+        "trousers-double-sideAdjusters": "replicate-prediction-6a380h7qssrmr0d05wwss6jgag.png",
+        // New 2026-08-24: safari jacket, first "casual jacket" (see
+        // docs/2026-08-23-style-room-image-prompts.md #9). This is the v2
+        // generation (belt removed, unlined) — v1 had a cinched-waist belt
+        // the founder didn't want and was never wired in.
+        "jacket-safari": "replicate-safari-v2-jrtUm2ff.png",
+        // New 2026-08-24: chore jacket, second "casual jacket" (see
+        // docs/2026-08-23-style-room-image-prompts.md #10).
+        "jacket-chore": "replicate-prediction-cf8hdyc4hnrmr0d05xdb7p10e4.png"
         // The build MUST skip any key whose source file is absent and report
         // it by name rather than failing.
     };

@@ -3309,6 +3309,7 @@ function getFreshState() {
         visFabricKey: null,
         visFabricKeyB: null,
         visGarmentKey: "jacket",
+        visCustom: null,
         visCompare: false,
         visCompareSide: "b",
         visEnsemble: false,
@@ -7398,6 +7399,17 @@ document.body.addEventListener("click", function (e) {
             localStorage.setItem("bbs_session", JSON.stringify(appState));
             render({ animate: true });
         }
+    }
+    else if (action === "vis-custom-select") {
+        var vcGarment = target.dataset.garment;
+        var vcGroup = target.dataset.group;
+        var vcValue = target.dataset.value;
+        if (!vcGarment || !vcGroup || !vcValue) return;
+        var vcState = getVisCustomState();
+        if (!vcState[vcGarment] || vcState[vcGarment][vcGroup] === vcValue) return;
+        vcState[vcGarment][vcGroup] = vcValue;
+        localStorage.setItem("bbs_session", JSON.stringify(appState));
+        render({ animate: true });
     }
     else if (action === "vis-compare-toggle") {
         appState.visCompare = !appState.visCompare;

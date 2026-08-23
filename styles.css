@@ -8279,6 +8279,20 @@ button,
     color: #f7f4ed !important;
 }
 
+/* Second-tier row: which casual jacket, once "Casual Jacket" is active
+   one level up. Smaller and pulled tight to the row above it so it
+   reads as subordinate, not a second independent choice. */
+.vis-garment-picker--sub {
+    margin-top: -0.7rem;
+}
+
+.vis-garment-chip--sub {
+    padding: 6px 13px !important;
+    min-height: 38px;
+    font-size: 0.64rem !important;
+    opacity: 0.88;
+}
+
 /* ============================================================
    MILL MAP — "The Provenance Chart"
    ============================================================ */
