@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v145";
+var CACHE_VERSION = "bbs-v148";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=102",
+    "./styles.css?v=103",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -23,8 +23,8 @@ var PRECACHE = [
     "./heritage.js?v=2",
     "./attract-shader.js?v=3",
     "./weave-engine.js?v=3",
-    "./garment-photo.js?v=30",
-    "./fabric-visualiser.js?v=35",
+    "./garment-photo.js?v=31",
+    "./fabric-visualiser.js?v=37",
     "./cloth-study.js?v=7",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",
@@ -37,7 +37,7 @@ var PRECACHE = [
     "./vendor/firebase-app-compat.js",
     "./vendor/firebase-firestore-compat.js",
     "./firebase-init.js?v=3",
-    "./app.js?v=106",
+    "./app.js?v=107",
     "./fonts/eb-garamond-latin.woff2",
     "./fonts/eb-garamond-italic-latin.woff2",
     "./fonts/manrope-latin.woff2",
@@ -177,12 +177,16 @@ var PRECACHE = [
     "./images/garments/jacket-sb.webp",
     "./images/garments/jacket-sb-peak-patch.webp",
     "./images/garments/jacket-sb-peak-flap.webp",
+    "./images/garments/jacket-sb-notch-patch.webp",
     "./images/garments/jacket-db.webp",
+    "./images/garments/jacket-db-peak-flap.webp",
     "./images/garments/vest-sb-none.webp",
     "./images/garments/vest-sb-shawl.webp",
     "./images/garments/trousers-flat.webp",
     "./images/garments/trousers-double.webp",
     "./images/garments/trousers-belt.webp",
+    "./images/garments/trousers-gurkha.webp",
+    "./images/garments/trousers-double-sideAdjusters.webp",
     "./icon.png",
     "./manifest.json",
 ];

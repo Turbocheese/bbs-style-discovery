@@ -560,35 +560,42 @@ if (require.main === module) {
     // Bemberg lining baked in, house-cut trousers. trousers-flat and
     // trousers-belt arrived on a tinted/shadowed ground and are white-
     // normalised copies (…-white.jpeg); every other source is the raw
-    // generation. Double-breasted vests and the Gurkha trouser are real
-    // products but have no photograph yet, so they are intentionally absent
-    // here and hidden from the configurator until their image lands.
+    // generation. Double-breasted vests have no photograph yet (paused by
+    // founder direction, 23 Aug 2026 — not a priority right now), so they
+    // stay intentionally absent here and hidden from the configurator.
     var SOURCES = {
         // Bespoke Spec Configurator photos (2026-08-17, Nano Banana Pro).
-        // "jacket-sb" was repointed at a fresh notch+flap generation —
-        // the ORIGINAL replicate-prediction-z3qrb03... source stays on
-        // disk untouched (git history intact per the comment above), it
-        // is just no longer what this key builds from. The two
-        // *-peak-* keys are new spec-driven variants picked up
-        // automatically by resolveGarmentKey's self-healing lookup in
-        // garment-photo.js the moment their key is added to
-        // GARMENT_ASSET_KEYS below — see that function's own comment.
-        //
-        // jacket-db-peak-flap.png (also generated this session) is
-        // deliberately NOT wired in here — house style doesn't do ticket
-        // pockets, and that generation put one on the right hip (a
-        // second, smaller flap stacked above the main hip flap). The
-        // file is left on disk for reference; regenerate without a
-        // ticket pocket before adding a "jacket-db" + flap-pocket entry.
-        "jacket-sb": "jacket-sb-notch-flap-v2.png",
+        // "jacket-sb" was repointed AGAIN on 2026-08-23 to a widened-notch
+        // regeneration (founder: the notch lapel read too narrow, wanted
+        // at least 4in/10cm) — the prior "notch-flap-v2" source stays on
+        // disk untouched, it is just no longer what this key builds from.
+        // Retracing JACKET_SB_LAPELS in garment-photo.js against the new
+        // outline is required follow-up (see that file).
+        "jacket-sb": "replicate-prediction-mapxkr394drmr0d05wa9n2cnbw.png",
         "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",
         "jacket-sb-peak-flap": "jacket-sb-peak-flap.png",
+        // New 2026-08-23: same widened notch as "jacket-sb" above, patch
+        // pockets instead of flap. Shares the same lapel shape/trace.
+        "jacket-sb-notch-patch": "replicate-prediction-g6tmgy2vcxrmw0d05wdtqdee58.png",
         "jacket-db": "replicate-prediction-fwrcgcn33xrmy0czgjavmrrfxg.jpeg",
+        // New 2026-08-23: retry of the DB peak+flap combo, this one
+        // without the unrequested ticket pocket the first attempt had
+        // (that rejected file, jacket-db-peak-flap.png, stays on disk for
+        // reference/comparison only — not referenced by any key).
+        "jacket-db-peak-flap": "replicate-prediction-3rqn9047m5rmt0d05wctyqk4yw.png",
         "vest-sb-none": "replicate-prediction-teg047kh8nrmr0czgjbtqq820w.jpeg",
         "vest-sb-shawl": "replicate-prediction-dxnwnqk7enrmt0czgjca61ysrw.jpeg",
         "trousers-flat": "replicate-prediction-4f5k730hsdrmy0czgjxs50wad0-white.jpeg",
         "trousers-double": "replicate-prediction-y3t5wmjtdsrmr0czgk09dhpbq4.jpeg",
-        "trousers-belt": "replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg"
+        "trousers-belt": "replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg",
+        // New 2026-08-23: single Gurkha, edited from a real BBS garment
+        // photo rather than generated from scratch (see the prompts doc).
+        "trousers-gurkha": "replicate-prediction-5839x2k9y5rmt0d05wv9p278gc.png",
+        // New 2026-08-23: double-pleat side-adjuster, also edited from a
+        // real BBS photo. The flat-front sibling (trousers-flat-side
+        // Adjusters) was not generated this round — add it the same way
+        // once it lands.
+        "trousers-double-sideAdjusters": "replicate-prediction-6a380h7qssrmr0d05wwss6jgag.png"
         // The build MUST skip any key whose source file is absent and report
         // it by name rather than failing.
     };
@@ -650,6 +657,22 @@ if (require.main === module) {
     var OUT_DIR = path.join(__dirname, "..", "images", "garments");
     var QUALITY = 82;
 
+    // fabric-visualiser.js and the Ensemble builder size a garment's
+    // <canvas> by TYPE, not by each image's own native dimensions
+    // (1289x1600 jackets/vests, 1073x1600 trousers — see
+    // getVisGarmentCanvasWidth), and renderGarmentPhoto stretch-fills via
+    // drawImage(img, 0, 0, canvas.width, canvas.height). A source whose
+    // own crop doesn't land on that exact WxH renders visibly distorted
+    // (confirmed 2026-08-23: a 961x1600 source stretched into a 1289x1600
+    // canvas read noticeably wider/squatter than every other jacket).
+    // Every source up to 17 Aug happened to share that framing by luck
+    // (same generation batch, same prompt discipline); newer ones don't.
+    function canonicalDims(key) {
+        if (key.indexOf("trousers-") === 0) return { w: 1073, h: 1600 };
+        if (key.indexOf("jacket-") === 0 || key.indexOf("vest-") === 0) return { w: 1289, h: 1600 };
+        return null;
+    }
+
     function writeAsset(key, w, h, lum, mask) {
         var out = Buffer.alloc(w * h * 4);
         for (var i = 0; i < w * h; i++) {
@@ -660,10 +683,43 @@ if (require.main === module) {
         }
 
         var outPath = path.join(OUT_DIR, key + ".webp");
+        var canon = canonicalDims(key);
+
+        // w/h here are pre-MAX_EDGE (can be much larger than 1600 on the
+        // long edge) — resize to the real shipped scale FIRST, so the
+        // canonical-frame comparison below is apples to apples. Every
+        // previous asset in this library happens to already land exactly
+        // on 1289x1600/1073x1600 after this step (same source framing);
+        // only a source with different aspect ratio needs padding next.
         return sharp(out, { raw: { width: w, height: h, channels: 4 } })
             .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true })
-            .webp({ quality: QUALITY })
-            .toFile(outPath)
+            .raw()
+            .toBuffer({ resolveWithObject: true })
+            .then(function (resized) {
+                var rw = resized.info.width, rh = resized.info.height;
+                var pipeline;
+                if (canon && (rw !== canon.w || rh !== canon.h)) {
+                    if (rw > canon.w || rh > canon.h) {
+                        console.log("  " + key + ": WARNING resized " + rw + "x" + rh + " exceeds canonical " + canon.w + "x" + canon.h + " — shipped unpadded, will still distort");
+                        pipeline = sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } });
+                    } else {
+                        // Centre the garment inside the canonical frame with
+                        // transparent padding — safe because everything
+                        // outside the mask is already transparent; this just
+                        // adds more of the same, at the correct in-frame
+                        // scale instead of edge-to-edge.
+                        var left = Math.round((canon.w - rw) / 2);
+                        var top = Math.round((canon.h - rh) / 2);
+                        console.log("  " + key + ": padded " + rw + "x" + rh + " into canonical " + canon.w + "x" + canon.h);
+                        pipeline = sharp({
+                            create: { width: canon.w, height: canon.h, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
+                        }).composite([{ input: resized.data, raw: { width: rw, height: rh, channels: 4 }, left: left, top: top }]);
+                    }
+                } else {
+                    pipeline = sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } });
+                }
+                return pipeline.webp({ quality: QUALITY }).toFile(outPath);
+            })
             .then(function (fileInfo) {
                 console.log(
                     "WROTE " + key + ".webp  " + fileInfo.width + "x" + fileInfo.height + "  " +

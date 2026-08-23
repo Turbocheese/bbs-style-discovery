@@ -8247,6 +8247,38 @@ button,
     border-color: var(--accent) !important;
 }
 
+/* Garment-type picker: which garment the Cloth Room's single/compare
+   stage renders. Same pill-chip pattern as .map-chip. */
+.vis-garment-picker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 0 1.2rem;
+}
+
+.vis-garment-chip {
+    border: 1px solid var(--line-strong) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 8px 16px !important;
+    min-height: 44px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: var(--muted) !important;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.vis-garment-chip.sel {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: #f7f4ed !important;
+}
+
 /* ============================================================
    MILL MAP — "The Provenance Chart"
    ============================================================ */

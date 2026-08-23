@@ -3308,6 +3308,7 @@ function getFreshState() {
         wardrobeChecklist: {},
         visFabricKey: null,
         visFabricKeyB: null,
+        visGarmentKey: "jacket",
         visCompare: false,
         visCompareSide: "b",
         visEnsemble: false,
@@ -7390,6 +7391,13 @@ document.body.addEventListener("click", function (e) {
         appState.openFilterDD = null;
         localStorage.setItem("bbs_session", JSON.stringify(appState));
         render();
+    }
+    else if (action === "vis-garment-pick") {
+        if (target.dataset.garment && appState.visGarmentKey !== target.dataset.garment) {
+            appState.visGarmentKey = target.dataset.garment;
+            localStorage.setItem("bbs_session", JSON.stringify(appState));
+            render({ animate: true });
+        }
     }
     else if (action === "vis-compare-toggle") {
         appState.visCompare = !appState.visCompare;

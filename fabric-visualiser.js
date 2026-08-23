@@ -675,6 +675,90 @@ function startVisCoverflow() {
 }
 window.startVisCoverflow = startVisCoverflow;
 
+// Garment types offered in the Cloth Room's single-cloth and compare
+// views. Each resolves to its base (no-spec-variant) photo through
+// resolveGarmentKey — the same self-healing lookup the Ensemble builder
+// already uses — so a future photo shoot never needs this list touched,
+// only GARMENT_ASSET_KEYS in garment-photo.js.
+// `dressesLead` fits "Filter the bunch... ___"; `compareLead` fits
+// "___, two cloths" — trousers is plural-only ("dress themselves", "a
+// pair of"), so neither can be composed from a single shared noun.
+// `garment` is the category resolveGarmentKey's first argument expects
+// ("jacket"/"vest"/"trousers") — Safari and Chore are both cut of
+// "jacket" with a closure resolveGarmentKey has never seen before
+// (only "sb"/"db" existed until now), NOT a new top-level category, so
+// `key` (this picker's own identity) and `garment` diverge for them.
+var VIS_SINGLE_GARMENTS = [
+    { key: "jacket", garment: "jacket", label: "Jacket", dressesLead: "The jacket dresses itself the moment you choose.", compareLead: "One jacket", style: { closure: "sb" } },
+    { key: "vest", garment: "vest", label: "Waistcoat", dressesLead: "The waistcoat dresses itself the moment you choose.", compareLead: "One waistcoat", style: { closure: "sb", lapel: "none" } },
+    { key: "trousers", garment: "trousers", label: "Trousers", dressesLead: "The trousers dress themselves the moment you choose.", compareLead: "A pair of trousers", style: { style: "flat" } },
+    // Casual jackets (23 Aug 2026) — photos not generated yet, so these
+    // resolve to a key absent from GARMENT_ASSET_KEYS today. getVisGarmentHasPhoto
+    // gates the stage on that and shows a "coming soon" card instead of a
+    // broken canvas; self-heals the moment each photo lands and joins
+    // GARMENT_ASSET_KEYS, same as every other self-healing key in this file.
+    { key: "safari", garment: "jacket", label: "Safari Jacket", dressesLead: "The safari jacket dresses itself the moment you choose.", compareLead: "One safari jacket", style: { closure: "safari" } },
+    { key: "chore", garment: "jacket", label: "Chore Jacket", dressesLead: "The chore jacket dresses itself the moment you choose.", compareLead: "One chore jacket", style: { closure: "chore" } }
+];
+
+function getVisGarmentEntry(garmentKey) {
+    for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
+        if (VIS_SINGLE_GARMENTS[i].key === garmentKey) return VIS_SINGLE_GARMENTS[i];
+    }
+    return VIS_SINGLE_GARMENTS[0];
+}
+
+// Falls back to "jacket" for any persisted value that predates this
+// feature (undefined) or no longer matches an offered garment.
+function getVisGarmentKey() {
+    var g = appState.visGarmentKey;
+    for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
+        if (VIS_SINGLE_GARMENTS[i].key === g) return g;
+    }
+    return "jacket";
+}
+
+function getVisSingleGarmentPhotoKey(garmentKey) {
+    var entry = getVisGarmentEntry(garmentKey);
+    var key = typeof resolveGarmentKey === "function" ? resolveGarmentKey(entry.garment, entry.style) : null;
+    return key || "jacket-sb";
+}
+
+// False until the photo actually lands in GARMENT_ASSET_KEYS — lets the
+// stage show a "coming soon" card instead of trying to paint a canvas
+// with an image that 404s.
+function getVisGarmentHasPhoto(garmentKey) {
+    var photoKey = getVisSingleGarmentPhotoKey(garmentKey);
+    return typeof GARMENT_ASSET_KEYS !== "undefined" && GARMENT_ASSET_KEYS.indexOf(photoKey) !== -1;
+}
+
+function getVisGarmentComingSoonHTML(garmentEntry) {
+    return (
+        '<div class="vis-stage-invite vis-stage-invite--soon">' +
+        '<span class="vis-stage-invite-mark" aria-hidden="true"></span>' +
+        '<p class="vis-ghost-prompt">' + garmentEntry.label + " photography is on its way — check back soon.</p>" +
+        "</div>"
+    );
+}
+
+// Trousers are 2:3 (1073x1600); every other garment shot is 4:5
+// (1289x1600) — same split the Ensemble builder already keys off.
+function getVisGarmentCanvasWidth(garmentKey) {
+    return garmentKey === "trousers" ? 1073 : 1289;
+}
+
+function getVisGarmentPickerHTML() {
+    var active = getVisGarmentKey();
+    var html = '<div class="vis-garment-picker">';
+    for (var i = 0; i < VIS_SINGLE_GARMENTS.length; i++) {
+        var g = VIS_SINGLE_GARMENTS[i];
+        html += '<button class="vis-garment-chip' + (g.key === active ? " sel" : "") + '" type="button"' +
+            ' data-action="vis-garment-pick" data-garment="' + g.key + '">' + g.label + "</button>";
+    }
+    html += "</div>";
+    return html;
+}
+
 function renderFabricVisualiser() {
     var recommended = getRecommendedFabricKeys();
     var surpriseFlash = !!appState.visSurpriseFlash;
@@ -688,19 +772,30 @@ function renderFabricVisualiser() {
     if (appState.visEnsemble) return renderClothEnsemble(recommended, surpriseFlash);
     if (appState.visCompare) return renderClothCompare(activeKey, recommended, surpriseFlash);
     var fabric = getFabricByKey(activeKey);
+    var garmentKey = getVisGarmentKey();
+    var garmentEntry = getVisGarmentEntry(garmentKey);
+    var garmentPhotoKey = getVisSingleGarmentPhotoKey(garmentKey);
+    var garmentCanvasW = getVisGarmentCanvasWidth(garmentKey);
+    var garmentHasPhoto = getVisGarmentHasPhoto(garmentKey);
 
     return (
         '<div class="vis-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         '<h1 class="vis-title">' + (typeof getKineticTitleHTML === "function" ? getKineticTitleHTML("See It In Cloth") : "See It In Cloth") + "</h1>" +
-        '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. The jacket dresses itself the moment you choose.") + "</p>" +
-        '<div class="vis-stage vis-stage--photo' + (hasSelection ? "" : " vis-stage--empty") + '">' +
+        '<p class="vis-lead">' + (hasSelection ? "Select a cloth from the bunch. The garment re-renders instantly, the way it would leave the workshop." : "Filter the bunch and tap a cloth. " + garmentEntry.dressesLead) + "</p>" +
+        getVisGarmentPickerHTML() +
+        '<div class="vis-stage vis-stage--photo' + (hasSelection && garmentHasPhoto ? "" : " vis-stage--empty") + '">' +
         // Fully blank until a cloth is chosen: no garment is rendered on entry
         // (no ghost silhouette), just the invitation. The canvas is inserted on
         // the first swatch tap by visApplyFabric, which then dresses it.
-        (hasSelection
-            ? '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="1289" height="1600"' +
-              ' data-garment-key="jacket-sb" data-cloth="' + activeKey + '"></canvas>'
+        // A garment with no photo yet (Safari/Chore before their shoot lands)
+        // shows the same "coming soon" card regardless of cloth selection —
+        // there's nothing to dress it with.
+        (!garmentHasPhoto
+            ? getVisGarmentComingSoonHTML(garmentEntry)
+            : hasSelection
+            ? '<canvas class="vis-jacket-canvas" id="vis-jacket-canvas" width="' + garmentCanvasW + '" height="1600"' +
+              ' data-garment-key="' + garmentPhotoKey + '" data-cloth="' + activeKey + '"></canvas>'
             : '<div class="vis-stage-invite">' +
               '<span class="vis-stage-invite-mark" aria-hidden="true"></span>' +
               '<p class="vis-ghost-prompt">Pick a cloth to see it come to life.</p>' +
@@ -726,15 +821,15 @@ function getVisSplitPct() {
     return Math.max(4, Math.min(96, v));
 }
 
-function getVisSplitLayerHTML(side, key, pct) {
+function getVisSplitLayerHTML(side, key, pct, garmentPhotoKey, garmentCanvasW) {
     // Layer A is clipped from the right edge back to the divider. The clip
     // lives on this wrapper, so a photographed jacket canvas inside it is
     // revealed by the drag exactly as the old fabric layer was.
     var clip = side === "a" ? ' style="clip-path:inset(0 ' + (100 - pct) + '% 0 0)"' : "";
     return (
         '<div class="vis-split-layer vis-split-layer--' + side + '" id="vis-split-layer-' + side + '"' + clip + ">" +
-        '<canvas class="vis-jacket-canvas vis-split-canvas" id="vis-split-canvas-' + side + '" width="1289" height="1600"' +
-        ' data-garment-key="jacket-sb" data-cloth="' + key + '"></canvas>' +
+        '<canvas class="vis-jacket-canvas vis-split-canvas" id="vis-split-canvas-' + side + '" width="' + garmentCanvasW + '" height="1600"' +
+        ' data-garment-key="' + garmentPhotoKey + '" data-cloth="' + key + '"></canvas>' +
         "</div>"
     );
 }
@@ -745,6 +840,11 @@ function renderClothCompare(aKey, recommended, surpriseFlash) {
     var selKey = side === "a" ? aKey : bKey;
     var altKey = side === "a" ? bKey : aKey;
     var pct = getVisSplitPct();
+    var garmentKey = getVisGarmentKey();
+    var garmentEntry = getVisGarmentEntry(garmentKey);
+    var garmentPhotoKey = getVisSingleGarmentPhotoKey(garmentKey);
+    var garmentCanvasW = getVisGarmentCanvasWidth(garmentKey);
+    var garmentHasPhoto = getVisGarmentHasPhoto(garmentKey);
 
     var a = getFabricByKey(aKey);
     var b = getFabricByKey(bKey);
@@ -753,32 +853,35 @@ function renderClothCompare(aKey, recommended, surpriseFlash) {
         '<div class="vis-shell' + (surpriseFlash ? " vis-surprise-reveal" : "") + '">' +
         '<div class="vis-eyebrow">The Cloth Room</div>' +
         "<h1 class=\"vis-title\">Two Cloths, One Decision</h1>" +
-        '<p class="vis-lead">One jacket, two cloths. Drag the chalk line across to see where each one takes it.</p>' +
+        '<p class="vis-lead">' + garmentEntry.compareLead + ', two cloths. Drag the chalk line across to see where each one takes it.</p>' +
+        getVisGarmentPickerHTML() +
 
-        '<div class="vis-split-stage" id="vis-split-stage">' +
-        getVisSplitLayerHTML("b", bKey, pct) +
-        getVisSplitLayerHTML("a", aKey, pct) +
-        // The chalk line: a soft tailor's mark, not a UI slider.
-        '<div class="vis-split-line" id="vis-split-line" style="left:' + pct + '%">' +
-        '<span class="vis-split-chalk"></span>' +
-        '<span class="vis-split-grip" aria-hidden="true"></span>' +
-        "</div>" +
-        // Keyboard route to the same control, since dragging is not one.
-        '<input class="vis-split-range" id="vis-split-range" type="range" min="4" max="96" value="' + pct + '"' +
-        ' aria-label="Reveal more of the left or right cloth">' +
-        "</div>" +
+        (!garmentHasPhoto
+            ? '<div class="vis-stage vis-stage--photo">' + getVisGarmentComingSoonHTML(garmentEntry) + "</div>"
+            : '<div class="vis-split-stage" id="vis-split-stage">' +
+              getVisSplitLayerHTML("b", bKey, pct, garmentPhotoKey, garmentCanvasW) +
+              getVisSplitLayerHTML("a", aKey, pct, garmentPhotoKey, garmentCanvasW) +
+              // The chalk line: a soft tailor's mark, not a UI slider.
+              '<div class="vis-split-line" id="vis-split-line" style="left:' + pct + '%">' +
+              '<span class="vis-split-chalk"></span>' +
+              '<span class="vis-split-grip" aria-hidden="true"></span>' +
+              "</div>" +
+              // Keyboard route to the same control, since dragging is not one.
+              '<input class="vis-split-range" id="vis-split-range" type="range" min="4" max="96" value="' + pct + '"' +
+              ' aria-label="Reveal more of the left or right cloth">' +
+              "</div>" +
 
-        // Which side the next swatch tap dresses.
-        '<div class="vis-split-sides">' +
-        '<button class="vis-split-side btn-bare' + (side === "a" ? " sel" : "") + '" data-action="vis-side" data-side="a">' +
-        '<span class="vis-split-side-tag">Left</span>' +
-        '<span class="vis-split-side-name">' + a.name + "</span>" +
-        "</button>" +
-        '<button class="vis-split-side btn-bare' + (side === "b" ? " sel" : "") + '" data-action="vis-side" data-side="b">' +
-        '<span class="vis-split-side-tag">Right</span>' +
-        '<span class="vis-split-side-name">' + b.name + "</span>" +
-        "</button>" +
-        "</div>" +
+              // Which side the next swatch tap dresses.
+              '<div class="vis-split-sides">' +
+              '<button class="vis-split-side btn-bare' + (side === "a" ? " sel" : "") + '" data-action="vis-side" data-side="a">' +
+              '<span class="vis-split-side-tag">Left</span>' +
+              '<span class="vis-split-side-name">' + a.name + "</span>" +
+              "</button>" +
+              '<button class="vis-split-side btn-bare' + (side === "b" ? " sel" : "") + '" data-action="vis-side" data-side="b">' +
+              '<span class="vis-split-side-tag">Right</span>' +
+              '<span class="vis-split-side-name">' + b.name + "</span>" +
+              "</button>" +
+              "</div>") +
 
         '<button class="vis-mode-toggle" data-action="vis-compare-toggle">&larr; Back to one cloth</button>' +
         '<button class="vis-mode-toggle vis-surprise-btn" data-action="vis-surprise-me">Surprise Me</button>' +
@@ -932,6 +1035,10 @@ function visSyncSwatchMarks(selKey, altKey) {
 // Partial DOM update on swatch tap — repaint the jacket canvas with the
 // new cloth instead of re-rendering the whole view.
 function visApplyFabric(key) {
+    // A "coming soon" garment (no photo yet) has nothing to dress — the
+    // stage already shows that card regardless of cloth selection, and
+    // there's no #vis-jacket-canvas for this fast-path DOM patch to touch.
+    if (!getVisGarmentHasPhoto(getVisGarmentKey())) return;
     var stage = document.querySelector(".vis-stage--empty");
     if (stage) {
         stage.classList.remove("vis-stage--empty");
@@ -940,12 +1047,13 @@ function visApplyFabric(key) {
         var invite = stage.querySelector(".vis-stage-invite");
         if (invite) invite.parentNode.removeChild(invite);
         if (!document.getElementById("vis-jacket-canvas")) {
+            var garmentKey = getVisGarmentKey();
             var fresh = document.createElement("canvas");
             fresh.className = "vis-jacket-canvas";
             fresh.id = "vis-jacket-canvas";
-            fresh.width = 1289;
+            fresh.width = getVisGarmentCanvasWidth(garmentKey);
             fresh.height = 1600;
-            fresh.setAttribute("data-garment-key", "jacket-sb");
+            fresh.setAttribute("data-garment-key", getVisSingleGarmentPhotoKey(garmentKey));
             stage.appendChild(fresh);
         }
     }
