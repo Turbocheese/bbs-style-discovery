@@ -66,6 +66,58 @@ var JACKET_SLEEVES = [
     { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
 ];
 
+// Sleeve-only regions for the 5 garments added 23-24 Aug 2026, each
+// measured directly off its own labelled grid (same technique as the
+// header comment above, just done per-photo since none of these share
+// jacket-sb's original framing). JACKET_SLEEVES above is NOT reused for
+// any of them — that box was measured against the pre-23-Aug jacket-sb
+// photo specifically, and reusing it against a differently-framed photo
+// is exactly what caused the body/sleeve seam artifact on jacket-sb
+// after its 23 Aug regeneration (see JACKET_SB_LAPELS's own comment on
+// that photo changing). No lapel/collar bend on any of these yet — see
+// that comment above about why a box-only (no clip) region doesn't work
+// for a triangular shape; these need the same flat-colour-panel
+// calibration technique the tailored lapels used, not a fresh eyeball
+// guess.
+var JACKET_SB_SLEEVES_V2 = [
+    { x: 0.17, y: 0.18, w: 0.20, h: 0.62, angle: -0.06, strength: 0.74 },
+    { x: 0.63, y: 0.18, w: 0.20, h: 0.62, angle: 0.06, strength: 0.74 }
+];
+var JACKET_SB_NOTCH_PATCH_SLEEVES = [
+    { x: 0.17, y: 0.10, w: 0.20, h: 0.70, angle: -0.06, strength: 0.74 },
+    { x: 0.63, y: 0.10, w: 0.20, h: 0.70, angle: 0.06, strength: 0.74 }
+];
+var JACKET_DB_PEAK_FLAP_SLEEVES = [
+    { x: 0.17, y: 0.10, w: 0.21, h: 0.70, angle: -0.06, strength: 0.74 },
+    { x: 0.62, y: 0.10, w: 0.21, h: 0.70, angle: 0.06, strength: 0.74 }
+];
+var JACKET_SAFARI_SLEEVES = [
+    { x: 0.20, y: 0.09, w: 0.18, h: 0.72, angle: -0.06, strength: 0.74 },
+    { x: 0.62, y: 0.09, w: 0.18, h: 0.72, angle: 0.06, strength: 0.74 }
+];
+var JACKET_CHORE_SLEEVES = [
+    { x: 0.24, y: 0.11, w: 0.16, h: 0.70, angle: -0.06, strength: 0.74 },
+    { x: 0.60, y: 0.11, w: 0.16, h: 0.70, angle: 0.06, strength: 0.74 }
+];
+// Same measurement pass, 24 Aug 2026, for the three casual jackets added
+// after chore. A2 and Teba are raglan-sleeved (the seam itself runs
+// diagonal from collar to underarm, not a set-in shoulder seam) — the
+// box position accounts for that, but a box+feather region was never
+// meant to trace the exact seam, only to bend the pattern roughly with
+// the sleeve's own direction, same as every other JACKET_*_SLEEVES entry.
+var JACKET_A2_SLEEVES = [
+    { x: 0.17, y: 0.19, w: 0.20, h: 0.60, angle: -0.06, strength: 0.74 },
+    { x: 0.63, y: 0.19, w: 0.20, h: 0.60, angle: 0.06, strength: 0.74 }
+];
+var JACKET_TRUCKER_SLEEVES = [
+    { x: 0.18, y: 0.19, w: 0.20, h: 0.62, angle: -0.06, strength: 0.74 },
+    { x: 0.62, y: 0.19, w: 0.20, h: 0.62, angle: 0.06, strength: 0.74 }
+];
+var JACKET_TEBA_SLEEVES = [
+    { x: 0.17, y: 0.18, w: 0.20, h: 0.62, angle: -0.06, strength: 0.74 },
+    { x: 0.62, y: 0.18, w: 0.20, h: 0.62, angle: 0.06, strength: 0.74 }
+];
+
 // Notch lapel (jacket-sb): the founder traced the true outline by hand
 // (collar top -> notch -> roll line down to the button) over a render of
 // this exact photo; these points are that trace, extracted by flood-filling
@@ -208,15 +260,56 @@ var TROUSER_LEGS = [
 // into their vertical run at the seam below — the legs themselves are
 // untouched outside that band, which is what keeps the rest of the body
 // straight.
+// y/h corrected 24 Aug 2026 (founder: the band was reading taller than
+// the real waistband) — measured directly off a fine-scale grid against
+// all three photos: the actual waistband seam sits at y≈0.05 (top edge)
+// to y≈0.095-0.10 (where it meets the leg), consistent across
+// trousers-flat/double/belt despite each photo's own slightly different
+// framing. The previous 0.045-0.11 span ran a good 0.01-0.015 past that
+// seam into the leg fabric, which is what made the band look oversized.
 var TROUSER_WAISTBAND = [
-    { x: -0.1, y: 0.045, w: 1.2, h: 0.065, angle: Math.PI / 2, strength: 1.0 }
+    { x: -0.1, y: 0.05, w: 1.2, h: 0.05, angle: Math.PI / 2, strength: 1.0 }
+];
+
+// trousers-gurkha and trousers-double-sideAdjusters (24 Aug 2026) were
+// missing from DISPLACEMENT_REGIONS entirely — a striped-cloth audit
+// found they rendered with zero fabric bend: no leg curve, no waistband
+// turn, a flat undistorted tile. These photos were edited from real BBS
+// garment photos and padded into the canonical frame differently than
+// trousers-flat/double/belt, so TROUSER_LEGS/TROUSER_WAISTBAND's own
+// coordinates (measured against those three) don't line up here — the
+// garment sits noticeably higher in frame (waistband top y≈0.085 vs
+// ≈0.05). Measured fresh off each photo's own grid; both share almost
+// identical framing so one set of coordinates covers both.
+var GURKHA_STYLE_LEGS = [
+    { x: 0.30, y: 0.02, w: 0.10, h: 1.00, angle: -0.03, strength: 0.80 },
+    { x: 0.40, y: 0.02, w: 0.10, h: 1.00, angle: 0.03, strength: 0.80 },
+    { x: 0.53, y: 0.02, w: 0.11, h: 1.00, angle: -0.03, strength: 0.80 },
+    { x: 0.64, y: 0.02, w: 0.11, h: 1.00, angle: 0.03, strength: 0.80 }
+];
+var GURKHA_STYLE_WAISTBAND = [
+    { x: -0.1, y: 0.085, w: 1.2, h: 0.05, angle: Math.PI / 2, strength: 1.0 }
 ];
 
 var DISPLACEMENT_REGIONS = {
-    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SLEEVES),
+    // jacket-sb was regenerated 23 Aug 2026 (wider notch lapel) — JACKET_SB_LAPELS
+    // was traced against the OLD photo and is retired here, not reused: its clip
+    // polygon no longer lines up with this photo's actual lapel at all (collar top
+    // alone moved from y≈0.045 to y≈0.18), so keeping it produced a visibly wrong
+    // bend, not just a slightly-off one. Sleeves-only until a real retrace happens.
+    "jacket-sb": JACKET_SB_SLEEVES_V2,
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
+    // The four below are new (23-24 Aug 2026) and have never had a lapel/collar
+    // trace — sleeves only, same reasoning as jacket-sb above.
+    "jacket-sb-notch-patch": JACKET_SB_NOTCH_PATCH_SLEEVES,
+    "jacket-db-peak-flap": JACKET_DB_PEAK_FLAP_SLEEVES,
+    "jacket-safari": JACKET_SAFARI_SLEEVES,
+    "jacket-chore": JACKET_CHORE_SLEEVES,
+    "jacket-a2": JACKET_A2_SLEEVES,
+    "jacket-trucker": JACKET_TRUCKER_SLEEVES,
+    "jacket-teba": JACKET_TEBA_SLEEVES,
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
     // two tall bands either side of the buttons, which broke a check down
@@ -226,7 +319,9 @@ var DISPLACEMENT_REGIONS = {
 
     "trousers-flat": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
     "trousers-double": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
-    "trousers-belt": TROUSER_LEGS.concat(TROUSER_WAISTBAND)
+    "trousers-belt": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
+    "trousers-gurkha": GURKHA_STYLE_LEGS.concat(GURKHA_STYLE_WAISTBAND),
+    "trousers-double-sideAdjusters": GURKHA_STYLE_LEGS.concat(GURKHA_STYLE_WAISTBAND)
 };
 window.DISPLACEMENT_REGIONS = DISPLACEMENT_REGIONS;
 
@@ -816,22 +911,29 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 // flap (2026-08-23) join the same self-healing lookup the same way.
 //
 // jacket-sb was regenerated 2026-08-23 with a wider notch lapel (founder:
-// the original read too narrow) — JACKET_SB_LAPELS below still traces the
-// OLD narrower outline and needs redoing against the new photo (a patterned
-// cloth will bend at the wrong point at the lapel until then; plain/lightly
-// textured cloths, most of the library, are unaffected).
+// the original read too narrow). The OLD JACKET_SB_LAPELS trace no longer
+// applies — DISPLACEMENT_REGIONS drops it for this key entirely rather
+// than keeping a stale trace (which produced a visible seam artifact
+// between body and sleeve, since JACKET_SLEEVES was calibrated against the
+// old photo's framing too; both replaced 24 Aug with regenerated boxes —
+// see JACKET_SB_SLEEVES_V2 and the comment above it). No lapel bend on
+// jacket-sb until a real retrace happens; sleeves are correct.
 //
 // trousers-gurkha and trousers-double-sideAdjusters (2026-08-23) were
 // generated by editing real BBS garment photos rather than from scratch —
 // trousers-flat-sideAdjusters (the flat-front sibling) hasn't been
 // generated yet, add it here the same way once it lands.
 //
-// jacket-safari and jacket-chore (2026-08-24) are the two "casual
-// jackets" — see fabric-visualiser.js's VIS_SINGLE_GARMENTS for the
-// Cloth Room picker entries that resolve to them.
+// jacket-safari, jacket-chore, jacket-a2, jacket-trucker, jacket-teba
+// (23-24 Aug 2026) are the five "casual jackets" — see fabric-visualiser.js's
+// VIS_SINGLE_GARMENTS for the Cloth Room picker entries that resolve to
+// them. None has a collar/lapel bend trace yet, same reasoning as jacket-sb
+// above (a box-only region doesn't work for a triangular/curved collar
+// shape — see the comment above JACKET_SLEEVES) — sleeves only.
 var GARMENT_ASSET_KEYS = [
     "jacket-sb", "jacket-sb-peak-patch", "jacket-sb-peak-flap", "jacket-sb-notch-patch",
-    "jacket-db", "jacket-db-peak-flap", "jacket-safari", "jacket-chore",
+    "jacket-db", "jacket-db-peak-flap",
+    "jacket-safari", "jacket-chore", "jacket-a2", "jacket-trucker", "jacket-teba",
     "vest-sb-none", "vest-sb-shawl",
     "trousers-flat", "trousers-double", "trousers-belt",
     "trousers-gurkha", "trousers-double-sideAdjusters"

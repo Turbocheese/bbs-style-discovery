@@ -603,7 +603,14 @@ if (require.main === module) {
         "jacket-safari": "replicate-safari-v2-jrtUm2ff.png",
         // New 2026-08-24: chore jacket, second "casual jacket" (see
         // docs/2026-08-23-style-room-image-prompts.md #10).
-        "jacket-chore": "replicate-prediction-cf8hdyc4hnrmr0d05xdb7p10e4.png"
+        "jacket-chore": "replicate-prediction-cf8hdyc4hnrmr0d05xdb7p10e4.png",
+        // New 2026-08-24: A2 flight jacket, third "casual jacket" (see
+        // docs/2026-08-23-style-room-image-prompts.md #11).
+        "jacket-a2": "replicate-prediction-rsmt2ad2tnrmw0d05xqtx59hj8.png",
+        // New 2026-08-24: trucker jacket, fourth "casual jacket" (#12).
+        "jacket-trucker": "replicate-prediction-e9ayxmnybsrmr0d05xsrqwpc50.png",
+        // New 2026-08-24: teba jacket, fifth "casual jacket" (#13).
+        "jacket-teba": "replicate-prediction-d95d9g6q21rmw0d05xtsf8wgp4.png"
         // The build MUST skip any key whose source file is absent and report
         // it by name rather than failing.
     };

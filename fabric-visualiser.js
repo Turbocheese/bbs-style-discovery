@@ -1659,7 +1659,14 @@ var VIS_ENS_STYLE_OPTIONS = {
         style: [
             { key: "flat", label: "Flat Front", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] },
             { key: "double", label: "Double Pleat", topic: ["tailoring", "trousers", "configuration", "pleats", "double_pleats"] },
-            { key: "belt", label: "Belt Loops", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] }
+            { key: "belt", label: "Belt Loops", topic: ["tailoring", "trousers", "configuration", "pleats", "flat_front"] },
+            // No "gurkha" entry in the guide tree yet — topic omitted rather
+            // than pointed at a path that doesn't resolve. .topic is read as
+            // optional everywhere it's used (see the "&& opts[ro].topic"
+            // guard on the reco-strip link), so this option works fine
+            // without one; it just shows no "See the guide" link until a
+            // real topic exists.
+            { key: "gurkha", label: "Gurkha", detail: "Single strap" }
         ]
     }
 };

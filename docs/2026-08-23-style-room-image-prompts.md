@@ -36,6 +36,15 @@ now makes it selectable.
   the background out; a tinted or shadowed ground breaks the mask.
 - Ghost-mannequin: shaped with realistic body volume, no person, no
   mannequin, no hanger visible.
+- **No brand labels, neck tags, or size labels visible anywhere**
+  (founder direction, 24 Aug 2026). A flat-lay source photo often shows
+  a woven label at the inside collar or waistband — this must not
+  survive into the edit. Every "edit this exact photograph" prompt
+  below that comes from a flat lay (Gurkha, both side-adjuster
+  trousers, A2, Trucker, Teba) should have this checked on the result
+  even where the prompt text doesn't call it out explicitly — worn-photo
+  sources (Safari, Chore) are unaffected since the collar naturally
+  hides the label already, confirmed on both shipped assets.
 - Dark horn-effect buttons, black lining where the front opens (the
   compositor's multiply-blend trick relies on a near-black lining staying
   near-black under any cloth) — **tailored garments only.** Every casual
@@ -616,7 +625,11 @@ e-commerce product photography style.
 
 ### 11. A2 flight jacket (blouson) — `jacket-a2`
 
-**New 24 Aug 2026 — third "casual jacket."** Founder-supplied reference:
+**SHIPPED 24 Aug 2026** — first-attempt generation matched the brief,
+no correction round needed. In `GARMENT_ASSET_KEYS`/`SOURCES`, selectable
+from the Casual Jacket sub-picker's "A2 Flight Jacket" chip.
+
+**Third "casual jacket."** Founder-supplied reference:
 a real BBS flat lay, cream linen. Notched shirt-style collar (no lapel
 roll), raglan sleeves (a diagonal seam runs from the collar straight to
 the underarm, not a set-in shoulder seam), two chest-level flap pockets
@@ -666,7 +679,11 @@ CHANGE:
 3. UNLINED — wherever the front opens even slightly, the inside should
    read as the same outer cloth, not a contrasting lining. Tropical-
    climate house style doesn't line its casual jackets.
-4. Change the background to pure flat white, RGB 255 255 255, no
+4. REMOVE ANY BRAND LABEL, NECK TAG, OR SIZE LABEL — the source photo
+   may show a woven label sewn at the inside collar. It must not appear
+   in the result; that area should read as plain cloth, the same as the
+   rest of the inside collar.
+5. Change the background to pure flat white, RGB 255 255 255, no
    shadow, no gradient, no visible horizon line. Soft even studio
    lighting, no hard highlights.
 
@@ -678,7 +695,12 @@ to edge, commercial e-commerce product photography style.
 
 ### 12. Trucker jacket — `jacket-trucker`
 
-**New 24 Aug 2026 — fourth "casual jacket."** Founder-supplied
+**SHIPPED 24 Aug 2026** — matched the brief, no correction round
+needed (including the brand-label removal — the source photo's
+"BBS Edition Capsule" tag did not survive into the result). Selectable
+from the Casual Jacket sub-picker's "Trucker Jacket" chip.
+
+**Fourth "casual jacket."** Founder-supplied
 reference: a real BBS flat lay, khaki twill. Classic Western trucker
 construction: pointed shirt-style collar, a YOKE SEAM across the chest
 (a V-shaped seam running from each shoulder down to the centre front,
@@ -722,7 +744,11 @@ CHANGE:
 3. UNLINED — wherever the front opens even slightly, the inside should
    read as the same outer cloth, not a contrasting lining. Tropical-
    climate house style doesn't line its casual jackets.
-4. Change the background to pure flat white, RGB 255 255 255, no
+4. REMOVE THE BRAND LABEL — the source photo shows a woven "BBS Edition
+   Capsule" tag sewn at the inside collar. It must not appear in the
+   result; that area should read as plain cloth, the same as the rest
+   of the inside collar.
+5. Change the background to pure flat white, RGB 255 255 255, no
    shadow, no gradient, no visible horizon line. Soft even studio
    lighting, no hard highlights.
 
@@ -734,7 +760,11 @@ commercial e-commerce product photography style.
 
 ### 13. Teba jacket — `jacket-teba`
 
-**New 24 Aug 2026 — fifth "casual jacket."** Founder-supplied reference
+**SHIPPED 24 Aug 2026** — the stand/band collar generated correctly
+(the detail flagged above as worth double-checking held up). Selectable
+from the Casual Jacket sub-picker's "Teba Jacket" chip.
+
+**Fifth "casual jacket."** Founder-supplied reference
 (the house's own Teba, not the generic silhouette the name usually
 implies — checked the actual photo rather than assuming): off-white
 cotton, flat lay. A STAND/BAND COLLAR (a short upright mandarin-style
@@ -778,7 +808,11 @@ CHANGE:
 3. UNLINED — wherever the front opens even slightly, the inside should
    read as the same outer cloth, not a contrasting lining. Tropical-
    climate house style doesn't line its casual jackets.
-4. Change the background to pure flat white, RGB 255 255 255, no
+4. REMOVE ANY BRAND LABEL, NECK TAG, OR SIZE LABEL — the source photo
+   may show a woven label sewn at the inside collar. It must not appear
+   in the result; that area should read as plain cloth, the same as the
+   rest of the inside collar.
+5. Change the background to pure flat white, RGB 255 255 255, no
    shadow, no gradient, no visible horizon line. Soft even studio
    lighting, no hard highlights.
 
