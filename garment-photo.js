@@ -66,6 +66,18 @@ var JACKET_SLEEVES = [
     { x: 0.73, y: 0.12, w: 0.22, h: 0.55, angle: 0.05, strength: 0.74 }
 ];
 
+// jacket-db's sleeve runs to y≈0.90 (a taller/longer photo than
+// jacket-sb-peak-patch/flap, which JACKET_SLEEVES above was actually
+// calibrated against and still fits) — sharing that box left the bottom
+// third of jacket-db's sleeve completely undisplaced, producing a visible
+// kink in a patterned cloth right where the box's y+h=0.67 edge ends and
+// flat, untouched pattern resumes (found 25 Aug 2026, striped-cloth audit).
+// Measured fresh against jacket-db's own grid.
+var JACKET_DB_SLEEVES = [
+    { x: 0.13, y: 0.10, w: 0.18, h: 0.85, angle: -0.05, strength: 0.74 },
+    { x: 0.71, y: 0.10, w: 0.18, h: 0.85, angle: 0.05, strength: 0.74 }
+];
+
 // Sleeve-only regions for the 5 garments added 23-24 Aug 2026, each
 // measured directly off its own labelled grid (same technique as the
 // header comment above, just done per-photo since none of these share
@@ -239,10 +251,17 @@ var JACKET_DB_LAPELS = [
 // They run past the top and bottom of the frame on purpose: a region edge
 // that lands inside the garment leaves the feather band visible as a faint
 // horizontal seam across the hem.
+// The two inner boxes (x=0.37, x=0.51) flank the inseam/crotch — they
+// overlap after feathering (see DISPLACEMENT_FEATHER_FRACTION), but each
+// carries an OPPOSITE tilt (+0.03 vs -0.03), so a patterned cloth showed a
+// visible kink right at that overlap: the crotch seam artifact found in
+// the 25 Aug 2026 audit. Softened those two angles to ±0.015 (half the
+// outer legs' ±0.03) — enough to still read as a curve, subtle enough that
+// the opposite-direction transition no longer reads as a hard kink.
 var TROUSER_LEGS = [
     { x: 0.25, y: 0.02, w: 0.12, h: 1.00, angle: -0.03, strength: 0.80 },
-    { x: 0.37, y: 0.02, w: 0.12, h: 1.00, angle: 0.03, strength: 0.80 },
-    { x: 0.51, y: 0.02, w: 0.12, h: 1.00, angle: -0.03, strength: 0.80 },
+    { x: 0.37, y: 0.02, w: 0.12, h: 1.00, angle: 0.015, strength: 0.80 },
+    { x: 0.51, y: 0.02, w: 0.12, h: 1.00, angle: -0.015, strength: 0.80 },
     { x: 0.63, y: 0.02, w: 0.12, h: 1.00, angle: 0.03, strength: 0.80 }
 ];
 
@@ -300,7 +319,7 @@ var DISPLACEMENT_REGIONS = {
     "jacket-sb": JACKET_SB_SLEEVES_V2,
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
-    "jacket-db": JACKET_DB_LAPELS.concat(JACKET_SLEEVES),
+    "jacket-db": JACKET_DB_LAPELS.concat(JACKET_DB_SLEEVES),
     // The four below are new (23-24 Aug 2026) and have never had a lapel/collar
     // trace — sleeves only, same reasoning as jacket-sb above.
     "jacket-sb-notch-patch": JACKET_SB_NOTCH_PATCH_SLEEVES,
@@ -543,7 +562,17 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
 // stays sharp on a retina iPad and in the loupe, so the tile is drawn at the
 // same whole-number multiple — the weave keeps its scale relative to the
 // garment, and the multiple stays whole because a fractional tile seams.
-var TILE_REFERENCE_WIDTH = 644;
+//
+// Bumped 644 -> 966 (25 Aug 2026, founder feedback: patterns read too
+// zoomed-in/bold on the garment). This halves clothTileScale's rounded
+// multiple for every current canvas size (jacket/vest 1289px: 2 -> 1;
+// trousers 1073px: 2 -> 1), which halves the on-screen pitch of every
+// stripe/check — twice as many repeats fit across the garment, reading as
+// a finer, more true-to-scale cloth. 966 rather than exactly 1289 leaves
+// comfortable rounding margin on both canvas widths (retina still uses a
+// devicePixelRatio-scaled canvas underneath, so sharpness is unaffected —
+// this only changes how large the pattern reads, not its resolution).
+var TILE_REFERENCE_WIDTH = 966;
 
 function clothTileScale(canvas) {
     return Math.max(1, Math.round(canvas.width / TILE_REFERENCE_WIDTH));

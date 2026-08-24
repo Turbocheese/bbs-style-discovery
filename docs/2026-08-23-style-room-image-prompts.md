@@ -45,12 +45,21 @@ now makes it selectable.
   even where the prompt text doesn't call it out explicitly — worn-photo
   sources (Safari, Chore) are unaffected since the collar naturally
   hides the label already, confirmed on both shipped assets.
-- Dark horn-effect buttons, black lining where the front opens (the
-  compositor's multiply-blend trick relies on a near-black lining staying
-  near-black under any cloth) — **tailored garments only.** Every casual
-  jacket (Safari, Chore, A2, Trucker, Teba) is UNLINED instead, same
-  tropical-climate reasoning as the unlined trousers — see each of
-  their prompts (#9–13) for the exact wording.
+- Dark horn-effect buttons, black lining where the front opens — **SB/DB
+  tailored jackets only** (`jacket-sb`, `jacket-sb-peak-*`,
+  `jacket-sb-notch-patch`, `jacket-db`, `jacket-db-peak-flap`). The
+  compositor's multiply-blend trick relies on a near-black lining
+  staying near-black under any cloth, which is why those keep it.
+  **Everything else is UNLINED** — tropical-climate house style
+  (founder direction, 24-25 Aug 2026, confirmed to cover vests too on
+  25 Aug, not just casual jackets and trousers as first stated): every
+  casual jacket (Safari, Chore, A2, Trucker, Teba — see #9–13 for the
+  exact wording), every trouser, and both vests
+  (`vest-sb-none`/`vest-sb-shawl`). **The two shipped vest assets still
+  show black lining** (generated before this rule was clarified to
+  include vests) — flagged here as a known follow-up, not yet
+  corrected; no vest prompt in this doc has been rewritten for it, so
+  don't assume one exists yet.
 
 ## Priority order
 
@@ -65,6 +74,10 @@ now makes it selectable.
    from-scratch generation.
 6. **Trouser waistband: side adjusters (flat + double-pleat)** — also
    now an edit of a real BBS photo (#7/#8, v3).
+6b. **URGENT — real belt loops (flat + pleated)** — `trousers-belt`
+   has never actually shown belt loops (it shows the same side-adjuster
+   construction as the other two trousers, mislabelled since it was
+   first generated). See #14/#15.
 7. **Casual jackets** — Safari and Chore SHIPPED 24 Aug; A2, Trucker,
    and Teba are next (#11–13), genuinely new garment silhouettes, not
    lapel/pocket variants of the tailored jacket. The Style Room picker
@@ -822,6 +835,132 @@ placement, or silhouette beyond what's listed above. Portrait
 orientation, aspect ratio 4:5, sharp focus edge to edge, commercial
 e-commerce product photography style.
 ```
+
+### 14. Flat front trousers, REAL belt loops — corrects `trousers-belt`
+
+**v2, corrected against a real generation (founder feedback, 25 Aug
+2026).** v1 (below) got the loops, the flat waistband line, and the
+overall construction right — but it also suppressed a real detail
+visible in the founder's own reference: the waistband has a small
+POINTED TAB at centre front that rises slightly above the main
+waistband line, with a hook closure, and the button sits just below it
+on the main band — a classic extended-tab-and-button-and-hook closure,
+distinct from the side-adjuster tab (which sits at the HIP with a
+strap/buckle, not at centre front with a hook). v1's instruction to
+keep the front "plain and flat with no extended tab" was too broad and
+removed this too. v2 is a follow-up edit against v1's own result
+(`tmppvjsygoy.png`), not a fresh edit of the original photo — keeps
+everything v1 already got right, adds back only the centre tab.
+
+**Bug found 25 Aug 2026 (founder): `trousers-belt.webp` doesn't show
+belt loops at all** — it shows the same V-shaped extended-tab-and-buckle
+side-adjuster construction as `trousers-flat`/`trousers-double`, just
+mislabelled. This has been wrong since the asset was first generated
+(the 08-17 doc's own header noted the source photo shows "a front
+extended waistband tab with a button... not plain belt loops either"
+and flagged it as a known gap, but the key was never actually
+corrected). Founder supplied a real reference (Mr Porter product
+photo) showing genuine construction: narrow fabric belt loops sewn
+at intervals around the waistband, a small pointed tab with a hook
+closure at centre front, a button on the main band just below it. Also
+asked for the loops slightly narrower than a default-width loop.
+
+```
+Edit this exact photograph — a pair of trousers with belt loops already
+correctly added. Keep everything as it is: the belt loops, the leg
+shape, pleats, crease, hem, and overall proportions.
+
+ADD ONE DETAIL: at the centre front of the waistband, where the button
+currently sits flush with the main waistband line, add a SMALL POINTED
+TAB — a narrow triangular extension of the same cloth rising slightly
+ABOVE the main waistband line, with a small hook-and-eye closure at its
+point. The existing button stays exactly where it is, on the main
+waistband band just below this new tab — the tab and the button are
+two separate closures stacked vertically at centre front, both visible
+(the tab's hook above, the button below it). This is a classic
+extended-waistband-tab detail, small and subtle — not a wide flap, just
+a narrow pointed piece extending maybe 1-1.5cm above the main line.
+
+Do not change the belt loops, leg, pleats, crease, hem, background, or
+anything else. Portrait orientation, aspect ratio 2:3, sharp focus edge
+to edge, commercial e-commerce product photography style.
+```
+
+<details>
+<summary>v1 — first edit of the original trousers-belt.webp (superseded by v2 above, kept for the record)</summary>
+
+```
+Edit this exact photograph. This is a real pair of tailored trousers.
+Change ONLY the waistband construction — keep the leg shape, any
+pleats, the crease, the hem, and the overall proportions exactly as
+shown.
+
+CHANGE: Replace the current waistband tab-and-buckle closure with
+GENUINE BELT LOOPS — narrow vertical fabric loops of the same cloth,
+evenly spaced around the waistband (typically 5-7 loops: one at centre
+back, two at the sides, two at the front near the fly), each loop
+noticeably narrow — slightly narrower than a standard belt loop width,
+a slim tailored loop rather than a wide casual one. The waistband
+front itself is PLAIN and FLAT with no extended tab, no strap, no
+buckle — it closes with a single small button or hook at the fly,
+flush with the top of the waistband. NO side-adjuster tabs or straps
+anywhere. Black interior waistband lining just visible inside the top
+edge, unless the source shows unlined construction, in which case
+match that instead.
+
+Do not alter the leg width, pleats (or their absence), crease, cuffs,
+hem, or any other part of the garment. Background stays pure flat
+white. Portrait orientation, aspect ratio 2:3, sharp focus edge to
+edge, commercial e-commerce product photography style.
+```
+</details>
+
+### 15. Double forward-pleat trousers, REAL belt loops — new variant
+
+Same correction as #14, applied to a pleated leg instead of flat front
+— gives the belt-loop waistband both pleat options, matching what the
+side-adjuster waistband already has (`trousers-flat`/`trousers-double`).
+Edit `trousers-double.webp` (already has the correct pleated leg) with
+the same waistband instruction as #14.
+
+```
+Edit this exact photograph. This is a real pair of tailored trousers
+with two forward pleats on each leg. Change ONLY the waistband
+construction — keep the pleats, leg shape, crease, hem, and overall
+proportions exactly as shown.
+
+CHANGE: Replace the current waistband tab-and-buckle closure with
+GENUINE BELT LOOPS — narrow vertical fabric loops of the same cloth,
+evenly spaced around the waistband (typically 5-7 loops: one at centre
+back, two at the sides, two at the front near the fly), each loop
+noticeably narrow — slightly narrower than a standard belt loop width,
+a slim tailored loop rather than a wide casual one. The waistband
+front itself is PLAIN and FLAT with no extended tab, no strap, no
+buckle — it closes with a single small button or hook at the fly,
+flush with the top of the waistband. NO side-adjuster tabs or straps
+anywhere. Black interior waistband lining just visible inside the top
+edge, unless the source shows unlined construction, in which case
+match that instead.
+
+Do not alter the pleats, leg width, crease, cuffs, hem, or any other
+part of the garment. Background stays pure flat white. Portrait
+orientation, aspect ratio 2:3, sharp focus edge to edge, commercial
+e-commerce product photography style.
+```
+
+**Wiring, once both land:** #14 replaces the existing
+`trousers-belt.webp` in place (same key, `SOURCES["trousers-belt"]` in
+`tools/build-garment-assets.js` just points at the new file — no other
+code changes, it's already wired everywhere `trousers-belt` is used).
+#15 is a genuinely new key — add `"trousers-beltPleat"` to `SOURCES`
+and `GARMENT_ASSET_KEYS`, then add `{ key: "beltPleat", label: "Belt
+Loops, Pleated" }` to `VIS_ENS_STYLE_OPTIONS.trousers.style` in
+fabric-visualiser.js (same list `"gurkha"` was added to) so it's
+selectable from the Trousers "Make" picker. Both need the leg/waistband
+displacement region treatment from this session's audit — reuse
+`TROUSER_LEGS`/`TROUSER_WAISTBAND` for #14 (same framing as
+`trousers-flat`) and check #15 lines up with `trousers-double`'s own
+coordinates before assuming it does.
 
 ## After generating: same pipeline as before, no new steps
 
