@@ -46,20 +46,16 @@ now makes it selectable.
   sources (Safari, Chore) are unaffected since the collar naturally
   hides the label already, confirmed on both shipped assets.
 - Dark horn-effect buttons, black lining where the front opens — **SB/DB
-  tailored jackets only** (`jacket-sb`, `jacket-sb-peak-*`,
-  `jacket-sb-notch-patch`, `jacket-db`, `jacket-db-peak-flap`). The
-  compositor's multiply-blend trick relies on a near-black lining
-  staying near-black under any cloth, which is why those keep it.
-  **Everything else is UNLINED** — tropical-climate house style
-  (founder direction, 24-25 Aug 2026, confirmed to cover vests too on
-  25 Aug, not just casual jackets and trousers as first stated): every
-  casual jacket (Safari, Chore, A2, Trucker, Teba — see #9–13 for the
-  exact wording), every trouser, and both vests
-  (`vest-sb-none`/`vest-sb-shawl`). **The two shipped vest assets still
-  show black lining** (generated before this rule was clarified to
-  include vests) — flagged here as a known follow-up, not yet
-  corrected; no vest prompt in this doc has been rewritten for it, so
-  don't assume one exists yet.
+  tailored jackets AND vests** (`jacket-sb`, `jacket-sb-peak-*`,
+  `jacket-sb-notch-patch`, `jacket-db`, `jacket-db-peak-flap`,
+  `vest-sb-none`, `vest-sb-shawl`). The compositor's multiply-blend
+  trick relies on a near-black lining staying near-black under any
+  cloth, which is why those keep it — confirmed correct as shipped, no
+  action needed on the two vest assets (25 Aug 2026: an earlier version
+  of this note wrongly said vests should be unlined too — corrected).
+  **Unlined applies to casual jackets and trousers only** —
+  tropical-climate house style: every casual jacket (Safari, Chore, A2,
+  Trucker, Teba — see #9–13 for the exact wording) and every trouser.
 
 ## Priority order
 
@@ -917,11 +913,15 @@ edge, commercial e-commerce product photography style.
 
 ### 15. Double forward-pleat trousers, REAL belt loops — new variant
 
-Same correction as #14, applied to a pleated leg instead of flat front
-— gives the belt-loop waistband both pleat options, matching what the
+**Corrected 25 Aug 2026 before ever being generated** — carries the
+same fix #14 needed a v2 round for, applied up front this time: a
+genuine belt-loop waistband includes a small pointed tab at centre
+front that rises slightly above the main waistband line, closed with a
+hook, with the ordinary button on the main band just below it (see the
+founder's Mr Porter reference and #14's v2 note for the detail). Gives
+the belt-loop waistband both pleat options, matching what the
 side-adjuster waistband already has (`trousers-flat`/`trousers-double`).
-Edit `trousers-double.webp` (already has the correct pleated leg) with
-the same waistband instruction as #14.
+Edit `trousers-double.webp` (already has the correct pleated leg).
 
 ```
 Edit this exact photograph. This is a real pair of tailored trousers
@@ -934,13 +934,18 @@ GENUINE BELT LOOPS — narrow vertical fabric loops of the same cloth,
 evenly spaced around the waistband (typically 5-7 loops: one at centre
 back, two at the sides, two at the front near the fly), each loop
 noticeably narrow — slightly narrower than a standard belt loop width,
-a slim tailored loop rather than a wide casual one. The waistband
-front itself is PLAIN and FLAT with no extended tab, no strap, no
-buckle — it closes with a single small button or hook at the fly,
-flush with the top of the waistband. NO side-adjuster tabs or straps
-anywhere. Black interior waistband lining just visible inside the top
-edge, unless the source shows unlined construction, in which case
-match that instead.
+a slim tailored loop rather than a wide casual one. At the CENTRE
+FRONT of the waistband, add a SMALL POINTED TAB — a narrow triangular
+extension of the same cloth rising slightly (roughly 1-1.5cm) ABOVE
+the main waistband line, closed with a small hook-and-eye at its
+point. Just below this tab, on the main waistband band itself, a
+single ordinary button — the tab's hook and the button are two
+separate closures stacked vertically, both visible. Elsewhere the
+waistband front is plain and flat — NO side-adjuster tabs or straps
+at the hips, no buckle anywhere. UNLINED — the interior of the
+waistband is the same outer cloth, no dark or contrasting lining
+(tropical-climate house style — every trouser in this range is
+unlined).
 
 Do not alter the pleats, leg width, crease, cuffs, hem, or any other
 part of the garment. Background stays pure flat white. Portrait
