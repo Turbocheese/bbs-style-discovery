@@ -953,10 +953,22 @@ same fix #14 needed a v2 round for, applied up front this time: a
 genuine belt-loop waistband includes a small pointed tab at centre
 front that rises slightly above the main waistband line, closed with a
 hook, with the ordinary button on the main band just below it (see the
-founder's Mr Porter reference and #14's v2 note for the detail). Gives
+founder's Mr Porter reference and #14's v3 note for the detail). Gives
 the belt-loop waistband both pleat options, matching what the
 side-adjuster waistband already has (`trousers-flat`/`trousers-double`).
 Edit `trousers-double.webp` (already has the correct pleated leg).
+
+**No recolour needed here either — checked the same way as #14.**
+This one edits `trousers-double`'s own source
+(`replicate-prediction-y3t5wmjtdsrmr0czgk09dhpbq4.jpeg`), so that's the
+right colour to compare against, not `trousers-belt`'s. Its source
+samples about 14 RGB units darker than `trousers-belt`'s (134,131,132
+vs. 146,145,145) — a bigger gap than #14's ~2-value match, but this is
+normal photo-to-photo lighting variance, not a different cloth: this
+exact source already ships successfully as both `trousers-double` and
+`trousers-double-sideAdjusters` with no recolour step, and reads as
+the same grey family on direct visual inspection. No colour
+instruction in the prompt below — the edit changes construction only.
 
 ```
 Edit this exact photograph. This is a real pair of tailored trousers
