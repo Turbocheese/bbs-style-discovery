@@ -735,33 +735,65 @@ function getVisGarmentKey() {
     return "jacket";
 }
 
-// Lapel/pocket (jacket) and make/waistband (trousers) customisation for
-// the Cloth Room's own single-cloth screen (23 Aug 2026) — previously
-// these choices only existed inside the Ensemble builder's Bespoke Spec
-// drawer, so a client browsing one garment at a time could never reach
-// jacket-sb-notch-patch, jacket-sb-peak-*, or a double-pleat/side-adjuster
-// trouser at all. Reuses BESPOKE_SPEC_OPTIONS/VIS_ENS_STYLE_OPTIONS
-// directly rather than a parallel data set, and only offers a panel for
-// jacket/trousers — vest/safari/chore have no spec options defined, so
-// getVisCustomizeHTML returns "" for them, matching "related garments
-// only". Trousers deliberately exposes "make" (VIS_ENS_STYLE_OPTIONS'
-// flat/double/belt, which is what actually selects the base photo) rather
-// than BESPOKE_SPEC_OPTIONS.trousers.pleat — that field is real order-form
-// detail but doesn't drive resolveGarmentKey at all (see that function's
-// own comment), so surfacing it here as a live, tappable control would
-// silently do nothing, which is fine buried in the Ensemble drawer but
-// would read as broken on a screen that re-renders on every tap.
+// Lapel/pocket/closure (jacket) and waistband/pleat (trousers)
+// customisation for the Cloth Room's own single-cloth screen (23 Aug
+// 2026) — previously these choices only existed inside the Ensemble
+// builder's Bespoke Spec drawer, so a client browsing one garment at a
+// time could never reach jacket-sb-notch-patch, jacket-db, or a
+// double-pleat/side-adjuster trouser at all. Only offers a panel for
+// jacket/trousers — vest/safari/chore/etc have no spec options defined,
+// so getVisCustomizeHTML returns "" for them, matching "related garments
+// only".
+//
+// Trousers customize panel (25 Aug 2026 restructure, founder direction):
+// two tiers — which waistband construction, then (for the two that have a
+// pleat option) whether it's pleated. Replaces a flatter "Make" list that
+// mixed pleat and waistband into one 5-way choice, plus a second
+// "Waistband" group that was largely a dead end — direct inspection of
+// the shipped photos found trousers-flat/trousers-double already show
+// side-adjuster (buckle+strap+centre tab) construction by default, so
+// picking "Standard Belt Loops" there while make="flat" silently fell
+// back to plain trousers-flat regardless (no "trousers-flat-beltLoops"
+// asset exists, nor "trousers-double-beltLoops"). This local table maps
+// the two-tier choice straight onto the five real photos that exist, sidestepping
+// that dead path entirely — it does not touch VIS_ENS_STYLE_OPTIONS or
+// BESPOKE_SPEC_OPTIONS.trousers.waistband, both still used as-is by the
+// Ensemble builder and its own Bespoke Spec drawer.
+var TROUSER_WAISTBAND_OPTIONS = [
+    { key: "beltLoops", label: "Belt Loops" },
+    { key: "sideAdjusters", label: "Side Adjusters" },
+    { key: "gurkha", label: "Gurkha", detail: "Single strap" }
+];
+var TROUSER_PLEAT_OPTIONS = [
+    { key: "flat", label: "No Pleats" },
+    { key: "double", label: "Pleats" }
+];
+
+function trouserOptionAllowed(opts, value) {
+    for (var i = 0; i < opts.length; i++) { if (opts[i].key === value) return true; }
+    return false;
+}
+
+// waistband + pleat -> the actual "trousers-<x>" suffix resolveGarmentKey
+// already knows how to turn into a full asset key. Gurkha has no pleat
+// variant, so pleat is ignored whenever waistband is "gurkha".
+function trouserMakeKey(waistband, pleat) {
+    if (waistband === "gurkha") return "gurkha";
+    if (waistband === "beltLoops") return pleat === "double" ? "beltPleat" : "belt";
+    return pleat === "double" ? "double" : "flat"; // sideAdjusters
+}
+
 function getVisCustomState() {
     if (!appState.visCustom || typeof appState.visCustom !== "object") appState.visCustom = {};
     var c = appState.visCustom;
     if (!c.jacket || typeof c.jacket !== "object") c.jacket = { closure: "sb", lapelStyle: "notch", pockets: "flap" };
-    if (!c.trousers || typeof c.trousers !== "object") c.trousers = { make: "flat", waistband: "beltLoops" };
+    if (!c.trousers || typeof c.trousers !== "object") c.trousers = { waistband: "sideAdjusters", pleat: "flat" };
     // Scrub any persisted value that no longer matches an offered option.
     if (!ensStyleValueAllowed("jacket", "closure", c.jacket.closure)) c.jacket.closure = "sb";
     if (!ensSpecValueAllowed("jacket", "lapelStyle", c.jacket.lapelStyle)) c.jacket.lapelStyle = "notch";
     if (!ensSpecValueAllowed("jacket", "pockets", c.jacket.pockets)) c.jacket.pockets = "flap";
-    if (!ensStyleValueAllowed("trousers", "style", c.trousers.make)) c.trousers.make = "flat";
-    if (!ensSpecValueAllowed("trousers", "waistband", c.trousers.waistband)) c.trousers.waistband = "beltLoops";
+    if (!trouserOptionAllowed(TROUSER_WAISTBAND_OPTIONS, c.trousers.waistband)) c.trousers.waistband = "sideAdjusters";
+    if (!trouserOptionAllowed(TROUSER_PLEAT_OPTIONS, c.trousers.pleat)) c.trousers.pleat = "flat";
     return c;
 }
 
@@ -778,11 +810,7 @@ function getVisGarmentStyleSpec(garmentKey) {
     }
     if (garmentKey === "trousers") {
         var ct = getVisCustomState().trousers;
-        // A side-adjuster waistband only has a photo on top of the flat/
-        // double bases — belt-loop trousers already have loops, a
-        // waistband spec on that base wouldn't mean anything.
-        var spec = (ct.make === "flat" || ct.make === "double") ? { waistband: ct.waistband } : null;
-        return { style: { style: ct.make }, spec: spec };
+        return { style: { style: trouserMakeKey(ct.waistband, ct.pleat) }, spec: null };
     }
     return { style: entry.style, spec: null };
 }
@@ -836,9 +864,9 @@ function getVisCustomizeHTML(garmentKey) {
     if (garmentKey === "trousers") {
         var ct = getVisCustomState().trousers;
         var html = '<div class="vis-customize">' +
-            getVisCustomGroupHTML("trousers", "make", "Make", VIS_ENS_STYLE_OPTIONS.trousers.style, ct.make);
-        if (ct.make === "flat" || ct.make === "double") {
-            html += getVisCustomGroupHTML("trousers", "waistband", "Waistband", BESPOKE_SPEC_OPTIONS.trousers.waistband, ct.waistband);
+            getVisCustomGroupHTML("trousers", "waistband", "Make", TROUSER_WAISTBAND_OPTIONS, ct.waistband);
+        if (ct.waistband !== "gurkha") {
+            html += getVisCustomGroupHTML("trousers", "pleat", "Pleats", TROUSER_PLEAT_OPTIONS, ct.pleat);
         }
         html += "</div>";
         return html;
