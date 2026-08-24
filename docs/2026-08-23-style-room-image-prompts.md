@@ -834,19 +834,15 @@ e-commerce product photography style.
 
 ### 14. Flat front trousers, REAL belt loops — corrects `trousers-belt`
 
-**v2, corrected against a real generation (founder feedback, 25 Aug
-2026).** v1 (below) got the loops, the flat waistband line, and the
-overall construction right — but it also suppressed a real detail
-visible in the founder's own reference: the waistband has a small
-POINTED TAB at centre front that rises slightly above the main
-waistband line, with a hook closure, and the button sits just below it
-on the main band — a classic extended-tab-and-button-and-hook closure,
-distinct from the side-adjuster tab (which sits at the HIP with a
-strap/buckle, not at centre front with a hook). v1's instruction to
-keep the front "plain and flat with no extended tab" was too broad and
-removed this too. v2 is a follow-up edit against v1's own result
-(`tmppvjsygoy.png`), not a fresh edit of the original photo — keeps
-everything v1 already got right, adds back only the centre tab.
+**v3, single-pass rewrite (25 Aug 2026) — edits the ORIGINAL source
+photo again** (`replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg`),
+not v1's already-generated result — the two-step v1→v2 chain isn't
+needed as a starting point for a fresh render; this merges both fixes
+into one prompt. **Confirmed by direct pixel sampling: the source
+photo's colour already matches the rest of the range (avg RGB
+146,145,145 vs. trousers-flat's source at 148,148,147 — a ~2-value
+difference, i.e. the same grey) — no recolour instruction needed,
+only the waistband construction changes.**
 
 **Bug found 25 Aug 2026 (founder): `trousers-belt.webp` doesn't show
 belt loops at all** — it shows the same V-shaped extended-tab-and-buckle
@@ -857,33 +853,49 @@ extended waistband tab with a button... not plain belt loops either"
 and flagged it as a known gap, but the key was never actually
 corrected). Founder supplied a real reference (Mr Porter product
 photo) showing genuine construction: narrow fabric belt loops sewn
-at intervals around the waistband, a small pointed tab with a hook
-closure at centre front, a button on the main band just below it. Also
-asked for the loops slightly narrower than a default-width loop.
+at intervals around the waistband, and — confirmed on a second
+generation attempt (v1/v2 below, superseded) — a small pointed tab
+with a hook closure at centre front, with an ordinary button on the
+main band just below it. Also asked for the loops slightly narrower
+than a default-width loop.
 
 ```
-Edit this exact photograph — a pair of trousers with belt loops already
-correctly added. Keep everything as it is: the belt loops, the leg
-shape, pleats, crease, hem, and overall proportions.
+Edit this exact photograph. This is a real pair of tailored trousers.
+Change ONLY the waistband construction — keep the leg shape, pleats
+(or their absence), crease, hem, cloth colour, and overall proportions
+exactly as shown.
 
-ADD ONE DETAIL: at the centre front of the waistband, where the button
-currently sits flush with the main waistband line, add a SMALL POINTED
-TAB — a narrow triangular extension of the same cloth rising slightly
-ABOVE the main waistband line, with a small hook-and-eye closure at its
-point. The existing button stays exactly where it is, on the main
-waistband band just below this new tab — the tab and the button are
-two separate closures stacked vertically at centre front, both visible
-(the tab's hook above, the button below it). This is a classic
-extended-waistband-tab detail, small and subtle — not a wide flap, just
-a narrow pointed piece extending maybe 1-1.5cm above the main line.
+CHANGE: Replace the current waistband tab-and-buckle closure with
+GENUINE BELT LOOPS — narrow vertical fabric loops of the same cloth,
+evenly spaced around the waistband (typically 5-7 loops: one at centre
+back, two at the sides, two at the front near the fly), each loop
+noticeably narrow — slightly narrower than a standard belt loop width,
+a slim tailored loop rather than a wide casual one. At the CENTRE
+FRONT of the waistband, add a SMALL POINTED TAB — a narrow triangular
+extension of the same cloth rising slightly (roughly 1-1.5cm) ABOVE
+the main waistband line, closed with a small hook-and-eye at its
+point. Just below this tab, on the main waistband band itself, a
+single ordinary button — the tab's hook and the button are two
+separate closures stacked vertically, both visible. Elsewhere the
+waistband front is plain and flat — NO side-adjuster tabs or straps
+at the hips, no buckle anywhere. UNLINED — the interior of the
+waistband is the same outer cloth, no dark or contrasting lining
+(tropical-climate house style — every trouser in this range is
+unlined).
 
-Do not change the belt loops, leg, pleats, crease, hem, background, or
-anything else. Portrait orientation, aspect ratio 2:3, sharp focus edge
-to edge, commercial e-commerce product photography style.
+Do not alter the leg width, pleats (or their absence), crease, cuffs,
+hem, cloth colour, or any other part of the garment. Background stays
+pure flat white. Portrait orientation, aspect ratio 2:3, sharp focus
+edge to edge, commercial e-commerce product photography style.
 ```
 
 <details>
-<summary>v1 — first edit of the original trousers-belt.webp (superseded by v2 above, kept for the record)</summary>
+<summary>v1/v2 — the two-step chain this v3 supersedes (kept for the record; v3 above is the one to run)</summary>
+
+v1 got the loops and flat waistband line right but wrongly suppressed
+the centre-front tab. v2 was a follow-up edit against v1's own result,
+adding the tab back without redoing the loops. v3 above merges both
+into a single pass against the original source instead.
 
 ```
 Edit this exact photograph. This is a real pair of tailored trousers.
@@ -908,6 +920,29 @@ Do not alter the leg width, pleats (or their absence), crease, cuffs,
 hem, or any other part of the garment. Background stays pure flat
 white. Portrait orientation, aspect ratio 2:3, sharp focus edge to
 edge, commercial e-commerce product photography style.
+```
+
+v2 follow-up (ran against v1's `tmppvjsygoy.png` result):
+
+```
+Edit this exact photograph — a pair of trousers with belt loops already
+correctly added. Keep everything as it is: the belt loops, the leg
+shape, pleats, crease, hem, and overall proportions.
+
+ADD ONE DETAIL: at the centre front of the waistband, where the button
+currently sits flush with the main waistband line, add a SMALL POINTED
+TAB — a narrow triangular extension of the same cloth rising slightly
+ABOVE the main waistband line, with a small hook-and-eye closure at its
+point. The existing button stays exactly where it is, on the main
+waistband band just below this new tab — the tab and the button are
+two separate closures stacked vertically at centre front, both visible
+(the tab's hook above, the button below it). This is a classic
+extended-waistband-tab detail, small and subtle — not a wide flap, just
+a narrow pointed piece extending maybe 1-1.5cm above the main line.
+
+Do not change the belt loops, leg, pleats, crease, hem, background, or
+anything else. Portrait orientation, aspect ratio 2:3, sharp focus edge
+to edge, commercial e-commerce product photography style.
 ```
 </details>
 
