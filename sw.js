@@ -6,7 +6,7 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v152";
+var CACHE_VERSION = "bbs-v153";
 
 var PRECACHE = [
     "./",
@@ -23,8 +23,8 @@ var PRECACHE = [
     "./heritage.js?v=2",
     "./attract-shader.js?v=3",
     "./weave-engine.js?v=3",
-    "./garment-photo.js?v=35",
-    "./fabric-visualiser.js?v=39",
+    "./garment-photo.js?v=36",
+    "./fabric-visualiser.js?v=40",
     "./cloth-study.js?v=7",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",
@@ -185,6 +185,7 @@ var PRECACHE = [
     "./images/garments/trousers-flat.webp",
     "./images/garments/trousers-double.webp",
     "./images/garments/trousers-belt.webp",
+    "./images/garments/trousers-beltPleat.webp",
     "./images/garments/trousers-gurkha.webp",
     "./images/garments/trousers-double-sideAdjusters.webp",
     "./images/garments/jacket-safari.webp",
@@ -192,6 +193,7 @@ var PRECACHE = [
     "./images/garments/jacket-a2.webp",
     "./images/garments/jacket-trucker.webp",
     "./images/garments/jacket-teba.webp",
+    "./images/garments/jacket-jungle.webp",
     "./icon.png",
     "./manifest.json",
 ];

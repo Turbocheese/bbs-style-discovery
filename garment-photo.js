@@ -129,6 +129,10 @@ var JACKET_TEBA_SLEEVES = [
     { x: 0.17, y: 0.18, w: 0.20, h: 0.62, angle: -0.06, strength: 0.74 },
     { x: 0.62, y: 0.18, w: 0.20, h: 0.62, angle: 0.06, strength: 0.74 }
 ];
+var JACKET_JUNGLE_SLEEVES = [
+    { x: 0.16, y: 0.13, w: 0.20, h: 0.66, angle: -0.06, strength: 0.74 },
+    { x: 0.64, y: 0.13, w: 0.20, h: 0.66, angle: 0.06, strength: 0.74 }
+];
 
 // Notch lapel (jacket-sb): the founder traced the true outline by hand
 // (collar top -> notch -> roll line down to the button) over a render of
@@ -310,6 +314,33 @@ var GURKHA_STYLE_WAISTBAND = [
     { x: -0.1, y: 0.085, w: 1.2, h: 0.05, angle: Math.PI / 2, strength: 1.0 }
 ];
 
+// trousers-belt was repointed 2026-08-25 to a real-belt-loop photo edited
+// from an external reference (see the prompts doc #14 v4) — different
+// framing again from every trouser above (waistband sits noticeably lower
+// in frame, legs run narrower), so it needs its own measured regions, same
+// reasoning as GURKHA_STYLE_* above. trousers-beltPleat is a distinct new
+// photo, not a near-identical pairing like Gurkha's two assets were, so it
+// gets its own set rather than sharing this one.
+var BELTLOOP_TROUSER_LEGS = [
+    { x: 0.30, y: 0.10, w: 0.095, h: 0.90, angle: -0.03, strength: 0.80 },
+    { x: 0.395, y: 0.10, w: 0.095, h: 0.90, angle: 0.015, strength: 0.80 },
+    { x: 0.51, y: 0.10, w: 0.095, h: 0.90, angle: -0.015, strength: 0.80 },
+    { x: 0.605, y: 0.10, w: 0.095, h: 0.90, angle: 0.03, strength: 0.80 }
+];
+var BELTLOOP_TROUSER_WAISTBAND = [
+    { x: -0.1, y: 0.095, w: 1.2, h: 0.045, angle: Math.PI / 2, strength: 1.0 }
+];
+
+var BELTLOOP_PLEAT_TROUSER_LEGS = [
+    { x: 0.29, y: 0.05, w: 0.105, h: 0.95, angle: -0.03, strength: 0.80 },
+    { x: 0.4, y: 0.05, w: 0.105, h: 0.95, angle: 0.015, strength: 0.80 },
+    { x: 0.5, y: 0.05, w: 0.105, h: 0.95, angle: -0.015, strength: 0.80 },
+    { x: 0.605, y: 0.05, w: 0.105, h: 0.95, angle: 0.03, strength: 0.80 }
+];
+var BELTLOOP_PLEAT_TROUSER_WAISTBAND = [
+    { x: -0.1, y: 0.045, w: 1.2, h: 0.05, angle: Math.PI / 2, strength: 1.0 }
+];
+
 var DISPLACEMENT_REGIONS = {
     // jacket-sb was regenerated 23 Aug 2026 (wider notch lapel) — JACKET_SB_LAPELS
     // was traced against the OLD photo and is retired here, not reused: its clip
@@ -329,6 +360,7 @@ var DISPLACEMENT_REGIONS = {
     "jacket-a2": JACKET_A2_SLEEVES,
     "jacket-trucker": JACKET_TRUCKER_SLEEVES,
     "jacket-teba": JACKET_TEBA_SLEEVES,
+    "jacket-jungle": JACKET_JUNGLE_SLEEVES,
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
     // two tall bands either side of the buttons, which broke a check down
@@ -338,7 +370,10 @@ var DISPLACEMENT_REGIONS = {
 
     "trousers-flat": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
     "trousers-double": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
-    "trousers-belt": TROUSER_LEGS.concat(TROUSER_WAISTBAND),
+    // trousers-belt repointed 2026-08-25 to a different-framed photo — see
+    // BELTLOOP_TROUSER_LEGS/WAISTBAND's own comment above.
+    "trousers-belt": BELTLOOP_TROUSER_LEGS.concat(BELTLOOP_TROUSER_WAISTBAND),
+    "trousers-beltPleat": BELTLOOP_PLEAT_TROUSER_LEGS.concat(BELTLOOP_PLEAT_TROUSER_WAISTBAND),
     "trousers-gurkha": GURKHA_STYLE_LEGS.concat(GURKHA_STYLE_WAISTBAND),
     "trousers-double-sideAdjusters": GURKHA_STYLE_LEGS.concat(GURKHA_STYLE_WAISTBAND)
 };
@@ -953,18 +988,25 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 // trousers-flat-sideAdjusters (the flat-front sibling) hasn't been
 // generated yet, add it here the same way once it lands.
 //
-// jacket-safari, jacket-chore, jacket-a2, jacket-trucker, jacket-teba
-// (23-24 Aug 2026) are the five "casual jackets" — see fabric-visualiser.js's
-// VIS_SINGLE_GARMENTS for the Cloth Room picker entries that resolve to
-// them. None has a collar/lapel bend trace yet, same reasoning as jacket-sb
-// above (a box-only region doesn't work for a triangular/curved collar
-// shape — see the comment above JACKET_SLEEVES) — sleeves only.
+// jacket-safari, jacket-chore, jacket-a2, jacket-trucker, jacket-teba,
+// jacket-jungle (23-25 Aug 2026) are the "casual jackets" — see
+// fabric-visualiser.js's VIS_SINGLE_GARMENTS for the Cloth Room picker
+// entries that resolve to them. None has a collar/lapel bend trace yet,
+// same reasoning as jacket-sb above (a box-only region doesn't work for a
+// triangular/curved collar shape — see the comment above JACKET_SLEEVES)
+// — sleeves only. jacket-sahariana (#17 in the prompts doc) is written up
+// but not generated yet.
+//
+// trousers-belt REPOINTED 2026-08-25 to a genuine belt-loop photo — the
+// original source never actually showed belt loops (same side-adjuster
+// construction as trousers-flat/double, mislabelled). trousers-beltPleat
+// is a new key, the pleated sibling — see #14/#15 in the prompts doc.
 var GARMENT_ASSET_KEYS = [
     "jacket-sb", "jacket-sb-peak-patch", "jacket-sb-peak-flap", "jacket-sb-notch-patch",
     "jacket-db", "jacket-db-peak-flap",
-    "jacket-safari", "jacket-chore", "jacket-a2", "jacket-trucker", "jacket-teba",
+    "jacket-safari", "jacket-chore", "jacket-a2", "jacket-trucker", "jacket-teba", "jacket-jungle",
     "vest-sb-none", "vest-sb-shawl",
-    "trousers-flat", "trousers-double", "trousers-belt",
+    "trousers-flat", "trousers-double", "trousers-belt", "trousers-beltPleat",
     "trousers-gurkha", "trousers-double-sideAdjusters"
 ];
 

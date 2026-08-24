@@ -587,7 +587,11 @@ if (require.main === module) {
         "vest-sb-shawl": "replicate-prediction-dxnwnqk7enrmt0czgjca61ysrw.jpeg",
         "trousers-flat": "replicate-prediction-4f5k730hsdrmy0czgjxs50wad0-white.jpeg",
         "trousers-double": "replicate-prediction-y3t5wmjtdsrmr0czgk09dhpbq4.jpeg",
-        "trousers-belt": "replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg",
+        // trousers-belt REPOINTED 2026-08-25 (see below, near the other
+        // 08-25 entries) — this original source never actually showed real
+        // belt loops (it showed the same side-adjuster construction as
+        // trousers-flat/double, mislabelled since first generated); kept on
+        // disk for history, just no longer built from here.
         // New 2026-08-23: single Gurkha, edited from a real BBS garment
         // photo rather than generated from scratch (see the prompts doc).
         "trousers-gurkha": "replicate-prediction-5839x2k9y5rmt0d05wv9p278gc.png",
@@ -610,7 +614,17 @@ if (require.main === module) {
         // New 2026-08-24: trucker jacket, fourth "casual jacket" (#12).
         "jacket-trucker": "replicate-prediction-e9ayxmnybsrmr0d05xsrqwpc50.png",
         // New 2026-08-24: teba jacket, fifth "casual jacket" (#13).
-        "jacket-teba": "replicate-prediction-d95d9g6q21rmw0d05xtsf8wgp4.png"
+        "jacket-teba": "replicate-prediction-d95d9g6q21rmw0d05xtsf8wgp4.png",
+        // New 2026-08-25: jungle jacket, sixth "casual jacket" (#16).
+        "jacket-jungle": "replicate-prediction-zy8r9tyjnhrmy0d068xa63hbpr.png",
+        // New 2026-08-25 (v4): flat-front REAL belt loops, replaces
+        // trousers-belt in place. Generated from an external Mr Porter
+        // reference rather than editing BBS's own source — see
+        // docs/2026-08-23-style-room-image-prompts.md #14 v4.
+        "trousers-belt": "replicate-prediction-pj0vcqt10nrmw0d068qachrmc8.png",
+        // New 2026-08-25 (v2): double-pleat REAL belt loops, same
+        // reference pivot as trousers-belt above — see #15 v2.
+        "trousers-beltPleat": "replicate-prediction-aqy3aaqjznrmy0d068rb24agar.png"
         // The build MUST skip any key whose source file is absent and report
         // it by name rather than failing.
     };
@@ -712,28 +726,44 @@ if (require.main === module) {
             .toBuffer({ resolveWithObject: true })
             .then(function (resized) {
                 var rw = resized.info.width, rh = resized.info.height;
-                var pipeline;
-                if (canon && (rw !== canon.w || rh !== canon.h)) {
-                    if (rw > canon.w || rh > canon.h) {
-                        console.log("  " + key + ": WARNING resized " + rw + "x" + rh + " exceeds canonical " + canon.w + "x" + canon.h + " — shipped unpadded, will still distort");
-                        pipeline = sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } });
-                    } else {
-                        // Centre the garment inside the canonical frame with
-                        // transparent padding — safe because everything
-                        // outside the mask is already transparent; this just
-                        // adds more of the same, at the correct in-frame
-                        // scale instead of edge-to-edge.
-                        var left = Math.round((canon.w - rw) / 2);
-                        var top = Math.round((canon.h - rh) / 2);
-                        console.log("  " + key + ": padded " + rw + "x" + rh + " into canonical " + canon.w + "x" + canon.h);
-                        pipeline = sharp({
-                            create: { width: canon.w, height: canon.h, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
-                        }).composite([{ input: resized.data, raw: { width: rw, height: rh, channels: 4 }, left: left, top: top }]);
-                    }
-                } else {
-                    pipeline = sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } });
+                if (!canon || (rw === canon.w && rh === canon.h)) {
+                    return sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } })
+                        .webp({ quality: QUALITY }).toFile(outPath);
                 }
-                return pipeline.webp({ quality: QUALITY }).toFile(outPath);
+                // A source whose own aspect ratio doesn't match the
+                // canonical frame's (2026-08-25: trousers-belt's new
+                // reference photo is proportionally wider than the other
+                // trousers, so it came out 1086x1448 here — wider than
+                // canon.w=1073 despite being shorter than canon.h=1600, the
+                // exceeds-on-one-axis case the original padding-only logic
+                // didn't handle). fit:"inside" against canon.w x canon.h
+                // guarantees the result fits within BOTH axes regardless of
+                // which one was the problem, so this always lands somewhere
+                // centre-paddable next.
+                return sharp(resized.data, { raw: { width: rw, height: rh, channels: 4 } })
+                    .resize({ width: canon.w, height: canon.h, fit: "inside", withoutEnlargement: true })
+                    .raw()
+                    .toBuffer({ resolveWithObject: true })
+                    .then(function (fitted) {
+                        var fw = fitted.info.width, fh = fitted.info.height;
+                        var pipeline;
+                        if (fw === canon.w && fh === canon.h) {
+                            pipeline = sharp(fitted.data, { raw: { width: fw, height: fh, channels: 4 } });
+                        } else {
+                            // Centre the garment inside the canonical frame with
+                            // transparent padding — safe because everything
+                            // outside the mask is already transparent; this just
+                            // adds more of the same, at the correct in-frame
+                            // scale instead of edge-to-edge.
+                            var left = Math.round((canon.w - fw) / 2);
+                            var top = Math.round((canon.h - fh) / 2);
+                            console.log("  " + key + ": padded " + fw + "x" + fh + " into canonical " + canon.w + "x" + canon.h);
+                            pipeline = sharp({
+                                create: { width: canon.w, height: canon.h, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
+                            }).composite([{ input: fitted.data, raw: { width: fw, height: fh, channels: 4 }, left: left, top: top }]);
+                        }
+                        return pipeline.webp({ quality: QUALITY }).toFile(outPath);
+                    });
             })
             .then(function (fileInfo) {
                 console.log(

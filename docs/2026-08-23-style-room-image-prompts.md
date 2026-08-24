@@ -74,13 +74,14 @@ now makes it selectable.
    has never actually shown belt loops (it shows the same side-adjuster
    construction as the other two trousers, mislabelled since it was
    first generated). See #14/#15.
-7. **Casual jackets** — Safari and Chore SHIPPED 24 Aug; A2, Trucker,
-   and Teba are next (#11–13), genuinely new garment silhouettes, not
-   lapel/pocket variants of the tailored jacket. The Style Room picker
-   (24 Aug 2026) now has its own two-tier structure for this reason —
-   Jacket / Casual Jacket / Waistcoat / Trousers at the top, and once
-   "Casual Jacket" is active a second row picks which one (Safari /
-   Chore / A2 / Trucker / Teba). All five are already registered in
+7. **Casual jackets** — Safari, Chore, A2, Trucker, and Teba are all
+   SHIPPED; Jungle (#16) and Sahariana (#17) are next, genuinely new
+   garment silhouettes, not lapel/pocket variants of the tailored
+   jacket. The Style Room picker (24 Aug 2026) now has its own
+   two-tier structure for this reason — Jacket / Casual Jacket /
+   Waistcoat / Trousers at the top, and once "Casual Jacket" is active
+   a second row picks which one (Safari / Chore / A2 / Trucker / Teba
+   / Jungle / Sahariana). All seven are already registered in
    `VIS_SINGLE_GARMENTS` (fabric-visualiser.js) with `casual: true` —
    any without a photo yet shows a "coming soon" card and self-heals
    the moment its key joins `GARMENT_ASSET_KEYS`, no further picker
@@ -1026,6 +1027,139 @@ displacement region treatment from this session's audit — reuse
 `TROUSER_LEGS`/`TROUSER_WAISTBAND` for #14 (same framing as
 `trousers-flat`) and check #15 lines up with `trousers-double`'s own
 coordinates before assuming it does.
+
+### 16. Jungle jacket — `jacket-jungle`
+
+**New 25 Aug 2026 — sixth "casual jacket," same picker treatment as
+the other five.** Founder-supplied reference: a real BBS flat lay,
+cream cotton twill. Notched shirt-style collar (no lapel roll, same
+family as Safari's), four large box-pleated patch pockets with
+buttoned flaps (two chest, two larger at the hip) — visually close to
+Safari's pocket construction, but distinguished by a CONCEALED
+button-front placket (only a single button visible peeking out at the
+throat, the rest of the front closure hidden under a fly, unlike
+Safari's visible button row) and NO waist belt. Two-button cuffs. The
+source photo shows a visible "BBS Edition Capsule" woven neck label —
+must be removed per the standing no-brand-label rule.
+
+**Unlined — house style, all casual jackets.**
+
+```
+Edit this exact photograph. This is a real jungle jacket, currently
+shown as a flat lay in cream cotton twill. Turn it into a
+ghost-mannequin product photograph for the catalogue — change only
+what's listed below, keep the jacket's own construction exactly as
+shown.
+
+KEEP EXACTLY AS SHOWN, unchanged: the notched shirt-style collar (flat,
+no tailored lapel roll or gorge seam), the four box-pleated patch
+pockets with buttoned flaps (two smaller ones at the chest, two larger
+ones at the hip, each with a centre box-pleat that lets the pocket
+expand), the CONCEALED button-front placket — only a single button
+visible peeking out at the throat, the rest of the closure hidden
+under a fly front, NOT a row of visible buttons down the body — the
+two-button cuffs, the sleeve and shoulder construction, the overall
+proportions and length.
+
+CHANGE:
+1. Reshape into a GHOST-MANNEQUIN pose — the jacket filled with
+   realistic chest, shoulder and sleeve volume as if worn by an
+   invisible body, front view, centred and symmetric, camera at chest
+   height, standing straight, arms hanging naturally at the sides. Not
+   laid flat, no mannequin or hanger visible.
+2. Recolour the cloth from cream to a LIGHT HEATHER-GREY WOOL FLANNEL,
+   visible cloth grain, no pattern (matching the house's other product
+   photography) — the pocket construction, pleats, and stitching
+   detail should still read clearly through the new colour and
+   texture.
+3. UNLINED — wherever the front opens even slightly, the inside should
+   read as the same outer cloth, not a contrasting lining. Tropical-
+   climate house style doesn't line its casual jackets.
+4. REMOVE THE BRAND LABEL — the source photo shows a woven "BBS
+   Edition Capsule" tag sewn at the inside collar. It must not appear
+   in the result; that area should read as plain cloth, the same as
+   the rest of the inside collar.
+5. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the collar shape, pocket count/construction, the
+concealed placket, cuffs, button placement, or silhouette beyond
+what's listed above — in particular do not add a visible button row
+or a waist belt. Portrait orientation, aspect ratio 4:5, sharp focus
+edge to edge, commercial e-commerce product photography style.
+```
+
+### 17. Sahariana jacket — `jacket-sahariana`
+
+**New 25 Aug 2026 — seventh "casual jacket," same picker treatment as
+the other six.** Founder-supplied reference: a real BBS flat lay,
+dark olive-green linen twill. A STAND/MANDARIN COLLAR — similar family
+to Teba's but its own distinct cut, upright with no lapel or roll,
+closing with a small hidden throat closure right at the top (worth
+comparing closely against Teba's when both are generated, since they
+share the same collar family but are not identical garments). Fully
+CONCEALED front placket — no buttons visible down the body at all,
+the whole closure hidden under a fly, same principle as Jungle's
+placket. Four patch pockets with flaps, all sharing a distinctive
+POINTED/SCALLOPED FLAP BOTTOM — each flap comes to a shallow V-notch
+at its lower edge rather than a straight or rounded hem, visibly
+different from every other casual jacket's pocket shape in this range.
+Plain straight hem, no belt. Plain cuffs, no visible button or tab.
+The source photo shows a visible "BBS Edition Capsule" woven neck
+label — must be removed per the standing no-brand-label rule.
+
+**Unlined — house style, all casual jackets.**
+
+```
+Edit this exact photograph. This is a real sahariana jacket, currently
+shown as a flat lay in dark olive-green linen twill. Turn it into a
+ghost-mannequin product photograph for the catalogue — change only
+what's listed below, keep the jacket's own construction exactly as
+shown.
+
+KEEP EXACTLY AS SHOWN, unchanged: the STAND/MANDARIN COLLAR — a short
+upright collar with NO lapel, NO roll, NO notch, closing with a small
+hidden closure right at the throat (it stands straight up, does not
+fold open) — the FULLY CONCEALED front placket, no buttons visible
+anywhere down the body, the entire closure hidden under a fly front —
+the four patch pockets, each with a flap whose bottom edge comes to a
+shallow POINTED V-NOTCH rather than a straight or rounded hem (this
+pointed-flap shape is the garment's most distinctive detail — get it
+exactly right) — the plain straight hem with no belt — the plain
+cuffs with no visible button or tab — the sleeve and shoulder
+construction, the overall proportions and length.
+
+CHANGE:
+1. Reshape into a GHOST-MANNEQUIN pose — the jacket filled with
+   realistic chest, shoulder and sleeve volume as if worn by an
+   invisible body, front view, centred and symmetric, camera at chest
+   height, standing straight, arms hanging naturally at the sides. Not
+   laid flat, no mannequin or hanger visible.
+2. Recolour the cloth from dark olive-green to a LIGHT HEATHER-GREY
+   WOOL FLANNEL, visible cloth grain, no pattern (matching the house's
+   other product photography) — the pocket flaps' pointed shape, the
+   collar stand, and the stitching detail should still read clearly
+   through the new colour and texture.
+3. UNLINED — wherever the front opens even slightly, the inside should
+   read as the same outer cloth, not a contrasting lining. Tropical-
+   climate house style doesn't line its casual jackets.
+4. REMOVE THE BRAND LABEL — the source photo shows a woven "BBS
+   Edition Capsule" tag sewn at the inside collar. It must not appear
+   in the result; that area should read as plain cloth, the same as
+   the rest of the inside collar.
+5. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the collar shape (it must stay a stand collar, not
+become a lapel or shirt collar), the concealed placket, the pointed
+pocket flaps, cuffs, hem, or silhouette beyond what's listed above —
+in particular do not add a visible button row, a belt, or round off
+the pocket flaps' pointed bottom edge. Portrait orientation, aspect
+ratio 4:5, sharp focus edge to edge, commercial e-commerce product
+photography style.
+```
 
 ## After generating: same pipeline as before, no new steps
 

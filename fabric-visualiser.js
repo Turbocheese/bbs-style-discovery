@@ -704,7 +704,9 @@ var VIS_SINGLE_GARMENTS = [
     { key: "chore", garment: "jacket", casual: true, label: "Chore Jacket", dressesLead: "The chore jacket dresses itself the moment you choose.", compareLead: "One chore jacket", style: { closure: "chore" } },
     { key: "a2", garment: "jacket", casual: true, label: "A2 Flight Jacket", dressesLead: "The A2 flight jacket dresses itself the moment you choose.", compareLead: "One A2 flight jacket", style: { closure: "a2" } },
     { key: "trucker", garment: "jacket", casual: true, label: "Trucker Jacket", dressesLead: "The trucker jacket dresses itself the moment you choose.", compareLead: "One trucker jacket", style: { closure: "trucker" } },
-    { key: "teba", garment: "jacket", casual: true, label: "Teba Jacket", dressesLead: "The teba jacket dresses itself the moment you choose.", compareLead: "One teba jacket", style: { closure: "teba" } }
+    { key: "teba", garment: "jacket", casual: true, label: "Teba Jacket", dressesLead: "The teba jacket dresses itself the moment you choose.", compareLead: "One teba jacket", style: { closure: "teba" } },
+    { key: "jungle", garment: "jacket", casual: true, label: "Jungle Jacket", dressesLead: "The jungle jacket dresses itself the moment you choose.", compareLead: "One jungle jacket", style: { closure: "jungle" } },
+    { key: "sahariana", garment: "jacket", casual: true, label: "Sahariana Jacket", dressesLead: "The sahariana jacket dresses itself the moment you choose.", compareLead: "One sahariana jacket", style: { closure: "sahariana" } }
 ];
 
 // Everything with casual:true, in menu order.
@@ -752,9 +754,10 @@ function getVisGarmentKey() {
 function getVisCustomState() {
     if (!appState.visCustom || typeof appState.visCustom !== "object") appState.visCustom = {};
     var c = appState.visCustom;
-    if (!c.jacket || typeof c.jacket !== "object") c.jacket = { lapelStyle: "notch", pockets: "flap" };
+    if (!c.jacket || typeof c.jacket !== "object") c.jacket = { closure: "sb", lapelStyle: "notch", pockets: "flap" };
     if (!c.trousers || typeof c.trousers !== "object") c.trousers = { make: "flat", waistband: "beltLoops" };
     // Scrub any persisted value that no longer matches an offered option.
+    if (!ensStyleValueAllowed("jacket", "closure", c.jacket.closure)) c.jacket.closure = "sb";
     if (!ensSpecValueAllowed("jacket", "lapelStyle", c.jacket.lapelStyle)) c.jacket.lapelStyle = "notch";
     if (!ensSpecValueAllowed("jacket", "pockets", c.jacket.pockets)) c.jacket.pockets = "flap";
     if (!ensStyleValueAllowed("trousers", "style", c.trousers.make)) c.trousers.make = "flat";
@@ -766,7 +769,12 @@ function getVisGarmentStyleSpec(garmentKey) {
     var entry = getVisGarmentEntry(garmentKey);
     if (garmentKey === "jacket") {
         var cj = getVisCustomState().jacket;
-        return { style: entry.style, spec: { lapelStyle: cj.lapelStyle, pockets: cj.pockets } };
+        // closure (SB/DB) is the client's own choice on this screen now,
+        // not entry.style's hardcoded "sb" — casual jackets (garmentKey
+        // "safari"/"chore"/etc, which also carry garment:"jacket") never
+        // reach this branch, since garmentKey here is the picker's own
+        // key, so their fixed closures are untouched.
+        return { style: { closure: cj.closure }, spec: { lapelStyle: cj.lapelStyle, pockets: cj.pockets } };
     }
     if (garmentKey === "trousers") {
         var ct = getVisCustomState().trousers;
@@ -809,8 +817,17 @@ function getVisCustomGroupHTML(garment, groupKey, groupLabel, opts, current) {
 function getVisCustomizeHTML(garmentKey) {
     if (garmentKey === "jacket") {
         var cj = getVisCustomState().jacket;
+        // Closure (SB/DB) added 25 Aug 2026 — was previously only reachable
+        // via the Ensemble builder, same gap the whole Style Room
+        // customize panel closed for lapel/pockets/trouser make. DB has
+        // fewer lapel/pocket photo variants than SB (only jacket-db and
+        // jacket-db-peak-flap exist) — resolveGarmentKey's existing
+        // self-healing lookup silently falls back to plain jacket-db for
+        // any DB combination without its own photo, same pattern already
+        // relied on everywhere else in this file, not a new behaviour.
         return (
             '<div class="vis-customize">' +
+            getVisCustomGroupHTML("jacket", "closure", "Closure", VIS_ENS_STYLE_OPTIONS.jacket.closure, cj.closure) +
             getVisCustomGroupHTML("jacket", "lapelStyle", "Lapel", BESPOKE_SPEC_OPTIONS.jacket.lapelStyle, cj.lapelStyle) +
             getVisCustomGroupHTML("jacket", "pockets", "Pockets", BESPOKE_SPEC_OPTIONS.jacket.pockets, cj.pockets) +
             "</div>"
@@ -1666,7 +1683,8 @@ var VIS_ENS_STYLE_OPTIONS = {
             // guard on the reco-strip link), so this option works fine
             // without one; it just shows no "See the guide" link until a
             // real topic exists.
-            { key: "gurkha", label: "Gurkha", detail: "Single strap" }
+            { key: "gurkha", label: "Gurkha", detail: "Single strap" },
+            { key: "beltPleat", label: "Belt Loops, Pleated" }
         ]
     }
 };
