@@ -834,68 +834,58 @@ e-commerce product photography style.
 
 ### 14. Flat front trousers, REAL belt loops — corrects `trousers-belt`
 
-**v3, single-pass rewrite (25 Aug 2026) — edits the ORIGINAL source
-photo again** (`replicate-prediction-e4sjndde3nrmy0czgk2vc6ncqm-white.jpeg`),
-not v1's already-generated result — the two-step v1→v2 chain isn't
-needed as a starting point for a fresh render; this merges both fixes
-into one prompt. **Confirmed by direct pixel sampling: the source
-photo's colour already matches the rest of the range (avg RGB
-146,145,145 vs. trousers-flat's source at 148,148,147 — a ~2-value
-difference, i.e. the same grey) — no recolour instruction needed,
-only the waistband construction changes.**
-
-**Bug found 25 Aug 2026 (founder): `trousers-belt.webp` doesn't show
-belt loops at all** — it shows the same V-shaped extended-tab-and-buckle
-side-adjuster construction as `trousers-flat`/`trousers-double`, just
-mislabelled. This has been wrong since the asset was first generated
-(the 08-17 doc's own header noted the source photo shows "a front
-extended waistband tab with a button... not plain belt loops either"
-and flagged it as a known gap, but the key was never actually
-corrected). Founder supplied a real reference (Mr Porter product
-photo) showing genuine construction: narrow fabric belt loops sewn
-at intervals around the waistband, and — confirmed on a second
-generation attempt (v1/v2 below, superseded) — a small pointed tab
-with a hook closure at centre front, with an ordinary button on the
-main band just below it. Also asked for the loops slightly narrower
-than a default-width loop.
+**v4, new source photo (founder, 25 Aug 2026)** — pivots from editing
+BBS's own `trousers-belt.webp` (v1–v3, all superseded, collapsed below)
+to editing a second Mr Porter reference the founder supplied directly
+for this: a brown herringbone flat-front trouser that already has the
+exact right waistband construction — narrow belt loops at the sides,
+a small extended tab with a button at centre front (confirmed by direct
+inspection: the same tab-and-button detail v3 was already describing
+from the first Mr Porter reference, corroborated independently on a
+second photo). Founder's own framing: "the only thing that needs
+changing is colour and whether it has pleats or no pleats, and it can
+be slightly wider cut" — this reference already has no pleats, so #14
+only needs a recolour and a touch more width; #15 (next entry) needs
+pleats added on top of that.
 
 ```
-Edit this exact photograph. This is a real pair of tailored trousers.
-Change ONLY the waistband construction — keep the leg shape, pleats
-(or their absence), crease, hem, cloth colour, and overall proportions
-exactly as shown.
+Edit this exact photograph. This is a real pair of tailored trousers in
+brown herringbone wool. Keep the waistband construction, belt loops,
+extended tab-and-button closure, leg silhouette, crease, hem, and
+overall proportions exactly as shown — this cut and construction is
+already correct.
 
-CHANGE: Replace the current waistband tab-and-buckle closure with
-GENUINE BELT LOOPS — narrow vertical fabric loops of the same cloth,
-evenly spaced around the waistband (typically 5-7 loops: one at centre
-back, two at the sides, two at the front near the fly), each loop
-noticeably narrow — slightly narrower than a standard belt loop width,
-a slim tailored loop rather than a wide casual one. At the CENTRE
-FRONT of the waistband, add a SMALL POINTED TAB — a narrow triangular
-extension of the same cloth rising slightly (roughly 1-1.5cm) ABOVE
-the main waistband line, closed with a small hook-and-eye at its
-point. Just below this tab, on the main waistband band itself, a
-single ordinary button — the tab's hook and the button are two
-separate closures stacked vertically, both visible. Elsewhere the
-waistband front is plain and flat — NO side-adjuster tabs or straps
-at the hips, no buckle anywhere. UNLINED — the interior of the
-waistband is the same outer cloth, no dark or contrasting lining
-(tropical-climate house style — every trouser in this range is
-unlined).
+CHANGE:
+1. Recolour the cloth from brown herringbone to a LIGHT HEATHER-GREY
+   WOOL FLANNEL, visible cloth grain, NO pattern (matching the house's
+   other product photography) — the belt loops, tab, and stitching
+   detail should still read clearly through the new colour and
+   texture.
+2. Cut the leg SLIGHTLY WIDER than shown — a touch more room through
+   the thigh and down the leg, not a dramatic change, just fuller than
+   this reference's slim modern fit.
+3. UNLINED — the interior of the waistband is the same outer cloth, no
+   dark or contrasting lining (tropical-climate house style — every
+   trouser in this range is unlined).
+4. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
 
-Do not alter the leg width, pleats (or their absence), crease, cuffs,
-hem, cloth colour, or any other part of the garment. Background stays
-pure flat white. Portrait orientation, aspect ratio 2:3, sharp focus
-edge to edge, commercial e-commerce product photography style.
+Do not alter the belt loops, the extended tab-and-button closure, the
+crease, cuffs, hem, or any other construction detail beyond the width
+adjustment in point 2. Portrait orientation, aspect ratio 2:3, sharp
+focus edge to edge, commercial e-commerce product photography style.
 ```
 
 <details>
-<summary>v1/v2 — the two-step chain this v3 supersedes (kept for the record; v3 above is the one to run)</summary>
+<summary>v1–v3 — earlier edits of BBS's own trousers-belt.webp source (superseded by v4 above, kept for the record)</summary>
 
 v1 got the loops and flat waistband line right but wrongly suppressed
 the centre-front tab. v2 was a follow-up edit against v1's own result,
-adding the tab back without redoing the loops. v3 above merges both
-into a single pass against the original source instead.
+adding the tab back without redoing the loops. v3 merged both into a
+single pass against the original BBS source. v4 above moves to editing
+a cleaner external reference instead, since it already has the whole
+construction right and only needs colour/width changed.
 
 ```
 Edit this exact photograph. This is a real pair of tailored trousers.
@@ -948,27 +938,49 @@ to edge, commercial e-commerce product photography style.
 
 ### 15. Double forward-pleat trousers, REAL belt loops — new variant
 
-**Corrected 25 Aug 2026 before ever being generated** — carries the
-same fix #14 needed a v2 round for, applied up front this time: a
-genuine belt-loop waistband includes a small pointed tab at centre
-front that rises slightly above the main waistband line, closed with a
-hook, with the ordinary button on the main band just below it (see the
-founder's Mr Porter reference and #14's v3 note for the detail). Gives
-the belt-loop waistband both pleat options, matching what the
-side-adjuster waistband already has (`trousers-flat`/`trousers-double`).
-Edit `trousers-double.webp` (already has the correct pleated leg).
+**v2, same reference pivot as #14 (founder, 25 Aug 2026).** Same Mr
+Porter photo as #14 — belt loops and the extended tab-and-button
+closure already correct, no pleats in the reference itself. This
+variant adds the one thing #14 doesn't: two forward pleats on each
+leg, per the founder's framing that the only things to change here are
+colour, pleats (add them, since the reference has none), and a
+slightly wider cut.
 
-**No recolour needed here either — checked the same way as #14.**
-This one edits `trousers-double`'s own source
-(`replicate-prediction-y3t5wmjtdsrmr0czgk09dhpbq4.jpeg`), so that's the
-right colour to compare against, not `trousers-belt`'s. Its source
-samples about 14 RGB units darker than `trousers-belt`'s (134,131,132
-vs. 146,145,145) — a bigger gap than #14's ~2-value match, but this is
-normal photo-to-photo lighting variance, not a different cloth: this
-exact source already ships successfully as both `trousers-double` and
-`trousers-double-sideAdjusters` with no recolour step, and reads as
-the same grey family on direct visual inspection. No colour
-instruction in the prompt below — the edit changes construction only.
+```
+Edit this exact photograph. This is a real pair of tailored trousers in
+brown herringbone wool, flat front. Keep the waistband construction,
+belt loops, extended tab-and-button closure, crease, hem, and overall
+proportions exactly as shown — this construction is already correct.
+
+CHANGE:
+1. Add TWO FORWARD PLEATS on each leg, one on each side of the fly,
+   pressed sharp and facing toward the pockets (not toward the fly),
+   continuing into a single crease pressed down the centre of each leg
+   below the knee. There are currently no pleats — add them without
+   otherwise altering the front of the trouser.
+2. Recolour the cloth from brown herringbone to a LIGHT HEATHER-GREY
+   WOOL FLANNEL, visible cloth grain, NO pattern (matching the house's
+   other product photography) — the belt loops, tab, and stitching
+   detail should still read clearly through the new colour and
+   texture.
+3. Cut the leg SLIGHTLY WIDER than shown — a touch more room through
+   the thigh and down the leg, not a dramatic change, just fuller than
+   this reference's slim modern fit.
+4. UNLINED — the interior of the waistband is the same outer cloth, no
+   dark or contrasting lining (tropical-climate house style — every
+   trouser in this range is unlined).
+5. Change the background to pure flat white, RGB 255 255 255, no
+   shadow, no gradient, no visible horizon line. Soft even studio
+   lighting, no hard highlights.
+
+Do not alter the belt loops, the extended tab-and-button closure, the
+hem, or any other construction detail beyond the pleats, colour, and
+width adjustments above. Portrait orientation, aspect ratio 2:3, sharp
+focus edge to edge, commercial e-commerce product photography style.
+```
+
+<details>
+<summary>v1 — edited BBS's own trousers-double.webp source (superseded by v2 above, kept for the record)</summary>
 
 ```
 Edit this exact photograph. This is a real pair of tailored trousers
@@ -999,6 +1011,7 @@ part of the garment. Background stays pure flat white. Portrait
 orientation, aspect ratio 2:3, sharp focus edge to edge, commercial
 e-commerce product photography style.
 ```
+</details>
 
 **Wiring, once both land:** #14 replaces the existing
 `trousers-belt.webp` in place (same key, `SOURCES["trousers-belt"]` in
