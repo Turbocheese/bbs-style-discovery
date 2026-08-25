@@ -1092,7 +1092,13 @@ edge to edge, commercial e-commerce product photography style.
 
 ### 17. Sahariana jacket — `jacket-sahariana`
 
-**New 25 Aug 2026 — seventh "casual jacket," same picker treatment as
+**SHIPPED 25 Aug 2026** — matched the brief on the first generation
+(pointed pocket flaps, stand collar, concealed placket, no belt, no
+visible label all correct). Selectable from the Casual Jacket
+sub-picker's "Sahariana Jacket" chip — all seven casual jackets are
+now live.
+
+**Seventh "casual jacket," same picker treatment as
 the other six.** Founder-supplied reference: a real BBS flat lay,
 dark olive-green linen twill. A STAND/MANDARIN COLLAR — similar family
 to Teba's but its own distinct cut, upright with no lapel or roll,

@@ -624,7 +624,9 @@ if (require.main === module) {
         "trousers-belt": "replicate-prediction-pj0vcqt10nrmw0d068qachrmc8.png",
         // New 2026-08-25 (v2): double-pleat REAL belt loops, same
         // reference pivot as trousers-belt above — see #15 v2.
-        "trousers-beltPleat": "replicate-prediction-aqy3aaqjznrmy0d068rb24agar.png"
+        "trousers-beltPleat": "replicate-prediction-aqy3aaqjznrmy0d068rb24agar.png",
+        // New 2026-08-25: sahariana jacket, seventh "casual jacket" (#17).
+        "jacket-sahariana": "replicate-prediction-paah07gsfnrmt0d06cx8ym50z4.png"
         // The build MUST skip any key whose source file is absent and report
         // it by name rather than failing.
     };

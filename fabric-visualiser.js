@@ -791,6 +791,14 @@ function getVisCustomState() {
     // Scrub any persisted value that no longer matches an offered option.
     if (!ensStyleValueAllowed("jacket", "closure", c.jacket.closure)) c.jacket.closure = "sb";
     if (!ensSpecValueAllowed("jacket", "lapelStyle", c.jacket.lapelStyle)) c.jacket.lapelStyle = "notch";
+    // House style never cuts a DB with a notch lapel — no jacket-db-notch-*
+    // photo exists at all (see resolveGarmentKey's own comment on why that
+    // prompt was never written), so picking Notch while on DB used to
+    // silently resolve to a peak-lapel photo without saying so. Force back
+    // to Peak the moment closure=db, same "scrub on load" pattern as every
+    // other option here — covers both a persisted state from before this
+    // fix and a live switch to DB while Notch was selected.
+    if (c.jacket.closure === "db" && c.jacket.lapelStyle === "notch") c.jacket.lapelStyle = "peak";
     if (!ensSpecValueAllowed("jacket", "pockets", c.jacket.pockets)) c.jacket.pockets = "flap";
     if (!trouserOptionAllowed(TROUSER_WAISTBAND_OPTIONS, c.trousers.waistband)) c.trousers.waistband = "sideAdjusters";
     if (!trouserOptionAllowed(TROUSER_PLEAT_OPTIONS, c.trousers.pleat)) c.trousers.pleat = "flat";
@@ -853,10 +861,23 @@ function getVisCustomizeHTML(garmentKey) {
         // self-healing lookup silently falls back to plain jacket-db for
         // any DB combination without its own photo, same pattern already
         // relied on everywhere else in this file, not a new behaviour.
+        //
+        // Notch is dropped from the Lapel options entirely when DB is
+        // selected (25 Aug 2026, founder: house style never cuts a DB with
+        // a notch lapel) — there is no jacket-db-notch-* photo, so leaving
+        // it selectable meant tapping it visibly did nothing (silent
+        // fallback to the peak-lapel photo). A local filtered copy, not a
+        // mutation of the shared BESPOKE_SPEC_OPTIONS array — the Ensemble
+        // builder's own Bespoke Spec drawer reads that directly and is out
+        // of scope here.
+        var lapelOptions = BESPOKE_SPEC_OPTIONS.jacket.lapelStyle;
+        if (cj.closure === "db") {
+            lapelOptions = lapelOptions.filter(function (o) { return o.key !== "notch"; });
+        }
         return (
             '<div class="vis-customize">' +
             getVisCustomGroupHTML("jacket", "closure", "Closure", VIS_ENS_STYLE_OPTIONS.jacket.closure, cj.closure) +
-            getVisCustomGroupHTML("jacket", "lapelStyle", "Lapel", BESPOKE_SPEC_OPTIONS.jacket.lapelStyle, cj.lapelStyle) +
+            getVisCustomGroupHTML("jacket", "lapelStyle", "Lapel", lapelOptions, cj.lapelStyle) +
             getVisCustomGroupHTML("jacket", "pockets", "Pockets", BESPOKE_SPEC_OPTIONS.jacket.pockets, cj.pockets) +
             "</div>"
         );

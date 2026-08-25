@@ -133,6 +133,10 @@ var JACKET_JUNGLE_SLEEVES = [
     { x: 0.16, y: 0.13, w: 0.20, h: 0.66, angle: -0.06, strength: 0.74 },
     { x: 0.64, y: 0.13, w: 0.20, h: 0.66, angle: 0.06, strength: 0.74 }
 ];
+var JACKET_SAHARIANA_SLEEVES = [
+    { x: 0.18, y: 0.18, w: 0.20, h: 0.60, angle: -0.06, strength: 0.74 },
+    { x: 0.62, y: 0.18, w: 0.20, h: 0.60, angle: 0.06, strength: 0.74 }
+];
 
 // Notch lapel (jacket-sb): the founder traced the true outline by hand
 // (collar top -> notch -> roll line down to the button) over a render of
@@ -361,6 +365,7 @@ var DISPLACEMENT_REGIONS = {
     "jacket-trucker": JACKET_TRUCKER_SLEEVES,
     "jacket-teba": JACKET_TEBA_SLEEVES,
     "jacket-jungle": JACKET_JUNGLE_SLEEVES,
+    "jacket-sahariana": JACKET_SAHARIANA_SLEEVES,
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
     // two tall bands either side of the buttons, which broke a check down
@@ -989,13 +994,12 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 // generated yet, add it here the same way once it lands.
 //
 // jacket-safari, jacket-chore, jacket-a2, jacket-trucker, jacket-teba,
-// jacket-jungle (23-25 Aug 2026) are the "casual jackets" — see
-// fabric-visualiser.js's VIS_SINGLE_GARMENTS for the Cloth Room picker
-// entries that resolve to them. None has a collar/lapel bend trace yet,
-// same reasoning as jacket-sb above (a box-only region doesn't work for a
-// triangular/curved collar shape — see the comment above JACKET_SLEEVES)
-// — sleeves only. jacket-sahariana (#17 in the prompts doc) is written up
-// but not generated yet.
+// jacket-jungle, jacket-sahariana (23-25 Aug 2026) are the "casual
+// jackets" — see fabric-visualiser.js's VIS_SINGLE_GARMENTS for the
+// Cloth Room picker entries that resolve to them. None has a collar/lapel
+// bend trace yet, same reasoning as jacket-sb above (a box-only region
+// doesn't work for a triangular/curved collar shape — see the comment
+// above JACKET_SLEEVES) — sleeves only.
 //
 // trousers-belt REPOINTED 2026-08-25 to a genuine belt-loop photo — the
 // original source never actually showed belt loops (same side-adjuster
@@ -1004,7 +1008,7 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 var GARMENT_ASSET_KEYS = [
     "jacket-sb", "jacket-sb-peak-patch", "jacket-sb-peak-flap", "jacket-sb-notch-patch",
     "jacket-db", "jacket-db-peak-flap",
-    "jacket-safari", "jacket-chore", "jacket-a2", "jacket-trucker", "jacket-teba", "jacket-jungle",
+    "jacket-safari", "jacket-chore", "jacket-a2", "jacket-trucker", "jacket-teba", "jacket-jungle", "jacket-sahariana",
     "vest-sb-none", "vest-sb-shawl",
     "trousers-flat", "trousers-double", "trousers-belt", "trousers-beltPleat",
     "trousers-gurkha", "trousers-double-sideAdjusters"
