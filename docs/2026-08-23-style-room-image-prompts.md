@@ -254,6 +254,31 @@ positioned first in each key's `DISPLACEMENT_REGIONS` entry. Verified
 with `scabal_pinstripe_navy`: both gaps present on `jacket-db-peak-
 flap`, body/sleeve pitch reads consistent on both DB garments.
 
+**Fourth follow-up, same day: draw order.** Founder proposed an explicit
+layering scheme — body, then sleeve, THEN the more specific clipped
+regions on top (red lapel, purple lapel, right collar, left collar) —
+to eliminate a "criss-cross fade" at region boundaries. This was a real
+bug, not just tidiness: sleeves were drawn LAST in every affected key,
+so in the sliver where a sleeve box's feathered (unclipped) reach
+overlapped a lapel/collar clip's own edge, the sleeve's rotation
+silently overwrote the lapel's. `jacket-sb`'s `DISPLACEMENT_REGIONS`
+entry now matches the founder's numbered order exactly: body, sleeve,
+red lapel, purple lapel, right collar, left collar. Applied the same
+"sleeve before lapel" principle to every other key with the same
+architecture — `jacket-sb-peak-patch`/`-peak-flap` (sleeves now before
+`JACKET_SB_PEAK_LAPELS`, with `JACKET_SB_PEAK_TIPS` staying after the
+lapels it layers onto, unchanged) and `jacket-db` (sleeves before
+`JACKET_DB_LAPELS`). `jacket-db-peak-flap` has no lapel trace yet, so
+this was a no-op there. Re-verified: no visible seam at the sleeve/
+lapel boundary on any of the four, full smoke suite still green.
+
+**Still open**: founder is annotating a flat-colour reference with
+arrows to specify the SB notch lapel's bend angle precisely (current
+`JACKET_SB_LAPELS` angle 0.18 rad/~10° looks shallower than the arrows
+drawn so far suggest) — waiting on a specific target angle before
+touching it, rather than re-deriving one from a compressed screenshot
+and risking another wrong guess.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller

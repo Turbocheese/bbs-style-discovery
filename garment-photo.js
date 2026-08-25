@@ -435,10 +435,19 @@ var DISPLACEMENT_REGIONS = {
     // the old JACKET_SB_LAPELS trace (see its own comment above) — sleeves-
     // only until 25 Aug 2026, when JACKET_SB_LAPELS was retraced against this
     // exact photo via the flat-colour-panel technique. Lapel bend restored.
-    "jacket-sb": JACKET_SB_BODY_SCALE.concat(JACKET_SB_LAPELS, JACKET_SB_COLLAR_LEFT, JACKET_SB_COLLAR_RIGHT, JACKET_SB_SLEEVES_V2),
-    "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
-    "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
-    "jacket-db": JACKET_DB_BODY_SCALE.concat(JACKET_DB_LAPELS, JACKET_DB_SLEEVES),
+    // Draw order matters beyond "later wins where clips overlap" — sleeves
+    // used to be LAST, so in the sliver where a sleeve box's reach
+    // (feathered, no clip) overlapped a lapel/collar clip's own edge, the
+    // sleeve's rotation silently overwrote the lapel's, a "criss-cross
+    // fade" right at the boundary (founder, 25 Aug 2026: draw body, then
+    // sleeve, THEN the more specific clipped regions on top, most-general
+    // to most-specific). jacket-sb's own order is now body, sleeve, red
+    // lapel, purple lapel, right collar, left collar — matches the
+    // founder's own numbered list exactly, not just "sleeves first."
+    "jacket-sb": JACKET_SB_BODY_SCALE.concat(JACKET_SB_SLEEVES_V2, JACKET_SB_LAPELS, JACKET_SB_COLLAR_RIGHT, JACKET_SB_COLLAR_LEFT),
+    "jacket-sb-peak-patch": JACKET_SLEEVES.concat(JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
+    "jacket-sb-peak-flap": JACKET_SLEEVES.concat(JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
+    "jacket-db": JACKET_DB_BODY_SCALE.concat(JACKET_DB_SLEEVES, JACKET_DB_LAPELS),
     // The four below are new (23-24 Aug 2026) and have never had a lapel/collar
     // trace — sleeves only, same reasoning as jacket-sb above.
     "jacket-sb-notch-patch": JACKET_SB_NOTCH_PATCH_SLEEVES,
