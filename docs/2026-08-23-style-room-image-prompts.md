@@ -91,6 +91,21 @@ now makes it selectable.
 
 ### 1. Notch lapel, widened — replaces the current `jacket-sb` base photo
 
+**SHIPPED 25 Aug 2026** — the widened-notch photo itself landed earlier
+(23 Aug); the `JACKET_SB_LAPELS` displacement retrace this section flags
+as required follow-up landed 25 Aug. Founder ran the flat-colour-panel
+prompt (left lapel solid red, right solid purple, collar solid green)
+against the exact shipped `jacket-sb` source photo through an AI image
+editor; the result was aligned into the same canonical-frame transform
+`tools/build-garment-assets.js` applies and colour-thresholded into a
+polygon (saved as `images/styleBuilder/jacket-sb-notch-flatcolour-
+panels.png` for provenance). Verified with `fox_flannel_chalkstripe`:
+the pinstripe now bends at both lapels, contained cleanly within their
+shape with no seam/kink at the clip edges. The collar was deliberately
+left unbent — same call already made on `jacket-db`'s lapels (cut as a
+separate piece in real tailoring, no fabric-grain measurement taken for
+it).
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller

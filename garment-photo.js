@@ -140,19 +140,48 @@ var JACKET_SAHARIANA_SLEEVES = [
 
 // Notch lapel (jacket-sb): the founder traced the true outline by hand
 // (collar top -> notch -> roll line down to the button) over a render of
-// this exact photo; these points are that trace, extracted by flood-filling
-// the drawn outline and simplifying the resulting contour (Douglas-Peucker,
-// same technique as MAP_COASTS in mill-map.js), not hand-estimated off a
-// grid. The two halves share one seam down the centre (x 0.5051) so they
-// meet without a gap.
+// this exact photo; these points were that trace. RETRACED 25 Aug 2026
+// against the widened-notch photo (the founder-hand-trace above was
+// against the pre-23-Aug narrow notch and was retired — see the old
+// DISPLACEMENT_REGIONS comment on "jacket-sb"). New trace uses the same
+// flat-colour-panel technique the peak lapel and jacket-db lapels already
+// use: the founder ran the exact current `jacket-sb` source photo
+// (images/styleBuilder/replicate-prediction-mapxkr394drmr0d05wa9n2cnbw.png)
+// through an AI image editor with the left lapel filled solid red, the
+// right solid purple, everything else pixel-unchanged — extracted by
+// aligning that edit into the same canonical-frame transform
+// tools/build-garment-assets.js applies (resize-to-fit then centre-pad
+// into 1289x1600), colour-thresholding red/purple against the grey body,
+// and Douglas-Peucker-simplifying each region's contour. Exact same file/
+// coordinate space as the shipped photo, so no proportional remapping
+// was needed. The two halves do NOT share a seam down the centre on this
+// wider cut — the notch gap itself has real width, unlike the old narrow
+// trace — so the clips stop short of x=0.5 with a small gap between them,
+// which the shared feathering already covers smoothly.
+// Angle kept at the same magnitude the pre-23-Aug trace used (0.18 rad,
+// left negative/right positive) rather than re-derived from the flat-
+// colour edit's own geometry — the colour boundary traces the lapel's
+// true SHAPE, but its top-to-bottom point-to-point vector measures where
+// the lapel narrows toward the button, not the fabric grain's bend
+// direction the angle/strength pair approximates (same distinction noted
+// on JACKET_SB_PEAK_TIPS below). 0.18 was already visually verified
+// against a striped test cloth for this exact lapel type; re-verified
+// after this retrace with fox_flannel_chalkstripe, no kink at the collar/
+// lapel seam.
+// The collar (also flat-colour-filled, solid green, in the same edit) is
+// deliberately NOT included in either clip or given its own region —
+// same call already made on jacket-db's lapels (see that comment below):
+// it's cut as a separate piece in real tailoring, and no fabric-grain
+// measurement was taken for it, so leaving it unbent is the same
+// proportionate choice, not an oversight.
 var JACKET_SB_LAPELS = [
     {
-        x: 0.27, y: 0.045, w: 0.245, h: 0.50, angle: -0.18, strength: 0.82,
-        clip: [{ x: 0.5051, y: 0.5343 }, { x: 0.4931, y: 0.53 }, { x: 0.4746, y: 0.4873 }, { x: 0.4299, y: 0.4405 }, { x: 0.4014, y: 0.3875 }, { x: 0.32, y: 0.2799 }, { x: 0.2824, y: 0.2018 }, { x: 0.3278, y: 0.1773 }, { x: 0.302, y: 0.151 }, { x: 0.4052, y: 0.088 }, { x: 0.413, y: 0.0693 }, { x: 0.5051, y: 0.0611 }]
+        x: 0.3144, y: 0.1796, w: 0.2059, h: 0.3233, angle: -0.18, strength: 0.82,
+        clip: [{ x: 0.4236, y: 0.1888 }, { x: 0.3344, y: 0.2550 }, { x: 0.3592, y: 0.3019 }, { x: 0.4182, y: 0.3925 }, { x: 0.4973, y: 0.4931 }, { x: 0.4996, y: 0.4800 }, { x: 0.4453, y: 0.2969 }, { x: 0.4275, y: 0.1888 }]
     },
     {
-        x: 0.49, y: 0.045, w: 0.245, h: 0.50, angle: 0.18, strength: 0.82,
-        clip: [{ x: 0.7045, y: 0.2535 }, { x: 0.5051, y: 0.5343 }, { x: 0.5051, y: 0.0611 }, { x: 0.5874, y: 0.0707 }, { x: 0.6151, y: 0.0994 }, { x: 0.707, y: 0.1515 }, { x: 0.6901, y: 0.1805 }, { x: 0.7265, y: 0.2021 }, { x: 0.7057, y: 0.2478 }]
+        x: 0.4743, y: 0.1797, w: 0.2136, h: 0.3405, angle: 0.18, strength: 0.82,
+        clip: [{ x: 0.5764, y: 0.1894 }, { x: 0.5718, y: 0.1894 }, { x: 0.5516, y: 0.3025 }, { x: 0.4950, y: 0.5100 }, { x: 0.5834, y: 0.3956 }, { x: 0.6664, y: 0.2544 }]
     }
 ];
 
@@ -346,12 +375,11 @@ var BELTLOOP_PLEAT_TROUSER_WAISTBAND = [
 ];
 
 var DISPLACEMENT_REGIONS = {
-    // jacket-sb was regenerated 23 Aug 2026 (wider notch lapel) — JACKET_SB_LAPELS
-    // was traced against the OLD photo and is retired here, not reused: its clip
-    // polygon no longer lines up with this photo's actual lapel at all (collar top
-    // alone moved from y≈0.045 to y≈0.18), so keeping it produced a visibly wrong
-    // bend, not just a slightly-off one. Sleeves-only until a real retrace happens.
-    "jacket-sb": JACKET_SB_SLEEVES_V2,
+    // jacket-sb was regenerated 23 Aug 2026 (wider notch lapel), which retired
+    // the old JACKET_SB_LAPELS trace (see its own comment above) — sleeves-
+    // only until 25 Aug 2026, when JACKET_SB_LAPELS was retraced against this
+    // exact photo via the flat-colour-panel technique. Lapel bend restored.
+    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SB_SLEEVES_V2),
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_DB_SLEEVES),
@@ -981,12 +1009,10 @@ window.renderGarmentPhoto = renderGarmentPhoto;
 //
 // jacket-sb was regenerated 2026-08-23 with a wider notch lapel (founder:
 // the original read too narrow). The OLD JACKET_SB_LAPELS trace no longer
-// applies — DISPLACEMENT_REGIONS drops it for this key entirely rather
-// than keeping a stale trace (which produced a visible seam artifact
-// between body and sleeve, since JACKET_SLEEVES was calibrated against the
-// old photo's framing too; both replaced 24 Aug with regenerated boxes —
-// see JACKET_SB_SLEEVES_V2 and the comment above it). No lapel bend on
-// jacket-sb until a real retrace happens; sleeves are correct.
+// applied — sleeves were replaced 24 Aug with regenerated boxes (see
+// JACKET_SB_SLEEVES_V2) and JACKET_SB_LAPELS itself was retraced 25 Aug
+// against this exact photo (see its own comment above) — both lapel and
+// sleeve bend are correct again as of 25 Aug 2026.
 //
 // trousers-gurkha and trousers-double-sideAdjusters (2026-08-23) were
 // generated by editing real BBS garment photos rather than from scratch —
