@@ -571,7 +571,29 @@ if (require.main === module) {
         // disk untouched, it is just no longer what this key builds from.
         // Retracing JACKET_SB_LAPELS in garment-photo.js against the new
         // outline is required follow-up (see that file).
-        "jacket-sb": "replicate-prediction-mapxkr394drmr0d05wa9n2cnbw.png",
+        // REPOINTED 25 Aug 2026 to a healed copy of the same photo — the
+        // original had a hard-edged, pure-white gap between the sleeve
+        // and torso (ghost-mannequin volume standing the sleeve away from
+        // the body more than a worn garment would, letting the studio
+        // backdrop show through). Confirmed real via the raw luminance
+        // (pegged 253-255, a clean silhouette-like boundary, nothing like
+        // a highlight's soft falloff) and confirmed NOT a mask bug: the
+        // shipped alpha was fully opaque there too, because the gap is an
+        // enclosed island the frame-edge flood fill in extractMask can
+        // never reach. A striped test cloth never showed it (a blown gap
+        // just reads as "extra-bright stripes"); a windowpane check did,
+        // as a jarring pattern-less pale band with no grid lines at all.
+        // Healed with OpenCV inpainting (cv2.inpaint, Telea) restricted to
+        // the gap's own connected-component shape, then a fine grain
+        // texture tiled in from a clean patch of the same sleeve fabric so
+        // the fill carries real noise instead of reading smooth/flat — a
+        // first attempt at a hand-rolled per-row fix (both a plain colour
+        // gradient and a straight clone-shift) looked worse than the
+        // original in two different ways (obvious flat scanline banding,
+        // then a visible rectangular "sticker") before landing on this.
+        // File: jacket-sb-notch-sleeve-gap-healed.png (original kept on
+        // disk untouched, for provenance/comparison).
+        "jacket-sb": "jacket-sb-notch-sleeve-gap-healed.png",
         "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",
         "jacket-sb-peak-flap": "jacket-sb-peak-flap.png",
         // New 2026-08-23: same widened notch as "jacket-sb" above, patch

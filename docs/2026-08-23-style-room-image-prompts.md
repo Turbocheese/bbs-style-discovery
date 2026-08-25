@@ -128,6 +128,41 @@ correctly (collar halves confirmed bending in opposite directions from
 each other, matching the founder's own left/right/middle description),
 grid pitch matches the body everywhere, no seam/kink at any clip edge.
 
+**Third pass, same day** — founder flagged a third, unrelated problem
+on the same screenshot: a hard-edged, pure-white gap between the sleeve
+and torso, present with every displacement region removed entirely (so
+not a code bug at all). Traced to the raw source photo itself: ghost-
+mannequin volume stands the sleeve away from the body more than a worn
+garment would, letting the white studio backdrop show through a gap —
+confirmed via raw luminance (pegged 253-255 with a clean silhouette-
+like boundary, nothing like a highlight's soft falloff) and confirmed
+NOT a mask bug (the shipped alpha was fully opaque there too, because
+the gap is an enclosed island the frame-edge flood fill in
+`extractMask` can never reach — it only spreads through background
+connected to the frame edge). A striped cloth hid this too (reads as
+"extra-bright stripes"); a windowpane check showed it as a jarring,
+pattern-less pale band with no grid lines at all.
+
+Two hand-rolled per-row fixes were tried and both looked worse than the
+gap itself, in two different ways: a two-anchor colour gradient healed
+the blowout but had zero grain texture and combed horizontal banding
+(each row's independent blend landing at a slightly different tone);
+clone-shifting a same-width strip from clean fabric alongside it fixed
+the texture but produced an obvious rectangular "sticker" with a
+mismatched grain direction and a hard-cut bottom edge. Both abandoned.
+Fixed properly with real texture-aware inpainting (Python/OpenCV,
+`cv2.inpaint` with `INPAINT_TELEA`, masked to the gap's own connected-
+component shape) for the smooth structural fill, then a fine grain
+texture tiled in from a clean patch of the same sleeve fabric (with a
+per-row pseudo-random tile offset so the seam doesn't itself read as a
+repeat) so the fill carries the photograph's own noise instead of
+reading smooth. Saved as `images/styleBuilder/jacket-sb-notch-sleeve-
+gap-healed.png` (original kept on disk, untouched, for provenance) and
+`tools/build-garment-assets.js`'s `SOURCES["jacket-sb"]` repointed to
+it — confirmed via rebuild that every other asset stayed byte-
+identical. Re-verified with both test cloths: gap fully gone, reads as
+a natural fold shadow, no scanline banding, no sticker seam.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller
