@@ -93,18 +93,40 @@ now makes it selectable.
 
 **SHIPPED 25 Aug 2026** — the widened-notch photo itself landed earlier
 (23 Aug); the `JACKET_SB_LAPELS` displacement retrace this section flags
-as required follow-up landed 25 Aug. Founder ran the flat-colour-panel
-prompt (left lapel solid red, right solid purple, collar solid green)
-against the exact shipped `jacket-sb` source photo through an AI image
-editor; the result was aligned into the same canonical-frame transform
-`tools/build-garment-assets.js` applies and colour-thresholded into a
-polygon (saved as `images/styleBuilder/jacket-sb-notch-flatcolour-
-panels.png` for provenance). Verified with `fox_flannel_chalkstripe`:
-the pinstripe now bends at both lapels, contained cleanly within their
-shape with no seam/kink at the clip edges. The collar was deliberately
-left unbent — same call already made on `jacket-db`'s lapels (cut as a
-separate piece in real tailoring, no fabric-grain measurement taken for
-it).
+as required follow-up landed 25 Aug, in two passes. Founder ran the
+flat-colour-panel prompt (left lapel solid red, right solid purple,
+collar solid green) against the exact shipped `jacket-sb` source photo
+through an AI image editor; the result was aligned into the same
+canonical-frame transform `tools/build-garment-assets.js` applies and
+colour-thresholded into polygons (saved as `images/styleBuilder/jacket-
+sb-notch-flatcolour-panels.png` for provenance).
+
+First pass shipped lapels only (collar deliberately left unbent, on the
+mistaken assumption that jacket-db's own "leave the collar unbent"
+precedent applied here too) and reused the existing `octx.rotate()` +
+`octx.scale()` context-transform technique every other lapel/sleeve
+region already used. Founder caught two problems on inspection with a
+2D windowpane check (a striped cloth can't reveal either): (1) the
+collar **does** need its own bend — split into a left half (bends
+right, opposite its adjoining lapel), a right half (bends left), and an
+unbent flat middle plateau; (2) the rotated check pattern inside the
+lapel clips rendered at a visibly larger, mismatched scale than the
+surrounding body — confirmed real (not an antialiasing illusion) via a
+4x-supersampled re-render that still showed it. Root cause: rotating
+the offscreen CONTEXT before a pattern `fillRect` is a genuine Chromium/
+Skia rasterisation defect — the tiling comes out inflated under a
+rotated CTM even though a pure rotation should preserve pitch. Fixed by
+routing the same rotation/scale matrix through `CanvasPattern.
+setTransform()` instead, verified experimentally to produce correct,
+matching pitch — this fix applies to `applyClothDisplacement()` itself,
+so it also corrected the already-shipped peak lapel and jacket-db, not
+just this trace.
+
+Re-verified with both `fox_flannel_chalkstripe` and
+`holland_sherry_windowpane_blue`: both lapels and the collar now bend
+correctly (collar halves confirmed bending in opposite directions from
+each other, matching the founder's own left/right/middle description),
+grid pitch matches the body everywhere, no seam/kink at any clip edge.
 
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a

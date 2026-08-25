@@ -168,12 +168,18 @@ var JACKET_SAHARIANA_SLEEVES = [
 // against a striped test cloth for this exact lapel type; re-verified
 // after this retrace with fox_flannel_chalkstripe, no kink at the collar/
 // lapel seam.
-// The collar (also flat-colour-filled, solid green, in the same edit) is
-// deliberately NOT included in either clip or given its own region —
-// same call already made on jacket-db's lapels (see that comment below):
-// it's cut as a separate piece in real tailoring, and no fabric-grain
-// measurement was taken for it, so leaving it unbent is the same
-// proportionate choice, not an oversight.
+// The collar (also flat-colour-filled, solid green, in the same edit) DOES
+// get its own bend — founder correction 25 Aug 2026, overriding an earlier
+// call in this file (made on jacket-db's lapels) to leave a collar unbent.
+// A collar folds over at the gorge and continues toward the back of the
+// neck, curving AWAY from its adjoining lapel's roll rather than with it —
+// the founder's own description: the left lapel bends left, the right
+// bends right, but the collar's left half bends right and its right half
+// bends left (an opposing S-curve, not a mirrored copy), while the flat
+// plateau between them, running straight over the back of the neck, bends
+// neither way. See JACKET_SB_COLLAR_LEFT/RIGHT below the lapels — the
+// plateau needs no region of its own since angle 0/strength 1 is a no-op,
+// identical to the default flat fill it would otherwise leave showing.
 var JACKET_SB_LAPELS = [
     {
         x: 0.3144, y: 0.1796, w: 0.2059, h: 0.3233, angle: -0.18, strength: 0.82,
@@ -182,6 +188,24 @@ var JACKET_SB_LAPELS = [
     {
         x: 0.4743, y: 0.1797, w: 0.2136, h: 0.3405, angle: 0.18, strength: 0.82,
         clip: [{ x: 0.5764, y: 0.1894 }, { x: 0.5718, y: 0.1894 }, { x: 0.5516, y: 0.3025 }, { x: 0.4950, y: 0.5100 }, { x: 0.5834, y: 0.3956 }, { x: 0.6664, y: 0.2544 }]
+    }
+];
+
+// Collar halves, same extraction pass as JACKET_SB_LAPELS above, split
+// from the same green flat-colour fill at x≈0.4275/0.5725 — the flat
+// "plateau" edges visible in the fill itself, not an arbitrary third-split.
+// Angle sign is OPPOSITE its adjoining lapel (left collar positive/right,
+// right collar negative/left) — see the comment above for why.
+var JACKET_SB_COLLAR_LEFT = [
+    {
+        x: 0.3445, y: 0.1425, w: 0.0938, h: 0.0975, angle: 0.18, strength: 0.82,
+        clip: [{ x: 0.4267, y: 0.1537 }, { x: 0.4042, y: 0.1731 }, { x: 0.3817, y: 0.1869 }, { x: 0.3693, y: 0.2050 }, { x: 0.3553, y: 0.2200 }, { x: 0.3561, y: 0.2238 }, { x: 0.3638, y: 0.2281 }, { x: 0.3677, y: 0.2281 }, { x: 0.4174, y: 0.1906 }, { x: 0.4267, y: 0.1862 }]
+    }
+];
+var JACKET_SB_COLLAR_RIGHT = [
+    {
+        x: 0.5606, y: 0.1382, w: 0.0968, h: 0.1024, angle: -0.18, strength: 0.82,
+        clip: [{ x: 0.5718, y: 0.1500 }, { x: 0.5725, y: 0.1862 }, { x: 0.5919, y: 0.1975 }, { x: 0.6330, y: 0.2281 }, { x: 0.6369, y: 0.2281 }, { x: 0.6447, y: 0.2238 }, { x: 0.6455, y: 0.2194 }, { x: 0.6284, y: 0.2006 }, { x: 0.6175, y: 0.1831 }, { x: 0.5958, y: 0.1706 }]
     }
 ];
 
@@ -379,7 +403,7 @@ var DISPLACEMENT_REGIONS = {
     // the old JACKET_SB_LAPELS trace (see its own comment above) — sleeves-
     // only until 25 Aug 2026, when JACKET_SB_LAPELS was retraced against this
     // exact photo via the flat-colour-panel technique. Lapel bend restored.
-    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SB_SLEEVES_V2),
+    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SB_COLLAR_LEFT, JACKET_SB_COLLAR_RIGHT, JACKET_SB_SLEEVES_V2),
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_DB_SLEEVES),
@@ -564,20 +588,34 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
         off.height = offH;
         var octx = off.getContext("2d");
 
-        // Same rotate/scale-about-center transform as before, plus a
-        // leading translate that re-anchors main-canvas coordinates onto
-        // the offscreen canvas's own (0,0). Because that translate is
-        // applied last (outermost) in the composed matrix, it shifts the
-        // finished device pixels by (-offX, -offY) without disturbing the
-        // rotation/scale math — the pattern phase lines up exactly as it
-        // would have on the main canvas, so this is the same displaced
-        // cloth, just drawn onto a smaller, offset, paddable surface.
+        // The rotate/scale-about-center transform goes on the PATTERN
+        // itself (CanvasPattern.setTransform), not on the context — found
+        // 25 Aug 2026 (founder: a windowpane check inside a bent lapel
+        // rendered visibly larger than the same check on the flat body,
+        // confirmed real via a 4x-supersampled re-render that still showed
+        // it, ruling out an antialiasing/Moiré illusion). Rotating the
+        // CONTEXT before a pattern fillRect is a genuine Chromium/Skia
+        // rasterisation defect: the tiling comes out inflated under a
+        // rotated CTM even though a pure rotation should preserve pitch.
+        // Verified experimentally: routing the identical matrix through
+        // pattern.setTransform() instead, with the context left at (at
+        // most) a plain translate, produces the correct, matching pitch. A
+        // 1D stripe hid this for months — a stripe's pitch has no
+        // perpendicular reference to look wrong against, so nobody noticed
+        // until a 2D check finally exposed it.
+        // The leading context-level translate(-offX, -offY) re-anchors
+        // main-canvas coordinates onto the offscreen canvas's own (0,0);
+        // that part is a plain translate (no rotation), which is not
+        // subject to the bug above, so it stays on the context.
         octx.save();
         octx.translate(-offX, -offY);
-        octx.translate(cx, cy);
-        octx.rotate(r.angle);
-        octx.scale(r.strength, 1);
-        octx.translate(-cx, -cy);
+
+        var m = new DOMMatrix()
+            .translate(cx, cy)
+            .rotate(r.angle * 180 / Math.PI)
+            .scale(r.strength, 1)
+            .translate(-cx, -cy);
+        pattern.setTransform(m);
 
         // Rotating/scaling around the region's center means the padded
         // area maps to a larger area in pattern space; overdraw
@@ -585,6 +623,10 @@ function applyClothDisplacement(ctx, canvas, pattern, garmentKey) {
         var pad = (rw + rh);
         octx.fillStyle = pattern;
         octx.fillRect(rx - pad, ry - pad, rw + pad * 2, rh + pad * 2);
+        // `pattern` is one shared object reused for the flat body fill and
+        // every region — reset its transform immediately so it doesn't
+        // leak into the next fillRect call.
+        pattern.setTransform(new DOMMatrix());
         octx.restore();
 
         // Feather the offscreen region's edges, then composite it over
