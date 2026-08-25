@@ -150,18 +150,32 @@ the blowout but had zero grain texture and combed horizontal banding
 clone-shifting a same-width strip from clean fabric alongside it fixed
 the texture but produced an obvious rectangular "sticker" with a
 mismatched grain direction and a hard-cut bottom edge. Both abandoned.
-Fixed properly with real texture-aware inpainting (Python/OpenCV,
-`cv2.inpaint` with `INPAINT_TELEA`, masked to the gap's own connected-
-component shape) for the smooth structural fill, then a fine grain
-texture tiled in from a clean patch of the same sleeve fabric (with a
-per-row pseudo-random tile offset so the seam doesn't itself read as a
-repeat) so the fill carries the photograph's own noise instead of
-reading smooth. Saved as `images/styleBuilder/jacket-sb-notch-sleeve-
-gap-healed.png` (original kept on disk, untouched, for provenance) and
-`tools/build-garment-assets.js`'s `SOURCES["jacket-sb"]` repointed to
-it — confirmed via rebuild that every other asset stayed byte-
-identical. Re-verified with both test cloths: gap fully gone, reads as
-a natural fold shadow, no scanline banding, no sticker seam.
+A third attempt — `cv2.inpaint` (Telea) masked to just the hard-
+saturated core, plus a grain texture tiled on top — closed the white
+gap cleanly and shipped, but got rejected too: it left the natural dark
+fold-shadow immediately surrounding the gap in place, and Telea's own
+smoothing blurred/interrupted a striped test cloth's lines rather than
+letting them run straight through. Founder's reference for "correct":
+a screenshot of `jacket-sb-peak-patch`'s own sleeve/body seam — a
+*different* source photo with no gap at all, stripes running
+completely uninterrupted, nothing visible there whatsoever. That's the
+bar: not "a healed gap," but "no gap ever existed."
+
+Landed on: grow the mask past the blown core to also cover the
+darkened valley leading into it (measured: column mean drops from ~154
+to ~99 over roughly 250px before the blowout — a real fold, not photo
+noise or an artifact of the mask), then a SOFT-FEATHERED paste
+(Gaussian-blurred alpha, not a hard-cut box) of a same-size clean patch
+of real, unshaded sleeve fabric — real photographed grain the whole
+way through, no inpainting blur, no synthesized gradient. A stripe or
+check pattern multiplied over it now runs straight through
+uninterrupted, matching the reference. Saved as
+`images/styleBuilder/jacket-sb-notch-sleeve-gap-healed.png` (original
+kept on disk, untouched, for provenance) and `tools/build-garment-
+assets.js`'s `SOURCES["jacket-sb"]` repointed to it — confirmed via
+rebuild that every other asset stayed byte-identical. Re-verified with
+both test cloths at full-body scale: no visible gap, no shadow smudge,
+no sticker seam, stripes/grid fully continuous.
 
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a

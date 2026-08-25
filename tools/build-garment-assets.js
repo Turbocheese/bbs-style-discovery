@@ -583,16 +583,30 @@ if (require.main === module) {
         // never reach. A striped test cloth never showed it (a blown gap
         // just reads as "extra-bright stripes"); a windowpane check did,
         // as a jarring pattern-less pale band with no grid lines at all.
-        // Healed with OpenCV inpainting (cv2.inpaint, Telea) restricted to
-        // the gap's own connected-component shape, then a fine grain
-        // texture tiled in from a clean patch of the same sleeve fabric so
-        // the fill carries real noise instead of reading smooth/flat — a
-        // first attempt at a hand-rolled per-row fix (both a plain colour
-        // gradient and a straight clone-shift) looked worse than the
-        // original in two different ways (obvious flat scanline banding,
-        // then a visible rectangular "sticker") before landing on this.
-        // File: jacket-sb-notch-sleeve-gap-healed.png (original kept on
-        // disk untouched, for provenance/comparison).
+        // Two earlier heal attempts both shipped and both got rejected on
+        // sight (founder: "still looks like shit"). First, a hand-rolled
+        // per-row fix: a plain colour gradient had zero grain and combed
+        // scanline banding; a straight clone-shift fixed the grain but
+        // produced an obvious rectangular "sticker" with mismatched grain
+        // direction. Second, OpenCV inpainting (cv2.inpaint, Telea)
+        // restricted to just the hard-saturated 253-255 core, plus a grain
+        // texture tiled on top — closed the white gap cleanly, but left
+        // the natural dark fold-shadow immediately surrounding it in
+        // place, and Telea's own smoothing blurred/interrupted a striped
+        // test cloth's lines rather than letting them run straight through
+        // (compare against jacket-sb-peak-patch's own sleeve/body seam,
+        // the founder's reference for "nothing visible there at all" — no
+        // gap, no shadow, no interruption). Landed on: grow the mask past
+        // the blown core to also cover the darkened valley leading into it
+        // (measured: column mean drops from ~154 to ~99 over 250px before
+        // the blowout — a real fold, not photo noise), then a SOFT-
+        // FEATHERED paste (Gaussian-blurred alpha, not a hard cut) of a
+        // same-size clean patch of real, unshaded sleeve fabric — real
+        // photographed grain the whole way, no inpainting blur, no
+        // synthesized gradient, so a stripe or check pattern multiplied
+        // over it runs straight through uninterrupted, same as the
+        // reference. File: jacket-sb-notch-sleeve-gap-healed.png (original
+        // kept on disk untouched, for provenance/comparison).
         "jacket-sb": "jacket-sb-notch-sleeve-gap-healed.png",
         "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",
         "jacket-sb-peak-flap": "jacket-sb-peak-flap.png",
