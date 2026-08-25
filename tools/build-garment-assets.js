@@ -583,29 +583,26 @@ if (require.main === module) {
         // never reach. A striped test cloth never showed it (a blown gap
         // just reads as "extra-bright stripes"); a windowpane check did,
         // as a jarring pattern-less pale band with no grid lines at all.
-        // Two earlier heal attempts both shipped and both got rejected on
-        // sight (founder: "still looks like shit"). First, a hand-rolled
-        // per-row fix: a plain colour gradient had zero grain and combed
-        // scanline banding; a straight clone-shift fixed the grain but
-        // produced an obvious rectangular "sticker" with mismatched grain
-        // direction. Second, OpenCV inpainting (cv2.inpaint, Telea)
-        // restricted to just the hard-saturated 253-255 core, plus a grain
-        // texture tiled on top — closed the white gap cleanly, but left
-        // the natural dark fold-shadow immediately surrounding it in
-        // place, and Telea's own smoothing blurred/interrupted a striped
-        // test cloth's lines rather than letting them run straight through
-        // (compare against jacket-sb-peak-patch's own sleeve/body seam,
-        // the founder's reference for "nothing visible there at all" — no
-        // gap, no shadow, no interruption). Landed on: grow the mask past
-        // the blown core to also cover the darkened valley leading into it
-        // (measured: column mean drops from ~154 to ~99 over 250px before
-        // the blowout — a real fold, not photo noise), then a SOFT-
-        // FEATHERED paste (Gaussian-blurred alpha, not a hard cut) of a
-        // same-size clean patch of real, unshaded sleeve fabric — real
-        // photographed grain the whole way, no inpainting blur, no
-        // synthesized gradient, so a stripe or check pattern multiplied
-        // over it runs straight through uninterrupted, same as the
-        // reference. File: jacket-sb-notch-sleeve-gap-healed.png (original
+        // Three earlier heal attempts all shipped and all got rejected on
+        // sight (founder: "still looks like shit" / "what the fuck is
+        // this"). A hand-rolled per-row colour gradient had zero grain and
+        // combed scanline banding; a straight clone-shift fixed the grain
+        // but produced an obvious rectangular "sticker"; OpenCV inpainting
+        // (cv2.inpaint, Telea) plus a tiled grain texture closed the white
+        // gap but left the natural dark fold-shadow around it in place and
+        // blurred/interrupted a striped test cloth rather than letting it
+        // run straight through; even a soft-feathered manual paste of real
+        // donor fabric (matching tone and grain by eye) still left a faint
+        // but visible tonal seam under close inspection. Founder's bar,
+        // set by a screenshot of jacket-sb-peak-patch's own sleeve/body
+        // seam (a different source photo with no gap at all): nothing
+        // visible there whatsoever, not "a well-healed gap."
+        // Fixed with cv2.seamlessClone (NORMAL_CLONE) — Poisson blending,
+        // which solves for the transplanted patch's gradient to match its
+        // surroundings rather than just matching pasted content by eye.
+        // Regenerate via tools/heal-jacket-sb-sleeve-gap.py (run from repo
+        // root; see that file's header for the exact mask/donor geometry).
+        // File: jacket-sb-notch-sleeve-gap-healed.png (original source
         // kept on disk untouched, for provenance/comparison).
         "jacket-sb": "jacket-sb-notch-sleeve-gap-healed.png",
         "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",

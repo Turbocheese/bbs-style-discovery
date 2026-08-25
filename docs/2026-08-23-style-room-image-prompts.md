@@ -161,21 +161,29 @@ a screenshot of `jacket-sb-peak-patch`'s own sleeve/body seam — a
 completely uninterrupted, nothing visible there whatsoever. That's the
 bar: not "a healed gap," but "no gap ever existed."
 
-Landed on: grow the mask past the blown core to also cover the
+A fourth attempt grew the mask past the blown core to also cover the
 darkened valley leading into it (measured: column mean drops from ~154
 to ~99 over roughly 250px before the blowout — a real fold, not photo
 noise or an artifact of the mask), then a SOFT-FEATHERED paste
 (Gaussian-blurred alpha, not a hard-cut box) of a same-size clean patch
-of real, unshaded sleeve fabric — real photographed grain the whole
-way through, no inpainting blur, no synthesized gradient. A stripe or
-check pattern multiplied over it now runs straight through
-uninterrupted, matching the reference. Saved as
+of real, unshaded sleeve fabric. Shipped, and still rejected on sight
+("what the fuck is this?") — a faint but real tonal seam remained
+visible at normal viewing scale, plainly failing the reference bar.
+
+Fixed properly with `cv2.seamlessClone` (`NORMAL_CLONE`) — Poisson
+blending, which solves for the transplanted patch's own gradient to
+match its surroundings rather than matching pasted content by eye the
+way every hand-rolled attempt above did. Same mask and donor patch as
+the fourth attempt, just blended properly this time. Regenerable via
+`tools/heal-jacket-sb-sleeve-gap.py` (committed, run from repo root —
+reproduces the shipped file byte-for-byte, confirmed). Saved as
 `images/styleBuilder/jacket-sb-notch-sleeve-gap-healed.png` (original
-kept on disk, untouched, for provenance) and `tools/build-garment-
-assets.js`'s `SOURCES["jacket-sb"]` repointed to it — confirmed via
-rebuild that every other asset stayed byte-identical. Re-verified with
-both test cloths at full-body scale: no visible gap, no shadow smudge,
-no sticker seam, stripes/grid fully continuous.
+source kept on disk, untouched, for provenance) and `tools/build-
+garment-assets.js`'s `SOURCES["jacket-sb"]` repointed to it — confirmed
+via rebuild that every other asset stayed byte-identical. Re-verified
+with both test cloths at the same full-body/torso-crop scale the
+founder's rejection screenshots used: no visible gap, no shadow smudge,
+no seam, stripes/grid fully continuous.
 
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
