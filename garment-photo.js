@@ -230,6 +230,17 @@ var JACKET_SB_BODY_SCALE = [
     { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
 ];
 
+// Same body/sleeve pitch mismatch, same fix, for both DB garments —
+// JACKET_DB_SLEEVES and JACKET_DB_PEAK_FLAP_SLEEVES both already use
+// strength 0.74, so this reuses that exact value rather than
+// re-deriving it.
+var JACKET_DB_BODY_SCALE = [
+    { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
+];
+var JACKET_DB_PEAK_FLAP_BODY_SCALE = [
+    { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
+];
+
 // Peak lapel (jacket-sb-peak-*): two prior passes at this trace both
 // mis-shaped it — a blind grid-eyeball guess, then a pinstripe-kink
 // analysis (August 2026) that fixed the worst of it but still
@@ -427,11 +438,11 @@ var DISPLACEMENT_REGIONS = {
     "jacket-sb": JACKET_SB_BODY_SCALE.concat(JACKET_SB_LAPELS, JACKET_SB_COLLAR_LEFT, JACKET_SB_COLLAR_RIGHT, JACKET_SB_SLEEVES_V2),
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
-    "jacket-db": JACKET_DB_LAPELS.concat(JACKET_DB_SLEEVES),
+    "jacket-db": JACKET_DB_BODY_SCALE.concat(JACKET_DB_LAPELS, JACKET_DB_SLEEVES),
     // The four below are new (23-24 Aug 2026) and have never had a lapel/collar
     // trace — sleeves only, same reasoning as jacket-sb above.
     "jacket-sb-notch-patch": JACKET_SB_NOTCH_PATCH_SLEEVES,
-    "jacket-db-peak-flap": JACKET_DB_PEAK_FLAP_SLEEVES,
+    "jacket-db-peak-flap": JACKET_DB_PEAK_FLAP_BODY_SCALE.concat(JACKET_DB_PEAK_FLAP_SLEEVES),
     "jacket-safari": JACKET_SAFARI_SLEEVES,
     "jacket-chore": JACKET_CHORE_SLEEVES,
     "jacket-a2": JACKET_A2_SLEEVES,

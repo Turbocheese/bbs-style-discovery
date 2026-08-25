@@ -235,6 +235,25 @@ asked. Re-measured: body and sleeve pitch both landed at 9px after the
 fix (were 12 vs 9). No regression on `fox_flannel_chalkstripe` or
 `holland_sherry_windowpane_blue`.
 
+**Third follow-up, same day: both DB jackets checked for the same two
+issues.** `jacket-db` (a different, much larger source photo) already
+had a genuine gap on both sides — checked its alpha channel directly,
+no fix needed. `jacket-db-peak-flap`'s own source photo turned out to
+be effectively the same frame as `jacket-sb`'s (971x1619 vs 972x1619)
+and carried the identical gap in the identical position on both sides —
+confirmed the same way as `jacket-sb-notch-patch` before it: tried
+`jacket-sb`'s exact box coordinates directly rather than measuring
+fresh, landed clean on both sides first try. Added `GAP_ISLAND_FIXES`
+for `jacket-db-peak-flap`.
+
+Both DB garments' sleeves already use `strength: 0.74` (same value as
+`jacket-sb`'s), so `JACKET_DB_BODY_SCALE` and `JACKET_DB_PEAK_FLAP_
+BODY_SCALE` reuse it directly rather than re-deriving anything — same
+whole-canvas, unrotated, `strength: 0.74` box as `JACKET_SB_BODY_SCALE`,
+positioned first in each key's `DISPLACEMENT_REGIONS` entry. Verified
+with `scabal_pinstripe_navy`: both gaps present on `jacket-db-peak-
+flap`, body/sleeve pitch reads consistent on both DB garments.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller

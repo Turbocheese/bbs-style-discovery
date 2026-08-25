@@ -128,6 +128,17 @@ var GAP_ISLAND_FIXES = {
     "jacket-sb-notch-patch": [
         { x: 0.15, y: 0.40, w: 0.14, h: 0.34 },
         { x: 0.71, y: 0.40, w: 0.14, h: 0.34 }
+    ],
+    // jacket-db-peak-flap's own source photo (971x1619, effectively the
+    // same frame as jacket-sb's 972x1619) carries the identical gap in
+    // the identical position too — same confirmation method: tried
+    // jacket-sb's exact box against it and it landed clean on both
+    // sides. jacket-db itself (a different, much larger source photo)
+    // already has a real gap on both sides from its own mask — checked
+    // directly, no fix needed there.
+    "jacket-db-peak-flap": [
+        { x: 0.15, y: 0.40, w: 0.14, h: 0.34 },
+        { x: 0.71, y: 0.40, w: 0.14, h: 0.34 }
     ]
 };
 
