@@ -168,22 +168,43 @@ noise or an artifact of the mask), then a SOFT-FEATHERED paste
 (Gaussian-blurred alpha, not a hard-cut box) of a same-size clean patch
 of real, unshaded sleeve fabric. Shipped, and still rejected on sight
 ("what the fuck is this?") — a faint but real tonal seam remained
-visible at normal viewing scale, plainly failing the reference bar.
+visible at normal viewing scale.
 
-Fixed properly with `cv2.seamlessClone` (`NORMAL_CLONE`) — Poisson
-blending, which solves for the transplanted patch's own gradient to
-match its surroundings rather than matching pasted content by eye the
-way every hand-rolled attempt above did. Same mask and donor patch as
-the fourth attempt, just blended properly this time. Regenerable via
-`tools/heal-jacket-sb-sleeve-gap.py` (committed, run from repo root —
-reproduces the shipped file byte-for-byte, confirmed). Saved as
-`images/styleBuilder/jacket-sb-notch-sleeve-gap-healed.png` (original
-source kept on disk, untouched, for provenance) and `tools/build-
-garment-assets.js`'s `SOURCES["jacket-sb"]` repointed to it — confirmed
-via rebuild that every other asset stayed byte-identical. Re-verified
-with both test cloths at the same full-body/torso-crop scale the
-founder's rejection screenshots used: no visible gap, no shadow smudge,
-no seam, stripes/grid fully continuous.
+A fifth attempt switched to `cv2.seamlessClone` (`NORMAL_CLONE` —
+Poisson blending, which solves for the transplanted patch's own
+gradient to match its surroundings rather than matching pasted content
+by eye). This one genuinely closed the seam with no visible trace —
+and was STILL rejected, because every single one of these five attempts
+was solving the wrong problem. The founder's actual, explicit direction
+(after the fifth): **"I want there to be a GAP between the sleeves and
+the body, there is NOT supposed to be any sort of fill."** The
+`jacket-sb-peak-patch` screenshot held up as "correct" the whole time
+wasn't showing seamless fabric — it was showing a real, deliberate
+transparent gap: its own alpha channel is genuinely `0` right where
+this whole saga was trying to paint fabric back in. A gap between
+sleeve and torso is normal, expected garment-photography negative
+space; every attempt above was fighting to erase the one thing that was
+supposed to be there.
+
+**Fixed correctly**: back on the original, untouched source photo (no
+healed/cloned file needed — deleted `tools/heal-jacket-sb-sleeve-
+gap.py` and the healed PNG, both now dead ends). The actual bug was
+never the missing fabric, it was that this gap is an ENCLOSED ISLAND —
+unlike `jacket-sb-peak-patch`'s version of the same gap, which happens
+to connect through to the true background, this one doesn't reach the
+frame edge, so the flood fill in `extractMask` could never carve it out
+and it survived as opaque "garment," rendering as a jarring blown-white
+patch instead of the clean transparent gap it should have been from the
+start. `GAP_ISLAND_FIXES` in `tools/build-garment-assets.js` now
+flood-fills from every background-coloured pixel inside a hand-measured
+search box and punches that island out of the mask directly (same
+`isBackgroundish` test `extractMask` itself uses), run right after
+`extractMask` so the existing erosion/fringe-cleanup passes still smooth
+its edge like any other silhouette boundary. Verified: the resulting
+alpha channel matches `jacket-sb-peak-patch`'s own gap shape closely,
+and compositing the render against a coloured background confirms the
+gap is genuinely transparent, connecting to the true edge near the
+shoulder the same way the reference does.
 
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a

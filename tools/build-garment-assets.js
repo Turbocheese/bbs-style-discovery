@@ -97,6 +97,63 @@ function luma(px, i) {
     return 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
 }
 
+// A ghost-mannequin photo can have a background-coloured ISLAND fully
+// enclosed inside the garment's own silhouette — a real gap between the
+// sleeve and torso (the mannequin form holds the sleeve away from the
+// body more than a worn garment would), where the frame-edge flood fill
+// in extractMask never reaches it, so it survives as opaque "garment"
+// and multiplies to a jarring blown-white patch instead of the clean
+// transparent gap it should be. jacket-sb-peak-patch — a different,
+// undamaged source photo of the same rough pose — shows what this
+// should look like: its own alpha channel is genuinely transparent over
+// its version of this gap. This punches the SAME kind of hole for any
+// key listed here, restricted to a hand-measured search box so it can
+// never eat into a real, legitimately-white highlight elsewhere on the
+// garment. Run AFTER extractMask, before erosion, so erosion still
+// smooths the punched hole's own edge like any other silhouette
+// boundary.
+var GAP_ISLAND_FIXES = {
+    "jacket-sb": [{ x: 0.15, y: 0.40, w: 0.14, h: 0.34 }]
+};
+
+function punchGapIslands(px, mask, w, h, boxes) {
+    if (!boxes) return;
+    for (var b = 0; b < boxes.length; b++) {
+        var box = boxes[b];
+        var bx0 = Math.max(0, Math.round(box.x * w));
+        var bx1 = Math.min(w, Math.round((box.x + box.w) * w));
+        var by0 = Math.max(0, Math.round(box.y * h));
+        var by1 = Math.min(h, Math.round((box.y + box.h) * h));
+
+        // Flood-fill from every background-ish pixel inside the search
+        // box that's currently marked "garment" (mask!=0) — same
+        // background test extractMask itself uses, so this behaves
+        // exactly like the frame-edge flood would have if it could
+        // have reached this island.
+        var stack = [];
+        var visited = new Uint8Array(w * h);
+        var y, x, i;
+        for (y = by0; y < by1; y++) {
+            for (x = bx0; x < bx1; x++) {
+                i = y * w + x;
+                if (mask[i] && isBackgroundish(px, i)) stack.push(i);
+            }
+        }
+        while (stack.length) {
+            i = stack.pop();
+            if (visited[i]) continue;
+            visited[i] = 1;
+            if (!mask[i] || !isBackgroundish(px, i)) continue;
+            mask[i] = 0;
+            x = i % w; y = (i / w) | 0;
+            if (x > bx0 && !visited[i - 1]) stack.push(i - 1);
+            if (x < bx1 - 1 && !visited[i + 1]) stack.push(i + 1);
+            if (y > by0 && !visited[i - w]) stack.push(i - w);
+            if (y < by1 - 1 && !visited[i + w]) stack.push(i + w);
+        }
+    }
+}
+
 // The multiply band. The floor is above zero deliberately: a fold that
 // multiplies to pure black destroys the cloth underneath it instead of
 // shading it.
@@ -571,40 +628,33 @@ if (require.main === module) {
         // disk untouched, it is just no longer what this key builds from.
         // Retracing JACKET_SB_LAPELS in garment-photo.js against the new
         // outline is required follow-up (see that file).
-        // REPOINTED 25 Aug 2026 to a healed copy of the same photo — the
-        // original had a hard-edged, pure-white gap between the sleeve
-        // and torso (ghost-mannequin volume standing the sleeve away from
-        // the body more than a worn garment would, letting the studio
-        // backdrop show through). Confirmed real via the raw luminance
-        // (pegged 253-255, a clean silhouette-like boundary, nothing like
-        // a highlight's soft falloff) and confirmed NOT a mask bug: the
-        // shipped alpha was fully opaque there too, because the gap is an
-        // enclosed island the frame-edge flood fill in extractMask can
-        // never reach. A striped test cloth never showed it (a blown gap
-        // just reads as "extra-bright stripes"); a windowpane check did,
-        // as a jarring pattern-less pale band with no grid lines at all.
-        // Three earlier heal attempts all shipped and all got rejected on
-        // sight (founder: "still looks like shit" / "what the fuck is
-        // this"). A hand-rolled per-row colour gradient had zero grain and
-        // combed scanline banding; a straight clone-shift fixed the grain
-        // but produced an obvious rectangular "sticker"; OpenCV inpainting
-        // (cv2.inpaint, Telea) plus a tiled grain texture closed the white
-        // gap but left the natural dark fold-shadow around it in place and
-        // blurred/interrupted a striped test cloth rather than letting it
-        // run straight through; even a soft-feathered manual paste of real
-        // donor fabric (matching tone and grain by eye) still left a faint
-        // but visible tonal seam under close inspection. Founder's bar,
-        // set by a screenshot of jacket-sb-peak-patch's own sleeve/body
-        // seam (a different source photo with no gap at all): nothing
-        // visible there whatsoever, not "a well-healed gap."
-        // Fixed with cv2.seamlessClone (NORMAL_CLONE) — Poisson blending,
-        // which solves for the transplanted patch's gradient to match its
-        // surroundings rather than just matching pasted content by eye.
-        // Regenerate via tools/heal-jacket-sb-sleeve-gap.py (run from repo
-        // root; see that file's header for the exact mask/donor geometry).
-        // File: jacket-sb-notch-sleeve-gap-healed.png (original source
-        // kept on disk untouched, for provenance/comparison).
-        "jacket-sb": "jacket-sb-notch-sleeve-gap-healed.png",
+        // "jacket-sb" has a hard-edged, pure-white gap between the sleeve
+        // and torso baked into the source photo (ghost-mannequin volume
+        // standing the sleeve away from the body more than a worn garment
+        // would, letting the studio backdrop show through). FOUR heal
+        // attempts (25 Aug 2026) tried to fill it with plausible fabric —
+        // a colour gradient, a clone-shift, cv2.inpaint, a manual feathered
+        // paste, finally cv2.seamlessClone with real Poisson blending —
+        // and every one of them shipped and got rejected on sight, because
+        // filling it was never correct in the first place: a gap between
+        // sleeve and torso is NORMAL garment-photography negative space.
+        // jacket-sb-peak-patch (a different, undamaged source photo) shows
+        // exactly this — its own alpha channel is genuinely transparent
+        // there, not filled with cloth. The founder's own words, after all
+        // four fills: "I want there to be a GAP between the sleeves and
+        // the body, there is NOT supposed to be any sort of fill."
+        // The actual bug was never the missing fabric — it's that this
+        // gap is an ENCLOSED ISLAND the frame-edge flood fill in
+        // extractMask can never reach (unlike peak-patch's version of the
+        // same gap, which happens to connect through to the true
+        // background), so it survived as opaque "garment" and rendered as
+        // a jarring blown-white patch instead of the clean transparent gap
+        // it should have been all along. Fixed at the source: back on the
+        // original, untouched photo, with GAP_ISLAND_FIXES below punching
+        // that specific enclosed island out of the mask after extractMask
+        // runs, the same way it would look if the flood fill had reached
+        // it naturally.
+        "jacket-sb": "replicate-prediction-mapxkr394drmr0d05wa9n2cnbw.png",
         "jacket-sb-peak-patch": "jacket-sb-peak-patch.png",
         "jacket-sb-peak-flap": "jacket-sb-peak-flap.png",
         // New 2026-08-23: same widened notch as "jacket-sb" above, patch
@@ -837,6 +887,7 @@ if (require.main === module) {
                 var px = new Uint8Array(data.buffer, data.byteOffset, data.length);
 
                 var mask = extractMask(px, w, h);
+                punchGapIslands(px, mask, w, h, GAP_ISLAND_FIXES[key]);
                 mask = erodeMask(mask, w, h, EDGE_ERODE);
                 var fringe = erodeFringe(px, mask, w, h);
                 mask = fringe.mask;
