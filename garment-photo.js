@@ -209,6 +209,27 @@ var JACKET_SB_COLLAR_RIGHT = [
     }
 ];
 
+// The plain body panel (everywhere not covered by a lapel, collar, or
+// sleeve region) was left at the tile's native, unscaled pitch, while
+// JACKET_SB_SLEEVES_V2 above compresses the sleeves to strength 0.74 —
+// a "roundness" cue that's been the convention for every garment's
+// sleeves in this file from the start. A bold chalkstripe/check never
+// showed the mismatch; a fine pinstripe (pitch 12, scabal_pinstripe_
+// navy) made it obvious: the body measured pitch 12 (the cloth's own
+// true, defined value) against the sleeve's 9 (12 * 0.74). Founder
+// call: the sleeve's compressed size is the correct one, so the body
+// should match it, not the other way round — matches "anything that
+// isn't shaded should point up" (angle 0 here, same as the body's
+// previous default) with only the scale changed to follow the sleeve.
+// One box spanning the whole canvas, no clip needed since there's
+// nothing outside it to blend into; positioned FIRST in jacket-sb's
+// DISPLACEMENT_REGIONS list below so every later, more specific region
+// (lapel 0.82, collar 0.82, sleeve 0.74) still draws its own distinct
+// scale on top of this one within its own clip, unchanged.
+var JACKET_SB_BODY_SCALE = [
+    { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
+];
+
 // Peak lapel (jacket-sb-peak-*): two prior passes at this trace both
 // mis-shaped it — a blind grid-eyeball guess, then a pinstripe-kink
 // analysis (August 2026) that fixed the worst of it but still
@@ -403,7 +424,7 @@ var DISPLACEMENT_REGIONS = {
     // the old JACKET_SB_LAPELS trace (see its own comment above) — sleeves-
     // only until 25 Aug 2026, when JACKET_SB_LAPELS was retraced against this
     // exact photo via the flat-colour-panel technique. Lapel bend restored.
-    "jacket-sb": JACKET_SB_LAPELS.concat(JACKET_SB_COLLAR_LEFT, JACKET_SB_COLLAR_RIGHT, JACKET_SB_SLEEVES_V2),
+    "jacket-sb": JACKET_SB_BODY_SCALE.concat(JACKET_SB_LAPELS, JACKET_SB_COLLAR_LEFT, JACKET_SB_COLLAR_RIGHT, JACKET_SB_SLEEVES_V2),
     "jacket-sb-peak-patch": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-sb-peak-flap": JACKET_SB_PEAK_LAPELS.concat(JACKET_SB_PEAK_TIPS, JACKET_SLEEVES),
     "jacket-db": JACKET_DB_LAPELS.concat(JACKET_DB_SLEEVES),

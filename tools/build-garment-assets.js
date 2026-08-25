@@ -112,8 +112,23 @@ function luma(px, i) {
 // garment. Run AFTER extractMask, before erosion, so erosion still
 // smooths the punched hole's own edge like any other silhouette
 // boundary.
+// jacket-sb: right side added 25 Aug 2026 — the first pass only found
+// and punched the left island, missing the mirrored one on the right
+// (same photo, same defect, just not searched for). jacket-sb-notch-
+// patch shares the same widened-notch generation batch as jacket-sb
+// (see that key's own SOURCES comment) and turns out to carry the
+// identical gap in the identical position on BOTH sides — confirmed by
+// literally trying jacket-sb's own box coordinates against this photo
+// and finding a clean natural gap there too, not a guess.
 var GAP_ISLAND_FIXES = {
-    "jacket-sb": [{ x: 0.15, y: 0.40, w: 0.14, h: 0.34 }]
+    "jacket-sb": [
+        { x: 0.15, y: 0.40, w: 0.14, h: 0.34 },
+        { x: 0.71, y: 0.40, w: 0.14, h: 0.34 }
+    ],
+    "jacket-sb-notch-patch": [
+        { x: 0.15, y: 0.40, w: 0.14, h: 0.34 },
+        { x: 0.71, y: 0.40, w: 0.14, h: 0.34 }
+    ]
 };
 
 function punchGapIslands(px, mask, w, h, boxes) {

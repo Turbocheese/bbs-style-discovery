@@ -206,6 +206,35 @@ and compositing the render against a coloured background confirms the
 gap is genuinely transparent, connecting to the true edge near the
 shoulder the same way the reference does.
 
+**Two follow-ups, same day.** First: the gap punch above only found and
+fixed the LEFT side — the right sleeve/torso seam was still solid
+fabric, missed simply because nobody searched for it. Added a mirrored
+box (`{x:0.71,y:0.40,w:0.14,h:0.34}`) and confirmed the same fractional
+coordinates land cleanly on a matching natural gap in `jacket-sb-notch-
+patch`'s own source photo too (same widened-notch generation batch —
+tried the exact same box against it rather than guessing new numbers,
+and it worked first try). Both keys now get both sides.
+
+Second: a fine pinstripe (`scabal_pinstripe_navy`, pitch 12) revealed
+the plain body panel renders at the cloth's true, defined pitch (12,
+measured) while `JACKET_SB_SLEEVES_V2`'s existing `strength: 0.74`
+compresses the sleeves to pitch 9 — a mismatch invisible on every
+bolder pattern used before. This "roundness" compression on sleeves is
+long-standing convention across every garment in this file, not new;
+the fine pinstripe just finally exposed it. Founder call: the sleeve's
+compressed size is the one that reads correctly, so the body should
+match it, not the reverse. Added `JACKET_SB_BODY_SCALE` — one box
+spanning the whole canvas, angle 0 (unrotated, matching "anything that
+isn't shaded points up"), `strength: 0.74` — positioned FIRST in
+`jacket-sb`'s `DISPLACEMENT_REGIONS` entry so every later, more
+specific region (lapel 0.82, collar 0.82, sleeve 0.74) still draws its
+own distinct scale on top of it within its own clip, unchanged. Scoped
+to `jacket-sb` only for now — the same body/sleeve mismatch likely
+exists on every other garment too, but wasn't in scope of what was
+asked. Re-measured: body and sleeve pitch both landed at 9px after the
+fix (were 12 vs 9). No regression on `fox_flannel_chalkstripe` or
+`holland_sherry_windowpane_blue`.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller
