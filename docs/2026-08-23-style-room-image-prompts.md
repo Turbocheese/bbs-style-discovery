@@ -315,6 +315,30 @@ unnoticeable trade against a hard visible seam. Re-verified with
 through the torso between lapel and arm, sleeve's own bend still
 visible further out, no criss-cross. Full smoke suite green.
 
+**Seventh follow-up, 26 Aug 2026: the sleeve gets a real clip.** The
+narrowed-box fix above was still an approximation. Founder drew the
+actual sleeve outline directly on a screenshot (pink) — the same
+technique already used for the lapels and collar, just done by hand
+this time instead of an AI image edit. Extracted the same way: colour-
+threshold the pink stroke, convex-hull each side (the outline is a
+simple closed loop, so a hull is a faithful fit), Douglas-Peucker
+simplify. The one extra step this source needed that the flat-colour
+sources didn't: the screenshot and the canvas don't share an aspect
+ratio (359×600 vs 1289×1600), so a straight pixel-fraction copy would
+have put the clip in the wrong place — mapped instead through each
+image's own garment bounding box (found by thresholding non-background
+pixels in the screenshot; the canvas side already known from
+`tools/build-garment-assets.js`'s canonical-frame padding, x 0.1273–
+0.8729 for jacket-sb). `JACKET_SB_SLEEVES_V2` now carries a real `clip`
+on both sides, replacing the narrowed-box approximation entirely — the
+box below it now only sets the rotation's centre and reach, the same
+role it plays for every other clipped region in this file. Angle/
+strength unchanged (±0.06 / 0.74). Re-verified with `holland_sherry_
+windowpane_blue`, `scabal_pinstripe_navy`, and `fox_flannel_
+chalkstripe`: clean at every seam on both sides, sleeve's own bend
+still visible, no criss-cross, no scale mismatch. Full smoke suite
+green.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller

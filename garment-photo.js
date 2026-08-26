@@ -91,29 +91,37 @@ var JACKET_DB_SLEEVES = [
 // for a triangular shape; these need the same flat-colour-panel
 // calibration technique the tailored lapels used, not a fresh eyeball
 // guess.
-// Inner (torso-side) edges narrowed 26 Aug 2026: the box's straight
-// edge doesn't follow the real set-in sleeve seam, which is a shallow
-// diagonal curve, not a vertical line — traced directly off the shipped
-// photo (grid overlay + pixel coordinates): on the right side the seam
-// runs roughly (870,580)->(850,700)->(820,850)->(800,950) in canvas
-// pixels, well to the right of the old box's x=0.63 (813px) edge for
-// most of that span. With body now added ahead of this in
-// DISPLACEMENT_REGIONS (see JACKET_SB_BODY_SCALE), that overreach
-// became visible as a criss-cross where the sleeve's slight rotation
-// bled onto real torso fabric that should have stayed at the body's
-// angle 0 — founder-reported, annotated on a screenshot. Fixed by
-// narrowing the box's inner edge to clear the seam's worst point below
-// where the lapel's own clip already covers the upper chest (x≈830 at
-// y≈816, the lapel clip's lower bound) rather than by clipping the
-// sleeve's own shape, which stays exactly as it was — the founder
-// confirmed the bend itself already reads correctly, only the boundary
-// needed fixing. This under-covers a little real sleeve further down
-// where the seam continues left past this box's new edge, left at the
-// body's flat angle instead — a minor, unnoticeable trade against a
-// hard visible seam.
+// 26 Aug 2026, first pass: box's straight inner edge doesn't follow the
+// real set-in sleeve seam (a shallow diagonal curve), so with
+// JACKET_SB_BODY_SCALE now giving the body one consistent angle, the
+// sleeve's slight rotation visibly bled onto real torso fabric that
+// should have stayed flat. Narrowed the box's inner edge as a quick
+// fix (x 0.63->0.66 right, mirrored left) without a real clip.
+// 26 Aug 2026, second pass: founder drew the actual sleeve outline
+// directly on a screenshot (pink) rather than leave it to another
+// approximation. Extracted as a real clip the same way the lapels and
+// collar were: colour-threshold the pink stroke, convex-hull each side,
+// Douglas-Peucker simplify, then map from the screenshot's own
+// coordinate space into canvas fractions using the garment's photo
+// bounding box in each (found by thresholding non-background pixels in
+// the reference, then matched against the known canonical-frame content
+// box tools/build-garment-assets.js pads jacket-sb into: x 0.1273-0.8729,
+// full height) — not a straight pixel-fraction copy, since the
+// screenshot and the canvas don't share an aspect ratio. This replaces
+// the narrowed-box approximation entirely: the clip alone now defines
+// the sleeve's visible shape, so the box below only sets the rotation's
+// centre and reach, same role it plays for every clipped region in this
+// file. Angle/strength unchanged (±0.06 / 0.74) — the founder confirmed
+// the bend itself already read correctly, only the boundary was wrong.
 var JACKET_SB_SLEEVES_V2 = [
-    { x: 0.17, y: 0.18, w: 0.17, h: 0.62, angle: -0.06, strength: 0.74 },
-    { x: 0.66, y: 0.18, w: 0.17, h: 0.62, angle: 0.06, strength: 0.74 }
+    {
+        x: 0.135, y: 0.11, w: 0.165, h: 0.815, angle: -0.06, strength: 0.74,
+        clip: [{ x: 0.2304, y: 0.1174 }, { x: 0.2937, y: 0.4296 }, { x: 0.2585, y: 0.9108 }, { x: 0.1929, y: 0.9178 }, { x: 0.1413, y: 0.8897 }, { x: 0.1694, y: 0.2770 }]
+    },
+    {
+        x: 0.715, y: 0.11, w: 0.145, h: 0.815, angle: 0.06, strength: 0.74,
+        clip: [{ x: 0.8517, y: 0.9178 }, { x: 0.7555, y: 0.9155 }, { x: 0.7180, y: 0.4366 }, { x: 0.7720, y: 0.1127 }, { x: 0.8212, y: 0.1831 }, { x: 0.8517, y: 0.3803 }]
+    }
 ];
 var JACKET_SB_NOTCH_PATCH_SLEEVES = [
     { x: 0.17, y: 0.10, w: 0.20, h: 0.70, angle: -0.06, strength: 0.74 },
