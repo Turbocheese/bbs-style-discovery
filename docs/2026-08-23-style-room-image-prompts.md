@@ -272,12 +272,20 @@ lapels it layers onto, unchanged) and `jacket-db` (sleeves before
 this was a no-op there. Re-verified: no visible seam at the sleeve/
 lapel boundary on any of the four, full smoke suite still green.
 
-**Still open**: founder is annotating a flat-colour reference with
-arrows to specify the SB notch lapel's bend angle precisely (current
-`JACKET_SB_LAPELS` angle 0.18 rad/~10° looks shallower than the arrows
-drawn so far suggest) — waiting on a specific target angle before
-touching it, rather than re-deriving one from a compressed screenshot
-and risking another wrong guess.
+**Fifth follow-up, 26 Aug 2026: lapel angle, measured not guessed.**
+Founder added horizontal (0°) reference lines to the flat-colour
+reference specifically so the bend angle could be read off real pixels
+instead of estimated by eye. Measured directly: the red lapel's two
+arrows run tail-to-head roughly (175,290)→(235,145) and
+(195,230)→(220,180) in that image's own coordinate space —
+`atan(dx/dy)` of ~22.5° and ~26.6°, averaging ~24°. `JACKET_SB_LAPELS`
+angle updated from 0.18 rad (~10°, carried over from the pre-23-Aug
+trace, never re-derived) to 0.42 rad (~24°), same left-negative/right-
+positive sign convention. Re-verified with `fox_flannel_chalkstripe`
+and `holland_sherry_windowpane_blue`: matches the reference's visible
+convergence toward the button, no kink at the collar seam, pattern
+still tiles at the correct scale (confirms the angle magnitude and the
+CanvasPattern.setTransform scale fix are independent of each other).
 
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a

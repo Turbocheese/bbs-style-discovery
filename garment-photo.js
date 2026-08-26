@@ -158,16 +158,20 @@ var JACKET_SAHARIANA_SLEEVES = [
 // wider cut — the notch gap itself has real width, unlike the old narrow
 // trace — so the clips stop short of x=0.5 with a small gap between them,
 // which the shared feathering already covers smoothly.
-// Angle kept at the same magnitude the pre-23-Aug trace used (0.18 rad,
-// left negative/right positive) rather than re-derived from the flat-
-// colour edit's own geometry — the colour boundary traces the lapel's
-// true SHAPE, but its top-to-bottom point-to-point vector measures where
-// the lapel narrows toward the button, not the fabric grain's bend
-// direction the angle/strength pair approximates (same distinction noted
-// on JACKET_SB_PEAK_TIPS below). 0.18 was already visually verified
-// against a striped test cloth for this exact lapel type; re-verified
-// after this retrace with fox_flannel_chalkstripe, no kink at the collar/
-// lapel seam.
+// Angle UPDATED 26 Aug 2026: shipped at 0.18 rad (~10°, the pre-23-Aug
+// trace's magnitude, kept rather than re-derived from the flat-colour
+// edit's own geometry — see the reasoning that was here, now superseded).
+// Founder drew arrows with horizontal (0°) reference lines on the flat-
+// colour reference and asked for a real measurement instead of a carried-
+// over guess. Measured directly off the reference's own pixels: the red
+// lapel's two arrows run tail-to-head roughly (175,290)->(235,145) and
+// (195,230)->(220,180) in that image's coordinate space — atan(dx/dy) of
+// ~22.5° and ~26.6°, averaging ~24°. Set to 0.42 rad (~24°), left
+// negative/right positive (unchanged sign convention). Re-verified with
+// fox_flannel_chalkstripe and holland_sherry_windowpane_blue after the
+// change: no kink at the collar/lapel seam, pattern still tiles at the
+// correct scale (this angle magnitude is independent of the
+// CanvasPattern.setTransform scale-bug fix elsewhere in this file).
 // The collar (also flat-colour-filled, solid green, in the same edit) DOES
 // get its own bend — founder correction 25 Aug 2026, overriding an earlier
 // call in this file (made on jacket-db's lapels) to leave a collar unbent.
@@ -182,11 +186,11 @@ var JACKET_SAHARIANA_SLEEVES = [
 // identical to the default flat fill it would otherwise leave showing.
 var JACKET_SB_LAPELS = [
     {
-        x: 0.3144, y: 0.1796, w: 0.2059, h: 0.3233, angle: -0.18, strength: 0.82,
+        x: 0.3144, y: 0.1796, w: 0.2059, h: 0.3233, angle: -0.42, strength: 0.82,
         clip: [{ x: 0.4236, y: 0.1888 }, { x: 0.3344, y: 0.2550 }, { x: 0.3592, y: 0.3019 }, { x: 0.4182, y: 0.3925 }, { x: 0.4973, y: 0.4931 }, { x: 0.4996, y: 0.4800 }, { x: 0.4453, y: 0.2969 }, { x: 0.4275, y: 0.1888 }]
     },
     {
-        x: 0.4743, y: 0.1797, w: 0.2136, h: 0.3405, angle: 0.18, strength: 0.82,
+        x: 0.4743, y: 0.1797, w: 0.2136, h: 0.3405, angle: 0.42, strength: 0.82,
         clip: [{ x: 0.5764, y: 0.1894 }, { x: 0.5718, y: 0.1894 }, { x: 0.5516, y: 0.3025 }, { x: 0.4950, y: 0.5100 }, { x: 0.5834, y: 0.3956 }, { x: 0.6664, y: 0.2544 }]
     }
 ];
