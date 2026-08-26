@@ -287,6 +287,34 @@ convergence toward the button, no kink at the collar seam, pattern
 still tiles at the correct scale (confirms the angle magnitude and the
 CanvasPattern.setTransform scale fix are independent of each other).
 
+**Sixth follow-up, 26 Aug 2026: the sleeve box overreaches into torso.**
+Founder screenshot (annotated with a magenta line down the arm) showed
+a criss-cross artifact along the chest, between the lapel and the
+sleeve — pointed out this only became visible/objectionable once the
+body's own pattern was fixed to point straight up (`JACKET_SB_BODY_
+SCALE`), because before that fix a slight mismatch there was masked by
+the body ALSO not having a single consistent angle. Root cause: `
+JACKET_SB_SLEEVES_V2`'s box uses a straight vertical inner edge, but
+the real set-in sleeve seam is a shallow diagonal curve — traced
+directly off the shipped photo (grid overlay + pixel coordinates): on
+the right side the seam runs roughly (870,580)→(850,700)→(820,850)→
+(800,950) in canvas pixels, well to the right of the box's old x=0.63
+(813px) edge for most of that span, so the sleeve's slight rotation was
+painting onto real torso fabric that should have stayed flat.
+
+Founder confirmed the sleeve's own bend already looks correct, so
+fixed by narrowing the box's inner edge (0.63→0.66 right side, mirrored
+0.37→0.34 left) rather than reshaping the sleeve with a clip — the
+sleeve keeps its exact existing character, only the boundary moved to
+clear the seam's worst point below where the lapel's own clip already
+covers the upper chest. This slightly under-covers real sleeve further
+down where the seam continues left past the new edge (left at the
+body's flat angle instead of the sleeve's slight one) — a minor,
+unnoticeable trade against a hard visible seam. Re-verified with
+`holland_sherry_windowpane_blue`: grid runs straight and unbroken
+through the torso between lapel and arm, sleeve's own bend still
+visible further out, no criss-cross. Full smoke suite green.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller

@@ -91,9 +91,29 @@ var JACKET_DB_SLEEVES = [
 // for a triangular shape; these need the same flat-colour-panel
 // calibration technique the tailored lapels used, not a fresh eyeball
 // guess.
+// Inner (torso-side) edges narrowed 26 Aug 2026: the box's straight
+// edge doesn't follow the real set-in sleeve seam, which is a shallow
+// diagonal curve, not a vertical line — traced directly off the shipped
+// photo (grid overlay + pixel coordinates): on the right side the seam
+// runs roughly (870,580)->(850,700)->(820,850)->(800,950) in canvas
+// pixels, well to the right of the old box's x=0.63 (813px) edge for
+// most of that span. With body now added ahead of this in
+// DISPLACEMENT_REGIONS (see JACKET_SB_BODY_SCALE), that overreach
+// became visible as a criss-cross where the sleeve's slight rotation
+// bled onto real torso fabric that should have stayed at the body's
+// angle 0 — founder-reported, annotated on a screenshot. Fixed by
+// narrowing the box's inner edge to clear the seam's worst point below
+// where the lapel's own clip already covers the upper chest (x≈830 at
+// y≈816, the lapel clip's lower bound) rather than by clipping the
+// sleeve's own shape, which stays exactly as it was — the founder
+// confirmed the bend itself already reads correctly, only the boundary
+// needed fixing. This under-covers a little real sleeve further down
+// where the seam continues left past this box's new edge, left at the
+// body's flat angle instead — a minor, unnoticeable trade against a
+// hard visible seam.
 var JACKET_SB_SLEEVES_V2 = [
-    { x: 0.17, y: 0.18, w: 0.20, h: 0.62, angle: -0.06, strength: 0.74 },
-    { x: 0.63, y: 0.18, w: 0.20, h: 0.62, angle: 0.06, strength: 0.74 }
+    { x: 0.17, y: 0.18, w: 0.17, h: 0.62, angle: -0.06, strength: 0.74 },
+    { x: 0.66, y: 0.18, w: 0.17, h: 0.62, angle: 0.06, strength: 0.74 }
 ];
 var JACKET_SB_NOTCH_PATCH_SLEEVES = [
     { x: 0.17, y: 0.10, w: 0.20, h: 0.70, angle: -0.06, strength: 0.74 },
