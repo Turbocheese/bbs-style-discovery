@@ -80,7 +80,7 @@ function check(name, ok) {
     await page.waitForTimeout(600);
     check("app loads (welcome input present)", (await page.locator("#client-name-input").count()) > 0);
     check("guide tree validation passes", validated);
-    check("EB Garamond self-hosted font loads", await page.evaluate(function () { return document.fonts.check('600 24px "EB Garamond"'); }));
+    check("Louize self-hosted font loads", await page.evaluate(function () { return document.fonts.check('600 24px "Louize"'); }));
 
     // --- Welcome -> home ---
     await page.locator("#client-name-input").fill("Smoke Test");

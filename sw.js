@@ -6,12 +6,12 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any
 // cached file (the ?v= params below must match index.html).
 
-var CACHE_VERSION = "bbs-v167";
+var CACHE_VERSION = "bbs-v168";
 
 var PRECACHE = [
     "./",
     "./index.html",
-    "./styles.css?v=103",
+    "./styles.css?v=104",
     "./data.js",
     "./validator.js",
     "./query.js",
@@ -24,7 +24,7 @@ var PRECACHE = [
     "./attract-shader.js?v=3",
     "./weave-engine.js?v=3",
     "./garment-photo.js?v=37",
-    "./fabric-visualiser.js?v=42",
+    "./fabric-visualiser.js?v=43",
     "./cloth-study.js?v=7",
     "./archetype-avatars.js",
     "./vendor/cobe.js?v=1",
@@ -37,10 +37,19 @@ var PRECACHE = [
     "./vendor/firebase-app-compat.js",
     "./vendor/firebase-firestore-compat.js",
     "./firebase-init.js?v=3",
-    "./app.js?v=108",
-    "./fonts/eb-garamond-latin.woff2",
-    "./fonts/eb-garamond-italic-latin.woff2",
-    "./fonts/manrope-latin.woff2",
+    "./app.js?v=109",
+    "./fonts/louize-display-regular-latin.woff2",
+    "./fonts/louize-display-medium-latin.woff2",
+    "./fonts/louize-display-bold-latin.woff2",
+    "./fonts/louize-display-italic-latin.woff2",
+    "./fonts/louize-display-medium-italic-latin.woff2",
+    "./fonts/louize-display-bold-italic-latin.woff2",
+    "./fonts/tt-commons-200-latin.woff2",
+    "./fonts/tt-commons-300-latin.woff2",
+    "./fonts/tt-commons-400-latin.woff2",
+    "./fonts/tt-commons-500-latin.woff2",
+    "./fonts/tt-commons-600-latin.woff2",
+    "./fonts/tt-commons-700-latin.woff2",
     "./images/bbs-logo.svg",
     "./images/archetypes/v.jpeg",
     "./images/archetypes/o.jpeg",

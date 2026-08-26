@@ -2725,7 +2725,7 @@ function exportEnsembleSpec() {
     var dateLabel = now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
 
     var eyebrow = "font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:#a4a19c;";
-    var serif = "font-family:'EB Garamond',Georgia,serif;";
+    var serif = "font-family:'Louize',Georgia,serif;";
 
     function garmentRow(garment) {
         var f = getFabricByKey(ens.fabrics[garment]);
@@ -2756,7 +2756,7 @@ function exportEnsembleSpec() {
     var page = document.createElement("div");
     page.setAttribute(
         "style",
-        "width:800px; padding:70px 80px; background:#faf8f3; font-family:Manrope,sans-serif; color:#2a2218; box-sizing:border-box;"
+        "width:800px; padding:70px 80px; background:#faf8f3; font-family:'TT Commons',sans-serif; color:#2a2218; box-sizing:border-box;"
     );
     page.innerHTML =
         '<div style="' + serif + ' font-size:28px; text-align:center;">BBS</div>' +

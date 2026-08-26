@@ -73,8 +73,15 @@ worker precaches by exact URL, so a mismatched version serves stale files.
 whenever any cached file changes.)
 
 **Dependencies are fully vendored:** html2canvas and jsPDF live in `vendor/`,
-EB Garamond + Manrope variable fonts (latin subset) in `fonts/` — no CDN at
-runtime, and `sw.js` makes the whole app work offline. Keep the existing
+the studio's own licensed faces — Louize Display (205TF, headline serif) and
+TT Commons Pro (UI sans) — subset to latin in `fonts/` (26 Aug 2026, replacing
+the earlier EB Garamond/Manrope placeholders; see `styles.css`'s `@font-face`
+block header for the conversion notes). Neither ships as a variable font, so
+each weight actually used gets its own static `@font-face` rule rather than
+one weight-range declaration — check that block before assuming a new weight
+is available. Raw font source archives stay out of git (`fonts/*.zip`,
+gitignored) — only the subset+woff2 files actually loaded are tracked. No CDN
+at runtime, and `sw.js` makes the whole app work offline. Keep the existing
 `typeof html2canvas === "undefined"` guards in export code anyway — the app
 must degrade to an alert, never crash.
 

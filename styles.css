@@ -1,39 +1,118 @@
 ﻿/* ============================================
    BBS Style Discovery — styles.css
    Consolidated and cleaned. Replace entire file.
-   EB Garamond: hero titles only
-   Manrope: all UI elements, labels, descriptions
+   Louize: hero titles only
+   TT Commons: all UI elements, labels, descriptions
    ============================================ */
 
 /* ============================================
-   FONTS — self-hosted variable fonts (latin subset)
+   FONTS — self-hosted, subset to latin (26 Aug 2026: swapped the EB
+   Garamond/Manrope placeholders for the studio's own licensed faces —
+   Louize Display (205TF) and TT Commons Pro. Neither ships as a
+   variable font, so each weight actually used in this file is its own
+   static @font-face rather than one weight-range declaration; the
+   Bold rule's range (600 700) is deliberate so font-weight:600 (the
+   most common weight in this file) resolves to the real Bold face
+   instead of a browser-synthesised fake-bold from Regular.
    Replaces the Google Fonts CDN link: no fallback-serif flash on
    cold load, and the type works offline on the in-store iPad.
    Missing non-latin glyphs fall through to Georgia/system per-glyph.
    ============================================ */
 
 @font-face {
-    font-family: "EB Garamond";
+    font-family: "Louize";
     font-style: normal;
-    font-weight: 400 800;
+    font-weight: 400;
     font-display: swap;
-    src: url("./fonts/eb-garamond-latin.woff2") format("woff2");
+    src: url("./fonts/louize-display-regular-latin.woff2") format("woff2");
 }
 
 @font-face {
-    font-family: "EB Garamond";
+    font-family: "Louize";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("./fonts/louize-display-medium-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Louize";
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src: url("./fonts/louize-display-bold-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Louize";
     font-style: italic;
-    font-weight: 400 800;
+    font-weight: 400;
     font-display: swap;
-    src: url("./fonts/eb-garamond-italic-latin.woff2") format("woff2");
+    src: url("./fonts/louize-display-italic-latin.woff2") format("woff2");
 }
 
 @font-face {
-    font-family: "Manrope";
-    font-style: normal;
-    font-weight: 200 800;
+    font-family: "Louize";
+    font-style: italic;
+    font-weight: 500;
     font-display: swap;
-    src: url("./fonts/manrope-latin.woff2") format("woff2");
+    src: url("./fonts/louize-display-medium-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Louize";
+    font-style: italic;
+    font-weight: 600 700;
+    font-display: swap;
+    src: url("./fonts/louize-display-bold-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+    src: url("./fonts/tt-commons-200-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("./fonts/tt-commons-300-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("./fonts/tt-commons-400-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("./fonts/tt-commons-500-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("./fonts/tt-commons-600-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "TT Commons";
+    font-style: normal;
+    font-weight: 700 800;
+    font-display: swap;
+    src: url("./fonts/tt-commons-700-latin.woff2") format("woff2");
 }
 
 /* ============================================
@@ -86,7 +165,7 @@
      ============================================ */
 
 body {
-    font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "TT Commons", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 16px;
     line-height: 1.7;
     color: var(--text);
@@ -118,7 +197,7 @@ body {
 
 h1,
 h2 {
-    font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+    font-family: "Louize", Georgia, "Times New Roman", serif;
     font-weight: 600;
     color: var(--text);
     letter-spacing: -0.01em;
@@ -139,7 +218,7 @@ h2 {
 }
 
 h3 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -149,7 +228,7 @@ h3 {
 }
 
 h4 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text);
@@ -190,7 +269,7 @@ strong {
 }
 
 .breadcrumb {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -203,7 +282,7 @@ strong {
      ============================================ */
 
 button {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.9rem;
     font-weight: 500;
     line-height: 1;
@@ -367,7 +446,7 @@ button:disabled {
 }
 
 .bbs-logo-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -394,7 +473,7 @@ button:disabled {
 }
 
 .home-hero-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 3.2rem;
     font-weight: 600;
     line-height: 1.05;
@@ -405,7 +484,7 @@ button:disabled {
 }
 
 .home-hero-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.05rem;
     color: var(--muted);
     line-height: 1.75;
@@ -443,7 +522,7 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -465,7 +544,7 @@ button:disabled {
 }
 
 .home-hero-card p {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     color: var(--muted);
     line-height: 1.7;
@@ -511,14 +590,14 @@ button:disabled {
     }
 
     .home-secondary-path-text h3 {
-        font-family: "EB Garamond", serif;
+        font-family: "Louize", serif;
         font-size: 1.4rem;
         margin-bottom: 0.2rem;
         color: var(--text);
     }
 
     .home-secondary-path-text p {
-        font-family: "Manrope", sans-serif;
+        font-family: "TT Commons", sans-serif;
         font-size: 0.88rem;
         color: var(--muted);
         margin-bottom: 0;
@@ -626,7 +705,7 @@ button:disabled {
 
 .welcome-label {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -644,7 +723,7 @@ button:disabled {
     background: rgba(255, 253, 248, 0.98);
     border: 1px solid rgba(200, 191, 176, 0.7);
     border-radius: var(--radius-lg);
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.2rem;
     text-align: center;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -700,7 +779,7 @@ button:disabled {
 }
 
 .discover-step-meta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -742,7 +821,7 @@ button:disabled {
     }
 
 .discover-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -817,7 +896,7 @@ button:disabled {
         }
 
 .discover-choice-main {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -827,7 +906,7 @@ button:disabled {
 }
 
 .discover-choice-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.06em;
@@ -856,7 +935,7 @@ button:disabled {
     background: transparent;
     border: none;
     box-shadow: none;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -895,7 +974,7 @@ button:disabled {
     border-radius: 14px;
     background: rgba(255, 253, 248, 0.88);
     color: var(--text);
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.98rem;
     line-height: 1.75;
     resize: none;
@@ -942,7 +1021,7 @@ textarea {
     min-height: 180px;
     margin: 1rem 0;
     border-radius: var(--radius-md);
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.97rem;
     line-height: 1.7;
     transition: border-color 0.2s ease;
@@ -971,7 +1050,7 @@ textarea {
 }
 
 .result-eyebrow-v2 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -1009,7 +1088,7 @@ textarea {
 }
 
 .result-stylist-card-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1048,7 +1127,7 @@ textarea {
     }
 
 .result-info-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1058,7 +1137,7 @@ textarea {
 }
 
 .result-info-value {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     line-height: 1.65;
     color: var(--text);
@@ -1088,7 +1167,7 @@ textarea {
 }
 
 .result-cta-v2-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1098,7 +1177,7 @@ textarea {
 }
 
 .result-cta-v2-heading {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text);
@@ -1195,7 +1274,7 @@ textarea {
 }
 
 .result-next-card-kind {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1204,13 +1283,13 @@ textarea {
 }
 
 .result-next-card-context {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     color: var(--soft);
 }
 
 .result-next-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.28rem;
     font-weight: 600;
     color: var(--text);
@@ -1220,7 +1299,7 @@ textarea {
 }
 
 .result-next-card-reason {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.76rem;
     font-weight: 600;
     color: var(--accent);
@@ -1228,7 +1307,7 @@ textarea {
 }
 
 .result-next-card-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.88rem;
     color: var(--muted);
     line-height: 1.6;
@@ -1250,7 +1329,7 @@ textarea {
 }
 
 .guide-eyebrow-v2 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -1275,7 +1354,7 @@ textarea {
 }
 
 .guide-count-v2 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -1312,7 +1391,7 @@ textarea {
     }
 
 .guide-list-item-v2-index {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -1328,7 +1407,7 @@ textarea {
 }
 
 .guide-list-item-v2-kind {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -1338,7 +1417,7 @@ textarea {
 }
 
 .guide-list-item-v2-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.35rem;
     font-weight: 600;
     color: var(--text);
@@ -1348,7 +1427,7 @@ textarea {
 }
 
 .guide-list-item-v2-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.88rem;
     color: var(--muted);
     line-height: 1.6;
@@ -1391,7 +1470,7 @@ textarea {
 
 .topic-type-badge {
     display: inline-block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1404,7 +1483,7 @@ textarea {
 }
 
 .topic-intro-app {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.05rem;
     font-weight: 500;
     line-height: 1.7;
@@ -1447,7 +1526,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1466,7 +1545,7 @@ textarea {
 }
 
 .topic-meta-card-value {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     font-weight: 600;
     color: var(--text);
@@ -1495,7 +1574,7 @@ textarea {
     }
 
 .topic-spec-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1505,7 +1584,7 @@ textarea {
 }
 
 .topic-spec-value {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     line-height: 1.7;
     color: var(--text);
@@ -1519,7 +1598,7 @@ textarea {
 }
 
 .topic-related-header {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1557,7 +1636,7 @@ textarea {
 }
 
 .topic-related-type {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1566,14 +1645,14 @@ textarea {
 }
 
 .topic-related-context {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     color: var(--soft);
 }
 
 .topic-related-title {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.05rem;
     font-weight: 600;
     color: var(--text);
@@ -1582,7 +1661,7 @@ textarea {
 }
 
 .topic-related-path {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     color: var(--muted);
     margin-bottom: 10px;
@@ -1594,7 +1673,7 @@ textarea {
     }
 
 .topic-related-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.88rem;
     line-height: 1.6;
     color: var(--muted);
@@ -1664,7 +1743,7 @@ textarea {
 }
 
 .discovery-header-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -1673,7 +1752,7 @@ textarea {
 }
 
 .discovery-header-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.35rem;
     font-weight: 600;
     color: var(--text);
@@ -1718,7 +1797,7 @@ textarea {
 }
 
 .panel-section-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1822,7 +1901,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -1844,7 +1923,7 @@ textarea {
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.8);
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     /* 16px minimum — anything smaller triggers an automatic zoom-in
        on focus in iOS Safari, jarring on a touch device. */
     font-size: 1rem;
@@ -2133,7 +2212,7 @@ textarea {
 }
 
 .result-card h4 {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.05rem;
     font-weight: 600;
     margin-bottom: 3px;
@@ -2142,7 +2221,7 @@ textarea {
 }
 
 .result-path {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     color: var(--soft);
     margin-bottom: 8px;
@@ -2737,7 +2816,7 @@ textarea {
     }
 
 .arch-q-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -2747,7 +2826,7 @@ textarea {
 }
 
 .arch-q-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: clamp(1.5rem, 3.6vw, 2.05rem);
     font-weight: 500;
     letter-spacing: normal;
@@ -2784,7 +2863,7 @@ textarea {
     gap: 4px;
     transition: background 0.15s ease;
     min-height: 80px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
 }
 
     .arch-opt:nth-child(even) {
@@ -2804,7 +2883,7 @@ textarea {
     }
 
 .arch-opt-main {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.98rem;
     font-weight: 600;
     letter-spacing: normal;
@@ -2814,7 +2893,7 @@ textarea {
 }
 
 .arch-opt-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 400;
     letter-spacing: 0.08em;
@@ -2843,7 +2922,7 @@ textarea {
 }
 
 .arch-btn-back {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
@@ -2871,7 +2950,7 @@ textarea {
     }
 
 .arch-btn-next {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -2908,7 +2987,7 @@ textarea {
 }
 
 .arch-onboard-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -2918,7 +2997,7 @@ textarea {
 }
 
 .arch-onboard-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 2.55rem;
     font-weight: 600;
     color: var(--text);
@@ -2928,7 +3007,7 @@ textarea {
 }
 
 .arch-onboard-desc {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     color: var(--muted);
     line-height: 1.7;
@@ -2941,7 +3020,7 @@ textarea {
 }
 
 .arch-pref-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -2964,7 +3043,7 @@ textarea {
     border: 1px solid rgba(5, 5, 5, 0.11);
     border-radius: 4px;
     padding: 0.75rem 1rem;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     color: var(--text);
     cursor: pointer;
     display: flex;
@@ -2992,7 +3071,7 @@ textarea {
     }
 
 .arch-pref-main {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.94rem;
     font-weight: 600;
     letter-spacing: normal;
@@ -3001,7 +3080,7 @@ textarea {
 }
 
 .arch-pref-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 400;
     letter-spacing: 0.06em;
@@ -3019,7 +3098,7 @@ textarea {
     border: none;
     border-bottom: 1.5px solid rgba(5, 5, 5, 0.11);
     padding: 0.4rem 0;
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.3rem;
     font-weight: 400;
     color: var(--text);
@@ -3047,7 +3126,7 @@ textarea {
 }
 
 .arch-result-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.25em;
@@ -3058,7 +3137,7 @@ textarea {
 }
 
 .arch-result-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 700;
     font-size: clamp(1.6rem, 3.5vw, 2.2rem);
     letter-spacing: 0.06em;
@@ -3083,7 +3162,7 @@ textarea {
 }
 
 .arch-result-desc {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     line-height: 1.65;
     color: var(--muted);
@@ -3126,7 +3205,7 @@ textarea {
 }
 
 .arch-card-brand {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -3136,7 +3215,7 @@ textarea {
 }
 
 .arch-card-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.2em;
@@ -3146,7 +3225,7 @@ textarea {
 }
 
 .arch-card-client {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
@@ -3157,7 +3236,7 @@ textarea {
 }
 
 .arch-card-persona {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 700;
     font-size: clamp(1.3rem, 3.5vw, 1.8rem);
     letter-spacing: 0.08em;
@@ -3169,7 +3248,7 @@ textarea {
 
 .arch-result-client {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.18em;
@@ -3179,7 +3258,7 @@ textarea {
 }
 
 .arch-card-persona-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 400;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -3197,7 +3276,7 @@ textarea {
 }
 
 .arch-card-section-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 600;
     font-size: 0.7rem;
     letter-spacing: 0.2em;
@@ -3220,7 +3299,7 @@ textarea {
 }
 
 .arch-card-baseline-lbl {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -3231,7 +3310,7 @@ textarea {
 }
 
 .arch-card-baseline-val {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 400;
     text-transform: uppercase;
@@ -3249,7 +3328,7 @@ textarea {
 }
 
 .arch-card-note {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     display: flex;
     align-items: flex-start;
     gap: 0.4rem;
@@ -3274,7 +3353,7 @@ textarea {
 }
 
 .arch-card-chip {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 500;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
@@ -3294,7 +3373,7 @@ textarea {
 }
 
 .arch-card-cta-text {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 600;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -3306,7 +3385,7 @@ textarea {
 }
 
 .arch-card-url {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 400;
     font-size: 0.7rem;
     letter-spacing: 0.1em;
@@ -3329,7 +3408,7 @@ textarea {
 }
 
 .arch-btn-fill {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 700;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -3351,7 +3430,7 @@ textarea {
     }
 
 .arch-btn-stroke {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 700;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -3374,7 +3453,7 @@ textarea {
     }
 
 .arch-restart {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 400;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -3401,7 +3480,7 @@ textarea {
 }
 
 .arch-explore-heading {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -3411,7 +3490,7 @@ textarea {
 }
 
 .arch-explore-intro-text {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.85rem;
     color: var(--muted);
     margin-bottom: 1rem;
@@ -3443,7 +3522,7 @@ textarea {
     }
 
 .arch-explore-kind {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -3452,7 +3531,7 @@ textarea {
 }
 
 .arch-explore-title {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text);
@@ -3460,7 +3539,7 @@ textarea {
 }
 
 .arch-explore-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.5;
@@ -3676,7 +3755,7 @@ textarea {
 
 /* Home button in nav */
 .arch-btn-home {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.15em;
@@ -3724,7 +3803,7 @@ textarea {
 }
 
 .home-hero-title-v2 {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 2.6rem;
     font-weight: 600;
     color: var(--text);
@@ -3734,7 +3813,7 @@ textarea {
 }
 
 .home-hero-sub-v2 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     color: var(--muted);
     line-height: 1.7;
@@ -3798,7 +3877,7 @@ textarea {
 
 /* Content pushes to bottom */
 .home-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.68;
@@ -3809,7 +3888,7 @@ textarea {
 
 /* Label row — small caps above title */
 .home-card-label-row {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -3819,7 +3898,7 @@ textarea {
 }
 
 .home-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.62rem;
     font-weight: 600;
     color: var(--text);
@@ -3830,7 +3909,7 @@ textarea {
 }
 
 .home-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.68;
@@ -3850,7 +3929,7 @@ textarea {
 }
 
 .home-card-cta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -3866,7 +3945,7 @@ textarea {
 
 /* Change name */
 .home-change-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     color: var(--soft);
     background: none;
@@ -3946,7 +4025,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     color: var(--soft);
@@ -3998,7 +4077,7 @@ textarea {
 }
 
 .home-brand-mark {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.6rem;
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -4007,7 +4086,7 @@ textarea {
 }
 
 .home-brand-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -4022,7 +4101,7 @@ textarea {
 }
 
 .home-hero-title-v3 {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 2.7rem;
     font-weight: 600;
     color: var(--text);
@@ -4032,7 +4111,7 @@ textarea {
 }
 
 .home-hero-sub-v3 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.96rem;
     color: var(--muted);
     line-height: 1.7;
@@ -4111,7 +4190,7 @@ textarea {
 }
 
 .home-card-v3-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.62rem;
     font-weight: 600;
     color: var(--text);
@@ -4121,7 +4200,7 @@ textarea {
 }
 
 .home-card-v3-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.84rem;
     color: var(--muted);
     line-height: 1.72;
@@ -4131,7 +4210,7 @@ textarea {
 }
 
 .home-card-v3-cta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -4157,7 +4236,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     color: var(--soft);
@@ -4179,7 +4258,7 @@ textarea {
 }
 
 .home-change-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     color: var(--soft);
     background: none;
@@ -4254,7 +4333,7 @@ textarea {
 }
 
 .arch-restart {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 500;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
@@ -4280,7 +4359,7 @@ textarea {
     }
 
 .arch-q-subtext {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.9rem;
     color: var(--muted);
     line-height: 1.65;
@@ -4289,7 +4368,7 @@ textarea {
 }
 
 .home-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.62rem;
     font-weight: 600;
     color: var(--text);
@@ -4310,7 +4389,7 @@ textarea {
 }
 
 .home-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 2;
@@ -4334,7 +4413,7 @@ textarea {
 }
 
 .arch-card-baseline-val {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -4345,7 +4424,7 @@ textarea {
 }
 
 .arch-result-secondary {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.78rem;
     line-height: 1.5;
     color: var(--soft);
@@ -4724,7 +4803,7 @@ textarea {
 }
 
 .colour-result-chip-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.74rem;
     font-weight: 500;
     letter-spacing: 0.04em;
@@ -4901,7 +4980,7 @@ textarea {
 }
 
 .colour-hero-swatch-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -5012,7 +5091,7 @@ textarea {
 }
 
 .bespoke-insight-title {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -5021,7 +5100,7 @@ textarea {
 }
 
 .bespoke-insight-desc {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     line-height: 1.6;
     color: rgba(243, 239, 233, 0.8);
@@ -5058,7 +5137,7 @@ textarea {
 }
 
 .arch-journey-bridge-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -5068,7 +5147,7 @@ textarea {
 }
 
 .arch-journey-bridge-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.35rem;
     font-weight: 600;
     color: var(--text);
@@ -5078,7 +5157,7 @@ textarea {
 }
 
 .arch-journey-bridge-desc {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.5;
@@ -5086,7 +5165,7 @@ textarea {
 }
 
 .arch-journey-bridge-icon {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.2rem;
     color: var(--accent);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -5108,7 +5187,7 @@ textarea {
 }
 
 .arch-btn-fill {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 700;
     font-size: 0.7rem;
     letter-spacing: 0.15em;
@@ -5317,7 +5396,7 @@ textarea {
 }
 
 .lookbook-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -5374,7 +5453,7 @@ textarea {
 }
 
 .lookbook-item-season {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -5385,7 +5464,7 @@ textarea {
 }
 
 .lookbook-item-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.4rem;
     font-weight: 600;
     color: #ffffff;
@@ -5401,7 +5480,7 @@ textarea {
 }
 
 .lookbook-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -5467,7 +5546,7 @@ textarea {
 }
 
 .lookbook-filter-btn {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.66rem !important;
     letter-spacing: 0.16em !important;
     text-transform: uppercase;
@@ -5512,7 +5591,7 @@ textarea {
 }
 
 .home-card-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -5543,7 +5622,7 @@ textarea {
 
 /* Typography Overrides */
 .home-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.6rem;
     font-weight: 600;
     color: var(--text);
@@ -5553,7 +5632,7 @@ textarea {
 }
 
 .home-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.84rem;
     color: var(--muted);
     line-height: 1.6;
@@ -5587,7 +5666,7 @@ textarea {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     color: var(--muted);
@@ -5667,7 +5746,7 @@ textarea {
 }
 
 .home-card-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -5704,7 +5783,7 @@ textarea {
 
 /* Typography Overrides */
 .home-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.6rem;
     font-weight: 600;
     color: var(--text);
@@ -5714,7 +5793,7 @@ textarea {
 }
 
 .home-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.84rem;
     color: var(--muted);
     line-height: 1.6;
@@ -5787,7 +5866,7 @@ textarea {
 }
 
 .worksheet-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -5798,7 +5877,7 @@ textarea {
 }
 
 .worksheet-header h1 {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 2.8rem;
     margin-bottom: 0.8rem;
     max-width: none;
@@ -5807,7 +5886,7 @@ textarea {
 }
 
 .worksheet-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.05rem;
     line-height: 1.75;
     color: var(--muted);
@@ -5831,7 +5910,7 @@ textarea {
 }
 
 .worksheet-rules-header {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -5844,7 +5923,7 @@ textarea {
 }
 
 .worksheet-rules-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     color: var(--text);
     margin-bottom: 12px;
@@ -5893,7 +5972,7 @@ textarea {
 }
 
 .worksheet-progress-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -5902,14 +5981,14 @@ textarea {
 }
 
 .worksheet-outfit-unlock {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--accent);
 }
 
 .worksheet-progress-value {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text);
@@ -5947,7 +6026,7 @@ textarea {
 }
 
     .worksheet-progress-stat .stat-label {
-        font-family: "Manrope", sans-serif;
+        font-family: "TT Commons", sans-serif;
         font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -5956,7 +6035,7 @@ textarea {
     }
 
     .worksheet-progress-stat .stat-value {
-        font-family: "Manrope", sans-serif;
+        font-family: "TT Commons", sans-serif;
         font-size: 0.8rem;
         font-weight: 600;
         color: var(--text);
@@ -5978,7 +6057,7 @@ textarea {
 }
 
 .worksheet-section-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.6rem;
     font-weight: 600;
     color: var(--text);
@@ -5988,7 +6067,7 @@ textarea {
 }
 
 .worksheet-section-count {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     color: var(--soft);
@@ -5997,7 +6076,7 @@ textarea {
 }
 
 .worksheet-section-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     color: var(--muted);
     line-height: 1.7;
@@ -6038,7 +6117,7 @@ textarea {
     position: absolute;
     left: 20px;
     top: 22px;
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--line-strong);
@@ -6112,7 +6191,7 @@ textarea {
 }
 
 .worksheet-item-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text);
@@ -6150,7 +6229,7 @@ textarea {
 }
 
 .worksheet-item-tier {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -6181,7 +6260,7 @@ textarea {
 }
 
 .worksheet-item-mills {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     color: #8a5a3b;
@@ -6207,7 +6286,7 @@ textarea {
     background: transparent;
     border: none;
     padding: 0;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
     text-align: left;
@@ -6277,7 +6356,7 @@ textarea {
 }
 
 .worksheet-item-why-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -6287,7 +6366,7 @@ textarea {
 }
 
 .worksheet-item-why-text {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.85rem;
     line-height: 1.6;
     color: var(--muted);
@@ -6295,7 +6374,7 @@ textarea {
 }
 
 .worksheet-item-palette-note {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     line-height: 1.5;
     color: var(--text);
@@ -6336,7 +6415,7 @@ textarea {
 }
 
 .outfit-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -6345,7 +6424,7 @@ textarea {
 }
 
 .outfit-status {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     color: var(--muted);
@@ -6360,7 +6439,7 @@ textarea {
 }
 
 .worksheet-outfit-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--text);
@@ -6369,7 +6448,7 @@ textarea {
 }
 
 .worksheet-outfit-context {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.5;
@@ -6380,7 +6459,7 @@ textarea {
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     color: var(--text);
     border-top: 1px dashed rgba(200, 191, 176, 0.5);
@@ -6414,7 +6493,7 @@ textarea {
 
 /* Export PDF Styling */
 .worksheet-export-card {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     background: #ffffff;
     padding: 50px;
     color: #111110;
@@ -6436,7 +6515,7 @@ textarea {
 }
 
 .worksheet-export-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 32px;
     font-weight: 600;
     color: #111110;
@@ -6603,7 +6682,7 @@ body.has-fab #app {
 }
 
 .vis-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -6612,7 +6691,7 @@ body.has-fab #app {
 }
 
 .vis-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: clamp(1.9rem, 5vw, 2.6rem);
     font-weight: 500;
     color: var(--text);
@@ -6621,7 +6700,7 @@ body.has-fab #app {
 }
 
 .vis-lead {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.85rem;
     line-height: 1.65;
     color: var(--muted);
@@ -6735,7 +6814,7 @@ body.has-fab #app {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 0.92rem;
     line-height: 1.12;
     color: var(--text);
@@ -6798,7 +6877,7 @@ body.has-fab #app {
 }
 
 .vis-fabric-name {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.45rem;
     font-weight: 500;
     font-style: italic;
@@ -6818,7 +6897,7 @@ body.has-fab #app {
 }
 
 .vis-spec {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -6836,7 +6915,7 @@ body.has-fab #app {
 }
 
 .vis-fabric-character {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1rem;
     line-height: 1.6;
     color: var(--muted);
@@ -6844,7 +6923,7 @@ body.has-fab #app {
 }
 
 .vis-guide-link {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -6862,7 +6941,7 @@ body.has-fab #app {
 }
 
 .vis-footnote {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     color: var(--soft);
@@ -6916,7 +6995,7 @@ body.has-fab #app {
 }
 
 .home-cloth-room-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.3rem;
     font-weight: 500;
     color: var(--text);
@@ -6928,7 +7007,7 @@ body.has-fab #app {
 }
 
 .home-cloth-room-cta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -7267,7 +7346,7 @@ textarea {
 }
 
 .vis-reco-strip {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -7277,7 +7356,7 @@ textarea {
 }
 
     .vis-reco-strip em {
-        font-family: "EB Garamond", serif;
+        font-family: "Louize", serif;
         font-style: italic;
         text-transform: none;
         font-size: 0.85rem;
@@ -7398,7 +7477,7 @@ button,
     border-bottom: 1px solid var(--line-strong) !important;
     border-radius: 0 !important;
     background: transparent !important;
-    font-family: "EB Garamond", serif !important;
+    font-family: "Louize", serif !important;
     font-size: 1.5rem !important;
     text-align: center;
     padding: 10px 4px !important;
@@ -7554,7 +7633,7 @@ button,
 
 /* Welcome kicker in the maison micro-label voice */
 .welcome-kicker {
-    font-family: "Manrope", sans-serif !important;
+    font-family: "TT Commons", sans-serif !important;
     font-size: 0.7rem !important;
     letter-spacing: 0.3em !important;
     text-transform: uppercase !important;
@@ -7648,7 +7727,7 @@ button,
     align-items: flex-end;
     justify-content: center;
     padding-bottom: 2px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -7806,12 +7885,12 @@ button,
 }
 
 /* --- Result page headline joins the brand's serif display voice.
-   Everywhere else display type is EB Garamond (welcome, guide);
+   Everywhere else display type is Louize (welcome, guide);
    the uppercase grotesque stays on the black shareable card, where
    it reads as "document" — but the page headline above it should
    speak like the rest of the app. --- */
 .arch-result-name {
-    font-family: "EB Garamond", Georgia, serif !important;
+    font-family: "Louize", Georgia, serif !important;
     font-weight: 500 !important;
     text-transform: none !important;
     letter-spacing: -0.005em !important;
@@ -7861,7 +7940,7 @@ button,
 }
 
 .measure-moment-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-weight: 500;
     font-size: 1.6rem;
     color: var(--text);
@@ -7907,7 +7986,7 @@ button,
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text);
@@ -7977,7 +8056,7 @@ button,
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text);
@@ -7996,7 +8075,7 @@ button,
 }
 
 .gallery-card-name {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 0.98rem;
     font-weight: 600;
     color: var(--text);
@@ -8004,7 +8083,7 @@ button,
 }
 
 .gallery-card-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -8014,7 +8093,7 @@ button,
 
 /* Colour rooms */
 .gallery-colour-heading {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-weight: 500;
     font-size: 1.5rem;
     text-align: center;
@@ -8050,7 +8129,7 @@ button,
 }
 
 .gallery-colour-name {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 4px;
@@ -8068,7 +8147,7 @@ button,
 .gallery-detail-head { text-align: center; margin-bottom: 1.6rem; }
 
 .gallery-detail-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -8078,7 +8157,7 @@ button,
 }
 
 .gallery-detail-desc {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.2rem;
     line-height: 1.6;
     text-align: center;
@@ -8109,7 +8188,7 @@ button,
 }
 
 .gallery-detail-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -8147,14 +8226,14 @@ button,
 }
 
 .gallery-explore-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text);
 }
 
 .gallery-explore-intro {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.78rem;
     color: var(--muted);
     line-height: 1.4;
@@ -8234,7 +8313,7 @@ button,
     padding: 8px 4px !important;
     min-height: 0 !important;
     margin: -0.4rem 0 1.5rem;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -8263,7 +8342,7 @@ button,
     background: transparent !important;
     padding: 8px 16px !important;
     min-height: 44px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -8314,7 +8393,7 @@ button,
     background: transparent !important;
     padding: 7px 14px !important;
     min-height: 0 !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -8352,7 +8431,7 @@ button,
 }
 
 .map-place-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 11px;
     letter-spacing: 0.24em;
     fill: var(--soft);
@@ -8364,7 +8443,7 @@ button,
 .map-town-tick { stroke: var(--soft); stroke-width: 1.2; }
 
 .map-sea-label {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-style: italic;
     font-size: 16px;
     fill: rgba(17, 17, 16, 0.28);
@@ -8400,7 +8479,7 @@ button,
 .map-pin.dim, .map-cluster.dim, .map-inset.dim { opacity: 0.15; pointer-events: none; }
 
 .map-pin-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 12.5px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -8415,14 +8494,14 @@ button,
 .map-cluster-disc { fill: #111110; }
 
 .map-cluster-count {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 14px;
     fill: #f7f4ed;
     text-anchor: middle;
 }
 
 .map-cluster-name {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 11.5px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -8444,7 +8523,7 @@ button,
 }
 
 .map-inset-eyebrow, .map-inset-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 11px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -8453,7 +8532,7 @@ button,
 }
 
 .map-inset-name {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-style: italic;
     font-size: 16px;
     fill: #111110;
@@ -8473,7 +8552,7 @@ button,
     background: transparent !important;
     padding: 6px 4px !important;
     min-height: 0 !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -8485,7 +8564,7 @@ button,
 }
 
 .map-district-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-style: italic;
     font-size: 1.15rem;
     color: var(--text);
@@ -8493,7 +8572,7 @@ button,
 
 .map-district-sub {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-style: normal;
     font-size: 0.7rem;
     letter-spacing: 0.14em;
@@ -8506,7 +8585,7 @@ button,
 .map-detail { margin-top: 1.4rem; max-width: 30rem; }
 
 .map-detail-empty {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -8515,7 +8594,7 @@ button,
 }
 
 .map-detail-name {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.4rem;
     font-weight: 500;
     font-style: italic;
@@ -8524,7 +8603,7 @@ button,
 }
 
 .map-detail-meta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -8533,7 +8612,7 @@ button,
 }
 
 .map-detail-blurb {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1rem;
     line-height: 1.6;
     color: var(--muted);
@@ -8557,7 +8636,7 @@ button,
 }
 
 .map-index-region {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -8583,7 +8662,7 @@ button,
 
 .map-index-name {
     display: block;
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1rem;
     color: var(--text);
 }
@@ -8592,7 +8671,7 @@ button,
 
 .map-index-place {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -8606,7 +8685,7 @@ button,
     background: transparent !important;
     padding: 0 0 2px !important;
     min-height: 0 !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.18em !important;
     text-transform: uppercase;
@@ -8641,7 +8720,7 @@ button,
 }
 
 .map-pin-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 11.5px;
     letter-spacing: 0.06em;
     fill: var(--muted);
@@ -8789,7 +8868,7 @@ button,
     left: 0;
     right: 0;
     text-align: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -8859,7 +8938,7 @@ button,
 }
 
 .ds-selected-name {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-style: italic;
     font-size: 1.05rem;
     color: var(--text);
@@ -8981,7 +9060,7 @@ button,
 }
 
 .flip-back-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
@@ -8990,7 +9069,7 @@ button,
 }
 
 .flip-back-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.5rem;
     font-style: italic;
     color: var(--text);
@@ -8998,7 +9077,7 @@ button,
 }
 
 .flip-back-note {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1rem;
     line-height: 1.6;
     color: var(--muted);
@@ -9013,7 +9092,7 @@ button,
     padding: 6px 2px !important;
     min-height: 0 !important;
     align-self: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -9026,7 +9105,7 @@ button,
     position: absolute;
     right: 12px;
     bottom: 10px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -9104,7 +9183,7 @@ button,
 }
 
 .topic-flip-eyebrow {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -9113,7 +9192,7 @@ button,
 }
 
 .topic-flip-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.7rem;
     font-style: italic;
     color: var(--text);
@@ -9121,7 +9200,7 @@ button,
 }
 
 .topic-flip-intro {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1rem;
     line-height: 1.6;
     color: var(--muted);
@@ -9381,7 +9460,7 @@ textarea:focus-visible,
     }
 
 .gallery-detail-sub {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -9397,7 +9476,7 @@ textarea:focus-visible,
 }
 
 .gallery-detail-desc {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.18rem;
     line-height: 1.65;
     color: var(--muted);
@@ -9413,7 +9492,7 @@ textarea:focus-visible,
 }
 
 .gallery-detail-note {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     line-height: 1.55;
     color: var(--muted);
@@ -9451,7 +9530,7 @@ textarea:focus-visible,
     border: none !important;
     background: transparent !important;
     padding: 10px 6px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase;
@@ -9819,7 +9898,7 @@ textarea:focus-visible,
 
 /* Section rhythm: two named movements instead of one long list */
 .home-section-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -9875,7 +9954,7 @@ textarea:focus-visible,
 }
 
 .home-hero-card-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: clamp(2rem, 5vw, 2.9rem);
     font-weight: 500;
     line-height: 1.05;
@@ -9976,7 +10055,7 @@ textarea:focus-visible,
 }
 
 .home-guide-contents span {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     color: var(--muted);
@@ -10069,7 +10148,7 @@ textarea:focus-visible,
    ============================================================ */
 
 .topic-lead {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: clamp(1.25rem, 3.2vw, 1.6rem);
     line-height: 1.5;
     color: var(--text);
@@ -10085,7 +10164,7 @@ textarea:focus-visible,
 .topic-body-block + .topic-body-block { margin-top: 1.8rem; }
 
 .topic-body-heading {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -10095,7 +10174,7 @@ textarea:focus-visible,
 }
 
 .topic-body-block p {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.12rem;
     line-height: 1.65;
     color: var(--muted);
@@ -10120,7 +10199,7 @@ textarea:focus-visible,
 }
 
 .topic-verdict-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -10130,7 +10209,7 @@ textarea:focus-visible,
 }
 
 .topic-verdict-cell p {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.92rem;
     line-height: 1.6;
     color: var(--muted);
@@ -10147,7 +10226,7 @@ textarea:focus-visible,
 }
 
 .topic-voice p {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: clamp(1.2rem, 3vw, 1.45rem);
     font-style: italic;
     line-height: 1.55;
@@ -10156,7 +10235,7 @@ textarea:focus-visible,
 }
 
 .topic-voice cite {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-style: normal;
     font-weight: 700;
@@ -10204,7 +10283,7 @@ textarea:focus-visible,
     background: transparent !important;
     padding: 0 16px !important;
     min-height: 44px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -10231,7 +10310,7 @@ textarea:focus-visible,
 }
 
 .vis-filter-result {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -10257,7 +10336,7 @@ textarea:focus-visible,
 .vis-filter-group-label {
     display: block;
     margin-bottom: 0.4rem;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -10276,7 +10355,7 @@ textarea:focus-visible,
     background: transparent !important;
     padding: 0 14px !important;
     min-height: 44px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase;
@@ -10321,7 +10400,7 @@ textarea:focus-visible,
 }
 
 .ds-read-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -10333,7 +10412,7 @@ textarea:focus-visible,
     background: transparent !important;
     padding: 0 8px !important;
     min-height: 44px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase;
@@ -10363,7 +10442,7 @@ textarea:focus-visible,
 }
 
 .look-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.5rem;
     font-weight: 500;
     margin: 0 0 0.4rem;
@@ -10371,7 +10450,7 @@ textarea:focus-visible,
 }
 
 .look-lead {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     line-height: 1.5;
     color: var(--soft);
@@ -10424,7 +10503,7 @@ textarea:focus-visible,
 }
 
 .look-card-slot {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -10435,7 +10514,7 @@ textarea:focus-visible,
    inside a <button>, which inherits the app's uppercase button styling
    and rendered the whole note in caps. */
 .look-card-label {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.05rem;
     font-style: italic;
     text-transform: none !important;
@@ -10444,7 +10523,7 @@ textarea:focus-visible,
 }
 
 .look-card-note {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     line-height: 1.45;
     text-transform: none !important;
@@ -10703,7 +10782,7 @@ textarea:focus-visible,
     min-width: 0;
 }
 .heritage-num {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: clamp(2rem, 7vw, 3.1rem);
     font-weight: 500;
     line-height: 1;
@@ -10820,7 +10899,7 @@ textarea:focus-visible,
     background: linear-gradient(to top, rgba(20, 18, 14, 0.82), rgba(20, 18, 14, 0));
     color: #f4efe4;
 }
-.vis-cf-n { display: block; font-family: "EB Garamond", Georgia, serif; font-size: 0.98rem; line-height: 1.12; }
+.vis-cf-n { display: block; font-family: "Louize", Georgia, serif; font-size: 0.98rem; line-height: 1.12; }
 .vis-cf-m { display: block; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.82; margin-top: 2px; }
 .vis-cf-card.is-active { box-shadow: 0 24px 54px rgba(40, 30, 15, 0.30), 0 0 0 1px rgba(156, 122, 62, 0.4); }
 .vis-cf-card.is-active .vis-cf-sheen { opacity: 1; }
@@ -10935,7 +11014,7 @@ textarea:focus-visible,
     min-height: 44px !important;
     border: 0 !important;
     background: transparent !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase;
@@ -10972,7 +11051,7 @@ textarea:focus-visible,
 
 .map-globe-note {
     margin: 0;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -11034,7 +11113,7 @@ textarea:focus-visible,
 
 .map-tour-coord {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.65rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -11045,14 +11124,14 @@ textarea:focus-visible,
 
 .map-tour-name {
     margin: 0 0 2px;
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 1.15rem;
     color: var(--text);
 }
 
 .map-tour-place {
     margin: 0 0 6px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     letter-spacing: 0.06em;
     color: var(--soft);
@@ -11060,7 +11139,7 @@ textarea:focus-visible,
 
 .map-tour-blurb {
     margin: 0 0 6px;
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: 0.88rem;
     line-height: 1.4;
     color: var(--text);
@@ -11068,7 +11147,7 @@ textarea:focus-visible,
 
 .map-tour-est {
     display: inline-block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.68rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -11142,7 +11221,7 @@ textarea:focus-visible,
 .ptape-head { text-align: center; margin-bottom: 1.4rem; }
 
 .ptape-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.6rem;
     font-weight: 500;
     margin: 0 0 0.4rem;
@@ -11150,7 +11229,7 @@ textarea:focus-visible,
 }
 
 .ptape-lead {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     line-height: 1.55;
     color: var(--soft);
@@ -11286,7 +11365,7 @@ textarea:focus-visible,
 }
 
 .vis-split-side-tag {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -11296,7 +11375,7 @@ textarea:focus-visible,
 .vis-split-side.sel .vis-split-side-tag { color: var(--text); }
 
 .vis-split-side-name {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.02rem;
     font-style: italic;
     text-transform: none !important;
@@ -11355,7 +11434,7 @@ textarea:focus-visible,
     right: 0;
     bottom: 34px;
     padding: 10px 12px;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.02rem;
     font-style: italic;
     color: #fdfcf9;
@@ -11365,7 +11444,7 @@ textarea:focus-visible,
 
 .topic-flip-caption em {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-style: normal;
     font-size: 0.7rem;
     letter-spacing: 0.16em;
@@ -11465,7 +11544,7 @@ textarea:focus-visible,
     background: transparent !important;
     padding: 0 18px !important;
     min-height: 44px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -11532,7 +11611,7 @@ textarea:focus-visible,
 .arch-tour-slide > *:nth-child(4) { animation-delay: 0.24s; }
 
 .arch-tour-counter {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -11542,14 +11621,14 @@ textarea:focus-visible,
 
 .arch-tour-name {
     margin: 0;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.8rem;
     color: var(--text);
 }
 
 .arch-tour-sub {
     margin: 0;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.85rem;
     color: var(--soft);
 }
@@ -11618,7 +11697,7 @@ textarea:focus-visible,
     background: transparent !important;
     padding: 7px 16px !important;
     min-height: 0 !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -11676,7 +11755,7 @@ textarea:focus-visible,
     color: var(--taupe, #a4a19c);
 }
 .filter-dd-value {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 0.95rem;
     color: var(--text);
     line-height: 1;
@@ -11733,7 +11812,7 @@ textarea:focus-visible,
     border-radius: 8px !important;
     padding: 9px 10px !important;
     min-height: 42px !important;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem !important;
     color: var(--muted) !important;
     cursor: pointer;
@@ -11809,7 +11888,7 @@ textarea:focus-visible,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.68rem;
     font-weight: 600;
     color: var(--muted);
@@ -11884,7 +11963,7 @@ textarea:focus-visible,
 }
 
 .arch-btn-quiet {
-    font-family: "Manrope", sans-serif !important;
+    font-family: "TT Commons", sans-serif !important;
     font-size: 0.66rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -11955,13 +12034,13 @@ textarea:focus-visible,
 .cstudy-cell figcaption {
     margin-top: 8px;
     text-align: center;
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 0.95rem;
     color: var(--text);
 }
 .cstudy-cell figcaption span {
     display: block;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -11996,7 +12075,7 @@ textarea:focus-visible,
     flex-wrap: wrap;
 }
 .cstudy-light-btn {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.6rem !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase;
@@ -12015,7 +12094,7 @@ textarea:focus-visible,
 }
 .cstudy-lighting-cap {
     text-align: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -12030,7 +12109,7 @@ textarea:focus-visible,
     margin-bottom: 0;
 }
 .cstudy-pair-head em {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     color: var(--text);
     font-size: 0.98rem;
@@ -12090,7 +12169,7 @@ textarea:focus-visible,
     background: var(--bronze-rule);
 }
 .pmarq-year {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     font-size: 1.08rem;
     color: var(--bronze);
@@ -12227,7 +12306,7 @@ textarea:focus-visible,
     min-height: 44px;
     padding: 0.4rem 1rem !important;
     font: inherit;
-    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-family: var(--font-ui, "TT Commons", system-ui, sans-serif);
     font-size: 0.95rem !important;
     font-weight: 500 !important;
     letter-spacing: normal !important;
@@ -12267,7 +12346,7 @@ textarea:focus-visible,
     min-height: 44px;
     padding: 0.5rem 1rem !important;
     font: inherit;
-    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-family: var(--font-ui, "TT Commons", system-ui, sans-serif);
     font-size: 0.9rem !important;
     font-weight: 500 !important;
     letter-spacing: normal !important;
@@ -12319,7 +12398,7 @@ textarea:focus-visible,
 }
 .vis-ghost-prompt {
     margin: 0;
-    font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+    font-family: var(--font-ui, "TT Commons", system-ui, sans-serif);
     font-size: 0.98rem;
     letter-spacing: 0.01em;
     color: var(--soft, #665f57);
@@ -12330,7 +12409,7 @@ textarea:focus-visible,
    COLOUR × STYLE — client-simple Colour result + unified result
    (Phase 1, Task 5). Palette-as-hero. Light-only, brand tokens
    (ink #111110, cream #eae5dd, taupe #a4a19c, bronze #9a7b4f),
-   EB Garamond display + Manrope UI. Appended last so these NEW
+   Louize display + TT Commons UI. Appended last so these NEW
    hook classes win over earlier layered blocks. Flat rgba only
    (no CSS colour interpolation) for old-Safari iPad. All motion
    here is `animation`
@@ -12350,13 +12429,13 @@ textarea:focus-visible,
     text-align: center;
 }
 
-/* --- 1. Type header: bronze kicker, EB Garamond hero, sub, lede --- */
+/* --- 1. Type header: bronze kicker, Louize hero, sub, lede --- */
 .colour-type-header {
     max-width: 34rem;
     margin: 0 auto 2.6rem;
 }
 .colour-type-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -12365,7 +12444,7 @@ textarea:focus-visible,
     margin-bottom: 0.9rem;
 }
 .colour-type-headline {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-weight: 500;
     font-size: clamp(2.3rem, 6vw, 3.5rem);
     line-height: 1.04;
@@ -12374,7 +12453,7 @@ textarea:focus-visible,
     margin-bottom: 0.55rem;
 }
 .colour-type-subtitle {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.16em;
@@ -12383,7 +12462,7 @@ textarea:focus-visible,
     margin-bottom: 1rem;
 }
 .colour-type-desc {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.95rem;
     line-height: 1.7;
     color: var(--muted);
@@ -12415,7 +12494,7 @@ textarea:focus-visible,
     margin-bottom: 0.5rem;
 }
 .colour-reason-v {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.5rem;
     line-height: 1.1;
     color: var(--text);
@@ -12499,7 +12578,7 @@ textarea:focus-visible,
     margin: 0 auto 3rem;
 }
 .colour-how-heading {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.55rem;
     color: var(--text);
     margin-bottom: 1.2rem;
@@ -12607,7 +12686,7 @@ textarea:focus-visible,
 .colour-full-read-body { padding-top: 0.8rem; }
 .colour-full-read-block { margin-bottom: 1.1rem; }
 .colour-full-read-block h4 {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -12648,7 +12727,7 @@ textarea:focus-visible,
     margin-bottom: 0.4rem;
 }
 .colour-cross-prompt-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.5rem;
     line-height: 1.1;
     color: var(--text);
@@ -12676,7 +12755,7 @@ textarea:focus-visible,
 
 /* --- Unified result: archetype + colour as one identity --- */
 .unified-tie {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     font-size: clamp(1.05rem, 2.4vw, 1.3rem);
     line-height: 1.5;
@@ -12692,7 +12771,7 @@ textarea:focus-visible,
     animation: maisonRise 0.7s var(--ease-out, ease) 0.5s both;
 }
 .unified-section-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -12714,7 +12793,7 @@ textarea:focus-visible,
     background: #ffffff;
     color: #111110;
     text-align: left;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     border: 1px solid rgba(17, 17, 16, 0.10);
 }
 .colour-share-top {
@@ -12744,7 +12823,7 @@ textarea:focus-visible,
     margin-bottom: 1rem;
 }
 .colour-share-headline {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 2.8rem;
     line-height: 1.02;
     color: #111110;
@@ -12849,7 +12928,7 @@ textarea:focus-visible,
     margin: 0 0 1.1rem;
 }
 .worksheet-neutrals-cue-label {
-    font-family: "Manrope", system-ui, sans-serif;
+    font-family: "TT Commons", system-ui, sans-serif;
     font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.13em;
@@ -12907,14 +12986,14 @@ textarea:focus-visible,
     opacity: 0.72;
 }
 .ds-stage-empty-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.35rem;
     font-weight: 500;
     color: var(--text, #111110);
     margin: 0;
 }
 .ds-stage-empty-note {
-    font-family: "Manrope", system-ui, sans-serif;
+    font-family: "TT Commons", system-ui, sans-serif;
     font-size: 0.92rem;
     color: var(--soft, #665f57);
     margin: 0;
@@ -12954,7 +13033,7 @@ textarea:focus-visible,
     opacity: 0.7;
 }
 .ds-garment-empty-hint {
-    font-family: "Manrope", system-ui, sans-serif;
+    font-family: "TT Commons", system-ui, sans-serif;
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -12986,7 +13065,7 @@ textarea:focus-visible,
     padding: 0 8px 0 18px !important;
     border: none !important;
     background: transparent !important;
-    font-family: "Manrope", system-ui, sans-serif !important;
+    font-family: "TT Commons", system-ui, sans-serif !important;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -13025,7 +13104,7 @@ textarea:focus-visible,
     border: 1px dashed var(--line-strong, rgba(17, 17, 16, 0.18)) !important;
     border-radius: 999px !important;
     background: transparent !important;
-    font-family: "Manrope", system-ui, sans-serif !important;
+    font-family: "TT Commons", system-ui, sans-serif !important;
     font-size: 0.7rem !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase;
@@ -13042,7 +13121,7 @@ textarea:focus-visible,
 }
 
 .ds-selected-empty {
-    font-family: "Manrope", system-ui, sans-serif;
+    font-family: "TT Commons", system-ui, sans-serif;
     font-size: 0.92rem;
     color: var(--soft, #665f57);
 }
@@ -13078,7 +13157,7 @@ textarea:focus-visible,
 }
 
 .home-journey-cta-title {
-    font-family: "EB Garamond", serif;
+    font-family: "Louize", serif;
     font-size: clamp(1.9rem, 4.6vw, 2.5rem);
     font-weight: 500;
     line-height: 1.08;
@@ -13099,7 +13178,7 @@ textarea:focus-visible,
    unlabelled between the real navigation and the footer, reading as
    an orphaned toolbar rather than a named part of the page. */
 .home-quick-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -13129,7 +13208,7 @@ textarea:focus-visible,
 
 .ds-section-label {
     text-align: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.24em;
@@ -13292,14 +13371,14 @@ textarea:focus-visible,
     cursor: pointer;
 }
 .ds-hotspot-card-title {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     font-size: 1.2rem;
     color: var(--text);
     margin: 0 1.4rem 0.5rem 0;
 }
 .ds-hotspot-card-body {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.78rem;
     line-height: 1.6;
     color: var(--soft);
@@ -13328,7 +13407,7 @@ textarea:focus-visible,
     cursor: pointer;
 }
 .ds-bespoke-toggle-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -13336,7 +13415,7 @@ textarea:focus-visible,
     color: var(--text);
 }
 .ds-bespoke-toggle-hint {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.62rem;
     letter-spacing: 0.03em;
     text-transform: none;
@@ -13387,7 +13466,7 @@ textarea:focus-visible,
 }
 .ds-bespoke-group-label {
     text-align: center;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.62rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -13484,11 +13563,11 @@ textarea:focus-visible,
     border-color: var(--accent) !important;
 }
 .ds-bespoke-opt-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-weight: 600;
 }
 .ds-bespoke-opt-detail {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.6rem;
     letter-spacing: 0.02em;
     opacity: 0.72;
@@ -13516,7 +13595,7 @@ textarea:focus-visible,
     box-shadow: var(--shadow-warm, 0 12px 30px -10px rgba(17, 17, 16, 0.2));
 }
 .ds-bespoke-spec-eyebrow {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     font-size: 1.05rem;
     color: var(--text);
@@ -13532,7 +13611,7 @@ textarea:focus-visible,
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.72rem;
     line-height: 1.4;
     border-bottom: 1px solid var(--line);
@@ -13567,14 +13646,14 @@ textarea:focus-visible,
     flex: 0 0 auto;
 }
 .ds-bespoke-spec-sync-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
 }
 .ds-bespoke-spec-sync-id {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.6rem;
     letter-spacing: 0.04em;
     color: var(--muted);
@@ -13629,7 +13708,7 @@ textarea:focus-visible,
 }
 
 .worksheet-client-id-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -13638,7 +13717,7 @@ textarea:focus-visible,
 }
 
 .worksheet-client-id-value {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -13647,7 +13726,7 @@ textarea:focus-visible,
 }
 
 .worksheet-client-id-note {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-style: italic;
     font-size: 0.92rem;
     color: var(--muted);
@@ -13666,7 +13745,7 @@ textarea:focus-visible,
     padding: 0.9rem 1.2rem;
     border-radius: 4px;
     box-shadow: 0 12px 32px rgba(17, 17, 16, 0.32);
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.86rem;
     line-height: 1.4;
     letter-spacing: 0.01em;
@@ -13699,7 +13778,7 @@ textarea:focus-visible,
 }
 
 .staff-today-label {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -13722,13 +13801,13 @@ textarea:focus-visible,
 .staff-today-row:last-child { border-bottom: none; }
 
 .staff-today-name {
-    font-family: "EB Garamond", Georgia, serif;
+    font-family: "Louize", Georgia, serif;
     font-size: 1.05rem;
     color: var(--text);
 }
 
 .staff-today-meta {
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.76rem;
     color: var(--bronze);
 }
@@ -13760,7 +13839,7 @@ textarea:focus-visible,
     align-items: center;
     gap: 0.3rem;
     margin-top: 0.9rem;
-    font-family: "Manrope", sans-serif;
+    font-family: "TT Commons", sans-serif;
     font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.02em;

@@ -5403,7 +5403,7 @@ function exportWorksheetPDF() {
     tempContainer.style.width = '800px';
     tempContainer.style.backgroundColor = '#ffffff';
     tempContainer.style.padding = '60px';
-    tempContainer.style.fontFamily = 'Manrope, sans-serif';
+    tempContainer.style.fontFamily = 'TT Commons, sans-serif';
     document.body.appendChild(tempContainer);
 
     setTimeout(function () {
@@ -5445,9 +5445,9 @@ function exportClientDossier() {
     var now = new Date();
     var dateLabel = now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
 
-    var pageStyle = 'width:800px; padding:70px 80px; background:#faf8f3; font-family:Manrope,sans-serif; color:#2a2218; box-sizing:border-box; min-height:1080px;';
+    var pageStyle = 'width:800px; padding:70px 80px; background:#faf8f3; font-family:"TT Commons",sans-serif; color:#2a2218; box-sizing:border-box; min-height:1080px;';
     var eyebrow = 'font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:#a8998a;';
-    var serif = "font-family:'EB Garamond',Georgia,serif;";
+    var serif = "font-family:'Louize',Georgia,serif;";
     var hairline = 'border:none; border-top:1px solid #ddd5c8; margin:28px 0;';
 
     // Page 1 — cover

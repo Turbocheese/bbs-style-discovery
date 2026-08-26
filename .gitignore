@@ -391,3 +391,11 @@ claude_logs/*.png
 # macOS Finder folder-view metadata — reappears any time someone drags
 # files in via Finder, never useful in git.
 .DS_Store
+
+# Raw font source archives (fonts/*.zip) — contain every weight/width the
+# foundry ships (condensed, expanded, mono, 18+ static weights each), most
+# unused. Only the subset+woff2 conversions actually loaded by styles.css
+# are tracked; keep the zips on disk locally for re-subsetting later, but
+# never commit them (10MB+ each, and the licensing terms on trial/desktop
+# font downloads don't cover redistributing the raw files anyway).
+fonts/*.zip
