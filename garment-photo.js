@@ -243,33 +243,31 @@ var JACKET_SB_COLLAR_RIGHT = [
 
 // The plain body panel (everywhere not covered by a lapel, collar, or
 // sleeve region) was left at the tile's native, unscaled pitch, while
-// JACKET_SB_SLEEVES_V2 above compresses the sleeves to strength 0.74 —
-// a "roundness" cue that's been the convention for every garment's
-// sleeves in this file from the start. A bold chalkstripe/check never
-// showed the mismatch; a fine pinstripe (pitch 12, scabal_pinstripe_
-// navy) made it obvious: the body measured pitch 12 (the cloth's own
-// true, defined value) against the sleeve's 9 (12 * 0.74). Founder
-// call: the sleeve's compressed size is the correct one, so the body
-// should match it, not the other way round — matches "anything that
-// isn't shaded should point up" (angle 0 here, same as the body's
-// previous default) with only the scale changed to follow the sleeve.
+// every JACKET_*_SLEEVES set in this file compresses the sleeves to
+// strength 0.74 — a "roundness" cue that's been the convention for
+// every garment's sleeves from the start. A bold chalkstripe/check
+// never showed the mismatch; a fine pinstripe (pitch 12, scabal_
+// pinstripe_navy) made it obvious on jacket-sb: the body measured
+// pitch 12 (the cloth's own true, defined value) against the sleeve's
+// 9 (12 * 0.74). Founder call: the sleeve's compressed size is the
+// correct one, so the body should match it, not the other way round —
+// matches "anything that isn't shaded should point up" (angle 0 here,
+// same as the body's previous default) with only the scale changed to
+// follow the sleeve.
+// One shared constant (26 Aug 2026, consolidated from three identical
+// per-garment copies — JACKET_SB_BODY_SCALE, JACKET_DB_BODY_SCALE,
+// JACKET_DB_PEAK_FLAP_BODY_SCALE all read `{x:0,y:0,w:1,h:1,angle:0,
+// strength:0.74}` verbatim, so there was nothing garment-specific to
+// keep separate) since every sleeve in this file shares the same
+// 0.74, and applied to every jacket key below, not just the three
+// that happened to get it first when the mismatch was originally
+// found and fixed only on jacket-sb/jacket-db/jacket-db-peak-flap.
 // One box spanning the whole canvas, no clip needed since there's
-// nothing outside it to blend into; positioned FIRST in jacket-sb's
-// DISPLACEMENT_REGIONS list below so every later, more specific region
-// (lapel 0.82, collar 0.82, sleeve 0.74) still draws its own distinct
-// scale on top of this one within its own clip, unchanged.
-var JACKET_SB_BODY_SCALE = [
-    { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
-];
-
-// Same body/sleeve pitch mismatch, same fix, for both DB garments —
-// JACKET_DB_SLEEVES and JACKET_DB_PEAK_FLAP_SLEEVES both already use
-// strength 0.74, so this reuses that exact value rather than
-// re-deriving it.
-var JACKET_DB_BODY_SCALE = [
-    { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
-];
-var JACKET_DB_PEAK_FLAP_BODY_SCALE = [
+// nothing outside it to blend into; positioned FIRST in every jacket's
+// DISPLACEMENT_REGIONS entry so every later, more specific region
+// (lapel, collar, sleeve, each at their own strength) still draws its
+// own distinct scale on top of this one within its own clip, unchanged.
+var JACKET_UNIFORM_BODY_SCALE = [
     { x: 0, y: 0, w: 1, h: 1, angle: 0, strength: 0.74 }
 ];
 
@@ -476,21 +474,24 @@ var DISPLACEMENT_REGIONS = {
     // to most-specific). jacket-sb's own order is now body, sleeve, red
     // lapel, purple lapel, right collar, left collar — matches the
     // founder's own numbered list exactly, not just "sleeves first."
-    "jacket-sb": JACKET_SB_BODY_SCALE.concat(JACKET_SB_SLEEVES_V2, JACKET_SB_LAPELS, JACKET_SB_COLLAR_RIGHT, JACKET_SB_COLLAR_LEFT),
-    "jacket-sb-peak-patch": JACKET_SLEEVES.concat(JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
-    "jacket-sb-peak-flap": JACKET_SLEEVES.concat(JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
-    "jacket-db": JACKET_DB_BODY_SCALE.concat(JACKET_DB_SLEEVES, JACKET_DB_LAPELS),
-    // The four below are new (23-24 Aug 2026) and have never had a lapel/collar
-    // trace — sleeves only, same reasoning as jacket-sb above.
-    "jacket-sb-notch-patch": JACKET_SB_NOTCH_PATCH_SLEEVES,
-    "jacket-db-peak-flap": JACKET_DB_PEAK_FLAP_BODY_SCALE.concat(JACKET_DB_PEAK_FLAP_SLEEVES),
-    "jacket-safari": JACKET_SAFARI_SLEEVES,
-    "jacket-chore": JACKET_CHORE_SLEEVES,
-    "jacket-a2": JACKET_A2_SLEEVES,
-    "jacket-trucker": JACKET_TRUCKER_SLEEVES,
-    "jacket-teba": JACKET_TEBA_SLEEVES,
-    "jacket-jungle": JACKET_JUNGLE_SLEEVES,
-    "jacket-sahariana": JACKET_SAHARIANA_SLEEVES,
+    "jacket-sb": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SB_SLEEVES_V2, JACKET_SB_LAPELS, JACKET_SB_COLLAR_RIGHT, JACKET_SB_COLLAR_LEFT),
+    "jacket-sb-peak-patch": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SLEEVES, JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
+    "jacket-sb-peak-flap": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SLEEVES, JACKET_SB_PEAK_LAPELS, JACKET_SB_PEAK_TIPS),
+    "jacket-db": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_DB_SLEEVES, JACKET_DB_LAPELS),
+    // The seven below have never had a lapel/collar trace — sleeves only,
+    // same reasoning as jacket-sb above. All now get JACKET_UNIFORM_BODY_
+    // SCALE too (26 Aug 2026) — the body/sleeve pitch mismatch a fine
+    // pinstripe exposed on jacket-sb applies identically here, since every
+    // one of these sleeve sets also uses strength 0.74.
+    "jacket-sb-notch-patch": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SB_NOTCH_PATCH_SLEEVES),
+    "jacket-db-peak-flap": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_DB_PEAK_FLAP_SLEEVES),
+    "jacket-safari": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SAFARI_SLEEVES),
+    "jacket-chore": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_CHORE_SLEEVES),
+    "jacket-a2": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_A2_SLEEVES),
+    "jacket-trucker": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_TRUCKER_SLEEVES),
+    "jacket-teba": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_TEBA_SLEEVES),
+    "jacket-jungle": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_JUNGLE_SLEEVES),
+    "jacket-sahariana": JACKET_UNIFORM_BODY_SCALE.concat(JACKET_SAHARIANA_SLEEVES),
 
     // A vest front is a flat panel with no sleeve to curve. It used to get
     // two tall bands either side of the buttons, which broke a check down

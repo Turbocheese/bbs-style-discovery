@@ -339,6 +339,40 @@ chalkstripe`: clean at every seam on both sides, sleeve's own bend
 still visible, no criss-cross, no scale mismatch. Full smoke suite
 green.
 
+**Eighth follow-up, 26 Aug 2026: same fixes, every garment.** Founder
+asked for the body/sleeve pitch fix and a gap/criss-cross audit across
+every garment, not just jacket-sb and the two DB jackets.
+
+Body/sleeve pitch: every `JACKET_*_SLEEVES` set in this file uses
+`strength: 0.74` (checked all of them), so the mismatch the pinstripe
+exposed on jacket-sb applies identically everywhere. Consolidated the
+three now-identical per-garment copies (`JACKET_SB_BODY_SCALE`,
+`JACKET_DB_BODY_SCALE`, `JACKET_DB_PEAK_FLAP_BODY_SCALE` all read the
+exact same `{x:0,y:0,w:1,h:1,angle:0,strength:0.74}`) into one shared
+`JACKET_UNIFORM_BODY_SCALE`, and added it to the nine garments that
+didn't have it: `jacket-sb-peak-patch`, `jacket-sb-peak-flap`,
+`jacket-sb-notch-patch`, `jacket-safari`, `jacket-chore`, `jacket-a2`,
+`jacket-trucker`, `jacket-teba`, `jacket-jungle`, `jacket-sahariana`.
+
+Gap/criss-cross: checked, not assumed. Thresholding each shipped
+asset's alpha for a suspicious opaque near-white region (the jacket-sb
+gap's own signature) returned tens of thousands of pixels on every
+casual jacket — too loose a test, just catching legitimate bright
+fabric, not a real defect. Switched to direct visual inspection instead
+(cropped underarm composites against a coloured background, all nine
+side by side): none show the enclosed-background-island gap jacket-sb
+and jacket-db-peak-flap had — consistent with several of these being
+worn-model photos rather than ghost-mannequin shots, which don't
+produce that kind of gap. Rendered all nine with `scabal_pinstripe_
+navy` and spot-checked the sleeve/body seam directly (including both
+raglan-cut garments, A2 and Teba, whose diagonal seam geometry differs
+most from jacket-sb's set-in sleeve): no visible criss-cross on any of
+them, so no sleeve-clip retrace was needed here — jacket-sb's box
+happened to overreach into torso for its specific photo; these nine
+don't show the same problem for theirs.
+
+Full smoke suite green after the DISPLACEMENT_REGIONS changes.
+
 **Founder correction (23 Aug 2026): the shipped notch lapel reads too
 narrow. Widen it to at least 4" (≈10cm) at its widest point** — still a
 true notch (clean V where collar meets lapel), not a peak, just cut fuller
